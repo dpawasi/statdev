@@ -60,6 +60,10 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    def get_short_name(self):
+        if self.first_name:
+            return self.first_name
+        return self.email
 
 # Profile
 # Organisation
