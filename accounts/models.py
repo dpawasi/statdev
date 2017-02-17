@@ -59,3 +59,8 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+# Profile
+# Organisation
+# Address

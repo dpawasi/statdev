@@ -24,10 +24,13 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.gis',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'accounts',
+    'applications',
 ]
 
 MIDDLEWARE = [
@@ -61,13 +64,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'statdev.wsgi.application'
 
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+# Database configuration
+DATABASES = {'default': database.config()}
 
 
 # Password validation
