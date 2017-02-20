@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from accounts.models import EmailUser
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
 
@@ -24,6 +25,9 @@ class Application(ActiveMixin):
     project_no = models.CharField(max_length=256, null=True, blank=True)
     related_permits = models.TextField(null=True, blank=True)
     over_water = models.BooleanField(default=False)
+
+    def get_absolute_url(self):
+        return reverse('application_detail', args=(self.pk,))
 
 
 class Location(ActiveMixin):
