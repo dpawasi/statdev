@@ -1,0 +1,10 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<h1>New Application</h1>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="button" />
+</form>
+{% endblock %}

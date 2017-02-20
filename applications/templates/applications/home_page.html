@@ -1,0 +1,10 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<h1>{{ page_heading }}</h1>
+<p>{{ page_content }}</p>
+<ul>
+    <li><a href="{% url 'application_list' %}">List all applications</a></li>
+    <li><a href="{% url 'application_create' %}">Create a new application</a></li>
+</ul>
+{% endblock %}

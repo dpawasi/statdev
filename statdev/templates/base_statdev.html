@@ -1,0 +1,29 @@
+{% extends "webtemplate_dpaw/base.html" %}
+{% load static from staticfiles %}
+
+{% block navbar_site_title %}<a class="navbar-brand" href="/">Statutory Development</a>{% endblock %}
+{% block navbar_button %}{% endblock %}
+{% block navbar_links %}{% endblock %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <!-- Messages  -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-xs-12">
+            {% for message in messages %}
+            <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
+                {{ message|safe }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xs-12">
+            {% block page_content_inner %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

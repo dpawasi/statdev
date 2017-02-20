@@ -1,0 +1,6 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<h1>Application {{ object.pk }}</h1>
+<p>{{ object.get_app_type_display }}</p>
+{% endblock %}
