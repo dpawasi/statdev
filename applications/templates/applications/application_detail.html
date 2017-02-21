@@ -2,5 +2,14 @@
 
 {% block page_content_inner %}
 <h1>Application {{ object.pk }}</h1>
-<p>{{ object.get_app_type_display }}</p>
+<p>Submitted: {{ object.submit_date|date:"d-M-Y" }}</p>
+<p>Type: {{ object.get_app_type_display }}</p>
+<p>Title: {{ object.title }}</p>
+<p>Description: {{ object.description }}</p>
+<h2>Tasks:</h2>
+<ul>
+    {% for task in object.task_set.all %}
+    <li>{{ task.get_task_type_display }} ({{ task.get_status_display }}) - assigned to {{ task.assignee }} <a href="">Reassign</a> <a href="">Complete</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}

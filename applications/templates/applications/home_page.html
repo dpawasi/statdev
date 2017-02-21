@@ -2,9 +2,16 @@
 
 {% block page_content_inner %}
 <h1>{{ page_heading }}</h1>
-<p>{{ page_content }}</p>
 <ul>
     <li><a href="{% url 'application_list' %}">List all applications</a></li>
     <li><a href="{% url 'application_create' %}">Create a new application</a></li>
 </ul>
+{% if tasks %}
+<h2>My ongoing tasks:</h2>
+<ul>
+    {% for task in tasks %}
+    <li><a href="{% url 'application_detail' task.application.pk %}">Application {{ task.application.pk }} ({{ task.application.get_app_type_display }})</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
 {% endblock %}
