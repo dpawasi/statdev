@@ -1,7 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.forms import ModelForm
-from .models import Application
+from .models import Application, Task
 
 
 class ApplicationForm(ModelForm):
@@ -21,3 +21,18 @@ class ApplicationForm(ModelForm):
         self.helper.field_class = 'col-lg-11 col-md-10'
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class TaskReassignForm(ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['assignee', ]
+
+    def __init__(self, *args, **kwargs):
+        super(TaskReassignForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.add_input(Submit('reassign', 'Reassign', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.fields['assignee'].required = True
+        # TODO: business logic to limit the assignee queryset.
