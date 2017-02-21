@@ -10,7 +10,7 @@
 <h2>My ongoing tasks:</h2>
 <ul>
     {% for task in tasks %}
-    <li><a href="{% url 'application_detail' task.application.pk %}">Application {{ task.application.pk }} ({{ task.application.get_app_type_display }})</a></li>
+    <li><a href="{% url 'application_detail' task.application.pk %}">Application {{ task.application.pk }} ({{ task.application.get_app_type_display }}) - {{ task.get_task_type_display }} ({{ task.get_status_display }})</a> <a href="{% url 'task_reassign' task.pk  %}">Reassign</a></li>
     {% endfor %}
 </ul>
 {% endif %}

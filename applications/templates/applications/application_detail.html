@@ -9,7 +9,7 @@
 <h2>Tasks:</h2>
 <ul>
     {% for task in object.task_set.all %}
-    <li>{{ task.get_task_type_display }} ({{ task.get_status_display }}) - assigned to {{ task.assignee }} <a href="">Reassign</a> <a href="">Complete</a></li>
+    <li>{{ task.pk }} {{ task.get_task_type_display }} ({{ task.get_status_display }}) - assigned to {{ task.assignee }} <a href="{% url 'task_reassign' task.pk  %}">Reassign</a> <a href="">Complete</a></li>
     {% endfor %}
 </ul>
 {% endblock %}

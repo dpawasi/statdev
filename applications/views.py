@@ -1,7 +1,8 @@
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Task
-from .forms import ApplicationForm
+from .forms import ApplicationForm, TaskReassignForm
 
 
 class HomePage(TemplateView):
@@ -37,3 +38,22 @@ class ApplicationCreate(CreateView):
             application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
             status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class TaskReassign(UpdateView):
+    model = Task
+    form_class = TaskReassignForm
+    template_name = 'applications/task_form.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check that task can be reassigned.
+        return super(TaskReassign, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # TODO: business logic to ensure valid assignee.
+        return super(TaskReassign, self).form_valid(form)
+
+    def get_success_url(self):
+        """Override to redirect to the task's parent application detail view.
+        """
+        return reverse('application_detail', args=(self.object.application.pk,))
