@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, ListView, DetailView, CreateView
 from .models import Application
+from .forms import ApplicationForm
 
 
 class HomePage(TemplateView):
@@ -21,5 +22,5 @@ class ApplicationDetail(DetailView):
 
 
 class ApplicationCreate(CreateView):
-    model = Application
-    fields = ['app_type', 'title', 'description', 'submit_date']
+    form_class = ApplicationForm
+    template_name = 'applications/application_form.html'

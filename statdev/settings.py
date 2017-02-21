@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'crispy_forms',
     'webtemplate_dpaw',
     'accounts',
     'applications',
@@ -148,3 +149,6 @@ LOGGING = {
         },
     }
 }
+
+# django-crispy-forms
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
