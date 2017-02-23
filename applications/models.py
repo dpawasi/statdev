@@ -36,6 +36,27 @@ class Document(ActiveMixin):
 
 
 @python_2_unicode_compatible
+class Vessel(ActiveMixin):
+    """This model represents a vessel/craft that will be used
+    in relation to the application
+    """
+    VESSEL_TYPE_CHOICES = Choices(
+        (0, 'vessel', ('Vessel')),
+        (1, 'craft', ('Craft')),
+    )
+
+    vessel_type = models.SmallIntegerField(choices=VESSEL_TYPE_CHOICES)
+    name = models.CharField(max_length=256)
+    vessel_id = models.CharField(max_length=256)
+    registration = models.ManyToManyField(Document)
+    size = models.IntegerField()
+    engine = models.IntegerField()
+    passenger_capacity = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+@python_2_unicode_compatible
 class Application(ActiveMixin):
     """This model represents an application by a customer to P&W for a single
     permit, licence/permit, part 5, etc.
@@ -60,6 +81,7 @@ class Application(ActiveMixin):
     related_permits = models.TextField(null=True, blank=True)
     over_water = models.BooleanField(default=False)
     documents = models.ManyToManyField(Document, blank=True)
+    vessels = models.ManyToManyField(Vessel)
     # TODO: Vessel details
 
     def __str__(self):
@@ -140,3 +162,7 @@ class Task(ActiveMixin):
 
     def __str__(self):
         return 'Task {}: {} ({})'.format(self.pk, self.get_task_type_display(), self.get_status_display())
+
+
+
+
