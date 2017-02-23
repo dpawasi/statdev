@@ -23,10 +23,10 @@ class Address(models.Model):
         (8, 'wa', ('WA')),
     )
     line1 = models.CharField('Line 1', max_length=255)
-    line2 = models.CharField('Line 2', max_length=255, blank=True)
-    locality = models.CharField('Suburb / Town', max_length=255)
+    line2 = models.CharField('Line 2', max_length=255, blank=True, null=True)
+    locality = models.CharField('Suburb / Town', max_length=255, blank=True, null=True)
     state = models.CharField(max_length=255, choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
-    postcode = models.CharField(max_length=4)
+    postcode = models.CharField(max_length=4, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'addresses'
@@ -42,7 +42,7 @@ class Address(models.Model):
     def active_address_fields(self):
         """Return non-empty components of the address.
         """
-        fields = [self.line1, self.line2, self.locality, self.state, self.postcode]
+        fields = [self.line1, self.line2, self.locality, self.get_state_display(), self.postcode]
         return [str(f).strip() for f in fields if f]
 
 
