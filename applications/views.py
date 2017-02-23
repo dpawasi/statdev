@@ -21,10 +21,6 @@ class ApplicationList(ListView):
     model = Application
 
 
-class ApplicationDetail(DetailView):
-    model = Application
-
-
 class ApplicationCreate(CreateView):
     form_class = ApplicationForm
     template_name = 'applications/application_form.html'
@@ -38,6 +34,15 @@ class ApplicationCreate(CreateView):
             application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
             status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ApplicationDetail(DetailView):
+    model = Application
+
+
+class ApplicationUpdate(UpdateView):
+    model = Application
+    form_class = ApplicationForm
 
 
 class TaskReassign(UpdateView):

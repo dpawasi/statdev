@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
     url(r'^applications/(?P<pk>\d+)/$', views.ApplicationDetail.as_view(), name='application_detail'),
+    url(r'^applications/(?P<pk>\d+)/update/$', views.ApplicationUpdate.as_view(), name='application_update'),
     url(r'^tasks/(?P<pk>\d+)/reassign/$', views.TaskReassign.as_view(), name='task_reassign'),
 ]

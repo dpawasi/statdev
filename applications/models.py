@@ -83,6 +83,7 @@ class Location(ActiveMixin):
     lga = models.CharField(max_length=256, null=True, blank=True)
     poly = models.PolygonField(null=True, blank=True)
     documents = models.ManyToManyField(Document, blank=True)
+    # TODO: certificate of title fields (ref. screen 30)
 
     def __str__(self):
         return 'Location {} ({})'.format(self.pk, self.application)
