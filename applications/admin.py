@@ -1,23 +1,28 @@
 from django.contrib import admin
 from django.contrib.admin import register
-from .models import Application, Location, Condition, Task
+from .models import Document, Application, Location, Condition, Task
+
+
+@register(Document)
+class DocumentAdmin(admin.ModelAdmin):
+    pass
 
 
 @register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    pass
+    filter_horizontal = ('documents',)
 
 
 @register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    pass
+    filter_horizontal = ('documents',)
 
 
 @register(Condition)
 class ConditionAdmin(admin.ModelAdmin):
-    pass
+    filter_horizontal = ('documents',)
 
 
 @register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    pass
+    filter_horizontal = ('documents',)
