@@ -1,21 +1,13 @@
-from django.test import Client, TestCase
+from __future__ import unicode_literals
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from datetime import date
+from django.test import Client, TestCase
 from mixer.backend.django import mixer
-import random
-import string
 
+from accounts.utils import random_dpaw_email
 from .models import Application, Task
 
 User = get_user_model()
-
-
-def random_dpaw_email():
-    """Return a random email address ending in dpaw.wa.gov.au
-    """
-    s = ''.join(random.choice(string.ascii_letters) for i in range(20))
-    return '{}@dpaw.wa.gov.au'.format(s)
 
 
 class ApplicationTest(TestCase):

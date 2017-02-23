@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from accounts.models import EmailUser
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
@@ -8,6 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
 
+from accounts.models import Organisation
 
 @python_2_unicode_compatible
 class Document(ActiveMixin):
@@ -45,7 +46,8 @@ class Application(ActiveMixin):
         (3, 'part5', ('Part 5')),
         (4, 'emergency', ('Emergency works')),
     )
-    # TODO: applicant/submitter
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
+    organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
     app_type = models.IntegerField(choices=APP_TYPE_CHOICES)
     state = models.CharField(max_length=64, default='draft', editable=False)
     title = models.CharField(max_length=256)
@@ -77,6 +79,7 @@ class Location(ActiveMixin):
     reserve = models.CharField(max_length=256, null=True, blank=True)
     suburb = models.CharField(max_length=256, null=True, blank=True)
     intersection = models.CharField(max_length=256, null=True, blank=True)
+    # TODO: validation related to LGA name (possible FK).
     lga = models.CharField(max_length=256, null=True, blank=True)
     poly = models.PolygonField(null=True, blank=True)
     documents = models.ManyToManyField(Document, blank=True)
@@ -127,7 +130,7 @@ class Task(ActiveMixin):
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
     task_type = models.IntegerField(choices=TASK_TYPE_CHOICES)
     status = models.IntegerField(choices=TASK_STATUS_CHOICES)
-    assignee = models.ForeignKey(EmailUser, blank=True, null=True, on_delete=models.PROTECT)
+    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
     description = models.TextField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)

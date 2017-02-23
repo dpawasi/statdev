@@ -2,8 +2,48 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.signals import user_logged_in
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from model_utils import Choices
+
+
+@python_2_unicode_compatible
+class Address(models.Model):
+    """This model represents an Australian address (physical or mailing).
+    """
+    AU_STATE_CHOICES = Choices(
+        (1, 'act', ('ACT')),
+        (2, 'nsw', ('NSW')),
+        (3, 'nt', ('NT')),
+        (4, 'qld', ('QLD')),
+        (5, 'sa', ('SA')),
+        (6, 'tas', ('TAS')),
+        (7, 'vic', ('VIC')),
+        (8, 'wa', ('WA')),
+    )
+    line1 = models.CharField('Line 1', max_length=255)
+    line2 = models.CharField('Line 2', max_length=255, blank=True, null=True)
+    locality = models.CharField('Suburb / Town', max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=255, choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
+    postcode = models.CharField(max_length=4, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = 'addresses'
+
+    def __str__(self):
+        return self.summary()
+
+    def summary(self):
+        """Returns a single string summary of the address, separating fields using commas.
+        """
+        return ', '.join(self.active_address_fields())
+
+    def active_address_fields(self):
+        """Return non-empty components of the address.
+        """
+        fields = [self.line1, self.line2, self.locality, self.get_state_display(), self.postcode]
+        return [str(f).strip() for f in fields if f]
 
 
 class EmailUserManager(BaseUserManager):
@@ -65,6 +105,51 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
             return self.first_name
         return self.email
 
-# Profile
-# Organisation
-# Address
+
+@python_2_unicode_compatible
+class EmailUserProfile(models.Model):
+    """This model represents a 1-to-1 profile for an EmailUser object,
+    containing additional information about a user.
+    """
+    emailuser = models.OneToOneField(EmailUser)
+    dob = models.DateField(null=True, blank=False, verbose_name='date of birth')
+    # TODO: business logic related to identification file upload/changes.
+    identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
+    id_verified = models.DateField(null=True, blank=False, verbose_name='ID verified')
+    home_phone = models.CharField(max_length=50, null=True, blank=True)
+    work_phone = models.CharField(max_length=50, null=True, blank=True)
+    mobile = models.CharField(max_length=50, null=True, blank=True)
+    postal_address = models.ForeignKey(Address, related_name='user_postal_address', blank=True, null=True)
+    billing_address = models.ForeignKey(Address, related_name='user_billing_address', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'user profile'
+        verbose_name_plural = 'user profiles'
+
+    def __str__(self):
+        return '{}'.format(self.emailuser.email)
+
+
+def get_user_profile(**kwargs):
+    EmailUserProfile.objects.get_or_create(emailuser=kwargs['user'])
+
+# Use user_logged_in signal to ensure that user profile exists
+user_logged_in.connect(get_user_profile)
+
+
+@python_2_unicode_compatible
+class Organisation(models.Model):
+    """This model represents the details of a company or other organisation.
+    Management of these objects will be delegated to 0+ EmailUsers.
+    """
+    name = models.CharField(max_length=128)
+    abn = models.CharField(max_length=50, null=True, blank=True)
+    # TODO: business logic related to identification file upload/changes.
+    identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
+    postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True)
+    billing_address = models.ForeignKey(Address, related_name='org_billing_address', blank=True, null=True)
+    # TODO: business logic related to delegate changes.
+    delegates = models.ManyToManyField(EmailUserProfile, blank=True)
+
+    def __str__(self):
+        return self.name
