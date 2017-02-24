@@ -7,12 +7,29 @@
 <p>Title: {{ object.title }}</p>
 <p>Description: {{ object.description }}</p>
 <p>Status: {{ object.state }}</p>
-<h2>Tasks:</h2>
+
+<h2>Referrals:</h2>
+{% if object.referral_set.exists %}
 <ul>
-    {% for task in object.task_set.all %}
-    <li>{{ task.pk }} {{ task.get_task_type_display }} ({{ task.get_status_display }}) - assigned to {{ task.assignee }} <a href="{% url 'task_reassign' task.pk  %}">Reassign</a> <a href="">Complete</a></li>
+    {% for referral in object.referral_set.all %}
+    <li>Referral {{ referral.pk }} to {{ referral.referee }} <a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a></li>
     {% endfor %}
 </ul>
+{% else %}
+<p>None</p>
+{% endif %}
+
+<h2>Tasks:</h2>
+{% if object.task_set.exists %}
+<ul>
+    {% for task in object.task_set.all %}
+    <li>Task {{ task.pk }} {{ task.get_task_type_display }} ({{ task.get_status_display }}) - assigned to {{ task.assignee }} <a href="{% url 'task_reassign' task.pk  %}">Reassign</a> <a href="">Complete</a></li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>None</p>
+{% endif %}
+
 <h2>Actions:</h2>
 <ul>
     {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
