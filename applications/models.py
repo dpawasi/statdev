@@ -56,6 +56,15 @@ class Vessel(ActiveMixin):
     def __str__(self):
         return self.name
 
+
+@python_2_unicode_compatible
+class ApplicationPurpose(ActiveMixin):
+    purpose = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.purpose
+
+
 @python_2_unicode_compatible
 class Application(ActiveMixin):
     """This model represents an application by a customer to P&W for a single
@@ -67,6 +76,13 @@ class Application(ActiveMixin):
         (3, 'part5', ('Part 5')),
         (4, 'emergency', ('Emergency works')),
     )
+
+    APP_LOCATION_CHOICES = Choices(
+        (0, 'onland', ('On Land')),
+        (1, 'onwater', ('On Water')),
+        (2, 'both', ('Both')),
+    )
+
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
     app_type = models.IntegerField(choices=APP_TYPE_CHOICES)
@@ -81,9 +97,33 @@ class Application(ActiveMixin):
     project_no = models.CharField(max_length=256, null=True, blank=True)
     related_permits = models.TextField(null=True, blank=True)
     over_water = models.BooleanField(default=False)
-    documents = models.ManyToManyField(Document, blank=True)
-    vessels = models.ManyToManyField(Vessel)
-    # TODO: Vessel details
+    documents = models.ManyToManyField(Document, blank=True, related_name='documents')
+    vessels = models.ManyToManyField(Vessel, blank=True)
+    purpose = models.ForeignKey(ApplicationPurpose, null=True, blank=True)
+    max_participants = models.IntegerField(null=True, blank=True)
+    proposed_location = models.SmallIntegerField(choices=APP_LOCATION_CHOICES, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    location_route_access = models.ForeignKey(Document, null=True, blank=True, related_name='location_route_access')
+    jetties = models.TextField(null=True, blank=True)
+    jetty_dot_approval = models.NullBooleanField(default=None)
+    jetty_dot_approval_expiry = models.DateField(null=True, blank=True)
+    drop_off_pick_up = models.TextField(null=True, blank=True)
+    food = models.NullBooleanField(default=None)
+    beverage = models.NullBooleanField(default=None)
+    byo_alcohol = models.NullBooleanField(default=None)
+    sullage_disposal = models.TextField(null=True, blank=True)
+    waste_disposal = models.TextField(null=True, blank=True)
+    refuel_location_method = models.TextField(null=True, blank=True)
+    berth_location = models.TextField(null=True, blank=True)
+    anchorage = models.TextField(null=True, blank=True)
+    operating_details = models.TextField(null=True, blank=True)
+    cert_survey = models.ForeignKey(Document, blank=True, null=True, related_name='cert_survey')
+    cert_public_liability_insurance = models.ForeignKey(Document, blank=True, null=True, related_name='cert_public_liability_insurace')
+    risk_mgmt_plan = models.ForeignKey(Document, blank=True, null=True, related_name='risk_mgmt_plan')
+    safety_mgmt_procedures = models.ForeignKey(Document, blank=True, null=True, related_name='safety_mgmt_plan')
+    brochures_itineries_adverts = models.ManyToManyField(Document, blank=True, related_name='brochures_itineries_adverts')
+    other_supporting_docs = models.ManyToManyField(Document, blank=True, related_name='other_supporting_docs')
+    
 
     def __str__(self):
         return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.state)
