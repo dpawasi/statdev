@@ -145,9 +145,30 @@ class Location(ActiveMixin):
     lga = models.CharField(max_length=256, null=True, blank=True)
     poly = models.PolygonField(null=True, blank=True)
     documents = models.ManyToManyField(Document, blank=True)
+    # TODO: certificate of title fields (ref. screen 30)
 
     def __str__(self):
         return 'Location {} ({})'.format(self.pk, self.application)
+
+
+@python_2_unicode_compatible
+class Referral(ActiveMixin):
+    """This model represents a referral of an application to a referee
+    (external or internal) for comment/conditions.
+    """
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    referee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    sent_date = models.DateField()
+    period = models.PositiveIntegerField(verbose_name='period (days)')
+    response_date = models.DateField(blank=True, null=True)
+    feedback = models.TextField(blank=True, null=True)
+    documents = models.ManyToManyField(Document, blank=True)
+
+    class Meta:
+        unique_together = ('application', 'referee')
+
+    def __str__(self):
+        return 'Referral {} to {} ({})'.format(self.pk, self.referee, self.application)
 
 
 @python_2_unicode_compatible
@@ -162,6 +183,7 @@ class Condition(ActiveMixin):
     )
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
     condition = models.TextField(blank=True, null=True)
+    referral = models.ForeignKey(Referral, null=True, blank=True, on_delete=models.PROTECT)
     status = models.IntegerField(choices=CONDITION_STATUS_CHOICES, default=CONDITION_STATUS_CHOICES.proposed)
     documents = models.ManyToManyField(Document, blank=True)
     # TODO: Parent condition (self-reference from proposed condition)

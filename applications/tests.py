@@ -37,6 +37,13 @@ class ApplicationTest(TestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
+    def test_detail_application_view_get(self):
+        """Test the application detail view renders
+        """
+        url = reverse('application_detail', args=(self.app1.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
+
     def test_create_application_view_get(self):
         """Test the application create view renders
         """
@@ -47,9 +54,13 @@ class ApplicationTest(TestCase):
     def test_create_application_view_post(self):
         """Test the application create view accepts a valid POST
         """
+        count = Application.objects.count()
         url = reverse('application_create')
-        resp = self.client.post(url, {'app_type': 1, 'title': 'foo', 'submit_date': '2017/01/01'})
-        self.assertEquals(resp.status_code, 200)
+        resp = self.client.post(url, {'app_type': 1, 'title': 'foo', 'submit_date': '1/1/2017'})
+        # Create view will redirect to the detail view.
+        self.assertEquals(resp.status_code, 302)
+        # Test that a new object has been created.
+        self.assertTrue(Application.objects.count() > count)
 
     def test_reassign_task_view_get(self):
         """Test the reassign task view renders

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import register
-from .models import Document, Application, Location, Condition, Task
+from .models import Document, Application, Location, Referral, Condition, Task
 
 
 @register(Document)
@@ -15,6 +15,11 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 @register(Location)
 class LocationAdmin(admin.ModelAdmin):
+    filter_horizontal = ('documents',)
+
+
+@register(Referral)
+class ReferralAdmin(admin.ModelAdmin):
     filter_horizontal = ('documents',)
 
 
