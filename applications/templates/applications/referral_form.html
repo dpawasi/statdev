@@ -1,0 +1,15 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content_inner %}
+
+<h1>Referral application {{ application.pk }} for conditions/comment:</h1>
+<p>Applicant: {{ application.applicant }}</p>
+<p>Submitted: {{ application.submit_date|date:"d-M-Y" }}</p>
+<p>Type: {{ application.get_app_type_display }}</p>
+<p>Title: {{ application.title }}</p>
+<p>Description: {{ application.description }}</p>
+
+{% crispy form %}
+
+{% endblock %}

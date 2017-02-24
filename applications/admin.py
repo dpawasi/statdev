@@ -11,6 +11,7 @@ class DocumentAdmin(admin.ModelAdmin):
 @register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
     filter_horizontal = ('documents',)
+    list_display = ('app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date')
 
 
 @register(Location)

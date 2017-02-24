@@ -70,6 +70,7 @@ class Application(ActiveMixin):
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
     app_type = models.IntegerField(choices=APP_TYPE_CHOICES)
+    # TODO: alter state to be a choice field.
     state = models.CharField(max_length=64, default='draft', editable=False)
     title = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
@@ -118,6 +119,7 @@ class Referral(ActiveMixin):
     """
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     referee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    # TODO: details text field
     sent_date = models.DateField()
     period = models.PositiveIntegerField(verbose_name='period (days)')
     response_date = models.DateField(blank=True, null=True)
