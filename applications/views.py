@@ -1,8 +1,10 @@
+from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Task
-from .forms import ApplicationForm, TaskReassignForm
+from .forms import ApplicationForm, ApplicationLodgeForm, TaskReassignForm
 
 
 class HomePage(TemplateView):
@@ -21,22 +23,51 @@ class ApplicationList(ListView):
     model = Application
 
 
-class ApplicationDetail(DetailView):
-    model = Application
-
-
 class ApplicationCreate(CreateView):
     form_class = ApplicationForm
     template_name = 'applications/application_form.html'
 
+
+class ApplicationDetail(DetailView):
+    model = Application
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationDetail, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # Business rule: if the application status is 'draft', it can be lodged.
+        if app.state == 'draft':
+            context['may_lodge'] = True
+        return context
+
+
+class ApplicationUpdate(UpdateView):
+    model = Application
+    form_class = ApplicationForm
+
+
+class ApplicationLodge(UpdateView):
+    model = Application
+    form_class = ApplicationLodgeForm
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be lodged.
+        # Business rules: application state must be 'draft'.
+        app = self.get_object()
+        if app.state != 'draft':
+            messages.error(self.request, 'This application cannot be lodged!')
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationLodge, self).get(request, *args, **kwargs)
+
     def form_valid(self, form):
         """Override form_valid to generate an "Assess" task on the new
-        application, assigned to the request user.
+        application (no assignee) and change its status.
         """
-        self.object = form.save()
+        app = self.get_object()
+        app.state = 'with admin'
+        app.save()
         Task.objects.create(
             application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
-            status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
+            status=Task.TASK_STATUS_CHOICES.ongoing)
         return HttpResponseRedirect(self.get_success_url())
 
 

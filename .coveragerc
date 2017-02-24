@@ -1,0 +1,8 @@
+[report]
+omit =
+    */migrations/*
+    */test_*
+    */management/commands/*
+    */__init__.py
+    statdev/wsgi.py
+    statdev/settings.py
