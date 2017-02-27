@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from .models import Application, Referral, Task
+from .models import Application, Referral, Condition
 
 
 User = get_user_model()
@@ -27,9 +27,8 @@ class ApplicationForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicationForm, self).__init__(*args, **kwargs)
-        self.helper = BaseFormHelper(self)
+        self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_application'
-        self.helper.form_action = 'application_create'  # Calls reverse().
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
@@ -67,6 +66,7 @@ class ReferralForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_referral_create'
         # Limit the referee queryset.
         referee = Group.objects.get_or_create(name='Referee')[0]
         self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
@@ -76,6 +76,49 @@ class ReferralForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
+class ConditionCreateForm(ModelForm):
+
+    class Meta:
+        model = Condition
+        fields = ['condition', ]
+
+    def __init__(self, *args, **kwargs):
+        super(ConditionCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.fields['condition'].required = True
+
+
+class ApplicationAssignForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationAssignForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_application'
+        # Limit the assignee queryset.
+        assessor = Group.objects.get_or_create(name='Assessor')[0]
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[assessor])
+        self.fields['assignee'].required = True
+        # Disable all form fields.
+        for k in self.fields.iterkeys():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for assessment:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+'''
 class TaskReassignForm(ModelForm):
 
     class Meta:
@@ -89,3 +132,4 @@ class TaskReassignForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         self.fields['assignee'].required = True
         # TODO: business logic to limit the assignee queryset.
+'''

@@ -3,7 +3,12 @@
 
 {% block navbar_site_title %}<a class="navbar-brand" href="/">Statutory Development</a>{% endblock %}
 {% block navbar_button %}{% endblock %}
-{% block navbar_links %}{% endblock %}
+
+{% block navbar_links %}
+{% block navbar_auth %}
+<li>{{ user.email }}</li>
+{% endblock %}
+{% endblock %}
 
 {% block page_content %}
 <div class="container-fluid">

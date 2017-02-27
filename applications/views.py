@@ -6,8 +6,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
-from .models import Application, Referral, Task
-from .forms import ApplicationForm, ApplicationLodgeForm, ReferralForm, TaskReassignForm
+from .models import Application, Referral, Condition, Task
+from .forms import (
+    ApplicationForm, ApplicationLodgeForm, ReferralForm, ConditionCreateForm,
+    ApplicationAssignForm)
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -19,6 +21,11 @@ class HomePage(LoginRequiredMixin, TemplateView):
         context['page_heading'] = 'Home Page'
         context['tasks'] = Task.objects.filter(
             status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
+        processor = Group.objects.get_or_create(name='Processor')[0]
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            context['may_create'] = True
+        if Referral.objects.filter(referee=self.request.user).exists():
+            context['referrals'] = Referral.objects.filter(referee=self.request.user)
         return context
 
 
@@ -44,6 +51,14 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         context['page_heading'] = 'Create new application'
         return context
 
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        self.object.assignee = self.request.user
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class ApplicationDetail(DetailView):
     model = Application
@@ -51,15 +66,22 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
-        # Rule: if the application status is 'draft', it can be updated.
-        # Rule: if the application status is 'draft', it can be lodged.
-        if app.state == app.APP_STATE_CHOICES.draft:
-            context['may_update'] = True
-            context['may_lodge'] = True
-        # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
-            context['may_refer'] = True
+        processor = Group.objects.get_or_create(name='Processor')[0]
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            # Rule: if the application status is 'draft', it can be updated.
+            # Rule: if the application status is 'draft', it can be lodged.
+            if app.state == app.APP_STATE_CHOICES.draft:
+                context['may_update'] = True
+                context['may_lodge'] = True
+            # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+                context['may_refer'] = True
+        assessor = Group.objects.get_or_create(name='Assessor')[0]
+        if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
+            # Rule: if the application status is 'with assessor', it can have conditions added.
+            if app.state == app.APP_STATE_CHOICES.with_assessor:
+                context['may_create_condition'] = True
         return context
 
 
@@ -102,6 +124,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """
         app = self.get_object()
         app.state = app.APP_STATE_CHOICES.with_admin
+        app.assignee = None
         app.save()
         Task.objects.create(
             application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
@@ -155,6 +178,57 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         return super(ApplicationRefer, self).form_valid(form)
 
 
+class ConditionCreate(LoginRequiredMixin, CreateView):
+    """A view for a referee or an internal user to create a Condition object
+    on an Application.
+    """
+    model = Condition
+    form_class = ConditionCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ConditionCreate, self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        """Override to redirect to the condition's parent application detail view.
+        """
+        return reverse('application_detail', args=(self.object.application.pk,))
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check that a condition can be created.
+        return super(ConditionCreate, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        self.object = form.save(commit=False)
+        self.object.application = app
+        # If a referral exists for the parent application for this user,
+        # link that to the new condition.
+        if Referral.objects.filter(application=app, referee=self.request.user).exists():
+            self.object.referral = Referral.objects.get(application=app, referee=self.request.user)
+            # TODO: record some feedback on the referral.
+        return super(ConditionCreate, self).form_valid(form)
+
+
+class ApplicationAssign(LoginRequiredMixin, UpdateView):
+    """A view to allow an application to be assigned to an assessor.
+    """
+    model = Application
+    form_class = ApplicationAssignForm
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be assigned.
+        return super(ApplicationAssign, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+'''
 class TaskReassign(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskReassignForm
@@ -172,3 +246,4 @@ class TaskReassign(LoginRequiredMixin, UpdateView):
         """Override to redirect to the task's parent application detail view.
         """
         return reverse('application_detail', args=(self.object.application.pk,))
+'''

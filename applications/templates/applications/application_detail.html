@@ -7,18 +7,34 @@
 <p>Title: {{ object.title }}</p>
 <p>Description: {{ object.description }}</p>
 <p>Status: {{ object.get_state_display }}</p>
+<p>Assignee: {{ object.assignee }}</p>
 
 <h2>Referrals:</h2>
 {% if object.referral_set.exists %}
 <ul>
-    {% for referral in object.referral_set.all %}
-    <li>Referral {{ referral.pk }} to {{ referral.referee }} <a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a></li>
+    {% for ref in object.referral_set.all %}
+    <li>Referral {{ ref.pk }} to {{ ref.referee }}
+        {% if may_refer %}<a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>{% endif %}
+        {% if ref.referee == user %}<a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished{% endif %}
+    </li>
     {% endfor %}
 </ul>
 {% else %}
 <p>None</p>
 {% endif %}
 
+<h2>Conditions:</h2>
+{% if object.condition_set.exists %}
+<ul>
+    {% for cond in object.condition_set.all %}
+    <li>Condition {{ cond.pk }}: {{ cond.condition }} ({{ cond.get_status_display }}){% if cond.referral %} via {{ cond.referral.referee }}{% endif %}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>None</p>
+{% endif %}
+
+{% comment %}
 <h2>Tasks:</h2>
 {% if object.task_set.exists %}
 <ul>
@@ -29,6 +45,7 @@
 {% else %}
 <p>None</p>
 {% endif %}
+{% endcomment %}
 
 <h2>Actions:</h2>
 <ul>
@@ -36,5 +53,6 @@
     <li>{% if may_update %}<a href="{% url 'application_update' object.pk %}">Update application</a>{% else %}Update application{% endif %}</li>
     <li>{% if may_lodge %}<a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a>{% else %}Lodge for assessment{% endif %}</li>
     <li>{% if may_refer %}<a href="{% url 'application_refer' object.pk %}">Refer for conditions</a>{% else %}Refer for conditions{% endif %}</li>
+    {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
 </ul>
 {% endblock %}
