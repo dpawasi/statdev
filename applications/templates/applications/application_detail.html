@@ -19,6 +19,18 @@
 <p>None</p>
 {% endif %}
 
+<h2>Conditions:</h2>
+{% if object.condition_set.exists %}
+<ul>
+    {% for cond in object.condition_set.all %}
+    <li>Condition {{ cond.pk }}: {{ cond.condition }} ({{ cond.get_status_display }}){% if cond.referral %} via {{ cond.referral.referee }}{% endif %}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>None</p>
+{% endif %}
+
+{% comment %}
 <h2>Tasks:</h2>
 {% if object.task_set.exists %}
 <ul>
@@ -29,6 +41,7 @@
 {% else %}
 <p>None</p>
 {% endif %}
+{% endcomment %}
 
 <h2>Actions:</h2>
 <ul>

@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from .models import Application, Referral, Task
+from .models import Application, Referral, Condition, Task
 
 
 User = get_user_model()
@@ -76,6 +76,21 @@ class ReferralForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
+class ConditionCreateForm(ModelForm):
+
+    class Meta:
+        model = Condition
+        fields = ['condition', ]
+
+    def __init__(self, *args, **kwargs):
+        super(ConditionCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.fields['condition'].required = True
+
+
+'''
 class TaskReassignForm(ModelForm):
 
     class Meta:
@@ -89,3 +104,4 @@ class TaskReassignForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         self.fields['assignee'].required = True
         # TODO: business logic to limit the assignee queryset.
+'''
