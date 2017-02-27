@@ -80,6 +80,7 @@ class Application(ActiveMixin):
         (1, 'draft', ('Draft')),
         (2, 'with_admin', ('With admin')),
         (3, 'with_referee', ('With referee')),
+        (4, 'with_assessor', ('With assessor')),
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),

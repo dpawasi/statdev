@@ -8,7 +8,8 @@ from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Referral, Condition, Task
 from .forms import (
-    ApplicationForm, ApplicationLodgeForm, ReferralForm, ConditionCreateForm)
+    ApplicationForm, ApplicationLodgeForm, ReferralForm, ConditionCreateForm,
+    ApplicationAssignForm)
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -76,6 +77,11 @@ class ApplicationDetail(DetailView):
             app = Application.objects.get(pk=self.kwargs['pk'])
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
+        assessor = Group.objects.get_or_create(name='Assessor')[0]
+        if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
+            # Rule: if the application status is 'with assessor', it can have conditions added.
+            if app.state == app.APP_STATE_CHOICES.with_assessor:
+                context['may_create_condition'] = True
         return context
 
 
@@ -205,8 +211,9 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         return super(ConditionCreate, self).form_valid(form)
 
 
-'''
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
+    """A view to allow an application to be assigned to an assessor.
+    """
     model = Application
     form_class = ApplicationAssignForm
 
@@ -215,9 +222,13 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
+'''
 class TaskReassign(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskReassignForm

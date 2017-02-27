@@ -66,6 +66,7 @@ class ReferralForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_referral_create'
         # Limit the referee queryset.
         referee = Group.objects.get_or_create(name='Referee')[0]
         self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
@@ -88,6 +89,34 @@ class ConditionCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         self.fields['condition'].required = True
 
+
+class ApplicationAssignForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationAssignForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_application'
+        # Limit the assignee queryset.
+        assessor = Group.objects.get_or_create(name='Assessor')[0]
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[assessor])
+        self.fields['assignee'].required = True
+        # Disable all form fields.
+        for k in self.fields.iterkeys():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for assessment:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
 
 '''
 class TaskReassignForm(ModelForm):
