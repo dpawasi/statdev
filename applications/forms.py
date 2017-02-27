@@ -2,9 +2,14 @@ from __future__ import unicode_literals
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML
 from crispy_forms.bootstrap import FormActions
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
 from .models import Application, Referral, Task
+from .groups import REFEREE
+
+
+User = get_user_model()
 
 
 class BaseFormHelper(FormHelper):
@@ -62,7 +67,8 @@ class ReferralForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        # TODO: business logic to limit the referee queryset.
+        # Limit the referee queryset.
+        self.fields['referee'].queryset = User.objects.filter(groups__in=[REFEREE])
         # TODO: business logic to limit the document queryset.
         self.helper.form_id = 'id_form_refer_application'
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))

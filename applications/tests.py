@@ -16,6 +16,7 @@ class ApplicationTest(TestCase):
 
     def setUp(self):
         # TODO: authorisation groups below are WiP.
+        # Note that we have to instantiate groups in setUp().
         PROCESSOR = Group.objects.get_or_create(name='Processor')[0]
         self.client = Client()
         # Set up some non-superuser internal users.
