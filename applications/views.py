@@ -3,11 +3,15 @@ from datetime import date
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Referral, Task
 from .forms import ApplicationForm, ApplicationLodgeForm, ReferralForm, TaskReassignForm
-from .groups import PROCESSOR
+#from .groups import PROCESSOR
+
+
+PROCESSOR = Group.objects.get(name='Processor')
 
 
 class HomePage(LoginRequiredMixin, TemplateView):

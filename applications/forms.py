@@ -3,13 +3,15 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML
 from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
 from .models import Application, Referral, Task
-from .groups import REFEREE
+#from .groups import REFEREE
 
 
 User = get_user_model()
+REFEREE = Group.objects.get(name='Referee')
 
 
 class BaseFormHelper(FormHelper):
