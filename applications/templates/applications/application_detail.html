@@ -12,8 +12,11 @@
 <h2>Referrals:</h2>
 {% if object.referral_set.exists %}
 <ul>
-    {% for referral in object.referral_set.all %}
-    <li>Referral {{ referral.pk }} to {{ referral.referee }} <a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a></li>
+    {% for ref in object.referral_set.all %}
+    <li>Referral {{ ref.pk }} to {{ ref.referee }}
+        {% if may_refer %}<a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>{% endif %}
+        {% if ref.referee == user %}<a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished{% endif %}
+    </li>
     {% endfor %}
 </ul>
 {% else %}
