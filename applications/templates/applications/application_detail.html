@@ -7,6 +7,7 @@
 <p>Title: {{ object.title }}</p>
 <p>Description: {{ object.description }}</p>
 <p>Status: {{ object.get_state_display }}</p>
+<p>Assignee: {{ object.assignee }}</p>
 
 <h2>Referrals:</h2>
 {% if object.referral_set.exists %}

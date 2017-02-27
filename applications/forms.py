@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from .models import Application, Referral, Condition, Task
+from .models import Application, Referral, Condition
 
 
 User = get_user_model()
@@ -27,9 +27,8 @@ class ApplicationForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicationForm, self).__init__(*args, **kwargs)
-        self.helper = BaseFormHelper(self)
+        self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_application'
-        self.helper.form_action = 'application_create'  # Calls reverse().
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 

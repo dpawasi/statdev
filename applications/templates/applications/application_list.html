@@ -9,6 +9,7 @@
             <th>Type</th>
             <th>Title</th>
             <th>Status</th>
+            <th>Assignee</th>
         </tr>
     </thead>
     <tbody>
@@ -18,6 +19,7 @@
             <td>{{ obj.get_app_type_display }}</td>
             <td>{{ obj.title }}</td>
             <td>{{ obj.get_state_display }}</td>
+            <td>{{ obj.assignee }}</td>
         </tr>
         {% endfor %}
     </tbody>

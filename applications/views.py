@@ -118,6 +118,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """
         app = self.get_object()
         app.state = app.APP_STATE_CHOICES.with_admin
+        app.assignee = None
         app.save()
         Task.objects.create(
             application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
