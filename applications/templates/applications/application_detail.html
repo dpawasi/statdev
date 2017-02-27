@@ -6,7 +6,7 @@
 <p>Type: {{ object.get_app_type_display }}</p>
 <p>Title: {{ object.title }}</p>
 <p>Description: {{ object.description }}</p>
-<p>Status: {{ object.state }}</p>
+<p>Status: {{ object.get_state_display }}</p>
 
 <h2>Referrals:</h2>
 {% if object.referral_set.exists %}
@@ -33,6 +33,7 @@
 <h2>Actions:</h2>
 <ul>
     {# TODO: show greyed-out actions where they cannot be performed. #}
+    <li>{% if may_update %}<a href="{% url 'application_update' object.pk %}">Update application</a>{% else %}Update application{% endif %}</li>
     <li>{% if may_lodge %}<a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a>{% else %}Lodge for assessment{% endif %}</li>
     <li>{% if may_refer %}<a href="{% url 'application_refer' object.pk %}">Refer for conditions</a>{% else %}Refer for conditions{% endif %}</li>
 </ul>

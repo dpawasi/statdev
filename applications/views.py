@@ -2,13 +2,22 @@ from __future__ import unicode_literals
 from datetime import date
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Referral, Task
 from .forms import ApplicationForm, ApplicationLodgeForm, ReferralForm, TaskReassignForm
 
 
-class HomePage(TemplateView):
+# TODO: the authorisation groups below are WiP.
+PROCESSOR = Group.objects.get_or_create(name='Processor')[0]
+ASSESSOR = Group.objects.get_or_create(name='Assessor')[0]
+REFEREE = Group.objects.get_or_create(name='Referee')[0]
+APPROVER = Group.objects.get_or_create(name='Approver')[0]
+
+
+class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
     template_name = 'applications/home_page.html'
 
@@ -24,9 +33,22 @@ class ApplicationList(ListView):
     model = Application
 
 
-class ApplicationCreate(CreateView):
+class ApplicationCreate(LoginRequiredMixin, CreateView):
     form_class = ApplicationForm
     template_name = 'applications/application_form.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check user is authorised to create applications.
+        if PROCESSOR in request.user.groups.all() or request.user.is_superuser:
+            return super(ApplicationCreate, self).get(request, *args, **kwargs)
+        else:
+            messages.error(self.request, 'You are not authorised to create applications!')
+            return HttpResponseRedirect(reverse('home_page'))
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new application'
+        return context
 
 
 class ApplicationDetail(DetailView):
@@ -35,8 +57,10 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
+        # Rule: if the application status is 'draft', it can be updated.
         # Rule: if the application status is 'draft', it can be lodged.
         if app.state == app.APP_STATE_CHOICES.draft:
+            context['may_update'] = True
             context['may_lodge'] = True
         # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
         app = Application.objects.get(pk=self.kwargs['pk'])
@@ -45,7 +69,7 @@ class ApplicationDetail(DetailView):
         return context
 
 
-class ApplicationUpdate(UpdateView):
+class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     model = Application
     form_class = ApplicationForm
 
@@ -58,8 +82,13 @@ class ApplicationUpdate(UpdateView):
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationUpdate, self).get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationUpdate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Update application details'
+        return context
 
-class ApplicationLodge(UpdateView):
+
+class ApplicationLodge(LoginRequiredMixin, UpdateView):
     model = Application
     form_class = ApplicationLodgeForm
 
@@ -86,7 +115,7 @@ class ApplicationLodge(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ApplicationRefer(CreateView):
+class ApplicationRefer(LoginRequiredMixin, CreateView):
     """A view to create a Referral object on an Application (if allowed).
     """
     model = Referral
@@ -132,7 +161,7 @@ class ApplicationRefer(CreateView):
         return super(ApplicationRefer, self).form_valid(form)
 
 
-class TaskReassign(UpdateView):
+class TaskReassign(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskReassignForm
     template_name = 'applications/task_form.html'

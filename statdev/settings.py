@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'accounts',
     'applications',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -44,9 +43,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 ROOT_URLCONF = 'statdev.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -64,8 +61,8 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'statdev.wsgi.application'
+LOGIN_URL = '/admin/login/'  # TODO: temporary hardcoded URL.
 
 
 # Database configuration
