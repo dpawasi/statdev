@@ -32,7 +32,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check user is authorised to create applications.
-        processor = Group.objects.get(name='Processor')
+        processor = Group.objects.get_or_create(name='Processor')[0]
         if processor in request.user.groups.all() or request.user.is_superuser:
             return super(ApplicationCreate, self).get(request, *args, **kwargs)
         else:

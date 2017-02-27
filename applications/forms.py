@@ -68,7 +68,7 @@ class ReferralForm(ModelForm):
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         # Limit the referee queryset.
-        referee = Group.objects.get(name='Referee')
+        referee = Group.objects.get_or_create(name='Referee')[0]
         self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
         # TODO: business logic to limit the document queryset.
         self.helper.form_id = 'id_form_refer_application'
