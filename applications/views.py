@@ -8,10 +8,6 @@ from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Referral, Task
 from .forms import ApplicationForm, ApplicationLodgeForm, ReferralForm, TaskReassignForm
-#from .groups import PROCESSOR
-
-
-PROCESSOR = Group.objects.get(name='Processor')
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -36,7 +32,8 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check user is authorised to create applications.
-        if PROCESSOR in request.user.groups.all() or request.user.is_superuser:
+        processor = Group.objects.get(name='Processor')
+        if processor in request.user.groups.all() or request.user.is_superuser:
             return super(ApplicationCreate, self).get(request, *args, **kwargs)
         else:
             messages.error(self.request, 'You are not authorised to create applications!')

@@ -13,15 +13,14 @@ User = get_user_model()
 
 
 class ApplicationTest(TestCase):
-    fixtures = ['groups.json']
 
     def setUp(self):
-        processor = Group.objects.get(name='Processor')
         self.client = Client()
         # Set up some non-superuser internal users.
         self.user1 = mixer.blend(User, email=random_dpaw_email, is_superuser=False, is_staff=True)
         self.user1.set_password('pass')
         self.user1.save()
+        processor = Group.objects.get_or_create(name='Processor')[0]
         self.user1.groups.add(processor)
         self.superuser = mixer.blend(User, email=random_dpaw_email, is_superuser=True, is_staff=True)
         self.superuser.set_password('pass')

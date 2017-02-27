@@ -7,11 +7,9 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
 from .models import Application, Referral, Task
-#from .groups import REFEREE
 
 
 User = get_user_model()
-REFEREE = Group.objects.get(name='Referee')
 
 
 class BaseFormHelper(FormHelper):
@@ -70,7 +68,8 @@ class ReferralForm(ModelForm):
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         # Limit the referee queryset.
-        self.fields['referee'].queryset = User.objects.filter(groups__in=[REFEREE])
+        referee = Group.objects.get(name='Referee')
+        self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
         # TODO: business logic to limit the document queryset.
         self.helper.form_id = 'id_form_refer_application'
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
