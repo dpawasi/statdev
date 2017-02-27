@@ -76,7 +76,11 @@ class Application(ActiveMixin):
         (3, 'part5', ('Part 5')),
         (4, 'emergency', ('Emergency works')),
     )
-
+    APP_STATE_CHOICES = Choices(
+        (1, 'draft', ('Draft')),
+        (2, 'with_admin', ('With admin')),
+        (3, 'with_referee', ('With referee')),
+    )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
         (1, 'onwater', ('On Water')),
@@ -86,8 +90,7 @@ class Application(ActiveMixin):
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
     app_type = models.IntegerField(choices=APP_TYPE_CHOICES)
-    # TODO: alter state to be a choice field.
-    state = models.CharField(max_length=64, default='draft', editable=False)
+    state = models.IntegerField(choices=APP_STATE_CHOICES, default=APP_STATE_CHOICES.draft, editable=False)
     title = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
     submit_date = models.DateField()
@@ -123,7 +126,6 @@ class Application(ActiveMixin):
     safety_mgmt_procedures = models.ForeignKey(Document, blank=True, null=True, related_name='safety_mgmt_plan')
     brochures_itineries_adverts = models.ManyToManyField(Document, blank=True, related_name='brochures_itineries_adverts')
     other_supporting_docs = models.ManyToManyField(Document, blank=True, related_name='other_supporting_docs')
-    
 
     def __str__(self):
         return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.state)
@@ -159,7 +161,7 @@ class Referral(ActiveMixin):
     """
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     referee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    # TODO: details text field
+    details = models.TextField(blank=True, null=True)
     sent_date = models.DateField()
     period = models.PositiveIntegerField(verbose_name='period (days)')
     response_date = models.DateField(blank=True, null=True)

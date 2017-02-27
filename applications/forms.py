@@ -13,14 +13,6 @@ class BaseFormHelper(FormHelper):
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
     help_text_inline = True
 
-    #def __init__(self, *args, **kwargs):
-    #    super(BaseFormHelper, self).__init__(*args, **kwargs)
-    #    self.form_class = 'form-horizontal'
-    #    self.form_method = 'POST'
-    #    self.label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
-    #    self.field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
-    #    self.help_text_inline = True
-
 
 class ApplicationForm(ModelForm):
 
@@ -65,8 +57,7 @@ class ApplicationLodgeForm(ModelForm):
 class ReferralForm(ModelForm):
     class Meta:
         model = Referral
-        # TODO: details text field
-        fields = ['referee', 'period', 'documents']
+        fields = ['referee', 'period', 'details', 'documents']
 
     def __init__(self, *args, **kwargs):
         super(ReferralForm, self).__init__(*args, **kwargs)

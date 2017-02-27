@@ -36,11 +36,11 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
         # Rule: if the application status is 'draft', it can be lodged.
-        if app.state == 'draft':
+        if app.state == app.APP_STATE_CHOICES.draft:
             context['may_lodge'] = True
         # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state in ['with admin', 'with referee']:
+        if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
             context['may_refer'] = True
         return context
 
@@ -51,6 +51,11 @@ class ApplicationUpdate(UpdateView):
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+        # Rule: if the application status is 'draft', it can be updated.
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(self.request, 'This application cannot be updated!')
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationUpdate, self).get(request, *args, **kwargs)
 
 
@@ -62,7 +67,7 @@ class ApplicationLodge(UpdateView):
         # TODO: business logic to check the application may be lodged.
         # Rule: application state must be 'draft'.
         app = self.get_object()
-        if app.state != 'draft':
+        if app.state != app.APP_STATE_CHOICES.draft:
             # TODO: better/explicit error response.
             messages.error(self.request, 'This application cannot be lodged!')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -73,7 +78,7 @@ class ApplicationLodge(UpdateView):
         application (no assignee) and change its status.
         """
         app = self.get_object()
-        app.state = 'with admin'
+        app.state = app.APP_STATE_CHOICES.with_admin
         app.save()
         Task.objects.create(
             application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
@@ -91,7 +96,7 @@ class ApplicationRefer(CreateView):
         # TODO: business logic to check the application may be referred.
         # Rule: application state must be 'with admin' or 'with referee'
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state not in ['with admin', 'with referee']:
+        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
             # TODO: better/explicit error response.
             messages.error(self.request, 'This application cannot be referred!')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -120,7 +125,7 @@ class ApplicationRefer(CreateView):
         self.object.sent_date = date.today()
         self.object.save()
         # Set the application status to 'with referee'.
-        app.state = 'with referee'
+        app.state = app.APP_STATE_CHOICES.with_referee
         app.save()
         # TODO: the process of sending the application to the referee.
         # TODO: update the communication log.

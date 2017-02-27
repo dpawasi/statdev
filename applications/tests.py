@@ -63,13 +63,36 @@ class ApplicationTest(TestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    @skip('Test stub')
     def test_update_application_view_get(self):
-        pass
+        """Test the application update view renders
+        """
+        self.app1.state = Application.APP_STATE_CHOICES.draft
+        self.app1.save()
+        url = reverse('application_update', args=(self.app1.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
 
-    @skip('Test stub')
+    def test_update_application_view_redirect(self):
+        """Test the application update view redirect business rules
+        """
+        self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.save()
+        url = reverse('application_update', args=(self.app1.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 302)
+
     def test_update_application_view_post(self):
-        pass
+        """Test the application update view accepts a valid POST
+        """
+        self.app1.state = Application.APP_STATE_CHOICES.draft
+        self.app1.save()
+        url = reverse('application_update', args=(self.app1.pk,))
+        resp = self.client.post(url, {
+            'app_type': 1, 'title': 'foo', 'submit_date': '1/1/2017'})
+        # Create view will redirect to the detail view.
+        self.assertEquals(resp.status_code, 302)
+        a = Application.objects.get(pk=self.app1.pk)
+        self.assertEquals(a.title, 'foo')
 
     @skip('Test stub')
     def test_update_application_lodge_get(self):
