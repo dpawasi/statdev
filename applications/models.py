@@ -126,6 +126,10 @@ class Application(ActiveMixin):
     safety_mgmt_procedures = models.ForeignKey(Document, blank=True, null=True, related_name='safety_mgmt_plan')
     brochures_itineries_adverts = models.ManyToManyField(Document, blank=True, related_name='brochures_itineries_adverts')
     other_supporting_docs = models.ManyToManyField(Document, blank=True, related_name='other_supporting_docs')
+    land_owner_consent = models.ManyToManyField(Document, blank=True, related_name='land_owner_consent')
+    deed = models.ForeignKey(Document, blank=True, null=True, related_name='deed')
+    river_reserve_lease = models.NullBooleanField(default=None)
+    current_land_use = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.state)
