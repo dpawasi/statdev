@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from mixer.backend.django import mixer
@@ -19,9 +20,16 @@ class ApplicationTest(TestCase):
         self.user1 = mixer.blend(User, email=random_dpaw_email, is_superuser=False, is_staff=True)
         self.user1.set_password('pass')
         self.user1.save()
-        self.user2 = mixer.blend(User, email=random_dpaw_email, is_superuser=False, is_staff=True)
-        self.user2.set_password('pass')
-        self.user2.save()
+        processor = Group.objects.get_or_create(name='Processor')[0]
+        self.user1.groups.add(processor)
+        self.superuser = mixer.blend(User, email=random_dpaw_email, is_superuser=True, is_staff=True)
+        self.superuser.set_password('pass')
+        self.superuser.save()
+        self.customer = mixer.blend(User, is_superuser=False, is_staff=False)
+        self.customer.set_password('pass')
+        self.customer.save()
+        # Log in user1, by default.
+        self.client.login(email=self.user1.email, password='pass')
         # Generate test fixtures..
         self.app1 = mixer.blend(Application)
         self.task1 = mixer.blend(Task)
@@ -38,10 +46,24 @@ class ApplicationTest(TestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
+    def test_create_application_view_get_redirect(self):
+        """Test the application create view redirects unauthorised users
+        """
+        self.client.logout()
+        self.client.login(email=self.customer.email, password='pass')
+        url = reverse('application_create')
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 302)
+
     def test_create_application_view_get(self):
-        """Test the application create view renders
+        """Test the application create view renders for an authorised user
         """
         url = reverse('application_create')
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
+        # Test for a superuser.
+        self.client.logout()
+        self.client.login(email=self.superuser.email, password='pass')
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
