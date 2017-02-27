@@ -32,7 +32,8 @@
 
 <h2>Actions:</h2>
 <ul>
-    {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
-    <li>Send to referee</li>
+    {# TODO: show greyed-out actions where they cannot be performed. #}
+    <li>{% if may_lodge %}<a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a>{% else %}Lodge for assessment{% endif %}</li>
+    <li>{% if may_refer %}<a href="{% url 'application_refer' object.pk %}">Refer for conditions</a>{% else %}Refer for conditions{% endif %}</li>
 </ul>
 {% endblock %}

@@ -4,7 +4,14 @@ from crispy_forms.layout import Layout, Submit, HTML
 from crispy_forms.bootstrap import FormActions
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from .models import Application, Task
+from .models import Application, Referral, Task
+
+
+class BaseFormHelper(FormHelper):
+    form_class = 'form-horizontal'
+    label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
+    field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
+    help_text_inline = True
 
 
 class ApplicationForm(ModelForm):
@@ -15,13 +22,9 @@ class ApplicationForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicationForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
+        self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_create_application'
-        self.helper.form_method = 'POST'  # This is default.
         self.helper.form_action = 'application_create'  # Calls reverse().
-        self.helper.form_class = 'form-horizontal'
-        self.helper.label_class = 'col-lg-1 col-md-2'
-        self.helper.field_class = 'col-lg-11 col-md-10'
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
@@ -34,12 +37,9 @@ class ApplicationLodgeForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ApplicationLodgeForm, self).__init__(*args, **kwargs)
         app = kwargs['instance']
-        self.helper = FormHelper(self)
+        self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_lodge_application'
         self.helper.form_action = reverse('application_lodge', args=(app.pk,))
-        self.helper.form_class = 'form-horizontal'
-        self.helper.label_class = 'col-lg-1 col-md-2'
-        self.helper.field_class = 'col-lg-11 col-md-10'
         # Disable all form fields.
         for k in self.fields.iterkeys():
             self.fields[k].disabled = True
@@ -54,6 +54,21 @@ class ApplicationLodgeForm(ModelForm):
         )
 
 
+class ReferralForm(ModelForm):
+    class Meta:
+        model = Referral
+        fields = ['referee', 'period', 'details', 'documents']
+
+    def __init__(self, *args, **kwargs):
+        super(ReferralForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        # TODO: business logic to limit the referee queryset.
+        # TODO: business logic to limit the document queryset.
+        self.helper.form_id = 'id_form_refer_application'
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
 class TaskReassignForm(ModelForm):
 
     class Meta:
@@ -62,7 +77,7 @@ class TaskReassignForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TaskReassignForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
+        self.helper = BaseFormHelper(self)
         self.helper.add_input(Submit('reassign', 'Reassign', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
         self.fields['assignee'].required = True
