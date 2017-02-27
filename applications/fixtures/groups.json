@@ -1,0 +1,30 @@
+[
+{
+    "fields": {
+        "name": "Processor",
+        "permissions": []
+    },
+    "model": "auth.group"
+},
+{
+    "fields": {
+        "name": "Assessor",
+        "permissions": []
+    },
+    "model": "auth.group"
+},
+{
+    "fields": {
+        "name": "Referee",
+        "permissions": []
+    },
+    "model": "auth.group"
+},
+{
+    "fields": {
+        "name": "Approver",
+        "permissions": []
+    },
+    "model": "auth.group"
+}
+]
