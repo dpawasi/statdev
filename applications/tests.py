@@ -46,24 +46,10 @@ class ApplicationTest(TestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_create_application_view_get_redirect(self):
-        """Test the application create view redirects unauthorised users
-        """
-        self.client.logout()
-        self.client.login(email=self.customer.email, password='pass')
-        url = reverse('application_create')
-        resp = self.client.get(url)
-        self.assertEquals(resp.status_code, 302)
-
     def test_create_application_view_get(self):
-        """Test the application create view renders for an authorised user
+        """Test the application create view renders
         """
         url = reverse('application_create')
-        resp = self.client.get(url)
-        self.assertEquals(resp.status_code, 200)
-        # Test for a superuser.
-        self.client.logout()
-        self.client.login(email=self.superuser.email, password='pass')
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
