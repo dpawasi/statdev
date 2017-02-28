@@ -21,9 +21,7 @@ class HomePage(LoginRequiredMixin, TemplateView):
         context['page_heading'] = 'Home Page'
         context['tasks'] = Task.objects.filter(
             status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
-        processor = Group.objects.get_or_create(name='Processor')[0]
-        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-            context['may_create'] = True
+        context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(referee=self.request.user)
         return context
@@ -37,25 +35,21 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     form_class = ApplicationForm
     template_name = 'applications/application_form.html'
 
-    def get(self, request, *args, **kwargs):
-        # TODO: business logic to check user is authorised to create applications.
-        processor = Group.objects.get_or_create(name='Processor')[0]
-        if processor in request.user.groups.all() or request.user.is_superuser:
-            return super(ApplicationCreate, self).get(request, *args, **kwargs)
-        else:
-            messages.error(self.request, 'You are not authorised to create applications!')
-            return HttpResponseRedirect(reverse('home_page'))
-
     def get_context_data(self, **kwargs):
         context = super(ApplicationCreate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Create new application'
         return context
+
+    def get_initial(self):
+        initial = super(ApplicationCreate, self).get_initial()
+        return initial
 
     def form_valid(self, form):
         """Override form_valid to set the assignee as the object creator.
         """
         self.object = form.save(commit=False)
         self.object.assignee = self.request.user
+        self.object.submit_date = date.today()
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -69,12 +63,12 @@ class ApplicationDetail(DetailView):
         processor = Group.objects.get_or_create(name='Processor')[0]
         assessor = Group.objects.get_or_create(name='Assessor')[0]
         approver = Group.objects.get_or_create(name='Approver')[0]
+        # Rule: if the application status is 'draft', it can be updated.
+        # Rule: if the application status is 'draft', it can be lodged.
+        if app.state == app.APP_STATE_CHOICES.draft:
+            context['may_update'] = True
+            context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'draft', it can be updated.
-            # Rule: if the application status is 'draft', it can be lodged.
-            if app.state == app.APP_STATE_CHOICES.draft:
-                context['may_update'] = True
-                context['may_lodge'] = True
             # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
             # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
             # TODO: review the rule above.
