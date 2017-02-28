@@ -76,8 +76,20 @@ class ReferralForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
-class ConditionCreateForm(ModelForm):
+class ReferralCompleteForm(ModelForm):
+    class Meta:
+        model = Referral
+        fields = ['feedback']
 
+    def __init__(self, *args, **kwargs):
+        super(ReferralCompleteForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_referral_complete'
+        self.helper.add_input(Submit('complete', 'Complete', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition
         fields = ['condition', ]

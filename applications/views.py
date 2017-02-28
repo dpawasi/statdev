@@ -8,8 +8,8 @@ from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Referral, Condition, Task
 from .forms import (
-    ApplicationForm, ApplicationLodgeForm, ReferralForm, ConditionCreateForm,
-    ApplicationAssignForm)
+    ApplicationForm, ApplicationLodgeForm, ReferralForm, ReferralCompleteForm,
+    ConditionCreateForm, ApplicationAssignForm)
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -226,6 +226,27 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ReferralComplete(LoginRequiredMixin, UpdateView):
+    """A view to allow an application to be assigned to an assessor.
+    """
+    model = Referral
+    form_class = ReferralCompleteForm
+
+    def get(self, request, *args, **kwargs):
+        # Business rule: only the referee can mark a referral "complete".
+        referral = self.get_object()
+        if referral.referee != request.user:
+            messages.error(self.request, 'You are unable to mark this referral as complete!')
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralComplete, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.response_date = date.today()
+        self.object.save()
+        return HttpResponseRedirect(self.object.application.get_absolute_url())
 
 
 '''
