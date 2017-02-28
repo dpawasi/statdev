@@ -5,7 +5,7 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm
+from django.forms import ModelForm, ChoiceField
 from .models import Application, Referral, Condition
 
 
@@ -126,6 +126,68 @@ class ApplicationAssignForm(ModelForm):
             'app_type', 'title', 'description', 'submit_date', 'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
+class ApplicationApproveForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationApproveForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_approve_application'
+        # Limit the assignee queryset.
+        approver = Group.objects.get_or_create(name='Approver')[0]
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[approver])
+        self.fields['assignee'].required = True
+        # Disable all form fields.
+        for k in self.fields.iterkeys():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application to a manager for approval/issue:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
+class ApplicationIssueForm(ModelForm):
+    assessment = ChoiceField(choices=[
+        (None, '---------'),
+        ('issue', 'Issue'),
+        ('decline', 'Decline'),
+        # TODO: Return to assessor option.
+        #('return', 'Return to assessor'),
+    ])
+
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description', 'submit_date']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationIssueForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_application_issue'
+        # Disable all form fields.
+        for k in self.fields.iterkeys():
+            self.fields[k].disabled = True
+        # Re-enable the assessment field.
+        self.fields['assessment'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Issue or decline this completed application:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assessment',
+            FormActions(
+                Submit('save', 'Save', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
             )
         )

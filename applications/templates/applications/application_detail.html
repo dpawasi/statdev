@@ -57,7 +57,10 @@
     {# TODO: show actions greyed-out where they cannot be performed. #}
     {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
     {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
-    {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions</a></li>{% endif %}
+    {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
+    {% if may_assign %}<li><a href="{% url 'application_assign' object.pk %}">Assign to an assessor</a></li>{% endif %}
     {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
+    {% if may_submit_approval %}<li><a href="{% url 'application_approval' object.pk %}">Send for approval (assessment completed)</a></li>{% endif %}
+    {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
 </ul>
 {% endblock %}

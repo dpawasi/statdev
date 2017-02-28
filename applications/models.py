@@ -81,6 +81,10 @@ class Application(ActiveMixin):
         (2, 'with_admin', ('With admin')),
         (3, 'with_referee', ('With referee')),
         (4, 'with_assessor', ('With assessor')),
+        (5, 'with_manager', ('With manager')),
+        (6, 'issued', ('Issued')),
+        (7, 'issued_with_admin', ('Issued (with admin)')),
+        (8, 'declined', ('Declined')),
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),

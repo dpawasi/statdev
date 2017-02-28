@@ -9,7 +9,7 @@ from django.views.generic import TemplateView, ListView, DetailView, CreateView,
 from .models import Application, Referral, Condition, Task
 from .forms import (
     ApplicationForm, ApplicationLodgeForm, ReferralForm, ReferralCompleteForm,
-    ConditionCreateForm, ApplicationAssignForm)
+    ConditionCreateForm, ApplicationAssignForm, ApplicationApproveForm, ApplicationIssueForm)
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -67,6 +67,8 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
         processor = Group.objects.get_or_create(name='Processor')[0]
+        assessor = Group.objects.get_or_create(name='Assessor')[0]
+        approver = Group.objects.get_or_create(name='Approver')[0]
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
@@ -74,14 +76,23 @@ class ApplicationDetail(DetailView):
                 context['may_update'] = True
                 context['may_lodge'] = True
             # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
-            app = Application.objects.get(pk=self.kwargs['pk'])
+            # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
+            # TODO: review the rule above.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
-        assessor = Group.objects.get_or_create(name='Assessor')[0]
+                context['may_assign'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added.
+            # Rule: if the application status is 'with assessor', it can be sent for approval.
             if app.state == app.APP_STATE_CHOICES.with_assessor:
                 context['may_create_condition'] = True
+                context['may_submit_approval'] = True
+        if approver in self.request.user.groups.all() or self.request.user.is_superuser:
+            # Rule: if the application status is 'with manager', it can be issued.
+            # TODO: function to reassign back to assessor.
+            # TODO: function to reassign back to assessor.
+            if app.state == app.APP_STATE_CHOICES.with_manager:
+                context['may_issue'] = True
         return context
 
 
@@ -247,6 +258,61 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         self.object.response_date = date.today()
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
+
+
+class ApplicationApprove(LoginRequiredMixin, UpdateView):
+    """A view to allow an application to be assigned to an assessor.
+    TODO: refactor this view to share the ApplicationAssign view logic.
+    """
+    model = Application
+    form_class = ApplicationApproveForm
+
+    def get(self, request, *args, **kwargs):
+        # Rule: only the assignee can perform this action.
+        # TODO: any other business rules.
+        app = self.get_object()
+        if app.assignee != request.user:
+            messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationApprove, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.state = self.object.APP_STATE_CHOICES.with_manager
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class ApplicationIssue(LoginRequiredMixin, UpdateView):
+    """A view to allow a manager to issue an assessed application.
+    """
+    model = Application
+    form_class = ApplicationIssueForm
+
+    def get(self, request, *args, **kwargs):
+        # Rule: only the assignee can perform this action.
+        # TODO: any other business rules.
+        app = self.get_object()
+        if app.assignee != request.user:
+            messages.error(self.request, 'You are unable to issue this application!')
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationIssue, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        d = form.cleaned_data
+        if d['assessment'] == 'issue':
+            self.object.state = self.object.APP_STATE_CHOICES.issued
+            self.object.assignee = None
+        elif d['assessment'] == 'decline':
+            self.object.state = self.object.APP_STATE_CHOICES.declined
+            self.object.assignee = None
+        # TODO: logic for the manager to select who to assign it back to.
+        #elif d['assessment'] == 'return':
+        #    self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        # TODO: logic around emailing/posting the application to the customer.
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 '''
