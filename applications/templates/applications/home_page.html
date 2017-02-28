@@ -11,7 +11,7 @@
 <h2>My referrals:</h2>
 <ul>
     {% for ref in referrals %}
-    <li><a href="{% url 'application_detail' ref.application.pk %}">Application {{ ref.application }}</a> <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished</li>
+    <li><a href="{% url 'application_detail' ref.application.pk %}">Application {{ ref.application }}</a> <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> [Complete this referral]</li>
     {% endfor %}
 </ul>
 {% endif %}
