@@ -80,6 +80,7 @@ class Application(ActiveMixin):
         (1, 'draft', ('Draft')),
         (2, 'with_admin', ('With admin')),
         (3, 'with_referee', ('With referee')),
+        (4, 'with_assessor', ('With assessor')),
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
@@ -87,9 +88,10 @@ class Application(ActiveMixin):
         (2, 'both', ('Both')),
     )
 
-    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant')
     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
     app_type = models.IntegerField(choices=APP_TYPE_CHOICES)
+    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assignee')
     state = models.IntegerField(choices=APP_STATE_CHOICES, default=APP_STATE_CHOICES.draft, editable=False)
     title = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
@@ -232,7 +234,3 @@ class Task(ActiveMixin):
 
     def __str__(self):
         return 'Task {}: {} ({})'.format(self.pk, self.get_task_type_display(), self.get_status_display())
-
-
-
-

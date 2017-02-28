@@ -4,8 +4,19 @@
 <h1>{{ page_heading }}</h1>
 <ul>
     <li><a href="{% url 'application_list' %}">List all applications</a></li>
-    <li><a href="{% url 'application_create' %}">Create a new application</a></li>
+    {% if may_create %}<li><a href="{% url 'application_create' %}">Create a new application</a></li>{% endif %}
 </ul>
+
+{% if referrals %}
+<h2>My referrals:</h2>
+<ul>
+    {% for ref in referrals %}
+    <li><a href="{% url 'application_detail' ref.application.pk %}">Application {{ ref.application }}</a> <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% comment %}
 {% if tasks %}
 <h2>My ongoing tasks:</h2>
 <ul>
@@ -14,4 +25,5 @@
     {% endfor %}
 </ul>
 {% endif %}
+{% endcomment %}
 {% endblock %}
