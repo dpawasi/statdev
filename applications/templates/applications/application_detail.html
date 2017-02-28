@@ -1,12 +1,39 @@
 {% extends "base_statdev.html" %}
 
 {% block page_content_inner %}
-<h1>Application {{ object.pk }}</h1>
-<p>Submitted: {{ object.submit_date|date:"d-M-Y" }}</p>
-<p>Type: {{ object.get_app_type_display }}</p>
-<p>Title: {{ object.title }}</p>
-<p>Description: {{ object.description }}</p>
-<p>Status: {{ object.state }}</p>
+<div class="container-fluid">
+    <div class="row">
+        <h2>Applicant</h2>
+    </div>
+    <div class="row">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-5">
+            <h1>Application {{ object.pk }}</h1>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th class="col-lg-3">Submitted:</th>
+                    <td class="col-lg-3"> {{ object.submit_date|date:"d-M-Y" }}</td>
+                </tr>
+                <tr>
+                    <th class="col-lg-3">Type:</th>
+                    <td class="col-lg-3">{{ object.get_app_type_display }}</td>
+                </tr>
+                <tr>
+                    <th class="col-lg-3">Title:</th>
+                    <td class="col-lg-3">{{ object.title }}</td>
+                </tr>
+                <tr>
+                    <th class="col-lg-3">Description:</th>
+                    <td class="col-lg-3">{{ objeect.description }}</td> 
+                </tr>
+                <tr>
+                    <th class="col-lg-3">Status:</th>
+                    <td class="col-lg-3"> {{ object.state }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
 
 <h2>Referrals:</h2>
 {% if object.referral_set.exists %}
