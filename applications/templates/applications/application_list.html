@@ -8,6 +8,7 @@
             <th>ID</th>
             <th>Type</th>
             <th>Title</th>
+            <th>Submit date</th>
             <th>Status</th>
             <th>Assignee</th>
         </tr>
@@ -18,6 +19,7 @@
             <td><a href="{% url 'application_detail' obj.pk %}">{{ obj.pk }}</a></td>
             <td>{{ obj.get_app_type_display }}</td>
             <td>{{ obj.title }}</td>
+            <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
             <td>{{ obj.get_state_display }}</td>
             <td>{{ obj.assignee }}</td>
         </tr>
