@@ -14,8 +14,13 @@
 <ul>
     {% for ref in object.referral_set.all %}
     <li>Referral {{ ref.pk }} to {{ ref.referee }}
-        {% if may_refer %}<a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>{% endif %}
-        {% if ref.referee == user %}<a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished{% endif %}
+        {% if may_refer and not ref.response_date %}
+            <a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>
+        {% endif %}
+        {% if ref.referee == user and not ref.response_date %}
+            <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
+            <a href="{% url 'referral_complete' ref.pk %}">Completed</a>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>
@@ -49,10 +54,13 @@
 
 <h2>Actions:</h2>
 <ul>
-    {# TODO: show greyed-out actions where they cannot be performed. #}
-    <li>{% if may_update %}<a href="{% url 'application_update' object.pk %}">Update application</a>{% else %}Update application{% endif %}</li>
-    <li>{% if may_lodge %}<a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a>{% else %}Lodge for assessment{% endif %}</li>
-    <li>{% if may_refer %}<a href="{% url 'application_refer' object.pk %}">Refer for conditions</a>{% else %}Refer for conditions{% endif %}</li>
+    {# TODO: show actions greyed-out where they cannot be performed. #}
+    {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
+    {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
+    {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
+    {% if may_assign %}<li><a href="{% url 'application_assign' object.pk %}">Assign to an assessor</a></li>{% endif %}
     {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
+    {% if may_submit_approval %}<li><a href="{% url 'application_approval' object.pk %}">Send for approval (assessment completed)</a></li>{% endif %}
+    {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
 </ul>
 {% endblock %}
