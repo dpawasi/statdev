@@ -3,9 +3,34 @@
 {% block page_content_inner %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-1"></div>
+        <h1>Application for new {{ object.{{ object.pk }}</h1>
+        <br />
+    </div>
+    <div class="row">
+        <div class="col-lg-1">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Logs</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Submission</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Workflow</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+        </div>
         <div class="col-lg-5">
-            <h1>Application {{ object.pk }}</h1>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Applicant</h3>
@@ -14,11 +39,27 @@
                     <p>Applicant details here</p>
                 </div>
             </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Title</h3>
+                </div>
+                <div class="panel-body">
+                    <p>{{ object.title }}</p>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Proposed Commercial Acts and Activites</h3>
+                </div>
+                <div class="panel-body">
+                    <p>{{ object.description }}</p>
+                </div>
+            </div>
 
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Application Details</h3>
+                    <h3 class="panel-title">Vessel and Craft Details</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-bordered table-striped">
@@ -45,34 +86,89 @@
                     </table>
                 </div>
             </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Title</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Title</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Title</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Conditions</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Conditions</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Conditions</h3>
+                </div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Referrals</h3>
+                </div>
+                <div class="panel-body">
+                    {% if object.referral_set.exists %}
+                    <ul>
+                        {% for ref in object.referral_set.all %}
+                        <li>Referral {{ ref.pk }} to {{ ref.referee }}
+                            {% if may_refer %}<a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>{% endif %}
+                            {% if ref.referee == user %}
+                            <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>None</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Conditions</h3>
+                </div>
+                <div class="panel-body">
+                    
+                    {% if object.condition_set.exists %}
+                    <ul>
+                        {% for cond in object.condition_set.all %}
+                        <li>Condition {{ cond.pk }}: {{ cond.condition }} ({{ cond.get_status_display }})
+                        {% if cond.referral %} via {{ cond.referral.referee }}{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>None</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<h2>Referrals:</h2>
-{% if object.referral_set.exists %}
-<ul>
-    {% for ref in object.referral_set.all %}
-    <li>Referral {{ ref.pk }} to {{ ref.referee }}
-        {% if may_refer %}<a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>{% endif %}
-        {% if ref.referee == user %}<a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a> Finished{% endif %}
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>None</p>
-{% endif %}
-
-<h2>Conditions:</h2>
-{% if object.condition_set.exists %}
-<ul>
-    {% for cond in object.condition_set.all %}
-    <li>Condition {{ cond.pk }}: {{ cond.condition }} ({{ cond.get_status_display }}){% if cond.referral %} via {{ cond.referral.referee }}{% endif %}</li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>None</p>
-{% endif %}
 
 {% comment %}
 <h2>Tasks:</h2>
