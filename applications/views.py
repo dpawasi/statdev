@@ -71,10 +71,11 @@ class ApplicationDetail(DetailView):
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
             # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
-            # TODO: review the rule above.
+            # Rule: if the application status is 'with admin' or 'with referee', it can have conditions added.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
                 context['may_assign'] = True
+                context['may_create_condition'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added.
             # Rule: if the application status is 'with assessor', it can be sent for approval.
@@ -83,7 +84,6 @@ class ApplicationDetail(DetailView):
                 context['may_submit_approval'] = True
         if approver in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with manager', it can be issued.
-            # TODO: function to reassign back to assessor.
             # TODO: function to reassign back to assessor.
             if app.state == app.APP_STATE_CHOICES.with_manager:
                 context['may_issue'] = True
@@ -131,9 +131,9 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         app.state = app.APP_STATE_CHOICES.with_admin
         app.assignee = None
         app.save()
-        Task.objects.create(
-            application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
-            status=Task.TASK_STATUS_CHOICES.ongoing)
+        #Task.objects.create(
+        #    application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
+        #    status=Task.TASK_STATUS_CHOICES.ongoing)
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -201,7 +201,11 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         return reverse('application_detail', args=(self.object.application.pk,))
 
     def get(self, request, *args, **kwargs):
-        # TODO: business logic to check that a condition can be created.
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        # Rule: conditions can be created when the app is with admin, with referee or with assessor.
+        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
+            messages.error(self.request, 'New conditions cannot be created for this application!')
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(ConditionCreate, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -223,7 +227,11 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
     form_class = ApplicationAssignForm
 
     def get(self, request, *args, **kwargs):
-        # TODO: business logic to check the application may be assigned.
+        app = self.get_object()
+        # Rule: application can be assigned when status is 'with admin' or 'with referee'.
+        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+            messages.error(self.request, 'This application cannot be assigned to an assessor!')
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
