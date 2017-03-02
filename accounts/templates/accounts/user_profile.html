@@ -12,8 +12,16 @@
 </ul>
 <h1>Address details</h1>
 <ul>
-    <li>Postal address: {{ object.postal_address }}</li>
-    <li>Billing address: {{ object.billing_address }}</li>
+    <li>
+        Postal address: {{ object.postal_address }}
+        {% if object.postal_address %}<a href="{% url 'address_update' object.postal_address.pk %}">Update</a>{% endif %}
+        {% if not object.postal_address %}<a href="{% url 'user_address_create' 'postal' %}">Create</a>{% endif %}
+    </li>
+    <li>
+        Billing address: {{ object.billing_address }}
+        {% if object.billing_address %}<a href="{% url 'address_update' object.billing_address.pk %}">Update</a>{% endif %}
+        {% if not object.billing_address %}<a href="{% url 'user_address_create' 'billing' %}">Create</a>{% endif %}
+    </li>
 </ul>
 <h1>Company details</h1>
 <ul>

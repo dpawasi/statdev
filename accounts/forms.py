@@ -5,7 +5,7 @@ from crispy_forms.layout import Layout, Submit
 from django.contrib.auth import get_user_model
 from django.forms import ModelForm, CharField
 
-from .models import EmailUserProfile
+from .models import EmailUserProfile, Address
 
 
 User = get_user_model()
@@ -39,3 +39,18 @@ class EmailUserProfileForm(ModelForm):
                 Submit('cancel', 'Cancel')
             )
         )
+
+
+class AddressForm(ModelForm):
+
+    class Meta:
+        model = Address
+        fields = ['line1', 'line2', 'locality', 'state', 'postcode']
+
+    def __init__(self, *args, **kwargs):
+        super(AddressForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_address'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))

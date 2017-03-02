@@ -25,7 +25,7 @@ class Address(models.Model):
     line1 = models.CharField('Line 1', max_length=255)
     line2 = models.CharField('Line 2', max_length=255, blank=True, null=True)
     locality = models.CharField('Suburb / Town', max_length=255, blank=True, null=True)
-    state = models.CharField(max_length=255, choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
+    state = models.IntegerField(choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
     postcode = models.CharField(max_length=4, blank=True, null=True)
 
     class Meta:
@@ -119,8 +119,8 @@ class EmailUserProfile(models.Model):
     home_phone = models.CharField(max_length=50, null=True, blank=True)
     work_phone = models.CharField(max_length=50, null=True, blank=True)
     mobile = models.CharField(max_length=50, null=True, blank=True)
-    postal_address = models.ForeignKey(Address, related_name='user_postal_address', blank=True, null=True)
-    billing_address = models.ForeignKey(Address, related_name='user_billing_address', blank=True, null=True)
+    postal_address = models.ForeignKey(Address, related_name='user_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
+    billing_address = models.ForeignKey(Address, related_name='user_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = 'user profile'
@@ -149,8 +149,8 @@ class Organisation(models.Model):
     abn = models.CharField(max_length=50, null=True, blank=True)
     # TODO: business logic related to identification file upload/changes.
     identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
-    postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True)
-    billing_address = models.ForeignKey(Address, related_name='org_billing_address', blank=True, null=True)
+    postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
+    billing_address = models.ForeignKey(Address, related_name='org_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
     # TODO: business logic related to delegate changes.
     delegates = models.ManyToManyField(EmailUserProfile, blank=True)
 
