@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, ChoiceField
+
 from .models import Application, Referral, Condition
 
 

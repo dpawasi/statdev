@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
-
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.signals import user_logged_in
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
@@ -111,11 +111,11 @@ class EmailUserProfile(models.Model):
     """This model represents a 1-to-1 profile for an EmailUser object,
     containing additional information about a user.
     """
-    emailuser = models.OneToOneField(EmailUser)
-    dob = models.DateField(null=True, blank=False, verbose_name='date of birth')
+    emailuser = models.OneToOneField(EmailUser, editable=False)
+    dob = models.DateField(null=True, blank=True, verbose_name='date of birth')
     # TODO: business logic related to identification file upload/changes.
     identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
-    id_verified = models.DateField(null=True, blank=False, verbose_name='ID verified')
+    id_verified = models.DateField(null=True, blank=True, verbose_name='ID verified')
     home_phone = models.CharField(max_length=50, null=True, blank=True)
     work_phone = models.CharField(max_length=50, null=True, blank=True)
     mobile = models.CharField(max_length=50, null=True, blank=True)
@@ -128,6 +128,9 @@ class EmailUserProfile(models.Model):
 
     def __str__(self):
         return '{}'.format(self.emailuser.email)
+
+    def get_absolute_url(self):
+        return reverse('user_profile')
 
 
 def get_user_profile(**kwargs):
