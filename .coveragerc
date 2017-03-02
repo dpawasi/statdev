@@ -6,3 +6,4 @@ omit =
     */__init__.py
     statdev/wsgi.py
     statdev/settings.py
+    manage.py
