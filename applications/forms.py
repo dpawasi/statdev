@@ -29,6 +29,7 @@ class ApplicationForm(ModelForm):
         super(ApplicationForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
@@ -67,6 +68,7 @@ class ReferralForm(ModelForm):
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_referral_create'
+        self.helper.attrs = {'novalidate': ''}
         # Limit the referee queryset.
         referee = Group.objects.get_or_create(name='Referee')[0]
         self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
@@ -97,9 +99,10 @@ class ConditionCreateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ConditionCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['condition'].required = True
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
-        self.fields['condition'].required = True
 
 
 class ApplicationAssignForm(ModelForm):
@@ -111,6 +114,7 @@ class ApplicationAssignForm(ModelForm):
         super(ApplicationAssignForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_assign_application'
+        self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
         assessor = Group.objects.get_or_create(name='Assessor')[0]
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[assessor])
@@ -140,10 +144,12 @@ class ApplicationApproveForm(ModelForm):
         super(ApplicationApproveForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_approve_application'
+        self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
         approver = Group.objects.get_or_create(name='Approver')[0]
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[approver])
         self.fields['assignee'].required = True
+        self.fields['assignee'].label = 'Manager'
         # Disable all form fields.
         for k in self.fields.iterkeys():
             self.fields[k].disabled = True
@@ -177,6 +183,7 @@ class ApplicationIssueForm(ModelForm):
         super(ApplicationIssueForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_application_issue'
+        self.helper.attrs = {'novalidate': ''}
         # Disable all form fields.
         for k in self.fields.iterkeys():
             self.fields[k].disabled = True
