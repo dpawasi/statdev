@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import DetailView, CreateView, UpdateView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 
 from .forms import EmailUserProfileForm, AddressForm
 from .models import EmailUserProfile, Address, Organisation
@@ -116,11 +116,30 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        """Override to redirect to the referral's parent application detail view.
-        """
         return reverse('user_profile')
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_success_url())
         return super(AddressUpdate, self).post(request, *args, **kwargs)
+
+
+class AddressDelete(LoginRequiredMixin, DeleteView):
+    model = Address
+
+    def get(self, request, *args, **kwargs):
+        address = self.get_object()
+        profile = self.request.user.emailuserprofile
+        # Rule: only the address owner can delete an address.
+        if profile.postal_address == address or profile.billing_address == address:
+            return super(AddressDelete, self).get(request, *args, **kwargs)
+        messages.error(self.request, 'You cannot delete this address!')
+        return HttpResponseRedirect(reverse('user_profile'))
+
+    def get_success_url(self):
+        return reverse('user_profile')
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        return super(AddressDelete, self).post(request, *args, **kwargs)
