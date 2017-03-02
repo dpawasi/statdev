@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import EmailUserProfileForm, AddressForm
+from .forms import EmailUserProfileForm, AddressForm, OrganisationForm
 from .models import EmailUserProfile, Address, Organisation
 
 
@@ -143,3 +143,29 @@ class AddressDelete(LoginRequiredMixin, DeleteView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_success_url())
         return super(AddressDelete, self).post(request, *args, **kwargs)
+
+
+class OrganisationCreate(LoginRequiredMixin, CreateView):
+    """A view to create a new Organisation.
+    """
+    form_class = OrganisationForm
+    template_name = 'accounts/organisation_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationCreate, self).get_context_data(**kwargs)
+        context['action'] = 'Create'
+        return context
+
+    def get_success_url(self):
+        return reverse('user_profile')
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        return super(OrganisationCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        # Attach the creating user as a delegate to the new organisation.
+        self.obj.delegates.add(self.request.user.emailuserprofile)
+        return HttpResponseRedirect(self.get_success_url())

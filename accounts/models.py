@@ -145,8 +145,8 @@ class Organisation(models.Model):
     """This model represents the details of a company or other organisation.
     Management of these objects will be delegated to 0+ EmailUsers.
     """
-    name = models.CharField(max_length=128)
-    abn = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=128, unique=True)
+    abn = models.CharField(max_length=50, null=True, blank=True, verbose_name='ABN')
     # TODO: business logic related to identification file upload/changes.
     identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
     postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)

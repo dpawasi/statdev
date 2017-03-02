@@ -3,9 +3,9 @@ from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django.contrib.auth import get_user_model
-from django.forms import ModelForm, CharField
+from django.forms import ModelForm, CharField, ValidationError
 
-from .models import EmailUserProfile, Address
+from .models import EmailUserProfile, Address, Organisation
 
 
 User = get_user_model()
@@ -51,6 +51,34 @@ class AddressForm(ModelForm):
         super(AddressForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_address'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class OrganisationAdminForm(ModelForm):
+    """ModelForm that is used in the Django admin site.
+    """
+    model = Organisation
+
+    def clean_abn(self):
+        data = self.cleaned_data['abn']
+        # Check for any existing organisations with the same ABN.
+        if data and Organisation.objects.filter(abn=data).exists():
+            raise ValidationError('An organisation with this ABN already exists.')
+        return data
+
+
+class OrganisationForm(OrganisationAdminForm):
+
+    class Meta:
+        model = Organisation
+        fields = ['name', 'abn', 'identification']
+
+    def __init__(self, *args, **kwargs):
+        super(OrganisationForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_organisation'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

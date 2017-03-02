@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import register
+from .forms import OrganisationAdminForm
 from .models import Address, EmailUser, EmailUserProfile, Organisation
 
 
@@ -20,4 +21,5 @@ class EmailUserProfileAdmin(admin.ModelAdmin):
 
 @register(Organisation)
 class OrganisationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'abn')
+    form = OrganisationAdminForm
