@@ -1,0 +1,25 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<h1>Personal details</h1>
+<ul>
+    <li>Given name(s): {{ object.emailuser.first_name }}</li>
+    <li>Surname: {{ object.emailuser.last_name }}</li>
+    <li>Date of birth: {{ object.dob|date:"d-M-Y" }}</li>
+</ul>
+<h1>Address details</h1>
+<ul>
+    <li>Postal address: {{ object.postal_address }}</li>
+    <li>Billing address: {{ object.billing_address }}</li>
+</ul>
+<h1>Company details</h1>
+<ul>
+{% for org in organisations %}
+    <li>{{ org }}</li>
+{% endfor %}
+</ul>
+<h1>Actions:</h1>
+<ul>
+    <li><a href="{% url 'user_profile_update' %}">Update personal details</a></li>
+</ul>
+{% endblock %}
