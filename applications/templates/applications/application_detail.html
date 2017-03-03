@@ -6,6 +6,7 @@
         <h1>Application for new {{ object.get_app_type_display }} - {{ object.pk }}</h1>
         <br />
     </div>
+<!-- Action panel start -->
     <div class="row">
         <div class="col-lg-2">
             <div class="panel panel-default">
@@ -13,6 +14,11 @@
                     <h3 class="panel-title">Logs</h3>
                 </div>
                 <div class="panel-body">
+                    <h5>Communications</h5>
+                    <p><a href="#">Show</a> | <a href="#">Add Entry</a></p>
+                    <hr />
+                    <h5>Actions</h5>
+                    <p><a href="#">Show</a></p>
                 </div>
             </div>
             <div class="panel panel-default">
@@ -20,6 +26,12 @@
                     <h3 class="panel-title">Submission</h3>
                 </div>
                 <div class="panel-body">
+                    <h5>Submitted by</h5>
+                    <br />
+                    <h5>Lodged on</h5>
+                    <p>{{ object.submit_date|date:"d-M-Y" }}</p>
+                    <br />
+                    <h5>Logement  Date   Action</h5>
                 </div>
             </div>
             <div class="panel panel-default">
@@ -27,9 +39,18 @@
                     <h3 class="panel-title">Workflow</h3>
                 </div>
                 <div class="panel-body">
+                    <h5>Status</h5>
+                    <p>{{ object.get_state_display }}</p>
+                    <h5>Assigned to</h5>
+                    {% if object.assignee %}
+                        <p>{{ object.assignee.first_name }} {{ object.assignee.last_name }}</p>
+                    {% else %}
+                        <p>--</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
+<!-- Main panel start -->
         <div class="col-lg-5">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -138,10 +159,28 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-6">
                                 <h5>Do you have approval to use Department of Transport service jetties?</h5>
-                                <p>{{ object.jetty_dot_approval }}</p>
                             </div>
+                            <div class="col-lg-2">
+                                {% if object.jetty_dot_approval is True %}
+                                
+                                    <label class="radio-inline">
+                                        <input type="radio" name="dotapproval" 
+                                            checked="true" disabled="true">Yes
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="dotapproval" disabled="true">No
+                                    </label>
+                                {% else %}
+                                    <label class="radio-inline">
+                                        <input type="radio" name="dotapproval" disabled="true">Yes
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="dotapproval" 
+                                            checked="true" disabled="true">No
+                                    </label>
+                                {% endif %}
                         </div>
                     </div>
                 </div>
