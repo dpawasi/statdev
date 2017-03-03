@@ -52,6 +52,7 @@
         </div>
 <!-- Main panel start -->
         <div class="col-lg-5">
+            <!-- Applicant panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Applicant</h3>
@@ -76,8 +77,7 @@
                     <p>{{ object.description }}</p>
                 </div>
             </div>
-
-
+            <!-- Vessel / Craft Panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Vessel and Craft Details</h3>
@@ -107,6 +107,7 @@
                     </table>
                 </div>
             </div>
+            <!-- Proposal details panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Proposal Details</h3>
@@ -163,28 +164,122 @@
                                 <h5>Do you have approval to use Department of Transport service jetties?</h5>
                             </div>
                             <div class="col-lg-2">
-                                {% if object.jetty_dot_approval is True %}
+                                    <label class="radio-inline">
+                                        <input type="radio" name="dotapproval" 
+                                            {% if object.jetty_dot_approval is True %}
+                                                checked="true" 
+                                            {% endif %}
+                                            disabled="true">Yes
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="dotapproval" 
+                                            {% if object.jetty_dot_approval is False %}
+                                                checked="true" 
+                                            {% endif %}
+                                            disabled="true">No
+                                    </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>List all drop off and pick up points</h5>
+                                <p>{{ object.drop_off_pick_up }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <h5>Food to be served?</h5>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="radio-inline">
+                                    <input type="radio" name="food" 
+                                        {% if object.food is True %}checked="true"{% endif %} 
+                                        disabled="true">Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="food" 
+                                        {% if object.food is False %}checked="true"{% endif %} 
+                                        disabled="true">No
+                                </label>
+                            </div>
+                            <div class="col-lg-4">
                                 
-                                    <label class="radio-inline">
-                                        <input type="radio" name="dotapproval" 
-                                            checked="true" disabled="true">Yes
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="dotapproval" disabled="true">No
-                                    </label>
-                                {% else %}
-                                    <label class="radio-inline">
-                                        <input type="radio" name="dotapproval" disabled="true">Yes
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="dotapproval" 
-                                            checked="true" disabled="true">No
-                                    </label>
-                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <h5>Beverage to be served?</h5>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="radio-inline">
+                                    <input type="radio" name="beverage" 
+                                        {% if object.beverage is True %}checked="true"{% endif %} 
+                                        disabled="true">Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="beverage" 
+                                        {% if object.beverage is False %}checked="true"{% endif %} 
+                                        disabled="true">No
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <h5>Do you allow BYO alcohol?</h5>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="radio-inline">
+                                    <input type="radio" name="byo_alcohol" 
+                                        {% if object.byo_alcohol is True %}checked="true"{% endif %} 
+                                        disabled="true">Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="byo_alcohol" 
+                                        {% if object.byo_alcohol is False %}checked="true"{% endif %} 
+                                        disabled="true">No
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>Details of sullage disposal method</h5>
+                                <p>{{ object.sullage_disposal }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>Details of waste disposal method</h5>
+                                <p>{{ object.waste_disposal }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>Location and method of refueling</h5>
+                                <p>{{ object.refuel_location_method }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>Berth location</h5>
+                                <p>{{ object.berth_location }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>List all anchorage areas</h5>
+                                <p>{{ object.anchorage }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h5>Hours and days of operation including length of tours/lessons</h5>
+                                <p>{{ object.operating_details }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!--  -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Other Documents</h3>
