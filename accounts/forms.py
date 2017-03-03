@@ -63,8 +63,8 @@ class OrganisationAdminForm(ModelForm):
 
     def clean_abn(self):
         data = self.cleaned_data['abn']
-        # Check for any existing organisations with the same ABN.
-        if data and Organisation.objects.filter(abn=data).exists():
+        # If it's changed, check for any existing organisations with the same ABN.
+        if data and self.instance.abn != data and Organisation.objects.filter(abn=data).exists():
             raise ValidationError('An organisation with this ABN already exists.')
         return data
 
