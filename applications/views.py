@@ -44,6 +44,11 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         initial = super(ApplicationCreate, self).get_initial()
         return initial
 
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ApplicationCreate, self).post(request, *args, **kwargs)
+
     def form_valid(self, form):
         """Override form_valid to set the assignee as the object creator.
         """
@@ -108,6 +113,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['page_heading'] = 'Update application details'
         return context
 
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationUpdate, self).post(request, *args, **kwargs)
+
 
 class ApplicationLodge(LoginRequiredMixin, UpdateView):
     model = Application
@@ -122,6 +132,11 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
             messages.error(self.request, 'This application cannot be lodged!')
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationLodge, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationLodge, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         """Override form_valid to generate an "Assess" task on the new
@@ -169,6 +184,12 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         initial['period'] = 21
         return initial
 
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationRefer, self).post(request, *args, **kwargs)
+
     def form_valid(self, form):
         app = Application.objects.get(pk=self.kwargs['pk'])
         self.object = form.save(commit=False)
@@ -190,6 +211,14 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
     model = Condition
     form_class = ConditionCreateForm
 
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        # Rule: conditions can be created when the app is with admin, with referee or with assessor.
+        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
+            messages.error(self.request, 'New conditions cannot be created for this application!')
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ConditionCreate, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(ConditionCreate, self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
@@ -200,13 +229,11 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         """
         return reverse('application_detail', args=(self.object.application.pk,))
 
-    def get(self, request, *args, **kwargs):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        # Rule: conditions can be created when the app is with admin, with referee or with assessor.
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
-            messages.error(self.request, 'New conditions cannot be created for this application!')
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
             return HttpResponseRedirect(app.get_absolute_url())
-        return super(ConditionCreate, self).get(request, *args, **kwargs)
+        return super(ConditionCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         app = Application.objects.get(pk=self.kwargs['pk'])
@@ -234,6 +261,11 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationAssign, self).post(request, *args, **kwargs)
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.state = self.object.APP_STATE_CHOICES.with_assessor
@@ -248,12 +280,22 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
     form_class = ReferralCompleteForm
 
     def get(self, request, *args, **kwargs):
-        # Business rule: only the referee can mark a referral "complete".
         referral = self.get_object()
-        if referral.referee != request.user:
-            messages.error(self.request, 'You are unable to mark this referral as complete!')
+        # Rule: can't mark a referral completed more than once.
+        if referral.response_date:
+            messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
-        return super(ReferralComplete, self).get(request, *args, **kwargs)
+        # Rule: only the referee (or a superuser) can mark a referral "complete".
+        # TODO: additional rules around expiring referrals.
+        if referral.referee == request.user or request.user.is_superuser:
+            return super(ReferralComplete, self).get(request, *args, **kwargs)
+        messages.error(self.request, 'You are unable to mark this referral as complete!')
+        return HttpResponseRedirect(referral.application.get_absolute_url())
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralComplete, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -263,20 +305,24 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
 
 
 class ApplicationApprove(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an assessor.
+    """A view to allow an application to be send to a manager for approval.
     TODO: refactor this view to share the ApplicationAssign view logic.
     """
     model = Application
     form_class = ApplicationApproveForm
 
     def get(self, request, *args, **kwargs):
-        # Rule: only the assignee can perform this action.
-        # TODO: any other business rules.
+        # Rule: only the assignee (or a superuser) can perform this action.
         app = self.get_object()
-        if app.assignee != request.user:
-            messages.error(self.request, 'You are unable to assign this application for approval/issue!')
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(ApplicationApprove, self).get(request, *args, **kwargs)
+        if app.assignee == request.user or request.user.is_superuser:
+            return super(ApplicationApprove, self).get(request, *args, **kwargs)
+        messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+        return HttpResponseRedirect(app.get_absolute_url())
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationApprove, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -292,13 +338,17 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
     form_class = ApplicationIssueForm
 
     def get(self, request, *args, **kwargs):
-        # Rule: only the assignee can perform this action.
-        # TODO: any other business rules.
+        # Rule: only the assignee (or a superuser) can perform this action.
         app = self.get_object()
-        if app.assignee != request.user:
-            messages.error(self.request, 'You are unable to issue this application!')
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(ApplicationIssue, self).get(request, *args, **kwargs)
+        if app.assignee == request.user or request.user.is_superuser:
+            return super(ApplicationIssue, self).get(request, *args, **kwargs)
+        messages.error(self.request, 'You are unable to issue this application!')
+        return HttpResponseRedirect(app.get_absolute_url())
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationIssue, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
