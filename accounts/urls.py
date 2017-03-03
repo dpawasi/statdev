@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^addresses/create/(?P<type>\w+)/$', views.UserAddressCreate.as_view(), name='user_address_create'),
     url(r'^addresses/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
     url(r'^addresses/(?P<pk>\d+)/delete/$', views.AddressDelete.as_view(), name='address_delete'),
+    url(r'^organisations/$', views.OrganisationList.as_view(), name='organisation_list'),
     url(r'^organisations/create/$', views.OrganisationCreate.as_view(), name='organisation_create'),
     url(r'^organisations/(?P<pk>\d+)/update/$', views.OrganisationUpdate.as_view(), name='organisation_update'),
     url(r'^organisations/(?P<pk>\d+)/create-address/(?P<type>\w+)/$', views.OrganisationAddressCreate.as_view(), name='organisation_address_create'),
