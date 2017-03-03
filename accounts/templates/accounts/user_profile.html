@@ -1,0 +1,66 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<h1>Personal details</h1>
+<ul>
+    <li>Given name(s): {{ object.emailuser.first_name }}</li>
+    <li>Surname: {{ object.emailuser.last_name }}</li>
+    <li>Date of birth: {{ object.dob|date:"d-M-Y" }}</li>
+    <li>Home phone: {{ object.home_phone }}</li>
+    <li>Work phone: {{ object.work_phone}}</li>
+    <li>Mobile: {{ object.mobile }}</li>
+</ul>
+<h1>Address details</h1>
+<ul>
+    <li>
+        Postal address: {{ object.postal_address }}
+        {% if object.postal_address %}
+            <a href="{% url 'address_update' object.postal_address.pk %}">Update</a>
+            <a href="{% url 'address_delete' object.postal_address.pk %}">Delete</a>
+        {% endif %}
+        {% if not object.postal_address %}<a href="{% url 'user_address_create' 'postal' %}">Create</a>{% endif %}
+    </li>
+    <li>
+        Billing address: {{ object.billing_address }}
+        {% if object.billing_address %}
+            <a href="{% url 'address_update' object.billing_address.pk %}">Update</a>
+            <a href="{% url 'address_delete' object.billing_address.pk %}">Delete</a>
+        {% endif %}
+        {% if not object.billing_address %}<a href="{% url 'user_address_create' 'billing' %}">Create</a>{% endif %}
+    </li>
+</ul>
+<h1>Company/organisation details</h1>
+<p>You are delegated to submit applications on behalf of the following:</p>
+<ul>
+{% for org in organisations %}
+    <li>
+        {{ org }}
+        <a href="{% url 'organisation_update' org.pk %}">Update</a>
+        {# TODO: unlink function for org delegates #}Unlink
+        <ul>
+            <li>
+                Postal address: {{ org.postal_address }}
+                {% if org.postal_address %}
+                    <a href="{% url 'address_update' org.postal_address.pk %}">Update</a>
+                    <a href="{% url 'address_delete' org.postal_address.pk %}">Delete</a>
+                {% endif %}
+                {% if not org.postal_address %}<a href="{% url 'organisation_address_create' org.pk 'postal' %}">Create</a>{% endif %}
+            </li>
+            <li>
+                Billing address: {{ org.billing_address }}
+                {% if org.billing_address %}
+                    <a href="{% url 'address_update' org.billing_address.pk %}">Update</a>
+                    <a href="{% url 'address_delete' org.billing_address.pk %}">Delete</a>
+                {% endif %}
+                {% if not org.billing_address %}<a href="{% url 'organisation_address_create' org.pk 'billing' %}">Create</a>{% endif %}
+            </li>
+        </ul>
+    </li>
+{% endfor %}
+</ul>
+<h1>Actions:</h1>
+<ul>
+    <li><a href="{% url 'user_profile_update' %}">Update personal details</a></li>
+    <li><a href="{% url 'organisation_create' %}">Create company/organisation details</a></li>
+</ul>
+{% endblock %}
