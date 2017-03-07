@@ -3,11 +3,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from itertools import chain
 
 from .forms import EmailUserProfileForm, AddressForm, OrganisationForm
 from .models import EmailUserProfile, Address, Organisation
+from .utils import get_query
 
 
 class UserProfile(LoginRequiredMixin, DetailView):
@@ -164,6 +165,21 @@ class AddressDelete(LoginRequiredMixin, DeleteView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_success_url())
         return super(AddressDelete, self).post(request, *args, **kwargs)
+
+
+class OrganisationList(ListView):
+    model = Organisation
+
+    def get_queryset(self):
+        qs = super(OrganisationList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by name and ABN fields.
+            query = get_query(query_str, ['name', 'abn'])
+        return qs.filter(query).distinct()
 
 
 class OrganisationCreate(LoginRequiredMixin, CreateView):

@@ -15,7 +15,6 @@ class BaseFormHelper(FormHelper):
     form_class = 'form-horizontal'
     label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
-    help_text_inline = True
 
 
 class EmailUserProfileForm(ModelForm):
@@ -77,6 +76,9 @@ class OrganisationForm(OrganisationAdminForm):
 
     def __init__(self, *args, **kwargs):
         super(OrganisationForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Company name'
+        self.fields['identification'].label = 'Certificate of incorporation'
+        self.fields['identification'].help_text = 'Electronic copy of current certificate (e.g. image/PDF)'
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_organisation'
         self.helper.attrs = {'novalidate': ''}
