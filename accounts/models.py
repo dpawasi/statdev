@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
-
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.signals import user_logged_in
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
@@ -25,7 +25,7 @@ class Address(models.Model):
     line1 = models.CharField('Line 1', max_length=255)
     line2 = models.CharField('Line 2', max_length=255, blank=True, null=True)
     locality = models.CharField('Suburb / Town', max_length=255, blank=True, null=True)
-    state = models.CharField(max_length=255, choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
+    state = models.IntegerField(choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
     postcode = models.CharField(max_length=4, blank=True, null=True)
 
     class Meta:
@@ -111,16 +111,16 @@ class EmailUserProfile(models.Model):
     """This model represents a 1-to-1 profile for an EmailUser object,
     containing additional information about a user.
     """
-    emailuser = models.OneToOneField(EmailUser)
-    dob = models.DateField(null=True, blank=False, verbose_name='date of birth')
+    emailuser = models.OneToOneField(EmailUser, editable=False)
+    dob = models.DateField(null=True, blank=True, verbose_name='date of birth')
     # TODO: business logic related to identification file upload/changes.
     identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
-    id_verified = models.DateField(null=True, blank=False, verbose_name='ID verified')
+    id_verified = models.DateField(null=True, blank=True, verbose_name='ID verified')
     home_phone = models.CharField(max_length=50, null=True, blank=True)
     work_phone = models.CharField(max_length=50, null=True, blank=True)
     mobile = models.CharField(max_length=50, null=True, blank=True)
-    postal_address = models.ForeignKey(Address, related_name='user_postal_address', blank=True, null=True)
-    billing_address = models.ForeignKey(Address, related_name='user_billing_address', blank=True, null=True)
+    postal_address = models.ForeignKey(Address, related_name='user_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
+    billing_address = models.ForeignKey(Address, related_name='user_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = 'user profile'
@@ -128,6 +128,9 @@ class EmailUserProfile(models.Model):
 
     def __str__(self):
         return '{}'.format(self.emailuser.email)
+
+    def get_absolute_url(self):
+        return reverse('user_profile')
 
 
 def get_user_profile(**kwargs):
@@ -142,12 +145,12 @@ class Organisation(models.Model):
     """This model represents the details of a company or other organisation.
     Management of these objects will be delegated to 0+ EmailUsers.
     """
-    name = models.CharField(max_length=128)
-    abn = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=128, unique=True)
+    abn = models.CharField(max_length=50, null=True, blank=True, verbose_name='ABN')
     # TODO: business logic related to identification file upload/changes.
     identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
-    postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True)
-    billing_address = models.ForeignKey(Address, related_name='org_billing_address', blank=True, null=True)
+    postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
+    billing_address = models.ForeignKey(Address, related_name='org_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
     # TODO: business logic related to delegate changes.
     delegates = models.ManyToManyField(EmailUserProfile, blank=True)
 

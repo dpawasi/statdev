@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, ChoiceField
+
 from .models import Application, Referral, Condition
 
 
@@ -46,7 +47,7 @@ class ApplicationLodgeForm(ModelForm):
         self.helper.form_id = 'id_form_lodge_application'
         self.helper.form_action = reverse('application_lodge', args=(app.pk,))
         # Disable all form fields.
-        for k in self.fields.iterkeys():
+        for k, v in self.fields.items():
             self.fields[k].disabled = True
         # Define the form layout.
         self.helper.layout = Layout(
@@ -120,7 +121,7 @@ class ApplicationAssignForm(ModelForm):
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[assessor])
         self.fields['assignee'].required = True
         # Disable all form fields.
-        for k in self.fields.iterkeys():
+        for k, v in self.fields.items():
             self.fields[k].disabled = True
         # Re-enable the assignee field.
         self.fields['assignee'].disabled = False
@@ -151,7 +152,7 @@ class ApplicationApproveForm(ModelForm):
         self.fields['assignee'].required = True
         self.fields['assignee'].label = 'Manager'
         # Disable all form fields.
-        for k in self.fields.iterkeys():
+        for k, v in self.fields.items():
             self.fields[k].disabled = True
         # Re-enable the assignee field.
         self.fields['assignee'].disabled = False
@@ -185,7 +186,7 @@ class ApplicationIssueForm(ModelForm):
         self.helper.form_id = 'id_form_application_issue'
         self.helper.attrs = {'novalidate': ''}
         # Disable all form fields.
-        for k in self.fields.iterkeys():
+        for k, v in self.fields.items():
             self.fields[k].disabled = True
         # Re-enable the assessment field.
         self.fields['assessment'].disabled = False
