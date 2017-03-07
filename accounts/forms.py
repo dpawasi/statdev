@@ -3,7 +3,7 @@ from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django.contrib.auth import get_user_model
-from django.forms import ModelForm, CharField, ValidationError
+from django.forms import Form, ModelForm, CharField, ValidationError
 
 from .models import EmailUserProfile, Address, Organisation
 
@@ -83,4 +83,13 @@ class OrganisationForm(OrganisationAdminForm):
         self.helper.form_id = 'id_form_organisation'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class DelegateAccessForm(Form):
+
+    def __init__(self, *args, **kwargs):
+        super(DelegateAccessForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.add_input(Submit('confirm', 'Confirm', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

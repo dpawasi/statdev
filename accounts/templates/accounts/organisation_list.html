@@ -19,6 +19,7 @@
         <tr>
             <th>Name</th>
             <th>ABN</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -26,6 +27,7 @@
         <tr>
             <td>{{ obj.name }}</td>
             <td>{{ obj.abn }}</td>
+            <td>{% if user.emailuserprofile not in obj.delegates.all %}<a href="{% url 'organisation_request_delegate_access' obj.pk %}">Request delegate access<a/>{% endif %}</td>
         </tr>
         {% endfor %}
     </tbody>
