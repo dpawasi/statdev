@@ -10,6 +10,7 @@
     <li>Work phone: {{ object.work_phone}}</li>
     <li>Mobile: {{ object.mobile }}</li>
 </ul>
+<p><a href="{% url 'user_profile_update' %}">Update personal details</a></p>
 <h1>Address details</h1>
 <ul>
     <li>
@@ -30,7 +31,7 @@
     </li>
 </ul>
 <h1>Company/organisation details</h1>
-<p>You are delegated to submit applications on behalf of the following:</p>
+{% if organisations %}<p>You are delegated to submit applications on behalf of the following:</p>{% endif %}
 <ul>
 {% for org in organisations %}
     <li>
@@ -58,9 +59,5 @@
     </li>
 {% endfor %}
 </ul>
-<h1>Actions:</h1>
-<ul>
-    <li><a href="{% url 'user_profile_update' %}">Update personal details</a></li>
-    <li><a href="{% url 'organisation_create' %}">Create company/organisation details</a></li>
-</ul>
+<p><a href="{% url 'organisation_create' %}">Create company/organisation</a></p>
 {% endblock %}

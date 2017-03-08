@@ -138,7 +138,7 @@ class Application(ActiveMixin):
     current_land_use = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.state)
+        return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.get_state_display())
 
     def get_absolute_url(self):
         return reverse('application_detail', args=(self.pk,))
