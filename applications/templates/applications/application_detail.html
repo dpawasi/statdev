@@ -166,16 +166,16 @@
                             </div>
                             <div class="col-lg-2">
                                     <label class="radio-inline">
-                                        <input type="radio" name="dotapproval" 
+                                        <input type="radio" name="dotapproval"
                                             {% if object.jetty_dot_approval is True %}
-                                                checked="true" 
+                                                checked="true"
                                             {% endif %}
                                             disabled="true">Yes
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="dotapproval" 
+                                        <input type="radio" name="dotapproval"
                                             {% if object.jetty_dot_approval is False %}
-                                                checked="true" 
+                                                checked="true"
                                             {% endif %}
                                             disabled="true">No
                                     </label>
@@ -193,18 +193,18 @@
                             </div>
                             <div class="col-lg-4">
                                 <label class="radio-inline">
-                                    <input type="radio" name="food" 
-                                        {% if object.food is True %}checked="true"{% endif %} 
+                                    <input type="radio" name="food"
+                                        {% if object.food is True %}checked="true"{% endif %}
                                         disabled="true">Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="food" 
-                                        {% if object.food is False %}checked="true"{% endif %} 
+                                    <input type="radio" name="food"
+                                        {% if object.food is False %}checked="true"{% endif %}
                                         disabled="true">No
                                 </label>
                             </div>
                             <div class="col-lg-4">
-                                
+
                             </div>
                         </div>
                         <div class="row">
@@ -213,13 +213,13 @@
                             </div>
                             <div class="col-lg-4">
                                 <label class="radio-inline">
-                                    <input type="radio" name="beverage" 
-                                        {% if object.beverage is True %}checked="true"{% endif %} 
+                                    <input type="radio" name="beverage"
+                                        {% if object.beverage is True %}checked="true"{% endif %}
                                         disabled="true">Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="beverage" 
-                                        {% if object.beverage is False %}checked="true"{% endif %} 
+                                    <input type="radio" name="beverage"
+                                        {% if object.beverage is False %}checked="true"{% endif %}
                                         disabled="true">No
                                 </label>
                             </div>
@@ -230,13 +230,13 @@
                             </div>
                             <div class="col-lg-4">
                                 <label class="radio-inline">
-                                    <input type="radio" name="byo_alcohol" 
-                                        {% if object.byo_alcohol is True %}checked="true"{% endif %} 
+                                    <input type="radio" name="byo_alcohol"
+                                        {% if object.byo_alcohol is True %}checked="true"{% endif %}
                                         disabled="true">Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="byo_alcohol" 
-                                        {% if object.byo_alcohol is False %}checked="true"{% endif %} 
+                                    <input type="radio" name="byo_alcohol"
+                                        {% if object.byo_alcohol is False %}checked="true"{% endif %}
                                         disabled="true">No
                                 </label>
                             </div>
@@ -363,19 +363,35 @@
                 </div>
                 <div class="panel-body">
                     {% if object.referral_set.exists %}
-                    <ul>
+                    <table class="table table-striped table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Sent date</th>
+                                <th>Period (days)</th>
+                                <th>Status</th>
+                                <th>Feedback</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         {% for ref in object.referral_set.all %}
-                        <li>Referral {{ ref.pk }} to {{ ref.referee }}
-                            {% if may_refer and not ref.response_date %}
-                                <a href="">Remind</a> <a href="">Resend</a> <a href="">Recall</a>
-                            {% endif %}
-                            {% if ref.referee == user and not ref.response_date %}
-                                <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
-                                <a href="{% url 'referral_complete' ref.pk %}">Completed</a>
-                            {% endif %}
-                        </li>
+                            <tr>
+                                <td>{{ ref.referee.email }}</td>
+                                <td>{{ ref.sent_date|date:"d-M-Y" }}</td>
+                                <td>{{ ref.period }}</td>
+                                <td>{{ ref.get_status_display }}</td>
+                                <td>{{ ref.feedback }}</td>
+                                <td>
+                                {% if ref.referee == user and not ref.response_date %}
+                                    <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
+                                    <a href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
+                                {% endif %}
+                                </td>
+                            </tr>
                         {% endfor %}
-                    </ul>
+                        </tbody>
+                    </table>
                     {% else %}
                     <p>None</p>
                     {% endif %}

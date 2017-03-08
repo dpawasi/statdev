@@ -170,6 +170,12 @@ class Referral(ActiveMixin):
     """This model represents a referral of an application to a referee
     (external or internal) for comment/conditions.
     """
+    REFERRAL_STATUS_CHOICES = Choices(
+        (1, 'referred', ('Referred')),
+        (2, 'responded', ('Responded')),
+        (3, 'recalled', ('Recalled')),
+        (4, 'expired', ('Expired')),
+    )
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     referee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     details = models.TextField(blank=True, null=True)
@@ -179,6 +185,7 @@ class Referral(ActiveMixin):
     response_date = models.DateField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
     documents = models.ManyToManyField(Document, blank=True)
+    status = models.IntegerField(choices=REFERRAL_STATUS_CHOICES, default=REFERRAL_STATUS_CHOICES.referred)
 
     class Meta:
         unique_together = ('application', 'referee')
