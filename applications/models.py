@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-
+from datetime import timedelta
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
@@ -9,6 +9,7 @@ from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
 
 from accounts.models import Organisation
+
 
 @python_2_unicode_compatible
 class Document(ActiveMixin):
@@ -174,6 +175,7 @@ class Referral(ActiveMixin):
     details = models.TextField(blank=True, null=True)
     sent_date = models.DateField()
     period = models.PositiveIntegerField(verbose_name='period (days)')
+    expire_date = models.DateField(blank=True, null=True, editable=False)
     response_date = models.DateField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
     documents = models.ManyToManyField(Document, blank=True)
@@ -183,6 +185,12 @@ class Referral(ActiveMixin):
 
     def __str__(self):
         return 'Referral {} to {} ({})'.format(self.pk, self.referee, self.application)
+
+    def save(self, *args, **kwargs):
+        """Override save to set the expire_date field.
+        """
+        self.expire_date = self.sent_date + timedelta(days=self.period)
+        super(Referral, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
