@@ -27,6 +27,7 @@
                 </div>
                 <div class="panel-body">
                     <h5>Submitted by</h5>
+                    <p>{{ object.applicant.first_name }} {{ object.applicant.last_name }}</p>
                     <br />
                     <h5>Lodged on</h5>
                     <p>{{ object.submit_date|date:"d-M-Y" }}</p>
@@ -279,28 +280,83 @@
                     </div>
                 </div>
             </div>
-            <!--  -->
+            <!-- Other Documents panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Other Documents</h3>
                 </div>
                 <div class="panel-body">
+                    <div class ="row">
+                        <div class="col-lg-6">
+                            <h5>Certificate of Survey</h5>
+                        </div>
+                        <div class="col-lg-4">
+                            <p>{{ object.cert_survey }}</p>
+                        </div>
+                    </div>
+                    <div class ="row">
+                        <div class="col-lg-6">
+                            <h5>Public Liability Insurance Certificate</h5>
+                        </div>
+                        <div class="col-lg-4">
+                            <p>{{ object.cert_public_liability_insurance }}</p>
+                        </div>
+                    </div>
+                    <div class ="row">
+                        <div class="col-lg-6">
+                            <h5>Risk Management Plan (if available)</h5>
+                        </div>
+                        <div class="col-lg-4">
+                            <p>{{ object.risk_mgmt_plan }}</p>
+                        </div>
+                    </div>
+                    <div class ="row">
+                        <div class="col-lg-6">
+                            <h5>Safety Management Procedures (if available)</h5>
+                        </div>
+                        <div class="col-lg-4">
+                            <p>{{ object.safety_mgmt_procedures }}</p>
+                        </div>
+                    </div>
+                    <div class ="row">
+                        <div class="col-lg-6">
+                            <h5>Brochures, itineraries or advertisements (if available)</h5>
+                        </div>
+                        <div class="col-lg-4">
+                            <p>{{ object.brochures_itineries_adverts }}</p>
+                        </div>
+                    </div>
+                    <div class ="row">
+                        <div class="col-lg-6">
+                            <h5>Other relevant supporting documentation (if available)</h5>
+                        </div>
+                        <div class="col-lg-4">
+                            <p>{{ object.other_supporting_docs }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- Landowner Consent panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Landowner Consent</h3>
                 </div>
                 <div class="panel-body">
+                    <h5>Landowner consent document/s</h5>
+                    <p>{{ object.land_owner_consent }}</p>
                 </div>
             </div>
+            <!-- Deed panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Deed</h3>
                 </div>
                 <div class="panel-body">
+                    <h5>Deed</h5>
+                    <p>{{ object.deed }}</p>
                 </div>
             </div>
+            <!-- Referrals panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Referrals</h3>
@@ -325,6 +381,7 @@
                     {% endif %}
                 </div>
             </div>
+            <!-- Conditions panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Conditions</h3>
