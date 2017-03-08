@@ -42,7 +42,8 @@ class LocationAdmin(admin.ModelAdmin):
 class ReferralAdmin(admin.ModelAdmin):
     date_hierarchy = 'sent_date'
     filter_horizontal = ('documents',)
-    list_display = ('application', 'referee', 'sent_date', 'period', 'response_date')
+    list_display = ('application', 'referee', 'sent_date', 'period', 'status', 'expire_date', 'response_date')
+    list_filter = ('status',)
     search_fields = ('application__title', 'referee__email', 'details', 'feedback')
 
 
