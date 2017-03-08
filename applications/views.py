@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+from accounts.utils import get_query
 from .models import Application, Referral, Condition, Task
 from .forms import (
     ApplicationForm, ApplicationLodgeForm, ReferralForm, ReferralCompleteForm,
@@ -34,6 +35,18 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
 class ApplicationList(ListView):
     model = Application
+
+    def get_queryset(self):
+        qs = super(ApplicationList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by pk, title, applicant__email, organisation__name, assignee__email
+            query = get_query(query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
+            qs = qs.filter(query).distinct()
+        return qs
 
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):

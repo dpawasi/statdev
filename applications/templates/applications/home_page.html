@@ -3,7 +3,7 @@
 {% block page_content_inner %}
 <h1>{{ page_heading }}</h1>
 <ul>
-    <li><a href="{% url 'application_list' %}">List all applications</a></li>
+    <li><a href="{% url 'application_list' %}">List/search applications</a></li>
     {% if may_create %}<li><a href="{% url 'application_create' %}">Create a new application</a></li>{% endif %}
 </ul>
 
