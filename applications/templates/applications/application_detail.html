@@ -3,12 +3,12 @@
 {% block page_content_inner %}
 <div class="container-fluid">
     <div class="row">
-        <h1>Application for new {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
         <br />
     </div>
 <!-- Action panel start -->
     <div class="row">
-        <div class="col-lg-2">
+        <div class="col-sm-4 col-md-3 col-lg-2">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Logs</h3>
@@ -18,7 +18,16 @@
                     <p><a href="#">Show</a> | <a href="#">Add Entry</a></p>
                     <hr />
                     <h5>Actions</h5>
-                    <p><a href="#">Show</a></p>
+                    {# TODO: hide the Actions dropdown when no actions can be performed #}
+                    <ul>
+                        {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
+                        {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
+                        {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
+                        {% if may_assign %}<li><a href="{% url 'application_assign' object.pk %}">Assign to an assessor</a></li>{% endif %}
+                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
+                        {% if may_submit_approval %}<li><a href="{% url 'application_approval' object.pk %}">Send for approval (assessment completed)</a></li>{% endif %}
+                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
+                    </ul>
                 </div>
             </div>
             <div class="panel panel-default">
@@ -27,7 +36,11 @@
                 </div>
                 <div class="panel-body">
                     <h5>Submitted by</h5>
-                    <p>{{ object.applicant.first_name }} {{ object.applicant.last_name }}</p>
+                    <p>
+                        {% if object.applicant.first_name %}{{ object.applicant.first_name }} {{ object.applicant.last_name }}
+                        {% else %}{{ object.applicant.email }}
+                        {% endif %}
+                    </p>
                     <br />
                     <h5>Lodged on</h5>
                     <p>{{ object.submit_date|date:"d-M-Y" }}</p>
@@ -44,7 +57,11 @@
                     <p>{{ object.get_state_display }}</p>
                     <h5>Assigned to</h5>
                     {% if object.assignee %}
-                        <p>{{ object.assignee.first_name }} {{ object.assignee.last_name }}</p>
+                        <p>
+                        {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
+                        {% else %}{{ object.assignee.email }}
+                        {% endif %}
+                        </p>
                     {% else %}
                         <p>--</p>
                     {% endif %}
@@ -52,7 +69,7 @@
             </div>
         </div>
 <!-- Main panel start -->
-        <div class="col-lg-5">
+        <div class="col-sm-8 col-md-9 col-lg-10">
             <!-- Applicant panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -86,24 +103,24 @@
                 <div class="panel-body">
                     <table class="table table-bordered table-striped">
                         <tr>
-                            <th class="col-lg-3">Submitted:</th>
-                            <td class="col-lg-3"> {{ object.submit_date|date:"d-M-Y" }}</td>
+                            <th class="col-sm-3 col-md-2">Submitted:</th>
+                            <td class="col-sm-9 col-md-10"> {{ object.submit_date|date:"d-M-Y" }}</td>
                         </tr>
                         <tr>
-                            <th class="col-lg-3">Type:</th>
-                            <td class="col-lg-3">{{ object.get_app_type_display }}</td>
+                            <th>Type:</th>
+                            <td>{{ object.get_app_type_display }}</td>
                         </tr>
                         <tr>
-                            <th class="col-lg-3">Title:</th>
-                            <td class="col-lg-3">{{ object.title }}</td>
+                            <th>Title:</th>
+                            <td>{{ object.title }}</td>
                         </tr>
                         <tr>
-                            <th class="col-lg-3">Description:</th>
-                            <td class="col-lg-3">{{ object.description }}</td>
+                            <th>Description:</th>
+                            <td>{{ object.description }}</td>
                         </tr>
                         <tr>
-                            <th class="col-lg-3">Status:</th>
-                            <td class="col-lg-3"> {{ object.get_state_display }}</td>
+                            <th>Status:</th>
+                            <td>{{ object.get_state_display }}</td>
                         </tr>
                     </table>
                 </div>
@@ -387,6 +404,8 @@
                                     <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
                                     <a href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
                                 {% endif %}
+                                Recall
+                                Resend
                                 </td>
                             </tr>
                         {% endfor %}
@@ -431,16 +450,4 @@
 <p>None</p>
 {% endif %}
 {% endcomment %}
-
-<h2>Actions:</h2>
-<ul>
-    {# TODO: show actions greyed-out where they cannot be performed. #}
-    {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
-    {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
-    {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
-    {% if may_assign %}<li><a href="{% url 'application_assign' object.pk %}">Assign to an assessor</a></li>{% endif %}
-    {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
-    {% if may_submit_approval %}<li><a href="{% url 'application_approval' object.pk %}">Send for approval (assessment completed)</a></li>{% endif %}
-    {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
-</ul>
-{% endblock %}
+{% endblock page_content_inner %}

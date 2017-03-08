@@ -7,6 +7,26 @@
     {% if may_create %}<li><a href="{% url 'application_create' %}">Create a new application</a></li>{% endif %}
 </ul>
 
+{% if applications %}
+<h2>My applications (in-progress):</h2>
+</ul>
+    {% for app in applications %}
+    <li><a href="{% url 'application_detail' app.pk %}">Application {{ app }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+{% if applications_submitted %}
+<h2>My submitted applications:</h2>
+</ul>
+    {% for app in applications_submitted %}
+    <li><a href="{% url 'application_detail' app.pk %}">Application {{ app }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
 {% if referrals %}
 <h2>My referrals:</h2>
 <ul>

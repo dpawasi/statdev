@@ -24,6 +24,11 @@ class HomePage(LoginRequiredMixin, TemplateView):
         context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
+        if Application.objects.filter(assignee=self.request.user).exists():
+            context['applications'] = Application.objects.filter(assignee=self.request.user)
+        if Application.objects.filter(applicant=self.request.user).exists():
+            context['applications_submitted'] = Application.objects.filter(
+                applicant=self.request.user).exclude(assignee=self.request.user)
         return context
 
 
@@ -68,11 +73,12 @@ class ApplicationDetail(DetailView):
         processor = Group.objects.get_or_create(name='Processor')[0]
         assessor = Group.objects.get_or_create(name='Assessor')[0]
         approver = Group.objects.get_or_create(name='Approver')[0]
-        # Rule: if the application status is 'draft', it can be updated.
-        # Rule: if the application status is 'draft', it can be lodged.
         if app.state == app.APP_STATE_CHOICES.draft:
-            context['may_update'] = True
-            context['may_lodge'] = True
+            # Rule: if the application status is 'draft', it can be updated.
+            # Rule: if the application status is 'draft', it can be lodged.
+            if app.applicant == self.request.user or self.request.user.is_superuser:
+                context['may_update'] = True
+                context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
             # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
@@ -274,7 +280,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
 
 class ReferralComplete(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an assessor.
+    """A view to allow a referral to be marked as 'completed'.
     """
     model = Referral
     form_class = ReferralCompleteForm
