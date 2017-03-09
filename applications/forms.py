@@ -91,6 +91,19 @@ class ReferralCompleteForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
+class ReferralRecallForm(ModelForm):
+    class Meta:
+        model = Referral
+        exclude = ['effective_to', 'application', 'referee', 'details', 'sent_date', 'period', 'response_date', 'feedback', 'documents', 'status']
+
+    def __init__(self, *args, **kwargs):
+        super(ReferralRecallForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_referral_recall'
+        self.helper.add_input(Submit('recall', 'Recall', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
 class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition

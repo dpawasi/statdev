@@ -401,11 +401,17 @@
                                 <td>{{ ref.feedback }}</td>
                                 <td>
                                 {% if ref.referee == user and not ref.response_date %}
-                                    <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
-                                    <a href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
+                                <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
+                                <a href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
                                 {% endif %}
-                                Recall
+                                {% if may_recall_resend %}
+                                {% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
+                                <a href="{% url 'referral_recall' ref.pk %}">Recall</a>
+                                {% endif %}
+                                {% if ref.feedback %}
                                 Resend
+                                {% endif %}
+                                {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

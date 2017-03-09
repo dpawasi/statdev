@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/approval/$', views.ApplicationApprove.as_view(), name='application_approval'),
     url(r'^applications/(?P<pk>\d+)/issue/$', views.ApplicationIssue.as_view(), name='application_issue'),
     url(r'^referrals/(?P<pk>\d+)/complete/$', views.ReferralComplete.as_view(), name='referral_complete'),
+    url(r'^referrals/(?P<pk>\d+)/recall/$', views.ReferralRecall.as_view(), name='referral_recall'),
     #url(r'^tasks/(?P<pk>\d+)/reassign/$', views.TaskReassign.as_view(), name='task_reassign'),
 ]
