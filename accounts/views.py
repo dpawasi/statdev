@@ -1,13 +1,19 @@
 from __future__ import unicode_literals
+from datetime import timedelta
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from itertools import chain
 
-from .forms import EmailUserProfileForm, AddressForm, OrganisationForm
-from .models import EmailUserProfile, Address, Organisation
+from .forms import EmailUserProfileForm, AddressForm, OrganisationForm, DelegateAccessForm
+from .models import EmailUser, EmailUserProfile, Address, Organisation
 from .utils import get_query
 
 
@@ -167,7 +173,7 @@ class AddressDelete(LoginRequiredMixin, DeleteView):
         return super(AddressDelete, self).post(request, *args, **kwargs)
 
 
-class OrganisationList(ListView):
+class OrganisationList(LoginRequiredMixin, ListView):
     model = Organisation
 
     def get_queryset(self):
@@ -179,7 +185,8 @@ class OrganisationList(ListView):
             query_str = query_str.replace("'", r'"')
             # Filter by name and ABN fields.
             query = get_query(query_str, ['name', 'abn'])
-        return qs.filter(query).distinct()
+            qs = qs.filter(query).distinct()
+        return qs
 
 
 class OrganisationCreate(LoginRequiredMixin, CreateView):
@@ -256,3 +263,104 @@ class OrganisationAddressCreate(UserAddressCreate):
             org.billing_address = self.obj
         org.save()
         return HttpResponseRedirect(reverse('user_profile'))
+
+
+class RequestDelegateAccess(LoginRequiredMixin, FormView):
+    """A view to allow a user to request to be added to an organisation as a delegate.
+    This view sends an email to all current delegate, any of whom may confirm the request.
+    """
+    form_class = DelegateAccessForm
+    template_name = 'accounts/request_delegate_access.html'
+
+    def get_organisation(self):
+        return Organisation.objects.get(pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        # Rule: redirect if the user is already a delegate.
+        org = self.get_organisation()
+        if request.user.emailuserprofile in org.delegates.all():
+            messages.error(self.request, 'You are already a delegate for this organisation!')
+            return HttpResponseRedirect(reverse('user_profile'))
+        return super(RequestDelegateAccess, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RequestDelegateAccess, self).get_context_data(**kwargs)
+        context['organisation'] = self.get_organisation()
+        return context
+
+    def get_success_url(self):
+        return reverse('user_profile')
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        # For each existing organisation delegate user, send an email that
+        # contains a unique URL to confirm the request. The URL consists of the
+        # requesting user PK (base 64-encoded) plus a unique token for that user.
+        org = self.get_organisation()
+        if not org.delegates.exists():
+            # TODO: handle the situation where an organisation has no delegates.
+            raise Exception('No delegates exist for {}'.format(org.name))
+        user = self.request.user
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        url = reverse('organisation_confirm_delegate_access', args=(org.pk, uid, token))
+        url = request.build_absolute_uri(url)
+        subject = 'Delegate access request for {}'.format(org.name)
+        message = '''The following user has requested delegate access for {}: {}\n
+        Click here to confirm and grant this access request:\n{}'''.format(org.name, user, url)
+        html_message = '''<p>The following user has requested delegate access for {}: {}</p>
+        <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, org.delegates.all(), fail_silently=False, html_message=html_message)
+        messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
+        return super(RequestDelegateAccess, self).post(request, *args, **kwargs)
+
+
+class ConfirmDelegateAccess(LoginRequiredMixin, FormView):
+    form_class = DelegateAccessForm
+    template_name = 'accounts/confirm_delegate_access.html'
+
+    def get_organisation(self):
+        return Organisation.objects.get(pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        org = self.get_organisation()
+        if request.user.emailuserprofile in org.delegates.all() or request.user.is_superuser:
+            uid = urlsafe_base64_decode(self.kwargs['uid'])
+            user = EmailUser.objects.get(pk=uid)
+            token = default_token_generator.check_token(user, self.kwargs['token'])
+            if token:
+                return super(ConfirmDelegateAccess, self).get(request, *args, **kwargs)
+            else:
+                messages.warning(self.request, 'The request delegate token is no longer valid.')
+        else:
+            messages.error(self.request, 'You are not authorised to confirm this request!')
+        return HttpResponseRedirect(reverse('user_profile'))
+
+    def get_context_data(self, **kwargs):
+        context = super(ConfirmDelegateAccess, self).get_context_data(**kwargs)
+        context['organisation'] = self.get_organisation()
+        uid = urlsafe_base64_decode(self.kwargs['uid'])
+        context['requester'] = EmailUser.objects.get(pk=uid)
+        return context
+
+    def get_success_url(self):
+        return reverse('user_profile')
+
+    def post(self, request, *args, **kwargs):
+        uid = urlsafe_base64_decode(self.kwargs['uid'])
+        user = EmailUser.objects.get(pk=uid)
+        token = default_token_generator.check_token(user, self.kwargs['token'])
+        # Change the user state to expire the token.
+        user.last_login = user.last_login + timedelta(seconds=1)
+        user.save()  # Prevent token re-use by changing user state.
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        if token:
+            org = self.get_organisation()
+            org.delegates.add(user.emailuserprofile)
+            messages.success(self.request, '{} has been added as a delegate for {}.'.format(user, org.name))
+        else:
+            messages.warning(self.request, 'The request delegate token is no longer valid.')
+        return HttpResponseRedirect(self.get_success_url())

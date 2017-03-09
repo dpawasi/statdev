@@ -44,6 +44,7 @@ class ApplicationTest(TestCase):
         self.app1 = mixer.blend(
             Application, state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
         self.task1 = mixer.blend(Task)
+        self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
 
     def test_get_absolute_url(self):
         """Test that Application.get_absolute_url works
@@ -53,8 +54,6 @@ class ApplicationTest(TestCase):
     def test_home_page_get(self):
         """Test the home page view renders
         """
-        # Create a Referral (for coverage)
-        mixer.blend(Referral, referee=self.user1)
         url = reverse('home_page')
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
@@ -180,14 +179,18 @@ class ApplicationTest(TestCase):
     def test_update_application_refer_post(self):
         """Test the application refer view POST creates a referral
         """
+        referee = Group.objects.get(name='Referee')
+        self.user1.groups.add(referee)  # Make user1 a referee.
         count = Referral.objects.count()
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
-        resp = self.client.post(url, {'referee': self.referee.pk, 'period': 21})
+        resp = self.client.post(url, {'referee': self.user1.pk, 'period': 21})
         self.assertRedirects(resp, self.app1.get_absolute_url())
         # Test that a new object has been created.
         self.assertTrue(Referral.objects.count() > count)
+        new_ref = Referral.objects.get(referee=self.user1.pk)
+        self.assertTrue(new_ref.expire_date)  # Check that expire_date is set.
 
     def test_condition_create_get(self):
         """Test the condition create view renders
@@ -208,8 +211,6 @@ class ApplicationTest(TestCase):
     def test_condition_create_post(self):
         """Test the condition create view accepts a valid POST
         """
-        # Create a referral on the application (for coverage).
-        mixer.blend(Referral, application=self.app1, referee=self.user1)
         url = reverse('condition_create', args=(self.app1.pk,))
         resp = self.client.post(url, {'condition': 'foobar'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
@@ -245,27 +246,28 @@ class ApplicationTest(TestCase):
     def test_referral_complete_get(self):
         """Test the referral complete view renders
         """
-        ref = mixer.blend(Referral, application=self.app1, referee=self.user1)
-        url = reverse('referral_complete', args=(ref.pk,))
+        self.client.logout()
+        self.client.login(email=self.referee.email, password='pass')
+        url = reverse('referral_complete', args=(self.ref1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
     def test_referral_complete_get_redirect(self):
         """Test the referral complete view redirects when referee is wrong
         """
-        ref = mixer.blend(Referral, application=self.app1, referee=self.referee)
-        url = reverse('referral_complete', args=(ref.pk,))
+        url = reverse('referral_complete', args=(self.ref1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_referral_complete_post(self):
         """Test the referral complete view accepts a valid POST
         """
-        ref = mixer.blend(Referral, application=self.app1, referee=self.user1)
-        url = reverse('referral_complete', args=(ref.pk,))
+        self.client.logout()
+        self.client.login(email=self.referee.email, password='pass')
+        url = reverse('referral_complete', args=(self.ref1.pk,))
         resp = self.client.post(url, {'feedback': 'foo'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
-        r = Referral.objects.get(pk=ref.pk)
+        r = Referral.objects.get(pk=self.ref1.pk)
         self.assertEquals(r.response_date, date.today())
 
     @skip('Skip')

@@ -23,7 +23,7 @@ class HomePage(LoginRequiredMixin, TemplateView):
             status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
         context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
-            context['referrals'] = Referral.objects.filter(referee=self.request.user)
+            context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
         return context
 
 
@@ -290,11 +290,15 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
         # Rule: only the referee (or a superuser) can mark a referral "complete".
-        # TODO: additional rules around expiring referrals.
         if referral.referee == request.user or request.user.is_superuser:
             return super(ReferralComplete, self).get(request, *args, **kwargs)
         messages.error(self.request, 'You are unable to mark this referral as complete!')
         return HttpResponseRedirect(referral.application.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralComplete, self).get_context_data(**kwargs)
+        context['application'] = self.get_object().application
+        return context
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -304,6 +308,7 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.response_date = date.today()
+        self.object.status = Referral.REFERRAL_STATUS_CHOICES.responded
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
 

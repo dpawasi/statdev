@@ -66,6 +66,12 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home_page'
 
 
+# Email settings
+EMAIL_HOST = env('EMAIL_HOST', 'email.host')
+EMAIL_PORT = env('EMAIL_PORT', 25)
+DEFAULT_FROM_EMAIL = 'DoNotReply@dpaw.wa.gov.au'
+
+
 # Database configuration
 DATABASES = {'default': database.config()}
 
