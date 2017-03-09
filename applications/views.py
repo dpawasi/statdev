@@ -42,6 +42,10 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         initial = super(ApplicationCreate, self).get_initial()
+        initial['submit_date'] = date.today()
+        initial['applicant'] = self.request.user
+        if len(self.request.user.organisation.all()) <= 1:
+            initial['organisation'] = self.request.user.organisation
         return initial
 
     def post(self, request, *args, **kwargs):

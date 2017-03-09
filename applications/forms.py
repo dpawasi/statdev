@@ -23,7 +23,7 @@ class ApplicationForm(ModelForm):
 
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description']
+        fields = ['app_type', 'applicant', 'organisation', 'title', 'submit_date']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationForm, self).__init__(*args, **kwargs)
