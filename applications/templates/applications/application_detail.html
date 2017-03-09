@@ -23,9 +23,9 @@
                         {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
                         {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
                         {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
-                        {% if may_assign %}<li><a href="{% url 'application_assign' object.pk %}">Assign to an assessor</a></li>{% endif %}
+                        {% if may_assign %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
                         {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
-                        {% if may_submit_approval %}<li><a href="{% url 'application_approval' object.pk %}">Send for approval (assessment completed)</a></li>{% endif %}
+                        {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
                     </ul>
                 </div>
@@ -443,17 +443,4 @@
         </div>
     </div>
 </div>
-
-{% comment %}
-<h2>Tasks:</h2>
-{% if object.task_set.exists %}
-<ul>
-    {% for task in object.task_set.all %}
-    <li>Task {{ task.pk }} {{ task.get_task_type_display }} ({{ task.get_status_display }}) - assigned to {{ task.assignee }} <a href="{% url 'task_reassign' task.pk  %}">Reassign</a> <a href="">Complete</a></li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>None</p>
-{% endif %}
-{% endcomment %}
 {% endblock page_content_inner %}

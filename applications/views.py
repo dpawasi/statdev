@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 
 from accounts.utils import get_query
 from applications import forms as apps_forms
@@ -71,6 +71,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """
         self.object = form.save(commit=False)
         self.object.assignee = self.request.user
+        self.object.submit_date = date.today()
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -265,18 +266,36 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
 
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an assessor.
+    """A view to allow an application to be assigned to an internal user.
+    The ``action`` kwarg is used to define the new state of the application.
     """
     model = Application
-    form_class = apps_forms.ApplicationAssignForm
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
-        # Rule: application can be assigned when status is 'with admin' or 'with referee'.
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
-            messages.error(self.request, 'This application cannot be assigned to an assessor!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        if self.kwargs['action'] == 'assess':
+            # Rule: application can be assessed when status is 'with admin' or 'with referee'.
+            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+                messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                return HttpResponseRedirect(app.get_absolute_url())
+        # Rule: only the assignee (or a superuser) can assign for approval.
+        if self.kwargs['action'] == 'approve':
+            if app.state != app.APP_STATE_CHOICES.with_assessor:
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                return HttpResponseRedirect(app.get_absolute_url())
+            if app.assignee != request.user and not request.user.is_superuser:
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        # Return the specified form class
+        if self.kwargs['action'] == 'process':
+            return apps_forms.AssignProcessorForm
+        elif self.kwargs['action'] == 'assess':
+            return apps_forms.AssignAssessorForm
+        elif self.kwargs['action'] == 'approve':
+            return apps_forms.AssignApproverForm
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -285,7 +304,10 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        if self.kwargs['action'] == 'assess':
+            self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        if self.kwargs['action'] == 'approve':
+            self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -356,33 +378,6 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(referral.application.get_absolute_url())
 
 
-class ApplicationApprove(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be send to a manager for approval.
-    TODO: refactor this view to share the ApplicationAssign view logic.
-    """
-    model = Application
-    form_class = apps_forms.ApplicationApproveForm
-
-    def get(self, request, *args, **kwargs):
-        # Rule: only the assignee (or a superuser) can perform this action.
-        app = self.get_object()
-        if app.assignee == request.user or request.user.is_superuser:
-            return super(ApplicationApprove, self).get(request, *args, **kwargs)
-        messages.error(self.request, 'You are unable to assign this application for approval/issue!')
-        return HttpResponseRedirect(app.get_absolute_url())
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ApplicationApprove, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.state = self.object.APP_STATE_CHOICES.with_manager
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
     """
@@ -417,24 +412,3 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         # TODO: logic around emailing/posting the application to the customer.
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
-
-'''
-class TaskReassign(LoginRequiredMixin, UpdateView):
-    model = Task
-    form_class = TaskReassignForm
-    template_name = 'applications/task_form.html'
-
-    def get(self, request, *args, **kwargs):
-        # TODO: business logic to check that task can be reassigned.
-        return super(TaskReassign, self).get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        # TODO: business logic to ensure valid assignee.
-        return super(TaskReassign, self).form_valid(form)
-
-    def get_success_url(self):
-        """Override to redirect to the task's parent application detail view.
-        """
-        return reverse('application_detail', args=(self.object.application.pk,))
-'''

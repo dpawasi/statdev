@@ -41,7 +41,11 @@
             <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
             <td>{{ obj.assignee }}</td>
             <td></td>
-            <td></td>
+            <td>
+            {% if not obj.assignee and obj.state == obj.APP_STATE_CHOICES.with_admin %}
+                <a href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>
+            {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
