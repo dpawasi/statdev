@@ -71,7 +71,6 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """
         self.object = form.save(commit=False)
         self.object.assignee = self.request.user
-        self.object.submit_date = date.today()
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -164,11 +163,9 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """
         app = self.get_object()
         app.state = app.APP_STATE_CHOICES.with_admin
+        self.object.submit_date = date.today()
         app.assignee = None
         app.save()
-        #Task.objects.create(
-        #    application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
-        #    status=Task.TASK_STATUS_CHOICES.ongoing)
         return HttpResponseRedirect(self.get_success_url())
 
 
