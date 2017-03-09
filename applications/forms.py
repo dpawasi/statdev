@@ -91,6 +91,19 @@ class ReferralCompleteForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
+class ReferralRecallForm(ModelForm):
+    class Meta:
+        model = Referral
+        exclude = ['effective_to', 'application', 'referee', 'details', 'sent_date', 'period', 'response_date', 'feedback', 'documents', 'status']
+
+    def __init__(self, *args, **kwargs):
+        super(ReferralRecallForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_referral_recall'
+        self.helper.add_input(Submit('recall', 'Recall', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
 class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition
@@ -105,13 +118,47 @@ class ConditionCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
-class ApplicationAssignForm(ModelForm):
+class AssignProcessorForm(ModelForm):
+    """A form for assigning a processor (admin officer) to an application.
+    """
     class Meta:
         model = Application
         fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationAssignForm, self).__init__(*args, **kwargs)
+        super(AssignProcessorForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+        processor = Group.objects.get_or_create(name='Processor')[0]
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[processor])
+        self.fields['assignee'].required = True
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
+class AssignAssessorForm(ModelForm):
+    """A form for assigning an assessor to an application.
+    """
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignAssessorForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_assign_application'
         self.helper.attrs = {'novalidate': ''}
@@ -135,13 +182,15 @@ class ApplicationAssignForm(ModelForm):
         )
 
 
-class ApplicationApproveForm(ModelForm):
+class AssignApproverForm(ModelForm):
+    """A form for assigning a manager to approve an application.
+    """
     class Meta:
         model = Application
         fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationApproveForm, self).__init__(*args, **kwargs)
+        super(AssignApproverForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_approve_application'
         self.helper.attrs = {'novalidate': ''}

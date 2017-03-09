@@ -6,10 +6,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+
+from accounts.utils import get_query
+from applications import forms as apps_forms
 from .models import Application, Referral, Condition, Task
-from .forms import (
-    ApplicationForm, ApplicationLodgeForm, ReferralForm, ReferralCompleteForm,
-    ConditionCreateForm, ApplicationAssignForm, ApplicationApproveForm, ApplicationIssueForm)
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -24,15 +24,32 @@ class HomePage(LoginRequiredMixin, TemplateView):
         context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
+        if Application.objects.filter(assignee=self.request.user).exists():
+            context['applications'] = Application.objects.filter(assignee=self.request.user)
+        if Application.objects.filter(applicant=self.request.user).exists():
+            context['applications_submitted'] = Application.objects.filter(
+                applicant=self.request.user).exclude(assignee=self.request.user)
         return context
 
 
 class ApplicationList(ListView):
     model = Application
 
+    def get_queryset(self):
+        qs = super(ApplicationList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by pk, title, applicant__email, organisation__name, assignee__email
+            query = get_query(query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
+            qs = qs.filter(query).distinct()
+        return qs
+
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
-    form_class = ApplicationForm
+    form_class = apps_forms.ApplicationForm
     template_name = 'applications/application_form.html'
 
     def get_context_data(self, **kwargs):
@@ -68,19 +85,22 @@ class ApplicationDetail(DetailView):
         processor = Group.objects.get_or_create(name='Processor')[0]
         assessor = Group.objects.get_or_create(name='Assessor')[0]
         approver = Group.objects.get_or_create(name='Approver')[0]
-        # Rule: if the application status is 'draft', it can be updated.
-        # Rule: if the application status is 'draft', it can be lodged.
         if app.state == app.APP_STATE_CHOICES.draft:
-            context['may_update'] = True
-            context['may_lodge'] = True
+            # Rule: if the application status is 'draft', it can be updated.
+            # Rule: if the application status is 'draft', it can be lodged.
+            if app.applicant == self.request.user or self.request.user.is_superuser:
+                context['may_update'] = True
+                context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
             # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
             # Rule: if the application status is 'with admin' or 'with referee', it can have conditions added.
+            # Rule: if the application status is 'with admin' or 'with referee', referrals can be recalled/resent.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
                 context['may_assign'] = True
                 context['may_create_condition'] = True
+                context['may_recall_resend'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added.
             # Rule: if the application status is 'with assessor', it can be sent for approval.
@@ -97,7 +117,7 @@ class ApplicationDetail(DetailView):
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     model = Application
-    form_class = ApplicationForm
+    form_class = apps_forms.ApplicationForm
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
@@ -121,7 +141,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
 class ApplicationLodge(LoginRequiredMixin, UpdateView):
     model = Application
-    form_class = ApplicationLodgeForm
+    form_class = apps_forms.ApplicationLodgeForm
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be lodged.
@@ -144,11 +164,9 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """
         app = self.get_object()
         app.state = app.APP_STATE_CHOICES.with_admin
+        self.object.submit_date = date.today()
         app.assignee = None
         app.save()
-        #Task.objects.create(
-        #    application=self.object, task_type=Task.TASK_TYPE_CHOICES.assess,
-        #    status=Task.TASK_STATUS_CHOICES.ongoing)
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -156,7 +174,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
     """A view to create a Referral object on an Application (if allowed).
     """
     model = Referral
-    form_class = ReferralForm
+    form_class = apps_forms.ReferralForm
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be referred.
@@ -209,7 +227,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
     on an Application.
     """
     model = Condition
-    form_class = ConditionCreateForm
+    form_class = apps_forms.ConditionCreateForm
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
@@ -248,18 +266,36 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
 
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an assessor.
+    """A view to allow an application to be assigned to an internal user.
+    The ``action`` kwarg is used to define the new state of the application.
     """
     model = Application
-    form_class = ApplicationAssignForm
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
-        # Rule: application can be assigned when status is 'with admin' or 'with referee'.
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
-            messages.error(self.request, 'This application cannot be assigned to an assessor!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        if self.kwargs['action'] == 'assess':
+            # Rule: application can be assessed when status is 'with admin' or 'with referee'.
+            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+                messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                return HttpResponseRedirect(app.get_absolute_url())
+        # Rule: only the assignee (or a superuser) can assign for approval.
+        if self.kwargs['action'] == 'approve':
+            if app.state != app.APP_STATE_CHOICES.with_assessor:
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                return HttpResponseRedirect(app.get_absolute_url())
+            if app.assignee != request.user and not request.user.is_superuser:
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        # Return the specified form class
+        if self.kwargs['action'] == 'process':
+            return apps_forms.AssignProcessorForm
+        elif self.kwargs['action'] == 'assess':
+            return apps_forms.AssignAssessorForm
+        elif self.kwargs['action'] == 'approve':
+            return apps_forms.AssignApproverForm
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -268,16 +304,19 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        if self.kwargs['action'] == 'assess':
+            self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        if self.kwargs['action'] == 'approve':
+            self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
 class ReferralComplete(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an assessor.
+    """A view to allow a referral to be marked as 'completed'.
     """
     model = Referral
-    form_class = ReferralCompleteForm
+    form_class = apps_forms.ReferralCompleteForm
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
@@ -309,38 +348,41 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.object.application.get_absolute_url())
 
 
-class ApplicationApprove(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be send to a manager for approval.
-    TODO: refactor this view to share the ApplicationAssign view logic.
-    """
-    model = Application
-    form_class = ApplicationApproveForm
+class ReferralRecall(LoginRequiredMixin, UpdateView):
+    model = Referral
+    form_class = apps_forms.ReferralRecallForm
+    template_name = 'applications/referral_recall.html'
 
     def get(self, request, *args, **kwargs):
-        # Rule: only the assignee (or a superuser) can perform this action.
-        app = self.get_object()
-        if app.assignee == request.user or request.user.is_superuser:
-            return super(ApplicationApprove, self).get(request, *args, **kwargs)
-        messages.error(self.request, 'You are unable to assign this application for approval/issue!')
-        return HttpResponseRedirect(app.get_absolute_url())
+        referral = self.get_object()
+        # Rule: can't recall a referral that is any other status than 'referred'.
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+            messages.error(self.request, 'This referral is already completed!')
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralRecall, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralRecall, self).get_context_data(**kwargs)
+        context['referral'] = self.get_object()
+        return context
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ApplicationApprove, self).post(request, *args, **kwargs)
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralRecall, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.state = self.object.APP_STATE_CHOICES.with_manager
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
+        referral = self.get_object()
+        referral.status = Referral.REFERRAL_STATUS_CHOICES.recalled
+        referral.save()
+        return HttpResponseRedirect(referral.application.get_absolute_url())
 
 
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
     """
     model = Application
-    form_class = ApplicationIssueForm
+    form_class = apps_forms.ApplicationIssueForm
 
     def get(self, request, *args, **kwargs):
         # Rule: only the assignee (or a superuser) can perform this action.
@@ -370,24 +412,3 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         # TODO: logic around emailing/posting the application to the customer.
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
-
-'''
-class TaskReassign(LoginRequiredMixin, UpdateView):
-    model = Task
-    form_class = TaskReassignForm
-    template_name = 'applications/task_form.html'
-
-    def get(self, request, *args, **kwargs):
-        # TODO: business logic to check that task can be reassigned.
-        return super(TaskReassign, self).get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        # TODO: business logic to ensure valid assignee.
-        return super(TaskReassign, self).form_valid(form)
-
-    def get_success_url(self):
-        """Override to redirect to the task's parent application detail view.
-        """
-        return reverse('application_detail', args=(self.object.application.pk,))
-'''

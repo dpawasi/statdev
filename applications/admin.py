@@ -27,7 +27,7 @@ class ApplicationPurposeAdmin(admin.ModelAdmin):
 class ApplicationAdmin(admin.ModelAdmin):
     date_hierarchy = 'submit_date'
     filter_horizontal = ('documents',)
-    list_display = ('app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date', 'assignee')
+    list_display = ('pk', 'app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date', 'assignee')
     list_filter = ('app_type', 'state')
     search_fields = ('applicant__email', 'organisation__name', 'assignee__email', 'title')
 
