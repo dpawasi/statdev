@@ -33,7 +33,7 @@ class ApplicationForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
-class ApplicationLicensePermitForm(ModelForm):
+class ApplicationLicencePermitForm(ModelForm):
     class Meta:
         model = Application
         fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
@@ -46,9 +46,41 @@ class ApplicationLicensePermitForm(ModelForm):
             'brochures_itineries_adverts', 'other_supporting_docs', 'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationLicensePermitForm, self).__init__(*args, **kwargs)
+        super(ApplicationLicencePermitForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_update_license_permit'
+        self.helper.form_id = 'id_form_update_licence_permit'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ApplicationPermitForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
+            'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
+            'documents', 'land_owner_consent', 'deed']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationPermitForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_permit'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ApplicationPart5Form(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
+            'cost', 'project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',
+            'river_reserve_lease', 'current_land_use']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationPart5Form, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_part_5'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
