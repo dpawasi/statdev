@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
-
+from datetime import datetime
 from accounts.models import Organisation
 
 
@@ -138,11 +138,88 @@ class Application(ActiveMixin):
     river_reserve_lease = models.NullBooleanField(default=None)
     current_land_use = models.TextField(null=True, blank=True)
 
+
+    # Added for part 5 form.
+    certificate_of_title_volume = models.CharField(max_length=256,null=True, blank=True)
+    certificate_folio =  models.CharField(max_length=30,null=True, blank=True)
+    certificate_dpd_number = models.CharField(max_length=30, null=True, blank=True)
+    certificate_subject_lot_lot_number = models.CharField(max_length=30,null=True, blank=True)
+    certificate_location = models.CharField(max_length=256,null=True, blank=True)
+    certificate_reserve_number = models.CharField(max_length=30,null=True, blank=True)
+    certificate_street_number_name = models.CharField(max_length=256,null=True, blank=True)
+    certificate_town_suburb = models.CharField(max_length=100,null=True, blank=True)
+    certificate_nearest_road_intersection = models.CharField(max_length=256,null=True, blank=True)
+    river_lease_require_river_lease = models.NullBooleanField(default=None,null=True, blank=True)
+    river_lease_scan_of_application = models.FileField(null=True, blank=True)
+    river_lease_proposed_development = models.NullBooleanField(default=None,null=True, blank=True)
+    river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
+    proposed_development_cost = models.CharField(max_length=256, null=True, blank=True)
+    proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
+    proposed_development_description = models.TextField(null=True, blank=True)
+    proposed_development_plans = models.FileField(null=True, blank=True) 
+    landowner_consent_signed = models.FileField(null=True, blank=True)
+    deed_signed = models.FileField(null=True, blank=True)
+
+
     def __str__(self):
         return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.get_state_display())
 
     def get_absolute_url(self):
         return reverse('application_detail', args=(self.pk,))
+
+
+@python_2_unicode_compatible
+class PublicationFeedback(ActiveMixin):
+    PUB_STATES_CHOICES = Choices(
+        (1, 'Western Australia', ('Western Australia')),
+        (2, 'New South Wales', ('New South Wales')),
+        (3, 'Victoria', ('Victoria')),
+        (4, 'South Australia', ('South Australia')),
+		(5, 'Northern Territory', ('Northern Territory')),
+		(6, 'Queensland', ('Queensland')),
+		(7, 'Australian Capital Territory', ('Australian Capital Territory')),
+		(8, 'Tasmania',('Tasmania')),
+    )
+
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    name = models.CharField(max_length=256)
+    address = models.CharField(max_length=256)
+    suburb = models.CharField(max_length=100)
+    state = models.IntegerField(choices=PUB_STATES_CHOICES)
+    postcode = models.CharField(max_length=4)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    comments = models.TextField(null=True, blank=True)
+    documents = models.FileField()
+    status = models.CharField(max_length=20)
+
+    def __str__(self):
+       return 'PublicationFeedback {} ({})'.format(self.pk, self.application)
+
+@python_2_unicode_compatible
+class PublicationNewspaper(ActiveMixin):
+    """This model represents Application Published in newspapert
+    """
+
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    date = models.DateField(null=True, blank=True)
+    newspaper = models.CharField(max_length=150)
+    documents = models.FileField()
+
+    def __str__(self):
+        return 'PublicationNewspaper {} ({})'.format(self.pk, self.application)
+
+@python_2_unicode_compatible
+class PublicationWebsite(ActiveMixin):
+    """This model represents Application Published in Website 
+    """
+
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    original_document = models.FileField()
+    published_document = models.FileField()
+
+    def __str__(self):
+        return 'PublicationWebsite {} ({})'.format(self.pk, self.application)
 
 
 @python_2_unicode_compatible
