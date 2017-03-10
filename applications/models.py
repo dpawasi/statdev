@@ -86,6 +86,7 @@ class Application(ActiveMixin):
         (6, 'issued', ('Issued')),
         (7, 'issued_with_admin', ('Issued (with admin)')),
         (8, 'declined', ('Declined')),
+        (9, 'new', ('New')),
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
@@ -137,6 +138,7 @@ class Application(ActiveMixin):
     deed = models.ForeignKey(Document, blank=True, null=True, related_name='deed')
     river_reserve_lease = models.NullBooleanField(default=None)
     current_land_use = models.TextField(null=True, blank=True)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
 
 
     # Added for part 5 form.
