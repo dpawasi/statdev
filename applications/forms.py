@@ -20,15 +20,35 @@ class BaseFormHelper(FormHelper):
 
 
 class ApplicationForm(ModelForm):
-
     class Meta:
         model = Application
-        fields = ['app_type', 'applicant', 'organisation', 'title', 'submit_date']
+        fields = ['app_type']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ApplicationLicensePermitForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
+            'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
+            'vessels', 'purpose', 'max_participants', 'proposed_location', 'address', 
+            'location_route_access', 'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry', 
+            'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
+            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details', 'cert_survey',
+            'cert_public_liability_insurance', 'risk_mgmt_plan', 'safety_mgmt_procedures', 
+            'brochures_itineries_adverts', 'other_supporting_docs', 'land_owner_consent', 'deed']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationLicensePermitForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_license_permit'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

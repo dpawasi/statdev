@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from .models import Application, Referral, Condition, Task
 from .forms import (
-    ApplicationForm, ApplicationLodgeForm, ReferralForm, ReferralCompleteForm,
+    ApplicationForm, ApplicationLicensePermitForm, ApplicationLodgeForm, ReferralForm, ReferralCompleteForm,
     ConditionCreateForm, ApplicationAssignForm, ApplicationApproveForm, ApplicationIssueForm)
 
 
@@ -44,8 +44,8 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         initial = super(ApplicationCreate, self).get_initial()
         initial['submit_date'] = date.today()
         initial['applicant'] = self.request.user
-        if len(self.request.user.organisation.all()) <= 1:
-            initial['organisation'] = self.request.user.organisation
+        if len(self.request.user.emailuserprofile.organisation_set.all()) <= 1:
+            initial['organisation'] = self.request.user.emailuserprofile.organisation_set.all()[0]
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -60,6 +60,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         self.object.assignee = self.request.user
         self.object.submit_date = date.today()
         self.object.save()
+        self.success_url = "/applications/" + str(self.object.id) + "/update"
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -101,16 +102,24 @@ class ApplicationDetail(DetailView):
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     model = Application
-    form_class = ApplicationForm
+    form_class = ApplicationLicensePermitForm
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
         # Rule: if the application status is 'draft', it can be updated.
-        if app.state != app.APP_STATE_CHOICES.draft:
+        if app.state != app.APP_STATE_CHOICES.draft or app.state != app.APP_STATE_CHOICES.new:
             messages.error(self.request, 'This application cannot be updated!')
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationUpdate, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(ApplicationUpdate, self).get_initial()
+        initial['submit_date'] = date.today()
+        initial['applicant'] = self.request.user
+        if len(self.request.user.emailuserprofile.organisation_set.all()) <= 1:
+            initial['organisation'] = self.request.user.emailuserprofile.organisation_set.all()[0]
+        return initial
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
@@ -121,6 +130,15 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationUpdate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the state to draft is this is a new application.
+        """
+        self.object = form.save(commit=False)
+        if self.object.state == APP_STATE_CHOICES.new:
+            self.object.state = APP_STATE_CHOICES.draft
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ApplicationLodge(LoginRequiredMixin, UpdateView):
