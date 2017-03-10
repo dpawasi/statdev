@@ -85,7 +85,6 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
-        print str(app.app_type) 
 
         if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
                 self.template_name = 'applications/application_details_part5_new_application.html'
