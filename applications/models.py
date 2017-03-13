@@ -139,29 +139,21 @@ class Application(ActiveMixin):
     river_reserve_lease = models.NullBooleanField(default=None)
     current_land_use = models.TextField(null=True, blank=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
-
+	
 
     # Added for part 5 form.
-    certificate_of_title_volume = models.CharField(max_length=256,null=True, blank=True)
-    certificate_folio =  models.CharField(max_length=30,null=True, blank=True)
-    certificate_dpd_number = models.CharField(max_length=30, null=True, blank=True)
-    certificate_subject_lot_lot_number = models.CharField(max_length=30,null=True, blank=True)
-    certificate_location = models.CharField(max_length=256,null=True, blank=True)
-    certificate_reserve_number = models.CharField(max_length=30,null=True, blank=True)
-    certificate_street_number_name = models.CharField(max_length=256,null=True, blank=True)
-    certificate_town_suburb = models.CharField(max_length=100,null=True, blank=True)
-    certificate_nearest_road_intersection = models.CharField(max_length=256,null=True, blank=True)
     river_lease_require_river_lease = models.NullBooleanField(default=None,null=True, blank=True)
-    river_lease_scan_of_application = models.FileField(null=True, blank=True)
+    river_lease_scan_of_application = models.ManyToManyField(Document, blank=True, related_name='river_lease_scan_of_application')
     river_lease_proposed_development = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
     proposed_development_cost = models.CharField(max_length=256, null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_description = models.TextField(null=True, blank=True)
-    proposed_development_plans = models.FileField(null=True, blank=True) 
-    landowner_consent_signed = models.FileField(null=True, blank=True)
-    deed_signed = models.FileField(null=True, blank=True)
-
+    proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')
+    document_draft = models.ManyToManyField(Document, blank=True, related_name='document_draft')
+    document_final = models.ManyToManyField(Document, blank=True, related_name='document_final')
+    document_determination = models.ManyToManyField(Document, blank=True, related_name='document_determination')
+    document_completion = models.ManyToManyField(Document, blank=True, related_name='document_completion')
 
     def __str__(self):
         return '{}: {} - {} ({})'.format(self.pk, self.get_app_type_display(), self.title, self.get_state_display())
@@ -206,7 +198,7 @@ class PublicationNewspaper(ActiveMixin):
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     date = models.DateField(null=True, blank=True)
     newspaper = models.CharField(max_length=150)
-    documents = models.FileField()
+    documents = models.ManyToManyField(Document, blank=True, related_name='newspaper')
 
     def __str__(self):
         return 'PublicationNewspaper {} ({})'.format(self.pk, self.application)
@@ -217,8 +209,8 @@ class PublicationWebsite(ActiveMixin):
     """
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
-    original_document = models.FileField()
-    published_document = models.FileField()
+    original_document = models.ManyToManyField(Document, blank=True, related_name='original_document')
+    published_document = models.ManyToManyField(Document, blank=True, related_name='published_document') 
 
     def __str__(self):
         return 'PublicationWebsite {} ({})'.format(self.pk, self.application)
@@ -239,6 +231,11 @@ class Location(ActiveMixin):
     poly = models.PolygonField(null=True, blank=True)
     documents = models.ManyToManyField(Document, blank=True)
     # TODO: certificate of title fields (ref. screen 30)
+    title_volume = models.CharField(max_length=256,null=True, blank=True)
+    folio =  models.CharField(max_length=30,null=True, blank=True)
+    dpd_number = models.CharField(max_length=30, null=True, blank=True)
+    location = models.CharField(max_length=256,null=True, blank=True)  # this seem like it different from street address based on the example form.
+    street_number_name = models.CharField(max_length=256,null=True, blank=True)
 
     def __str__(self):
         return 'Location {} ({})'.format(self.pk, self.application)
