@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, ChoiceField, FileField
 
+from accounts.models import Organisation
 from .models import Application, Referral, Condition, Compliance
 
 
@@ -19,16 +20,73 @@ class BaseFormHelper(FormHelper):
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
 
 
-class ApplicationForm(ModelForm):
-
+class ApplicationCreateForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description']
+        fields = ['app_type', 'organisation']
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationForm, self).__init__(*args, **kwargs)
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        super(ApplicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Limit the organisation queryset.
+        self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
+        self.fields['organisation'].help_text = '''The company or organisation on whose behalf '''
+        '''you are applying (leave blank if not applicable).'''
+
+
+class ApplicationLicencePermitForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['title', 'description',
+            'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
+            'purpose', 'max_participants', 'proposed_location', 'address',
+            'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
+            'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
+            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationLicencePermitForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_licence_permit'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # TODO: all document fields.
+
+
+class ApplicationPermitForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['title', 'description',
+            'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
+            'documents', 'land_owner_consent', 'deed']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationPermitForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_permit'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ApplicationPart5Form(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['title', 'description',
+            'cost', 'project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',
+            'river_reserve_lease', 'current_land_use']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationPart5Form, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_part_5'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

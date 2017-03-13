@@ -47,7 +47,8 @@ class ApplicationTest(TestCase):
         self.client.login(email=self.user1.email, password='pass')
         # Generate test fixtures.
         self.app1 = mixer.blend(
-            Application, state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
+            Application, app_type=Application.APP_TYPE_CHOICES.licence,
+            state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
         self.task1 = mixer.blend(Task)
         self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
 
@@ -72,12 +73,9 @@ class ApplicationTest(TestCase):
     def test_create_application_view_post(self):
         count = Application.objects.count()
         url = reverse('application_create')
-        resp = self.client.post(url, {'app_type': 1, 'title': 'foo', 'submit_date': '1/1/2017'})
+        self.client.post(url, {'app_type': Application.APP_TYPE_CHOICES.licence})
         # Test that a new object has been created.
         self.assertTrue(Application.objects.count() > count)
-        # Create view will redirect to the new application detail view.
-        app = Application.objects.get(title='foo')
-        self.assertRedirects(resp, app.get_absolute_url())
 
     def test_detail_application_view_get(self):
         url = reverse('application_detail', args=(self.app1.pk,))
@@ -115,8 +113,7 @@ class ApplicationTest(TestCase):
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
-        resp = self.client.post(url, {
-            'app_type': 1, 'title': 'foo', 'submit_date': '1/1/2017'})
+        resp = self.client.post(url, {'title': 'foo'})
         # Create view will redirect to the detail view.
         self.assertRedirects(resp, self.app1.get_absolute_url())
         a = Application.objects.get(pk=self.app1.pk)
