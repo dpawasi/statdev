@@ -146,7 +146,7 @@ class Application(ActiveMixin):
     river_lease_scan_of_application = models.ManyToManyField(Document, blank=True, related_name='river_lease_scan_of_application')
     river_lease_proposed_development = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
-    proposed_development_cost = models.CharField(max_length=256, null=True, blank=True)
+	#    proposed_development_cost = models.CharField(max_length=256, null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_description = models.TextField(null=True, blank=True)
     proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')
