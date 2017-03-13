@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
-from datetime import datetime
 from accounts.models import Organisation
 
 
@@ -139,14 +138,10 @@ class Application(ActiveMixin):
     river_reserve_lease = models.NullBooleanField(default=None)
     current_land_use = models.TextField(null=True, blank=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
-	
-
-    # Added for part 5 form.
     river_lease_require_river_lease = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_scan_of_application = models.ManyToManyField(Document, blank=True, related_name='river_lease_scan_of_application')
     river_lease_proposed_development = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
-	#    proposed_development_cost = models.CharField(max_length=256, null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_description = models.TextField(null=True, blank=True)
     proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')
@@ -169,10 +164,10 @@ class PublicationFeedback(ActiveMixin):
         (2, 'New South Wales', ('New South Wales')),
         (3, 'Victoria', ('Victoria')),
         (4, 'South Australia', ('South Australia')),
-		(5, 'Northern Territory', ('Northern Territory')),
-		(6, 'Queensland', ('Queensland')),
-		(7, 'Australian Capital Territory', ('Australian Capital Territory')),
-		(8, 'Tasmania',('Tasmania')),
+        (5, 'Northern Territory', ('Northern Territory')),
+        (6, 'Queensland', ('Queensland')),
+        (7, 'Australian Capital Territory', ('Australian Capital Territory')),
+        (8, 'Tasmania', ('Tasmania')),
     )
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
@@ -188,7 +183,8 @@ class PublicationFeedback(ActiveMixin):
     status = models.CharField(max_length=20)
 
     def __str__(self):
-       return 'PublicationFeedback {} ({})'.format(self.pk, self.application)
+        return 'PublicationFeedback {} ({})'.format(self.pk, self.application)
+
 
 @python_2_unicode_compatible
 class PublicationNewspaper(ActiveMixin):
@@ -203,14 +199,15 @@ class PublicationNewspaper(ActiveMixin):
     def __str__(self):
         return 'PublicationNewspaper {} ({})'.format(self.pk, self.application)
 
+
 @python_2_unicode_compatible
 class PublicationWebsite(ActiveMixin):
-    """This model represents Application Published in Website 
+    """This model represents Application Published in Website
     """
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     original_document = models.ManyToManyField(Document, blank=True, related_name='original_document')
-    published_document = models.ManyToManyField(Document, blank=True, related_name='published_document') 
+    published_document = models.ManyToManyField(Document, blank=True, related_name='published_document')
 
     def __str__(self):
         return 'PublicationWebsite {} ({})'.format(self.pk, self.application)
@@ -231,11 +228,11 @@ class Location(ActiveMixin):
     poly = models.PolygonField(null=True, blank=True)
     documents = models.ManyToManyField(Document, blank=True)
     # TODO: certificate of title fields (ref. screen 30)
-    title_volume = models.CharField(max_length=256,null=True, blank=True)
-    folio =  models.CharField(max_length=30,null=True, blank=True)
+    title_volume = models.CharField(max_length=256, null=True, blank=True)
+    folio = models.CharField(max_length=30, null=True, blank=True)
     dpd_number = models.CharField(max_length=30, null=True, blank=True)
-    location = models.CharField(max_length=256,null=True, blank=True)  # this seem like it different from street address based on the example form.
-    street_number_name = models.CharField(max_length=256,null=True, blank=True)
+    location = models.CharField(max_length=256, null=True, blank=True)  # this seem like it different from street address based on the example form.
+    street_number_name = models.CharField(max_length=256, null=True, blank=True)
 
     def __str__(self):
         return 'Location {} ({})'.format(self.pk, self.application)
