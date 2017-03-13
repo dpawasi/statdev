@@ -417,8 +417,9 @@
                                 {% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
                                 <a href="{% url 'referral_recall' ref.pk %}">Recall</a>
                                 {% endif %}
-                                {% if ref.feedback %}
-                                Resend
+                                {% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}
+                                {# TODO: Referral resend function #}
+                                <a href="#">Resend</a>
                                 {% endif %}
                                 {% endif %}
                                 </td>
