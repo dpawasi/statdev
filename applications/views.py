@@ -83,10 +83,17 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
 class ApplicationDetail(DetailView):
     model = Application
+#    app = model.get_object()
+#    if app.app_type == "Permit":
+#       template_name = 'applications/ddddddddd.html'
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
+
+        if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
+                self.template_name = 'applications/application_details_part5_new_application.html'
+
         processor = Group.objects.get_or_create(name='Processor')[0]
         assessor = Group.objects.get_or_create(name='Assessor')[0]
         approver = Group.objects.get_or_create(name='Approver')[0]
