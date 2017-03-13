@@ -5,13 +5,12 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
-from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
 from accounts.models import Organisation
 
 
 @python_2_unicode_compatible
-class Document(ActiveMixin):
+class Document(models.Model):
     """This model represents a document or record that needs to be saved for
     future reference. It also records metadata and optional text content to be
     indexed for search.
@@ -36,7 +35,7 @@ class Document(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Vessel(ActiveMixin):
+class Vessel(models.Model):
     """This model represents a vessel/craft that will be used
     in relation to the application
     """
@@ -58,7 +57,7 @@ class Vessel(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class ApplicationPurpose(ActiveMixin):
+class ApplicationPurpose(models.Model):
     purpose = models.CharField(max_length=256)
 
     def __str__(self):
@@ -66,7 +65,7 @@ class ApplicationPurpose(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Application(ActiveMixin):
+class Application(models.Model):
     """This model represents an application by a customer to P&W for a single
     permit, licence/permit, part 5, etc.
     """
@@ -158,7 +157,7 @@ class Application(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class PublicationFeedback(ActiveMixin):
+class PublicationFeedback(models.Model):
     PUB_STATES_CHOICES = Choices(
         (1, 'Western Australia', ('Western Australia')),
         (2, 'New South Wales', ('New South Wales')),
@@ -187,7 +186,7 @@ class PublicationFeedback(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class PublicationNewspaper(ActiveMixin):
+class PublicationNewspaper(models.Model):
     """This model represents Application Published in newspapert
     """
 
@@ -201,7 +200,7 @@ class PublicationNewspaper(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class PublicationWebsite(ActiveMixin):
+class PublicationWebsite(models.Model):
     """This model represents Application Published in Website
     """
 
@@ -214,7 +213,7 @@ class PublicationWebsite(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Location(ActiveMixin):
+class Location(models.Model):
     """This model represents a single spatial location associated with an
     application.
     """
@@ -239,7 +238,7 @@ class Location(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Referral(ActiveMixin):
+class Referral(models.Model):
     """This model represents a referral of an application to a referee
     (external or internal) for comment/conditions.
     """
@@ -274,7 +273,7 @@ class Referral(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Condition(ActiveMixin):
+class Condition(models.Model):
     """This model represents a condition of approval for an application
     (either proposed by a referee or applied by P&W).
     """
@@ -299,7 +298,7 @@ class Condition(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Compliance(ActiveMixin):
+class Compliance(models.Model):
     """This model represents a request for confirmation of fulfilment of the
     requirements for a single condition, based upon supplied evidence.
     """
@@ -323,7 +322,7 @@ class Compliance(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Task(ActiveMixin):
+class Task(models.Model):
     """This model represents a job that an internal user needs to undertake
     with an application.
     """

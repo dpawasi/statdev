@@ -152,7 +152,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             app = Application.objects.get(id=kwargs['pk'])
             if app.state == app.APP_STATE_CHOICES.new:
-                app.delete(force=True)
+                app.delete()
                 return HttpResponseRedirect(reverse('application_list'))
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationUpdate, self).post(request, *args, **kwargs)
