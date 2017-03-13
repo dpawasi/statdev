@@ -47,51 +47,37 @@ class ApplicationTest(TestCase):
         self.client.login(email=self.user1.email, password='pass')
         # Generate test fixtures.
         self.app1 = mixer.blend(
-            Application, state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
+            Application, app_type=Application.APP_TYPE_CHOICES.licence,
+            state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
         self.task1 = mixer.blend(Task)
         self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
 
     def test_get_absolute_url(self):
-        """Test that Application.get_absolute_url works
-        """
         self.assertTrue(self.app1.get_absolute_url())
 
     def test_home_page_get(self):
-        """Test the home page view renders
-        """
         url = reverse('home_page')
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
     def test_list_application_view_get(self):
-        """Test the application list view renders
-        """
         url = reverse('application_list')
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
     def test_create_application_view_get(self):
-        """Test the application create view renders
-        """
         url = reverse('application_create')
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
     def test_create_application_view_post(self):
-        """Test the application create view accepts a valid POST
-        """
         count = Application.objects.count()
         url = reverse('application_create')
-        resp = self.client.post(url, {'app_type': 1, 'title': 'foo', 'submit_date': '1/1/2017'})
+        self.client.post(url, {'app_type': Application.APP_TYPE_CHOICES.licence})
         # Test that a new object has been created.
         self.assertTrue(Application.objects.count() > count)
-        # Create view will redirect to the new application detail view.
-        app = Application.objects.get(title='foo')
-        self.assertRedirects(resp, app.get_absolute_url())
 
     def test_detail_application_view_get(self):
-        """Test the application detail view renders
-        """
         url = reverse('application_detail', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
@@ -110,8 +96,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_update_application_view_get(self):
-        """Test the application update view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
@@ -119,8 +103,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_update_application_view_redirect(self):
-        """Test the application update view redirect business rules
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
@@ -128,21 +110,16 @@ class ApplicationTest(TestCase):
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_update_application_view_post(self):
-        """Test the application update view accepts a valid POST
-        """
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
-        resp = self.client.post(url, {
-            'app_type': 1, 'title': 'foo', 'submit_date': '1/1/2017'})
+        resp = self.client.post(url, {'title': 'foo'})
         # Create view will redirect to the detail view.
         self.assertRedirects(resp, self.app1.get_absolute_url())
         a = Application.objects.get(pk=self.app1.pk)
         self.assertEquals(a.title, 'foo')
 
     def test_update_application_lodge_get(self):
-        """Test the application lodge view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
@@ -150,8 +127,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_update_application_lodge_get_redirect(self):
-        """Test the application lodge view will redirect when not draft status
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
@@ -159,15 +134,11 @@ class ApplicationTest(TestCase):
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_update_application_lodge_post(self):
-        """Test the application lodge view accepts a POST and redirects
-        """
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.post(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_update_application_refer_get(self):
-        """Test the application refer view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
@@ -175,15 +146,11 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_update_application_refer_get_redirect(self):
-        """Test the application refer view will redirect when status is wrong
-        """
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_update_application_refer_post(self):
-        """Test the application refer view POST creates a referral
-        """
         referee = Group.objects.get(name='Referee')
         self.user1.groups.add(referee)  # Make user1 a referee.
         count = Referral.objects.count()
@@ -198,8 +165,6 @@ class ApplicationTest(TestCase):
         self.assertTrue(new_ref.expire_date)  # Check that expire_date is set.
 
     def test_condition_create_get(self):
-        """Test the condition create view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('condition_create', args=(self.app1.pk,))
@@ -207,23 +172,17 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_condition_create_get_redirect(self):
-        """Test the condition create view redirects when status is wrong
-        """
         url = reverse('condition_create', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_condition_create_post(self):
-        """Test the condition create view accepts a valid POST
-        """
         url = reverse('condition_create', args=(self.app1.pk,))
         resp = self.client.post(url, {'condition': 'foobar'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
         self.assertTrue(Condition.objects.exists())
 
     def test_application_assign_processor_get(self):
-        """Test the processor assign view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_assign', args=(self.app1.pk, 'process'))
@@ -231,8 +190,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_application_assign_processor_post(self):
-        """Test the processor assign view accepts a valid POST
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.assignee = None
         self.app1.save()
@@ -243,8 +200,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(a.assignee, self.user1)
 
     def test_application_assign_assessor_get(self):
-        """Test the assessor assign view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_assign', args=(self.app1.pk, 'assess'))
@@ -252,15 +207,11 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_application_assign_assessor_get_redirect(self):
-        """Test the assessor assign view redirects when status is wrong
-        """
         url = reverse('application_assign', args=(self.app1.pk, 'assess'))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_application_assign_assessor_post(self):
-        """Test the assessor assign view accepts a valid POST
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.assignee = None
         self.app1.save()
@@ -271,8 +222,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(a.assignee, self.user1)
 
     def test_application_assign_approver_get(self):
-        """Test the approver assign view renders
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_assessor
         self.app1.save()
         url = reverse('application_assign', args=(self.app1.pk, 'approve'))
@@ -280,8 +229,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_application_assign_approver_get_redirect(self):
-        """Test the approver assign view redirects when assignee is different
-        """
         self.app1.assignee = self.user2
         self.app1.save()
         url = reverse('application_assign', args=(self.app1.pk, 'approve'))
@@ -289,8 +236,6 @@ class ApplicationTest(TestCase):
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_application_assign_approver_post(self):
-        """Test the approver assign view accepts a valid POST
-        """
         self.app1.state = Application.APP_STATE_CHOICES.with_assessor
         self.app1.save()
         url = reverse('application_assign', args=(self.app1.pk, 'approve'))
@@ -300,8 +245,6 @@ class ApplicationTest(TestCase):
         self.assertEquals(a.assignee, self.user2)
 
     def test_referral_complete_get(self):
-        """Test the referral complete view renders
-        """
         self.client.logout()
         self.client.login(email=self.referee.email, password='pass')
         url = reverse('referral_complete', args=(self.ref1.pk,))
@@ -309,15 +252,11 @@ class ApplicationTest(TestCase):
         self.assertEquals(resp.status_code, 200)
 
     def test_referral_complete_get_redirect(self):
-        """Test the referral complete view redirects when referee is wrong
-        """
         url = reverse('referral_complete', args=(self.ref1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_referral_complete_post(self):
-        """Test the referral complete view accepts a valid POST
-        """
         self.client.logout()
         self.client.login(email=self.referee.email, password='pass')
         url = reverse('referral_complete', args=(self.ref1.pk,))

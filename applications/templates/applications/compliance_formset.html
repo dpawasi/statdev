@@ -1,0 +1,22 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content_inner %}
+<h1>Request compliance of conditions for {{ application }}</h1>
+
+<form id="id_formset_create_compliance" class="form-horizontal" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for form in formset %}
+    {% crispy form %}
+    <hr>
+    {% endfor %}
+    <div class="form-group">
+        <div class="aab controls col-xs-12 col-sm-4 col-md-3 col-lg-2"></div>
+        <div class="controls col-xs-12 col-sm-8 col-md-6 col-lg-4">
+            <input type="submit" name="save" value="Save" class="btn btn-primary btn-lg" id="submit-id-save">
+            <input type="submit" name="cancel" value="Cancel" class="btn btn-primary" id="submit-id-cancel">
+        </div>
+    </div>
+    {{ formset.management_form }}
+</form>
+{% endblock %}

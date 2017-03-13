@@ -20,12 +20,8 @@ class AccountTest(TestCase):
         self.address1 = mixer.blend(Address)
 
     def test_emailuserprofile_created_login(self):
-        """Test that the login signal creates an EmailUserProfile
-        """
         self.client.login(email=self.user1.email, password='pass')
         self.assertTrue(self.user1.emailuserprofile)
 
     def test_address_summary(self):
-        """Test the Address summary method
-        """
         self.assertTrue(self.address1.summary())

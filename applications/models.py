@@ -298,7 +298,31 @@ class Condition(ActiveMixin):
     # TODO: Expiry date
 
     def __str__(self):
-        return 'Condition {} ({})'.format(self.pk, self.application)
+        return 'Condition {}: {}'.format(self.pk, self.condition)
+
+
+@python_2_unicode_compatible
+class Compliance(ActiveMixin):
+    """This model represents a request for confirmation of fulfilment of the
+    requirements for a single condition, based upon supplied evidence.
+    """
+    COMPLIANCE_STATUS_CHOICES = Choices(
+        (1, 'requested', ('Requested')),
+        (2, 'approved', ('Approved')),
+        (3, 'returned', ('Returned')),
+    )
+    condition = models.ForeignKey(Condition, on_delete=models.PROTECT)
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_applicant')
+    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assignee')
+    status = models.IntegerField(choices=COMPLIANCE_STATUS_CHOICES, default=COMPLIANCE_STATUS_CHOICES.requested)
+    submit_date = models.DateField()
+    compliance = models.TextField(blank=True, null=True, help_text='Information to fulfil requirement of condition.')
+    comments = models.TextField(blank=True, null=True)
+    approve_date = models.DateField(blank=True, null=True)
+    documents = models.ManyToManyField(Document, blank=True)
+
+    def __str__(self):
+        return 'Compliance {} ({})'.format(self.pk, self.condition)
 
 
 @python_2_unicode_compatible
