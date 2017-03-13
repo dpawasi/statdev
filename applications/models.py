@@ -5,14 +5,12 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
-from dpaw_utils.models import ActiveMixin
 from model_utils import Choices
-from datetime import datetime
 from accounts.models import Organisation
 
 
 @python_2_unicode_compatible
-class Document(ActiveMixin):
+class Document(models.Model):
     """This model represents a document or record that needs to be saved for
     future reference. It also records metadata and optional text content to be
     indexed for search.
@@ -37,7 +35,7 @@ class Document(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Vessel(ActiveMixin):
+class Vessel(models.Model):
     """This model represents a vessel/craft that will be used
     in relation to the application
     """
@@ -59,7 +57,7 @@ class Vessel(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class ApplicationPurpose(ActiveMixin):
+class ApplicationPurpose(models.Model):
     purpose = models.CharField(max_length=256)
 
     def __str__(self):
@@ -67,7 +65,7 @@ class ApplicationPurpose(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Application(ActiveMixin):
+class Application(models.Model):
     """This model represents an application by a customer to P&W for a single
     permit, licence/permit, part 5, etc.
     """
@@ -139,14 +137,10 @@ class Application(ActiveMixin):
     river_reserve_lease = models.NullBooleanField(default=None)
     current_land_use = models.TextField(null=True, blank=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
-	
-
-    # Added for part 5 form.
     river_lease_require_river_lease = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_scan_of_application = models.ManyToManyField(Document, blank=True, related_name='river_lease_scan_of_application')
     river_lease_proposed_development = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
-	#    proposed_development_cost = models.CharField(max_length=256, null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_description = models.TextField(null=True, blank=True)
     proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')
@@ -163,16 +157,16 @@ class Application(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class PublicationFeedback(ActiveMixin):
+class PublicationFeedback(models.Model):
     PUB_STATES_CHOICES = Choices(
         (1, 'Western Australia', ('Western Australia')),
         (2, 'New South Wales', ('New South Wales')),
         (3, 'Victoria', ('Victoria')),
         (4, 'South Australia', ('South Australia')),
-		(5, 'Northern Territory', ('Northern Territory')),
-		(6, 'Queensland', ('Queensland')),
-		(7, 'Australian Capital Territory', ('Australian Capital Territory')),
-		(8, 'Tasmania',('Tasmania')),
+        (5, 'Northern Territory', ('Northern Territory')),
+        (6, 'Queensland', ('Queensland')),
+        (7, 'Australian Capital Territory', ('Australian Capital Territory')),
+        (8, 'Tasmania', ('Tasmania')),
     )
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
@@ -188,10 +182,11 @@ class PublicationFeedback(ActiveMixin):
     status = models.CharField(max_length=20)
 
     def __str__(self):
-       return 'PublicationFeedback {} ({})'.format(self.pk, self.application)
+        return 'PublicationFeedback {} ({})'.format(self.pk, self.application)
+
 
 @python_2_unicode_compatible
-class PublicationNewspaper(ActiveMixin):
+class PublicationNewspaper(models.Model):
     """This model represents Application Published in newspapert
     """
 
@@ -203,21 +198,22 @@ class PublicationNewspaper(ActiveMixin):
     def __str__(self):
         return 'PublicationNewspaper {} ({})'.format(self.pk, self.application)
 
+
 @python_2_unicode_compatible
-class PublicationWebsite(ActiveMixin):
-    """This model represents Application Published in Website 
+class PublicationWebsite(models.Model):
+    """This model represents Application Published in Website
     """
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     original_document = models.ManyToManyField(Document, blank=True, related_name='original_document')
-    published_document = models.ManyToManyField(Document, blank=True, related_name='published_document') 
+    published_document = models.ManyToManyField(Document, blank=True, related_name='published_document')
 
     def __str__(self):
         return 'PublicationWebsite {} ({})'.format(self.pk, self.application)
 
 
 @python_2_unicode_compatible
-class Location(ActiveMixin):
+class Location(models.Model):
     """This model represents a single spatial location associated with an
     application.
     """
@@ -231,18 +227,18 @@ class Location(ActiveMixin):
     poly = models.PolygonField(null=True, blank=True)
     documents = models.ManyToManyField(Document, blank=True)
     # TODO: certificate of title fields (ref. screen 30)
-    title_volume = models.CharField(max_length=256,null=True, blank=True)
-    folio =  models.CharField(max_length=30,null=True, blank=True)
+    title_volume = models.CharField(max_length=256, null=True, blank=True)
+    folio = models.CharField(max_length=30, null=True, blank=True)
     dpd_number = models.CharField(max_length=30, null=True, blank=True)
-    location = models.CharField(max_length=256,null=True, blank=True)  # this seem like it different from street address based on the example form.
-    street_number_name = models.CharField(max_length=256,null=True, blank=True)
+    location = models.CharField(max_length=256, null=True, blank=True)  # this seem like it different from street address based on the example form.
+    street_number_name = models.CharField(max_length=256, null=True, blank=True)
 
     def __str__(self):
         return 'Location {} ({})'.format(self.pk, self.application)
 
 
 @python_2_unicode_compatible
-class Referral(ActiveMixin):
+class Referral(models.Model):
     """This model represents a referral of an application to a referee
     (external or internal) for comment/conditions.
     """
@@ -277,7 +273,7 @@ class Referral(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Condition(ActiveMixin):
+class Condition(models.Model):
     """This model represents a condition of approval for an application
     (either proposed by a referee or applied by P&W).
     """
@@ -302,7 +298,7 @@ class Condition(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Compliance(ActiveMixin):
+class Compliance(models.Model):
     """This model represents a request for confirmation of fulfilment of the
     requirements for a single condition, based upon supplied evidence.
     """
@@ -326,7 +322,7 @@ class Compliance(ActiveMixin):
 
 
 @python_2_unicode_compatible
-class Task(ActiveMixin):
+class Task(models.Model):
     """This model represents a job that an internal user needs to undertake
     with an application.
     """

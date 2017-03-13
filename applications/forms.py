@@ -123,13 +123,16 @@ class ReferralForm(ModelForm):
         fields = ['referee', 'period', 'details', 'documents']
 
     def __init__(self, *args, **kwargs):
+        # Application must be passed in as a kwarg.
+        app = kwargs.pop('application')
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_referral_create'
         self.helper.attrs = {'novalidate': ''}
         # Limit the referee queryset.
         referee = Group.objects.get_or_create(name='Referee')[0]
-        self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
+        existing_referees = app.referral_set.all().values_list('referee__email', flat=True)
+        self.fields['referee'].queryset = User.objects.filter(groups__in=[referee]).exclude(email__in=existing_referees)
         # TODO: business logic to limit the document queryset.
         self.helper.form_id = 'id_form_refer_application'
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))

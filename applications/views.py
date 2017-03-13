@@ -70,6 +70,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """Override form_valid to set the assignee as the object creator.
         """
         self.object = form.save(commit=False)
+        self.object.applicant = self.request.user
         self.object.assignee = self.request.user
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.new
@@ -80,9 +81,6 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
 class ApplicationDetail(DetailView):
     model = Application
-#    app = model.get_object()
-#    if app.app_type == "Permit":
-#       template_name = 'applications/ddddddddd.html'
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
@@ -94,7 +92,7 @@ class ApplicationDetail(DetailView):
         processor = Group.objects.get_or_create(name='Processor')[0]
         assessor = Group.objects.get_or_create(name='Assessor')[0]
         approver = Group.objects.get_or_create(name='Approver')[0]
-        if app.state == app.APP_STATE_CHOICES.draft:
+        if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
             if app.applicant == self.request.user or self.request.user.is_superuser:
@@ -154,7 +152,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             app = Application.objects.get(id=kwargs['pk'])
             if app.state == app.APP_STATE_CHOICES.new:
-                app.delete(force=True)
+                app.delete()
                 return HttpResponseRedirect(reverse('application_list'))
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationUpdate, self).post(request, *args, **kwargs)
@@ -238,6 +236,11 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         # TODO: set the default period value based on application type.
         initial['period'] = 21
         return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(ApplicationRefer, self).get_form_kwargs()
+        kwargs['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return kwargs
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):

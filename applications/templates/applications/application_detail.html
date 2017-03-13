@@ -341,7 +341,11 @@
                             <h5>Brochures, itineraries or advertisements (if available)</h5>
                         </div>
                         <div class="col-lg-4">
-                            <p>{{ object.brochures_itineries_adverts }}</p>
+                            {% if object.brochures_itineries_adverts.exists %}
+                            <p>{{ object.brochures_itineries_adverts.all }}</p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class ="row">
@@ -349,7 +353,11 @@
                             <h5>Other relevant supporting documentation (if available)</h5>
                         </div>
                         <div class="col-lg-4">
-                            <p>{{ object.other_supporting_docs }}</p>
+                            {% if other_supporting_docs.exists %}
+                            <p>{{ object.other_supporting_docs.all }}</p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -409,8 +417,9 @@
                                 {% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
                                 <a href="{% url 'referral_recall' ref.pk %}">Recall</a>
                                 {% endif %}
-                                {% if ref.feedback %}
-                                Resend
+                                {% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}
+                                {# TODO: Referral resend function #}
+                                <a href="#">Resend</a>
                                 {% endif %}
                                 {% endif %}
                                 </td>
