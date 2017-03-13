@@ -6,10 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+from extra_views import ModelFormSetView
 
 from accounts.utils import get_query
 from applications import forms as apps_forms
-from .models import Application, Referral, Condition, Task
+from .models import Application, Referral, Condition, Compliance
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -19,8 +20,6 @@ class HomePage(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
         context['page_heading'] = 'Home Page'
-        context['tasks'] = Task.objects.filter(
-            status=Task.TASK_STATUS_CHOICES.ongoing, assignee=self.request.user)
         context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
@@ -112,10 +111,19 @@ class ApplicationDetail(DetailView):
             # TODO: function to reassign back to assessor.
             if app.state == app.APP_STATE_CHOICES.with_manager:
                 context['may_issue'] = True
+        if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
+            # Rule: only the delegate of the organisation (or submitter) can request compliance.
+            if app.organisation:
+                if self.request.user.emailprofile in app.organisation.delegates.all():
+                    context['may_request_compliance'] = True
+            elif self.request.user == app.applicant:
+                context['may_request_compliance'] = True
         return context
 
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
+    """A view for updating a draft (non-lodged) application.
+    """
     model = Application
     form_class = apps_forms.ApplicationForm
 
@@ -123,10 +131,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
         # Rule: if the application status is 'draft', it can be updated.
-        if app.state != app.APP_STATE_CHOICES.draft:
-            messages.error(self.request, 'This application cannot be updated!')
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(ApplicationUpdate, self).get(request, *args, **kwargs)
+        if app.state == app.APP_STATE_CHOICES.draft:
+            return super(ApplicationUpdate, self).get(request, *args, **kwargs)
+        messages.error(self.request, 'This application cannot be updated!')
+        return HttpResponseRedirect(app.get_absolute_url())
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
@@ -159,8 +167,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         return super(ApplicationLodge, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        """Override form_valid to generate an "Assess" task on the new
-        application (no assignee) and change its status.
+        """Override form_valid to set the submit_date and status of the new application.
         """
         app = self.get_object()
         app.state = app.APP_STATE_CHOICES.with_admin
@@ -412,3 +419,70 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         # TODO: logic around emailing/posting the application to the customer.
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ComplianceList(ListView):
+    model = Compliance
+
+    def get_queryset(self):
+        qs = super(ComplianceList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by applicant__email, assignee__email, compliance
+            query = get_query(query_str, ['applicant__email', 'assignee__email', 'compliance'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+
+class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
+    model = Compliance
+    form_class = apps_forms.ComplianceCreateForm
+    template_name = 'applications/compliance_formset.html'
+    fields = ['condition', 'compliance']
+
+    def get_application(self):
+        return Application.objects.get(pk=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceCreate, self).get_context_data(**kwargs)
+        app = self.get_application()
+        context['application'] = app
+        return context
+
+    def get_initial(self):
+        # Return a list of dicts, each containing a reference to one condition.
+        app = self.get_application()
+        conditions = app.condition_set.all()
+        return [{'condition': c} for c in conditions]
+
+    def get_factory_kwargs(self):
+        kwargs = super(ComplianceCreate, self).get_factory_kwargs()
+        app = self.get_application()
+        conditions = app.condition_set.all()
+        # Set the number of forms in the set to equal the number of conditions.
+        kwargs['extra'] = len(conditions)
+        return kwargs
+
+    def get_extra_form_kwargs(self):
+        kwargs = super(ComplianceCreate, self).get_extra_form_kwargs()
+        kwargs['application'] = self.get_application()
+        return kwargs
+
+    def formset_valid(self, formset):
+        for form in formset:
+            data = form.cleaned_data
+            # If text has been input to the compliance field, create a new compliance object.
+            if 'compliance' in data and data.get('compliance', None):
+                new_comp = form.save(commit=False)
+                new_comp.applicant = self.request.user
+                new_comp.submit_date = date.today()
+                # TODO: handle the uploaded file.
+                new_comp.save()
+        messages.success(self.request, 'New requests for compliance have been submitted.')
+        return super(ComplianceCreate, self).formset_valid(formset)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.get_application().pk,))

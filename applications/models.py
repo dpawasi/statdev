@@ -222,7 +222,7 @@ class Condition(ActiveMixin):
     # TODO: Expiry date
 
     def __str__(self):
-        return 'Condition {} ({})'.format(self.pk, self.application)
+        return 'Condition {}: {}'.format(self.pk, self.condition)
 
 
 @python_2_unicode_compatible

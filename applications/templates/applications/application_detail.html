@@ -27,6 +27,7 @@
                         {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
                         {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
+                        {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
                     </ul>
                 </div>
             </div>
@@ -429,12 +430,27 @@
                 </div>
                 <div class="panel-body">
                     {% if object.condition_set.exists %}
-                    <ul>
-                        {% for cond in object.condition_set.all %}
-                        <li>Condition {{ cond.pk }}: {{ cond.condition }} ({{ cond.get_status_display }})
-                        {% if cond.referral %} via {{ cond.referral.referee }}{% endif %}</li>
-                        {% endfor %}
-                    </ul>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Condition</th>
+                                <th>Source</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cond in object.condition_set.all %}
+                            <tr>
+                                <td>{{ cond.pk }}</td>
+                                <td>{{ cond.condition }}</td>
+                                <td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
+                                <td>{{ cond.get_status_display }}</td>
+                                <td></td>
+                            </tr>
+                            {% endfor %}
+                    </table>
                     {% else %}
                     <p>None</p>
                     {% endif %}

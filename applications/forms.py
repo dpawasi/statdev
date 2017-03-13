@@ -5,9 +5,9 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField
+from django.forms import ModelForm, ChoiceField, FileField
 
-from .models import Application, Referral, Condition
+from .models import Application, Referral, Condition, Compliance
 
 
 User = get_user_model()
@@ -248,18 +248,19 @@ class ApplicationIssueForm(ModelForm):
             )
         )
 
-'''
-class TaskReassignForm(ModelForm):
+
+class ComplianceCreateForm(ModelForm):
+    supporting_document = FileField(required=False, max_length=128)
 
     class Meta:
-        model = Task
-        fields = ['assignee', ]
+        model = Compliance
+        fields = ['condition', 'compliance', 'supporting_document']
 
     def __init__(self, *args, **kwargs):
-        super(TaskReassignForm, self).__init__(*args, **kwargs)
+        # Application must be passed in as a kwarg.
+        application = kwargs.pop('application')
+        super(ComplianceCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.add_input(Submit('reassign', 'Reassign', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
-        self.fields['assignee'].required = True
-        # TODO: business logic to limit the assignee queryset.
-'''
+        self.helper.form_tag = False
+        self.helper.disable_csrf = True
+        self.fields['condition'].queryset = Condition.objects.filter(application=application)
