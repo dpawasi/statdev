@@ -237,6 +237,11 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         initial['period'] = 21
         return initial
 
+    def get_form_kwargs(self):
+        kwargs = super(ApplicationRefer, self).get_form_kwargs()
+        kwargs['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return kwargs
+
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
