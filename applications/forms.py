@@ -45,7 +45,7 @@ class ApplicationLicencePermitForm(ModelForm):
         model = Application
         fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'purpose', 'max_participants', 'proposed_location', 'address',
+            'purpose', 'max_participants', 'proposed_location', 'address', 'vessels',
             'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
             'refuel_location_method', 'berth_location', 'anchorage', 'operating_details']

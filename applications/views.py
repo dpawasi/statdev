@@ -178,6 +178,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
         self.object.save()
+        form.save_m2m()
         return HttpResponseRedirect(self.get_success_url())
 
 
