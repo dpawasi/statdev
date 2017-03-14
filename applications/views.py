@@ -99,15 +99,16 @@ class ApplicationDetail(DetailView):
                 context['may_update'] = True
                 context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
-            # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
-            # Rule: if the application status is 'with admin' or 'with referee', it can have conditions added.
-            # Rule: if the application status is 'with admin' or 'with referee', referrals can be recalled/resent.
+            # Rule: if the application status is 'with admin' or 'with referee', it can
+            # be referred, have conditions added, and referrals can be recalled/resent.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
-                context['may_assign'] = True
                 context['may_create_condition'] = True
                 context['may_recall_resend'] = True
+                context['may_assign_processor'] = True
+                # Rule: if there are no "outstanding" referrals, it can be assigned to an assessor.
+                if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
+                    context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added.
             # Rule: if the application status is 'with assessor', it can be sent for approval.
@@ -118,7 +119,7 @@ class ApplicationDetail(DetailView):
             # Rule: if the application status is 'with manager', it can be issued.
             # TODO: function to reassign back to assessor.
             if app.state == app.APP_STATE_CHOICES.with_manager:
-                context['may_issue'] = True
+                context['may_issue_assessor'] = True
         if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
             # Rule: only the delegate of the organisation (or submitter) can request compliance.
             if app.organisation:
