@@ -36,8 +36,8 @@ class ApplicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         # Limit the organisation queryset.
         self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
-        self.fields['organisation'].help_text = '''The company or organisation on whose behalf '''
-        '''you are applying (leave blank if not applicable).'''
+        self.fields['organisation'].help_text = '''The company or organisation
+            on whose behalf you are applying (leave blank if not applicable).'''
 
 
 class ApplicationLicencePermitForm(ModelForm):

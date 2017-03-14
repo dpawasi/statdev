@@ -369,7 +369,11 @@
                 </div>
                 <div class="panel-body">
                     <h5>Landowner consent document/s</h5>
-                    <p>{{ object.land_owner_consent }}</p>
+                    {% if object.land_owner_consent.exists %}
+                    <p>{{ object.land_owner_consent.all }}</p>
+                    {% else %}
+                    <p>None</p>
+                    {% endif %}
                 </div>
             </div>
             <!-- Deed panel -->
