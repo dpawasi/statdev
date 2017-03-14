@@ -462,7 +462,11 @@
                                 <td>{{ cond.condition }}</td>
                                 <td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
                                 <td>{{ cond.get_status_display }}</td>
-                                <td></td>
+                                <td>
+                                    {% if cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
+                                    <a href="{% url 'condition_apply' cond.pk %}">Apply</a>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                     </table>

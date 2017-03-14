@@ -168,7 +168,7 @@ class ReferralRecallForm(ModelForm):
 class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition
-        fields = ['condition', ]
+        fields = ['condition']
 
     def __init__(self, *args, **kwargs):
         super(ConditionCreateForm, self).__init__(*args, **kwargs)
@@ -176,6 +176,19 @@ class ConditionCreateForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.fields['condition'].required = True
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ConditionApplyForm(ModelForm):
+    class Meta:
+        model = Condition
+        fields = ['condition']
+
+    def __init__(self, *args, **kwargs):
+        super(ConditionApplyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_condition_apply'
+        self.helper.add_input(Submit('apply', 'Apply', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
