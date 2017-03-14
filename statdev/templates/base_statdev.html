@@ -1,8 +1,7 @@
-{% extends "webtemplate_dpaw/base.html" %}
+{% extends "webtemplate_dpaw/base_internet.html" %}
 {% load static from staticfiles %}
 
-{% block navbar_site_title %}<a class="navbar-brand" href="/">Statutory Development</a>{% endblock %}
-{% block navbar_button %}{% endblock %}
+{% block navbar_site_title %}<a class="navbar-brand" href="/">Statutory Development</a>{% endblock navbar_site_title %}
 
 {% block navbar_links %}
 <li class="dropdown">
@@ -23,8 +22,8 @@
         <li><a href="{% url 'logout' %}" title="Log out">Log out</a></li>
     </ul>
 </li>
-{% endblock %}{# /navbar_auth #}
-{% endblock %}{# /navbar_links #}
+{% endblock navbar_auth %}
+{% endblock navbar_links %}
 
 {% block page_content %}
 <div class="container-fluid">
@@ -47,4 +46,4 @@
         </div>
     </div>
 </div>
-{% endblock %}{# /page_content #}
+{% endblock page_content %}
