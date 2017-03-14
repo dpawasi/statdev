@@ -100,15 +100,19 @@ class ApplicationDetail(DetailView):
                 context['may_update'] = True
                 context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with admin' or 'with referee', it can be referred.
-            # Rule: if the application status is 'with admin' or 'with referee', it can be assigned.
-            # Rule: if the application status is 'with admin' or 'with referee', it can have conditions added.
-            # Rule: if the application status is 'with admin' or 'with referee', referrals can be recalled/resent.
+            # Rule: if the application status is 'with admin', it can be sent back to the customer.
+            if app.state == app.APP_STATE_CHOICES.with_admin:
+                context['may_assign_customer'] = True
+            # Rule: if the application status is 'with admin' or 'with referee', it can
+            # be referred, have conditions added, and referrals can be recalled/resent.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
-                context['may_assign'] = True
                 context['may_create_condition'] = True
                 context['may_recall_resend'] = True
+                context['may_assign_processor'] = True
+                # Rule: if there are no "outstanding" referrals, it can be assigned to an assessor.
+                if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
+                    context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added.
             # Rule: if the application status is 'with assessor', it can be sent for approval.
@@ -116,9 +120,10 @@ class ApplicationDetail(DetailView):
                 context['may_create_condition'] = True
                 context['may_submit_approval'] = True
         if approver in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with manager', it can be issued.
-            # TODO: function to reassign back to assessor.
+            # Rule: if the application status is 'with manager', it can be issued or
+            # assigned back to an assessor.
             if app.state == app.APP_STATE_CHOICES.with_manager:
+                context['may_assign_assessor'] = True
                 context['may_issue'] = True
         if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
             # Rule: only the delegate of the organisation (or submitter) can request compliance.
@@ -307,16 +312,21 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
 
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an internal user.
+    """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
     """
     model = Application
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+        if self.kwargs['action'] == 'customer':
+            # Rule: application can go back to customer when only status is 'with admin'.
+            if app.state != app.APP_STATE_CHOICES.with_admin:
+                messages.error(self.request, 'This application cannot be returned to the customer!')
+                return HttpResponseRedirect(app.get_absolute_url())
         if self.kwargs['action'] == 'assess':
-            # Rule: application can be assessed when status is 'with admin' or 'with referee'.
-            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+            # Rule: application can be assessed when status is 'with admin', 'with referee' or 'with manager'.
+            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
                 messages.error(self.request, 'This application cannot be assigned to an assessor!')
                 return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
@@ -331,7 +341,9 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def get_form_class(self):
         # Return the specified form class
-        if self.kwargs['action'] == 'process':
+        if self.kwargs['action'] == 'customer':
+            return apps_forms.AssignCustomerForm
+        elif self.kwargs['action'] == 'process':
             return apps_forms.AssignProcessorForm
         elif self.kwargs['action'] == 'assess':
             return apps_forms.AssignAssessorForm
@@ -345,10 +357,52 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        # TODO: success messages.
+        if self.kwargs['action'] == 'customer':
+            # Assign the application back to the applicant and make it 'draft' status.
+            self.object.assignee = self.object.applicant
+            self.object.state = self.object.APP_STATE_CHOICES.draft
+            # TODO: send the feedback back to the customer.
         if self.kwargs['action'] == 'assess':
             self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         if self.kwargs['action'] == 'approve':
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class ApplicationIssue(LoginRequiredMixin, UpdateView):
+    """A view to allow a manager to issue an assessed application.
+    """
+    model = Application
+    form_class = apps_forms.ApplicationIssueForm
+
+    def get(self, request, *args, **kwargs):
+        # Rule: only the assignee (or a superuser) can perform this action.
+        app = self.get_object()
+        if app.assignee == request.user or request.user.is_superuser:
+            return super(ApplicationIssue, self).get(request, *args, **kwargs)
+        messages.error(self.request, 'You are unable to issue this application!')
+        return HttpResponseRedirect(app.get_absolute_url())
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationIssue, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        d = form.cleaned_data
+        if d['assessment'] == 'issue':
+            self.object.state = self.object.APP_STATE_CHOICES.issued
+            self.object.assignee = None
+        elif d['assessment'] == 'decline':
+            self.object.state = self.object.APP_STATE_CHOICES.declined
+            self.object.assignee = None
+        # TODO: logic for the manager to select who to assign it back to.
+        #elif d['assessment'] == 'return':
+        #    self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        # TODO: logic around emailing/posting the application to the customer.
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -417,42 +471,6 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         referral.status = Referral.REFERRAL_STATUS_CHOICES.recalled
         referral.save()
         return HttpResponseRedirect(referral.application.get_absolute_url())
-
-
-class ApplicationIssue(LoginRequiredMixin, UpdateView):
-    """A view to allow a manager to issue an assessed application.
-    """
-    model = Application
-    form_class = apps_forms.ApplicationIssueForm
-
-    def get(self, request, *args, **kwargs):
-        # Rule: only the assignee (or a superuser) can perform this action.
-        app = self.get_object()
-        if app.assignee == request.user or request.user.is_superuser:
-            return super(ApplicationIssue, self).get(request, *args, **kwargs)
-        messages.error(self.request, 'You are unable to issue this application!')
-        return HttpResponseRedirect(app.get_absolute_url())
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ApplicationIssue, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        d = form.cleaned_data
-        if d['assessment'] == 'issue':
-            self.object.state = self.object.APP_STATE_CHOICES.issued
-            self.object.assignee = None
-        elif d['assessment'] == 'decline':
-            self.object.state = self.object.APP_STATE_CHOICES.declined
-            self.object.assignee = None
-        # TODO: logic for the manager to select who to assign it back to.
-        #elif d['assessment'] == 'return':
-        #    self.object.state = self.object.APP_STATE_CHOICES.with_assessor
-        # TODO: logic around emailing/posting the application to the customer.
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class ComplianceList(ListView):
@@ -553,3 +571,30 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         app.vessels.add(self.object.id)
         app.save()
         return super(VesselCreate, self).form_valid(form)
+
+class ConditionApply(LoginRequiredMixin, UpdateView):
+    """A view to allow an assessor to 'apply' a condition that has proposed by a referee.
+    TODO: refactor this into a more-generic 'update' view for conditions.
+    """
+    model = Condition
+    form_class = apps_forms.ConditionApplyForm
+    template_name = 'applications/condition_apply.html'
+
+    def get(self, request, *args, **kwargs):
+        condition = self.get_object()
+        # Rule: can't apply a referral that is any other status than 'proposed'.
+        if condition.status != Condition.CONDITION_STATUS_CHOICES.proposed:
+            messages.error(self.request, 'This condition is not "proposed" status!')
+            return HttpResponseRedirect(condition.application.get_absolute_url())
+        return super(ConditionApply, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ConditionApply, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
+        self.object.save()
+        return HttpResponseRedirect(self.object.application.get_absolute_url())
