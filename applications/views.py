@@ -101,8 +101,8 @@ class ApplicationDetail(DetailView):
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin', it can be sent back to the customer.
             if app.state == app.APP_STATE_CHOICES.with_admin:
-            # Rule: if the application status is 'with admin' or 'with referee', it can
                 context['may_assign_customer'] = True
+            # Rule: if the application status is 'with admin' or 'with referee', it can
             # be referred, have conditions added, and referrals can be recalled/resent.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
@@ -119,10 +119,11 @@ class ApplicationDetail(DetailView):
                 context['may_create_condition'] = True
                 context['may_submit_approval'] = True
         if approver in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with manager', it can be issued.
-            # TODO: function to reassign back to assessor.
+            # Rule: if the application status is 'with manager', it can be issued or
+            # assigned back to an assessor.
             if app.state == app.APP_STATE_CHOICES.with_manager:
-                context['may_issue_assessor'] = True
+                context['may_assign_assessor'] = True
+                context['may_issue'] = True
         if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
             # Rule: only the delegate of the organisation (or submitter) can request compliance.
             if app.organisation:
@@ -323,8 +324,8 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 messages.error(self.request, 'This application cannot be returned to the customer!')
                 return HttpResponseRedirect(app.get_absolute_url())
         if self.kwargs['action'] == 'assess':
-            # Rule: application can be assessed when status is 'with admin' or 'with referee'.
-            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+            # Rule: application can be assessed when status is 'with admin', 'with referee' or 'with manager'.
+            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
                 messages.error(self.request, 'This application cannot be assigned to an assessor!')
                 return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
