@@ -5,9 +5,10 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField
+from django.forms import ModelForm, ChoiceField, FileField
 
-from .models import Application, Referral, Condition
+from accounts.models import Organisation
+from .models import Application, Referral, Condition, Compliance
 
 
 User = get_user_model()
@@ -19,31 +20,35 @@ class BaseFormHelper(FormHelper):
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
 
 
-class ApplicationForm(ModelForm):
+class ApplicationCreateForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['app_type']
+        fields = ['app_type', 'organisation']
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationForm, self).__init__(*args, **kwargs)
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        super(ApplicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_application'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Limit the organisation queryset.
+        self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
+        self.fields['organisation'].help_text = '''The company or organisation on whose behalf '''
+        '''you are applying (leave blank if not applicable).'''
 
 
 class ApplicationLicencePermitForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
+        fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'vessels', 'purpose', 'max_participants', 'proposed_location', 'address', 
-            'location_route_access', 'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry', 
+            'purpose', 'max_participants', 'proposed_location', 'address',
+            'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
-            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details', 'cert_survey',
-            'cert_public_liability_insurance', 'risk_mgmt_plan', 'safety_mgmt_procedures', 
-            'brochures_itineries_adverts', 'other_supporting_docs', 'land_owner_consent', 'deed']
+            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationLicencePermitForm, self).__init__(*args, **kwargs)
@@ -52,12 +57,13 @@ class ApplicationLicencePermitForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+        # TODO: all document fields.
 
 
 class ApplicationPermitForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
+        fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
             'documents', 'land_owner_consent', 'deed']
 
@@ -73,7 +79,7 @@ class ApplicationPermitForm(ModelForm):
 class ApplicationPart5Form(ModelForm):
     class Meta:
         model = Application
-        fields = ['applicant', 'organisation', 'title', 'submit_date', 'description', 
+        fields = ['title', 'description',
             'cost', 'project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',
             'river_reserve_lease', 'current_land_use']
 
@@ -117,13 +123,16 @@ class ReferralForm(ModelForm):
         fields = ['referee', 'period', 'details', 'documents']
 
     def __init__(self, *args, **kwargs):
+        # Application must be passed in as a kwarg.
+        app = kwargs.pop('application')
         super(ReferralForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_referral_create'
         self.helper.attrs = {'novalidate': ''}
         # Limit the referee queryset.
         referee = Group.objects.get_or_create(name='Referee')[0]
-        self.fields['referee'].queryset = User.objects.filter(groups__in=[referee])
+        existing_referees = app.referral_set.all().values_list('referee__email', flat=True)
+        self.fields['referee'].queryset = User.objects.filter(groups__in=[referee]).exclude(email__in=existing_referees)
         # TODO: business logic to limit the document queryset.
         self.helper.form_id = 'id_form_refer_application'
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
@@ -300,18 +309,19 @@ class ApplicationIssueForm(ModelForm):
             )
         )
 
-'''
-class TaskReassignForm(ModelForm):
+
+class ComplianceCreateForm(ModelForm):
+    supporting_document = FileField(required=False, max_length=128)
 
     class Meta:
-        model = Task
-        fields = ['assignee', ]
+        model = Compliance
+        fields = ['condition', 'compliance', 'supporting_document']
 
     def __init__(self, *args, **kwargs):
-        super(TaskReassignForm, self).__init__(*args, **kwargs)
+        # Application must be passed in as a kwarg.
+        application = kwargs.pop('application')
+        super(ComplianceCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.add_input(Submit('reassign', 'Reassign', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
-        self.fields['assignee'].required = True
-        # TODO: business logic to limit the assignee queryset.
-'''
+        self.helper.form_tag = False
+        self.helper.disable_csrf = True
+        self.fields['condition'].queryset = Condition.objects.filter(application=application)
