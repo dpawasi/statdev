@@ -23,6 +23,7 @@
                         {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
                         {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
                         {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
+                        {% if may_assign_customer %}<li><a href="{% url 'application_assign' object.pk 'customer' %}">Assign back to the customer</a></li>{% endif %}
                         {% if may_assign_processor %}<li><a href="{% url 'application_assign' object.pk 'process' %}">Assign to an admin officer</a></li>{% endif %}
                         {% if may_assign_assessor %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
                         {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}

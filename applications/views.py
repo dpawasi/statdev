@@ -99,7 +99,10 @@ class ApplicationDetail(DetailView):
                 context['may_update'] = True
                 context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            # Rule: if the application status is 'with admin', it can be sent back to the customer.
+            if app.state == app.APP_STATE_CHOICES.with_admin:
             # Rule: if the application status is 'with admin' or 'with referee', it can
+                context['may_assign_customer'] = True
             # be referred, have conditions added, and referrals can be recalled/resent.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
@@ -307,13 +310,18 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
 
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
-    """A view to allow an application to be assigned to an internal user.
+    """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
     """
     model = Application
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+        if self.kwargs['action'] == 'customer':
+            # Rule: application can go back to customer when only status is 'with admin'.
+            if app.state != app.APP_STATE_CHOICES.with_admin:
+                messages.error(self.request, 'This application cannot be returned to the customer!')
+                return HttpResponseRedirect(app.get_absolute_url())
         if self.kwargs['action'] == 'assess':
             # Rule: application can be assessed when status is 'with admin' or 'with referee'.
             if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
@@ -331,7 +339,9 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def get_form_class(self):
         # Return the specified form class
-        if self.kwargs['action'] == 'process':
+        if self.kwargs['action'] == 'customer':
+            return apps_forms.AssignCustomerForm
+        elif self.kwargs['action'] == 'process':
             return apps_forms.AssignProcessorForm
         elif self.kwargs['action'] == 'assess':
             return apps_forms.AssignAssessorForm
@@ -345,6 +355,12 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        # TODO: success messages.
+        if self.kwargs['action'] == 'customer':
+            # Assign the application back to the applicant and make it 'draft' status.
+            self.object.assignee = self.object.applicant
+            self.object.state = self.object.APP_STATE_CHOICES.draft
+            # TODO: send the feedback back to the customer.
         if self.kwargs['action'] == 'assess':
             self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         if self.kwargs['action'] == 'approve':
