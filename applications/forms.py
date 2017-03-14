@@ -81,7 +81,9 @@ class ApplicationPart5Form(ModelForm):
         model = Application
         fields = ['title', 'description',
             'cost', 'project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',
-            'river_reserve_lease', 'current_land_use']
+            'river_reserve_lease', 'current_land_use','proposed_development_current_use_of_land',
+			'proposed_development_description','proposed_development_plans','document_draft','document_final',
+			'document_determination','document_completion']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
