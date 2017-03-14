@@ -10,7 +10,7 @@ from extra_views import ModelFormSetView
 
 from accounts.utils import get_query
 from applications import forms as apps_forms
-from .models import Application, Referral, Condition, Compliance
+from .models import Application, Referral, Condition, Compliance, Vessel
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -520,3 +520,36 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_application().pk,))
+
+class VesselCreate(LoginRequiredMixin, CreateView):
+    model=Vessel
+    form_class = apps_forms.VesselCreateForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.errror(self.request, "Can't add new vessels to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselCreate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+
+    def get_context_data(self, **kwargs):
+        context = super(VesselCreate, self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        self.object = form.save()
+        app.vessels.add(self.object.id)
+        app.save()
+        return super(VesselCreate, self).form_valid(form)

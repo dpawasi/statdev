@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.forms import ModelForm, ChoiceField, FileField
 
 from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance
+from .models import Application, Referral, Condition, Compliance, Vessel
 
 
 User = get_user_model()
@@ -325,3 +325,19 @@ class ComplianceCreateForm(ModelForm):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
         self.fields['condition'].queryset = Condition.objects.filter(application=application)
+
+
+class VesselCreateForm(ModelForm):
+    class Meta:
+        model = Vessel
+        fields = ['vessel_type', 'name', 'vessel_id', 'registration', 'size', 'engine',
+            'passenger_capacity']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        super(VesselCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
