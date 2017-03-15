@@ -39,6 +39,9 @@ class ApplicationCreateForm(ModelForm):
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
+        # Add labels for fields
+        self.fields['app_type'].label = "Application Type"
+
 
 class ApplicationLicencePermitForm(ModelForm):
     class Meta:
@@ -95,7 +98,7 @@ class ApplicationPermitForm(ModelForm):
         model = Application
         fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'documents', 'land_owner_consent', 'deed']
+            'documents', 'other_supporting_docs', 'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPermitForm, self).__init__(*args, **kwargs)
@@ -104,6 +107,17 @@ class ApplicationPermitForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+        # Add labels and help text for fields
+        self.fields['proposed_commence'].label = "Proposed commencement date"
+        self.fields['proposed_commence'].help_text = "(Please consider routine assessment takes approximately 4 - 6 weeks, and set your commencement date accordingly)"
+        self.fields['proposed_end'].label = "Proposed end date"
+        self.fields['cost'].label = "Approximate cost"
+        self.fields['project_no'].label = "Riverbank project number (if applicable)"
+        self.fields['related_permits'].label = "Details of related permits"
+        self.fields['description'].label = "Description of works, acts or activities"
+        self.fields['documents'].label = "Attach more detailed descripton, maps or plans"
+        self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 
 class ApplicationPart5Form(ModelForm):
