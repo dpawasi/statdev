@@ -10,7 +10,8 @@ from extra_views import ModelFormSetView
 
 from accounts.utils import get_query
 from applications import forms as apps_forms
-from .models import Application, Referral, Condition, Compliance, Vessel
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Application, Referral, Condition, Compliance, Vessel, Location
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -139,6 +140,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     """A view for updating a draft (non-lodged) application.
     """
     model = Application
+#    LocObj = Location.objects.get(id=self.object.id)
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
@@ -171,13 +173,53 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.part5:
             return apps_forms.ApplicationPart5Form
 
+    def get_initial(self):
+        initial = super(ApplicationUpdate, self).get_initial()
+		# LocObj = Location.get_object(id=self.object.id)
+        try:
+           LocObj = Location.objects.get(application_id=self.object.id)
+           initial['certificate_of_title_volume'] = LocObj.title_volume
+           initial['folio'] = LocObj.folio
+           initial['diagram_plan_deposit_number'] = LocObj.dpd_number
+           initial['location'] = LocObj.location
+           initial['reserve_number'] = LocObj.reserve
+           initial['street_number_and_name'] = LocObj.street_number_name
+           initial['town_suburb'] = LocObj.suburb
+           initial['lot'] = LocObj.lot
+           initial['nearest_road_intersection'] = LocObj.intersection
+
+        except ObjectDoesNotExist:
+           donothing = ''
+
+        return initial
+
     def form_valid(self, form):
         """Override form_valid to set the state to draft is this is a new application.
         """
+        forms_data = form.cleaned_data
+        try: 
+           new_loc = Location.objects.get(application_id=self.object.id)
+           print new_loc.application_id
+        except: 
+           new_loc = Location()
+           new_loc.application_id = self.object.id
+
+        new_loc.title_volume = "trtt"
+#        new_loc.title_volume = forms_data['certificate_of_title_volume']
+        new_loc.folio = forms_data['folio']
+        new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
+        new_loc.location = forms_data['location']
+        new_loc.reserve = forms_data['reserve_number']
+        new_loc.street_number_name = forms_data['street_number_and_name']
+        new_loc.suburb = forms_data['town_suburb']
+        new_loc.lot = forms_data['lot']
+        new_loc.intersection = forms_data['nearest_road_intersection']
+
         self.object = form.save(commit=False)
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
         self.object.save()
+        new_loc.save()
         form.save_m2m()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -531,7 +573,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
             if 'compliance' in data and data.get('compliance', None):
                 new_comp = form.save(commit=False)
                 new_comp.applicant = self.request.user
-                new_comp.submit_date = date.today()
+				#new_comp.submit_date = date.today()
                 # TODO: handle the uploaded file.
                 new_comp.save()
         messages.success(self.request, 'New requests for compliance have been submitted.')
