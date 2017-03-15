@@ -10,7 +10,7 @@ from extra_views import ModelFormSetView
 
 from accounts.utils import get_query
 from applications import forms as apps_forms
-from .models import Application, Referral, Condition, Compliance
+from .models import Application, Referral, Condition, Compliance, Location
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -168,10 +168,25 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         """Override form_valid to set the state to draft is this is a new application.
         """
+        forms_data = form.cleaned_data
+        new_loc = Location()
+
+        new_loc.application_id = self.object.id
+        new_loc.title_volume = forms_data['certificate_of_title_volume']
+        new_loc.folio = forms_data['folio']
+        new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
+        new_loc.location = forms_data['location']
+        new_loc.reserve = forms_data['reserve_number']
+        new_loc.street_number_name = forms_data['street_number_and_name']
+        new_loc.suburb = forms_data['town_suburb']
+        new_loc.lot = forms_data['lot']
+        new_loc.intersection = forms_data['nearest_road_intersection']
+
         self.object = form.save(commit=False)
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
         self.object.save()
+        new_loc.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -511,7 +526,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
             if 'compliance' in data and data.get('compliance', None):
                 new_comp = form.save(commit=False)
                 new_comp.applicant = self.request.user
-                new_comp.submit_date = date.today()
+				#new_comp.submit_date = date.today()
                 # TODO: handle the uploaded file.
                 new_comp.save()
         messages.success(self.request, 'New requests for compliance have been submitted.')
