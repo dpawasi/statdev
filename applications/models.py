@@ -44,13 +44,13 @@ class Vessel(models.Model):
         (1, 'craft', ('Craft')),
     )
 
-    vessel_type = models.SmallIntegerField(choices=VESSEL_TYPE_CHOICES)
-    name = models.CharField(max_length=256)
-    vessel_id = models.CharField(max_length=256)
-    registration = models.ManyToManyField(Document)
-    size = models.IntegerField()
-    engine = models.IntegerField()
-    passenger_capacity = models.IntegerField()
+    vessel_type = models.SmallIntegerField(choices=VESSEL_TYPE_CHOICES, null=True, blank=True)
+    name = models.CharField(max_length=256, null=True, blank=True)
+    vessel_id = models.CharField(max_length=256, null=True, blank=True)
+    registration = models.ManyToManyField(Document, blank=True)
+    size = models.IntegerField(null=True, blank=True)
+    engine = models.IntegerField(null=True, blank=True)
+    passenger_capacity = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name

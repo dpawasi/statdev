@@ -5,7 +5,7 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField, FileField, CharField
+from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea
 
 from accounts.models import Organisation
 from .models import Application, Referral, Condition, Compliance
@@ -181,7 +181,7 @@ class ReferralRecallForm(ModelForm):
 class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition
-        fields = ['condition', ]
+        fields = ['condition']
 
     def __init__(self, *args, **kwargs):
         super(ConditionCreateForm, self).__init__(*args, **kwargs)
@@ -190,6 +190,50 @@ class ConditionCreateForm(ModelForm):
         self.fields['condition'].required = True
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ConditionApplyForm(ModelForm):
+    class Meta:
+        model = Condition
+        fields = ['condition']
+
+    def __init__(self, *args, **kwargs):
+        super(ConditionApplyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_condition_apply'
+        self.helper.add_input(Submit('apply', 'Apply', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class AssignCustomerForm(ModelForm):
+    """A form for assigning an application back to the customer.
+    """
+    feedback = CharField(
+        required=False, widget=Textarea, help_text='Feedback to be provided to the customer.')
+
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignCustomerForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the feedback field.
+        self.fields['feedback'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Reassign this application back to the applicant, with feedback:</p>'),
+            'app_type', 'title', 'description', 'feedback',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
 
 
 class AssignProcessorForm(ModelForm):

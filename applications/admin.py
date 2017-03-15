@@ -50,7 +50,7 @@ class ReferralAdmin(ModelAdmin):
 @register(Condition)
 class ConditionAdmin(ModelAdmin):
     filter_horizontal = ('documents',)
-    list_display = ('application', 'referral', 'status')
+    list_display = ('pk', 'application', 'referral', 'status')
     list_filter = ('status',)
     search_fields = ('application__title', 'condition')
 
