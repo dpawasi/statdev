@@ -72,6 +72,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.applicant = self.request.user
         self.object.assignee = self.request.user
+        self.object.submitted_by = self.request.user
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.new
         self.object.save()
