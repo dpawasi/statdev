@@ -4,13 +4,11 @@
 {% block navbar_site_title %}<a class="navbar-brand" href="/">Statutory Development</a>{% endblock navbar_site_title %}
 
 {% block navbar_links %}
-<li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Search <span class="caret"></span></a>
-    <ul class="dropdown-menu" role="menu">
-        <li><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
-        <li><a href="{% url 'organisation_list' %}" title="Companies">Companies</a></li>
-    </ul>
-</li>
+<li><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
+<li><a href="#">Approvals</a></li>
+<li><a href="#">Emergency works</a></li>
+<li><a href="#">Clearance requests</a></li>
+<li><a href="{% url 'organisation_list' %}" title="Companies">Companies</a></li>
 {% block navbar_auth %}
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ user.email }} <span class="caret"></span></a>
