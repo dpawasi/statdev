@@ -599,3 +599,26 @@ class ConditionApply(LoginRequiredMixin, UpdateView):
         self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
+
+
+class DocumentCreate(LoginRequiredMixin, CreateView):
+    form_class = apps_forms.DocumentCreateForm
+    template_name = 'applications/DocumentCreate_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DocumentCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new Document'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(DocumentCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        self.object.save()
+        success_url = reverse('document_list', args=(self.object.pk,))
+        return HttpResponseRedirect(success_url)

@@ -425,7 +425,7 @@ class VesselCreateForm(ModelForm):
         # User must be passed in as a kwarg.
         super(VesselCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_create_application'
+        self.helper.form_id = 'id_form_create_vessel'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
