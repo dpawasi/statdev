@@ -137,7 +137,7 @@ class Application(models.Model):
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
     river_lease_require_river_lease = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_scan_of_application = models.ManyToManyField(Document, blank=True, related_name='river_lease_scan_of_application')
-    river_lease_proposed_development = models.NullBooleanField(default=None,null=True, blank=True)
+    river_lease_reserve_licence = models.NullBooleanField(default=None,null=True, blank=True)
     river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')

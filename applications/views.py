@@ -11,7 +11,7 @@ from extra_views import ModelFormSetView
 from accounts.utils import get_query
 from applications import forms as apps_forms
 from .models import Application, Referral, Condition, Compliance, Location
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -139,6 +139,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     """A view for updating a draft (non-lodged) application.
     """
     model = Application
+#    LocObj = Location.objects.get(id=self.object.id)
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
@@ -171,14 +172,39 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.part5:
             return apps_forms.ApplicationPart5Form
 
+    def get_initial(self):
+        initial = super(ApplicationUpdate, self).get_initial()
+		# LocObj = Location.get_object(id=self.object.id)
+        try:
+           LocObj = Location.objects.get(application_id=self.object.id)
+           initial['certificate_of_title_volume'] = LocObj.title_volume
+           initial['folio'] = LocObj.folio
+           initial['diagram_plan_deposit_number'] = LocObj.dpd_number
+           initial['location'] = LocObj.location
+           initial['reserve_number'] = LocObj.reserve
+           initial['street_number_and_name'] = LocObj.street_number_name
+           initial['town_suburb'] = LocObj.suburb
+           initial['lot'] = LocObj.lot
+           initial['nearest_road_intersection'] = LocObj.intersection
+
+        except ObjectDoesNotExist:
+           donothing = ''
+
+        return initial
+
     def form_valid(self, form):
         """Override form_valid to set the state to draft is this is a new application.
         """
         forms_data = form.cleaned_data
-        new_loc = Location()
+        try: 
+           new_loc = Location.objects.get(application_id=self.object.id)
+           print new_loc.application_id
+        except: 
+           new_loc = Location()
+           new_loc.application_id = self.object.id
 
-        new_loc.application_id = self.object.id
-        new_loc.title_volume = forms_data['certificate_of_title_volume']
+        new_loc.title_volume = "trtt"
+#        new_loc.title_volume = forms_data['certificate_of_title_volume']
         new_loc.folio = forms_data['folio']
         new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
         new_loc.location = forms_data['location']

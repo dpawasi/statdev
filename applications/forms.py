@@ -79,8 +79,6 @@ class ApplicationPermitForm(ModelForm):
 class ApplicationPart5Form(ModelForm):
 
 
-
-
     certificate_of_title_volume = CharField(required=False)
     folio = CharField(required=False)
     diagram_plan_deposit_number = CharField(required=False)
@@ -95,7 +93,7 @@ class ApplicationPart5Form(ModelForm):
         model = Application
         fields = ['title', 'description','cost','project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',
                  'proposed_development_current_use_of_land','proposed_development_plans','document_draft','document_final',
-                 'document_determination','document_completion','river_lease_require_river_lease','river_lease_scan_of_application','river_lease_proposed_development','river_lease_application_number','proposed_development_current_use_of_land','proposed_development_plans']
+                 'document_determination','document_completion','river_lease_require_river_lease','river_lease_scan_of_application','river_lease_reserve_licence','river_lease_application_number','proposed_development_current_use_of_land','proposed_development_plans']
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
