@@ -9,6 +9,7 @@
     <li>Home phone: {{ object.home_phone }}</li>
     <li>Work phone: {{ object.work_phone}}</li>
     <li>Mobile: {{ object.mobile }}</li>
+    <li>Identification: {% if object.identification_supplied %}Supplied{% else %}Not supplied{% endif %}</li>
 </ul>
 <p><a href="{% url 'user_profile_update' %}">Update personal details</a></p>
 <h1>Address details</h1>
@@ -59,6 +60,5 @@
     </li>
 {% endfor %}
 </ul>
-<p><a href="{% url 'organisation_create' %}">Create company/organisation</a></p>
-<p><a href="{% url 'organisation_list' %}">Search existing companies</a></p>
+<a class="btn btn-primary" role="button" href="{% url 'organisation_create' %}">Create a company</a>
 {% endblock %}
