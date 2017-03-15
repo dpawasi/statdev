@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea
 
 from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance, Vessel
+from .models import Application, Referral, Condition, Compliance, Vessel, Document
 
 
 User = get_user_model()
@@ -437,6 +437,20 @@ class VesselCreateForm(ModelForm):
         super(VesselCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_vessel'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class DocumentCreateForm(ModelForm):
+    class Meta:
+        model = Document
+        fields = ['upload', 'name', 'category', 'metadata']
+
+    def __init__(self, *args, **kwargs):
+        super(DocumentCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_document'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

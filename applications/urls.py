@@ -21,4 +21,5 @@ urlpatterns = [
     # TODO: condition update view.
     url(r'^compliances/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^documents/create/$', views.DocumentCreate.as_view(), name='document_create'),
+    url(r'^documents/$', views.DocumentList.as_view(), name='document_list'),
 ]
