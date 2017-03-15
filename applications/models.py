@@ -45,7 +45,7 @@ class Vessel(models.Model):
     )
 
     vessel_type = models.SmallIntegerField(choices=VESSEL_TYPE_CHOICES, null=True, blank=True)
-    name = models.CharField(max_length=256, null=True, blank=True)
+    name = models.CharField(max_length=256)
     vessel_id = models.CharField(max_length=256, null=True, blank=True)
     registration = models.ManyToManyField(Document, blank=True)
     size = models.IntegerField(null=True, blank=True)

@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea
 
 from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance
+from .models import Application, Referral, Condition, Compliance, Vessel
 
 
 User = get_user_model()
@@ -39,16 +39,21 @@ class ApplicationCreateForm(ModelForm):
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
+        # Add labels for fields
+        self.fields['app_type'].label = "Application Type"
+
 
 class ApplicationLicencePermitForm(ModelForm):
     class Meta:
         model = Application
         fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'purpose', 'max_participants', 'proposed_location', 'address',
+            'purpose', 'max_participants', 'proposed_location', 'address', 'vessels',
             'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
-            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details']
+            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details',
+            'cert_survey', 'cert_public_liability_insurance', 'risk_mgmt_plan', 'safety_mgmt_procedures',
+            'brochures_itineries_adverts', 'other_supporting_docs', 'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationLicencePermitForm, self).__init__(*args, **kwargs)
@@ -57,6 +62,34 @@ class ApplicationLicencePermitForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+        # Add labels for fields
+        self.fields['description'].label = "Proposed Commercial Acts or Activities"
+        self.fields['project_no'].label = "Riverbank Project Number"
+        self.fields['purpose'].label = "Purpose of Approval"
+        self.fields['proposed_commence'].label = "Proposed Commencement Date"
+        self.fields['proposed_end'].label = "Proposed End Date"
+        self.fields['max_participants'].label = "Maximum Number of Participants"
+        self.fields['address'].label = "Address of any landbased component of the commercial activity"
+        self.fields['proposed_location'].label = "Location / Route and Acces Points"
+        self.fields['jetties'].label = "List all jetties to be used"
+        self.fields['jetty_dot_approval'].label = "Do you have approval to use Departmen of Transport service jetties?"
+        self.fields['drop_off_pick_up'].label = "List all drop off and pick up points"
+        self.fields['food'].label = "Food to be served?"
+        self.fields['beverage'].label = "Beverage to be served?"
+        self.fields['byo_alcohol'].label = "Do you allow BYO alcohol?"
+        self.fields['sullage_disposal'].label = "Details of sullage disposal method"
+        self.fields['waste_disposal'].label = "Details of waste disposal method"
+        self.fields['refuel_location_method'].label = "Location and method of refueling"
+        self.fields['anchorage'].label = "List all anchorage areas"
+        self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
+        self.fields['cert_survey'].label = "Certificate of Survey"
+        self.fields['cert_public_liability_insurance'].label = "Public Liability Insurance Certificate"
+        self.fields['risk_mgmt_plan'].label = "Risk managment Plan (if available)"
+        self.fields['safety_mgmt_procedures'].label = "Safety Management Procedures (if available)"
+        self.fields['brochures_itineries_adverts'].label = "Brocures, itineraries or advertisements (if available)"
+        self.fields['other_supporting_docs'].label = "Other relevant supporting documentation (if available)"
+
         # TODO: all document fields.
 
 
@@ -65,7 +98,7 @@ class ApplicationPermitForm(ModelForm):
         model = Application
         fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'documents', 'land_owner_consent', 'deed']
+            'documents', 'other_supporting_docs', 'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPermitForm, self).__init__(*args, **kwargs)
@@ -74,6 +107,17 @@ class ApplicationPermitForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+        # Add labels and help text for fields
+        self.fields['proposed_commence'].label = "Proposed commencement date"
+        self.fields['proposed_commence'].help_text = "(Please consider routine assessment takes approximately 4 - 6 weeks, and set your commencement date accordingly)"
+        self.fields['proposed_end'].label = "Proposed end date"
+        self.fields['cost'].label = "Approximate cost"
+        self.fields['project_no'].label = "Riverbank project number (if applicable)"
+        self.fields['related_permits'].label = "Details of related permits"
+        self.fields['description'].label = "Description of works, acts or activities"
+        self.fields['documents'].label = "Attach more detailed descripton, maps or plans"
+        self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 
 class ApplicationPart5Form(ModelForm):
@@ -369,3 +413,19 @@ class ComplianceCreateForm(ModelForm):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
         self.fields['condition'].queryset = Condition.objects.filter(application=application)
+
+
+class VesselCreateForm(ModelForm):
+    class Meta:
+        model = Vessel
+        fields = ['vessel_type', 'name', 'vessel_id', 'registration', 'size', 'engine',
+            'passenger_capacity']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        super(VesselCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
