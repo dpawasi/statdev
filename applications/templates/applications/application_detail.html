@@ -105,27 +105,29 @@
                 </div>
                 <div class="panel-body">
                     <table class="table table-bordered table-striped">
-                        <tr>
-                            <th class="col-sm-3 col-md-2">Submitted:</th>
-                            <td class="col-sm-9 col-md-10"> {{ object.submit_date|date:"d-M-Y" }}</td>
+                        <tr> 
+                            <th>Nominated Vessel</th>
+                            <th>Vessel ID</th>
+                            <th>Hire and Drive Reg.</th>
+                            <th>Size (m)</th>
+                            <th>Engine (kw)</th>
+                            <th>Passenger Capacity</th>
                         </tr>
-                        <tr>
-                            <th>Type:</th>
-                            <td>{{ object.get_app_type_display }}</td>
-                        </tr>
-                        <tr>
-                            <th>Title:</th>
-                            <td>{{ object.title }}</td>
-                        </tr>
-                        <tr>
-                            <th>Description:</th>
-                            <td>{{ object.description }}</td>
-                        </tr>
-                        <tr>
-                            <th>Status:</th>
-                            <td>{{ object.get_state_display }}</td>
-                        </tr>
+
+                        {% for vessel in object.vessels.all %}
+                            <tr>
+                                <td>{{ vessel.name }}</td>
+                                <td>{{ vessel.vessel_id }}</td>
+                                <td>{{ vessel.registration }}</td>
+                                <td>{{ vessel.size }}</td>
+                                <td>{{ vessel.engine }}</td>
+                                <td>{{ vessel.max_passengers }}</td>
+                            </tr>
+                        {% endfor %}
                     </table>
+                    <a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
+                       Add new vessel / craft
+                    </a>
                 </div>
             </div>
             <!-- Proposal details panel -->
