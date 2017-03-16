@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from extra_views import ModelFormSetView
@@ -139,6 +140,19 @@ class ApplicationDetail(DetailView):
                     context['may_request_compliance'] = True
             elif self.request.user == app.applicant:
                 context['may_request_compliance'] = True
+        return context
+
+
+class ApplicationActions(DetailView):
+    model = Application
+    template_name = 'applications/application_actions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationActions, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+            content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
 
 
