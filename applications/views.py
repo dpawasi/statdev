@@ -21,8 +21,6 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
-        context['page_heading'] = 'Home Page'
-        context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
         if Application.objects.filter(assignee=self.request.user).exists():
@@ -47,6 +45,12 @@ class ApplicationList(ListView):
             query = get_query(query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
             qs = qs.filter(query).distinct()
         return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationList, self).get_context_data(**kwargs)
+        # TODO: any restrictions on who can create new applications?
+        context['may_create'] = True
+        return context
 
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
