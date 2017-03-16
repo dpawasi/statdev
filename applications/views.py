@@ -91,6 +91,16 @@ class ApplicationDetail(DetailView):
 
         if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
                 self.template_name = 'applications/application_details_part5_new_application.html'
+                LocObj = Location.objects.get(application_id=self.object.id)
+                context['certificate_of_title_volume'] = LocObj.title_volume
+                context['folio'] = LocObj.folio
+                context['diagram_plan_deposit_number'] = LocObj.dpd_number
+                context['location'] = LocObj.location
+                context['reserve_number'] = LocObj.reserve
+                context['street_number_and_name'] = LocObj.street_number_name
+                context['town_suburb'] = LocObj.suburb
+                context['lot'] = LocObj.lot
+                context['nearest_road_intersection'] = LocObj.intersection
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -205,8 +215,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
            new_loc = Location()
            new_loc.application_id = self.object.id
 
-        new_loc.title_volume = "trtt"
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
+        if 'certificate_of_title_volume' in forms_data:
+            new_loc.title_volume = forms_data['certificate_of_title_volume']
         if 'folio' in forms_data:
             new_loc.folio = forms_data['folio']
         if 'diagram_plan_deposit_number' in forms_data:
