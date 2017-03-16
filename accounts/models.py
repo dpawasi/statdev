@@ -132,6 +132,13 @@ class EmailUserProfile(models.Model):
     def get_absolute_url(self):
         return reverse('user_profile')
 
+    def identification_supplied(self):
+        """Return True or False, depending if identification has been uploaded.
+        """
+        if self.identification:
+            return True
+        return False
+
 
 def get_user_profile(**kwargs):
     EmailUserProfile.objects.get_or_create(emailuser=kwargs['user'])

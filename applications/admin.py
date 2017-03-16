@@ -1,6 +1,7 @@
-from django.contrib import admin
 from django.contrib.admin import register, ModelAdmin
-from .models import Document, Vessel, ApplicationPurpose, Application, Location, Referral, Condition, Compliance, Task
+from .models import (
+    Document, Vessel, ApplicationPurpose, Application, Location, Referral,
+    Condition, Compliance)
 
 
 @register(Document)
@@ -27,7 +28,7 @@ class ApplicationPurposeAdmin(ModelAdmin):
 class ApplicationAdmin(ModelAdmin):
     date_hierarchy = 'submit_date'
     filter_horizontal = ('documents',)
-    list_display = ('pk', 'app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date', 'assignee')
+    list_display = ('id', 'app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date', 'assignee')
     list_filter = ('app_type', 'state')
     search_fields = ('applicant__email', 'organisation__name', 'assignee__email', 'title')
 
@@ -42,7 +43,7 @@ class LocationAdmin(ModelAdmin):
 class ReferralAdmin(ModelAdmin):
     date_hierarchy = 'sent_date'
     filter_horizontal = ('documents',)
-    list_display = ('application', 'referee', 'sent_date', 'period', 'status', 'expire_date', 'response_date')
+    list_display = ('id', 'application', 'referee', 'sent_date', 'period', 'status', 'expire_date', 'response_date')
     list_filter = ('status',)
     search_fields = ('application__title', 'referee__email', 'details', 'feedback')
 
@@ -50,7 +51,7 @@ class ReferralAdmin(ModelAdmin):
 @register(Condition)
 class ConditionAdmin(ModelAdmin):
     filter_horizontal = ('documents',)
-    list_display = ('pk', 'application', 'referral', 'status')
+    list_display = ('id', 'application', 'referral', 'status')
     list_filter = ('status',)
     search_fields = ('application__title', 'condition')
 
@@ -61,8 +62,3 @@ class ComplianceAdmin(ModelAdmin):
     filter_horizontal = ('documents',)
     list_display = ('__str__', 'applicant', 'assignee', 'status', 'submit_date', 'approve_date')
     search_fields = ('applicant__email', 'assignee__email', 'compliance', 'comments')
-
-
-@register(Task)
-class TaskAdmin(ModelAdmin):
-    filter_horizontal = ('documents',)

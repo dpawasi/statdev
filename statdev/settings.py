@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'webtemplate_dpaw',
     'accounts',
     'applications',
+    'actions',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
