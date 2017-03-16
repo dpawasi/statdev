@@ -53,9 +53,13 @@ class UserProfileUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         """Override to set first_name and last_name on the EmailUser object.
         """
-        self.obj = form.save()
-        user = self.obj.emailuser
         data = form.cleaned_data
+        self.obj = form.save(commit=False)
+        # If identification has been uploaded, then set the id_verified field to None.
+        if 'identification' in data and data['identification']:
+            self.obj.id_verified = None
+        self.obj.save()
+        user = self.obj.emailuser
         name_changed = False
         if 'first_name' in data and data['first_name']:
             user.first_name = data['first_name']

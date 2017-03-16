@@ -122,7 +122,6 @@ class ApplicationPermitForm(ModelForm):
 
 class ApplicationPart5Form(ModelForm):
 
-
     certificate_of_title_volume = CharField(required=False)
     folio = CharField(required=False)
     diagram_plan_deposit_number = CharField(required=False)
@@ -186,7 +185,7 @@ class ReferralForm(ModelForm):
         self.helper.form_id = 'id_form_referral_create'
         self.helper.attrs = {'novalidate': ''}
         # Limit the referee queryset.
-        referee = Group.objects.get_or_create(name='Referee')[0]
+        referee = Group.objects.get(name='Referee')
         existing_referees = app.referral_set.all().values_list('referee__email', flat=True)
         self.fields['referee'].queryset = User.objects.filter(groups__in=[referee]).exclude(email__in=existing_referees)
         # TODO: business logic to limit the document queryset.
@@ -292,7 +291,7 @@ class AssignProcessorForm(ModelForm):
         self.helper.form_id = 'id_form_assign_application'
         self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
-        processor = Group.objects.get_or_create(name='Processor')[0]
+        processor = Group.objects.get(name='Processor')
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[processor])
         self.fields['assignee'].required = True
         # Disable all form fields.
@@ -324,7 +323,7 @@ class AssignAssessorForm(ModelForm):
         self.helper.form_id = 'id_form_assign_application'
         self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
-        assessor = Group.objects.get_or_create(name='Assessor')[0]
+        assessor = Group.objects.get(name='Assessor')
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[assessor])
         self.fields['assignee'].required = True
         # Disable all form fields.
@@ -356,7 +355,7 @@ class AssignApproverForm(ModelForm):
         self.helper.form_id = 'id_form_approve_application'
         self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
-        approver = Group.objects.get_or_create(name='Approver')[0]
+        approver = Group.objects.get(name='Approver')
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[approver])
         self.fields['assignee'].required = True
         self.fields['assignee'].label = 'Manager'

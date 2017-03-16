@@ -9,6 +9,7 @@ from django.views.generic import TemplateView, ListView, DetailView, CreateView,
 from extra_views import ModelFormSetView
 
 from accounts.utils import get_query
+from actions.models import Action
 from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document
@@ -91,9 +92,9 @@ class ApplicationDetail(DetailView):
         if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
                 self.template_name = 'applications/application_details_part5_new_application.html'
 
-        processor = Group.objects.get_or_create(name='Processor')[0]
-        assessor = Group.objects.get_or_create(name='Assessor')[0]
-        approver = Group.objects.get_or_create(name='Approver')[0]
+        processor = Group.objects.get(name='Processor')
+        assessor = Group.objects.get(name='Assessor')
+        approver = Group.objects.get(name='Approver')
         if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
@@ -115,11 +116,12 @@ class ApplicationDetail(DetailView):
                 if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
                     context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with assessor', it can have conditions added.
-            # Rule: if the application status is 'with assessor', it can be sent for approval.
+            # Rule: if the application status is 'with assessor', it can have conditions added,
+            # can be sent for approval and conditions can be 'applied'.
             if app.state == app.APP_STATE_CHOICES.with_assessor:
                 context['may_create_condition'] = True
                 context['may_submit_approval'] = True
+                context['may_apply_condition'] = True
         if approver in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with manager', it can be issued or
             # assigned back to an assessor.
@@ -197,22 +199,30 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         """Override form_valid to set the state to draft is this is a new application.
         """
         forms_data = form.cleaned_data
-        try: 
+        try:
            new_loc = Location.objects.get(application_id=self.object.id)
-        except: 
+        except:
            new_loc = Location()
            new_loc.application_id = self.object.id
 
         new_loc.title_volume = "trtt"
-#        new_loc.title_volume = forms_data['certificate_of_title_volume']
-        new_loc.folio = forms_data['folio']
-        new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
-        new_loc.location = forms_data['location']
-        new_loc.reserve = forms_data['reserve_number']
-        new_loc.street_number_name = forms_data['street_number_and_name']
-        new_loc.suburb = forms_data['town_suburb']
-        new_loc.lot = forms_data['lot']
-        new_loc.intersection = forms_data['nearest_road_intersection']
+        #new_loc.title_volume = forms_data['certificate_of_title_volume']
+        if 'folio' in forms_data:
+            new_loc.folio = forms_data['folio']
+        if 'diagram_plan_deposit_number' in forms_data:
+            new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
+        if 'location' in forms_data:
+            new_loc.location = forms_data['location']
+        if 'reserve_number' in forms_data:
+            new_loc.reserve = forms_data['reserve_number']
+        if 'street_number_and_name' in forms_data:
+            new_loc.street_number_name = forms_data['street_number_and_name']
+        if 'town_suburb' in forms_data:
+            new_loc.suburb = forms_data['town_suburb']
+        if 'lot' in forms_data:
+            new_loc.lot = forms_data['lot']
+        if 'lot' in forms_data:
+            new_loc.intersection = forms_data['nearest_road_intersection']
 
         self.object = form.save(commit=False)
         if self.object.state == Application.APP_STATE_CHOICES.new:
@@ -250,6 +260,11 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         self.object.submit_date = date.today()
         app.assignee = None
         app.save()
+        # Generate a 'lodge' action:
+        action = Action(
+            content_object=app, category=Action.ACTION_CATEGORY_CHOICES.lodge,
+            user=self.request.user, action='Application lodgement')
+        action.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -306,7 +321,11 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         app.state = app.APP_STATE_CHOICES.with_referee
         app.save()
         # TODO: the process of sending the application to the referee.
-        # TODO: update the communication log.
+        # Generate a 'refer' action on the application:
+        action = Action(
+            content_object=app, category=Action.ACTION_CATEGORY_CHOICES.refer,
+            user=self.request.user, action='Referred for conditions/feedback to {}'.format(self.object.referee))
+        action.save()
         return super(ApplicationRefer, self).form_valid(form)
 
 
@@ -349,7 +368,17 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         # link that to the new condition.
         if Referral.objects.filter(application=app, referee=self.request.user).exists():
             self.object.referral = Referral.objects.get(application=app, referee=self.request.user)
-            # TODO: record some feedback on the referral.
+        # If the request user is not in the "Referee" group, then assume they're an internal user
+        # and set the new condition to "applied" status (default = "proposed").
+        referee = Group.objects.get(name='Referee')
+        if referee not in self.request.user.groups.all():
+            self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
+        self.object.save()
+        # Record an action on the application:
+        action = Action(
+            content_object=app, user=self.request.user,
+            action='Created condition {} ({})'.format(self.object.pk, self.object.get_status_display()))
+        action.save()
         return super(ConditionCreate, self).form_valid(form)
 
 
@@ -410,6 +439,11 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         if self.kwargs['action'] == 'approve':
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
+        # Record an action on the application:
+        action = Action(
+            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+            action='Assigned application to {} (status: {})'.format(self.object.assignee, self.object.get_state_display()))
+        action.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -438,14 +472,24 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         if d['assessment'] == 'issue':
             self.object.state = self.object.APP_STATE_CHOICES.issued
             self.object.assignee = None
+            # Record an action on the application:
+            action = Action(
+                content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.issue,
+                user=self.request.user, action='Application issued')
+            action.save()
         elif d['assessment'] == 'decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
+            # Record an action on the application:
+            action = Action(
+                content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.decline,
+                user=self.request.user, action='Application declined')
+            action.save()
         # TODO: logic for the manager to select who to assign it back to.
         #elif d['assessment'] == 'return':
         #    self.object.state = self.object.APP_STATE_CHOICES.with_assessor
-        # TODO: logic around emailing/posting the application to the customer.
         self.object.save()
+        # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -482,7 +526,23 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         self.object.response_date = date.today()
         self.object.status = Referral.REFERRAL_STATUS_CHOICES.responded
         self.object.save()
-        return HttpResponseRedirect(self.object.application.get_absolute_url())
+        app = self.object.application
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=app, user=self.request.user,
+            action='Referral to {} marked as completed'.format(self.object.referee))
+        action.save()
+        # If there are no further outstanding referrals, then set the application status to "with admin".
+        if not Referral.objects.filter(
+                application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
+            app.state = Application.APP_STATE_CHOICES.with_admin
+            app.save()
+            # Record an action.
+            action = Action(
+                content_object=app, user=self.request.user,
+                action='No outstanding referrals, application status set to {}'.format(app.get_state_display()))
+            action.save()
+        return HttpResponseRedirect(app.get_absolute_url())
 
 
 class ReferralRecall(LoginRequiredMixin, UpdateView):
@@ -509,10 +569,15 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         return super(ReferralRecall, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        referral = self.get_object()
-        referral.status = Referral.REFERRAL_STATUS_CHOICES.recalled
-        referral.save()
-        return HttpResponseRedirect(referral.application.get_absolute_url())
+        self.object = form.save(commit=False)
+        self.object.status = Referral.REFERRAL_STATUS_CHOICES.recalled
+        self.object.save()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=self.object.application, user=self.request.user,
+            action='Referral to {} recalled'.format(self.object.referee))
+        action.save()
+        return HttpResponseRedirect(self.object.application.get_absolute_url())
 
 
 class ComplianceList(ListView):
@@ -572,17 +637,23 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
             if 'compliance' in data and data.get('compliance', None):
                 new_comp = form.save(commit=False)
                 new_comp.applicant = self.request.user
-				#new_comp.submit_date = date.today()
+                new_comp.submit_date = date.today()
                 # TODO: handle the uploaded file.
                 new_comp.save()
+                # Record an action on the compliance request's application:
+                action = Action(
+                    content_object=new_comp.application, user=self.request.user,
+                    action='Request for compliance created')
+                action.save()
         messages.success(self.request, 'New requests for compliance have been submitted.')
         return super(ComplianceCreate, self).formset_valid(formset)
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_application().pk,))
 
+
 class VesselCreate(LoginRequiredMixin, CreateView):
-    model=Vessel
+    model = Vessel
     form_class = apps_forms.VesselCreateForm
 
     def get(self, request, *args, **kwargs):
@@ -594,7 +665,6 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.kwargs['pk'],))
-
 
     def get_context_data(self, **kwargs):
         context = super(VesselCreate, self).get_context_data(**kwargs)
@@ -613,6 +683,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         app.vessels.add(self.object.id)
         app.save()
         return super(VesselCreate, self).form_valid(form)
+
 
 class ConditionApply(LoginRequiredMixin, UpdateView):
     """A view to allow an assessor to 'apply' a condition that has proposed by a referee.
