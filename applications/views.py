@@ -206,8 +206,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
            new_loc.application_id = self.object.id
 
         new_loc.title_volume = "trtt"
-#        new_loc.title_volume = forms_data['certificate_of_title_volume']
-        new_loc.folio = forms_data['folio']
+        #new_loc.title_volume = forms_data['certificate_of_title_volume']
+        #new_loc.folio = forms_data['folio']
         new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
         new_loc.location = forms_data['location']
         new_loc.reserve = forms_data['reserve_number']
