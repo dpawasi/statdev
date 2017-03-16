@@ -92,9 +92,9 @@ class ApplicationDetail(DetailView):
         if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
                 self.template_name = 'applications/application_details_part5_new_application.html'
 
-        processor = Group.objects.get_or_create(name='Processor')[0]
-        assessor = Group.objects.get_or_create(name='Assessor')[0]
-        approver = Group.objects.get_or_create(name='Approver')[0]
+        processor = Group.objects.get(name='Processor')
+        assessor = Group.objects.get(name='Assessor')
+        approver = Group.objects.get(name='Approver')
         if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
@@ -207,14 +207,22 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         new_loc.title_volume = "trtt"
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
-        #new_loc.folio = forms_data['folio']
-        new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
-        new_loc.location = forms_data['location']
-        new_loc.reserve = forms_data['reserve_number']
-        new_loc.street_number_name = forms_data['street_number_and_name']
-        new_loc.suburb = forms_data['town_suburb']
-        new_loc.lot = forms_data['lot']
-        new_loc.intersection = forms_data['nearest_road_intersection']
+        if 'folio' in forms_data:
+            new_loc.folio = forms_data['folio']
+        if 'diagram_plan_deposit_number' in forms_data:
+            new_loc.dpd_number = forms_data['diagram_plan_deposit_number']
+        if 'location' in forms_data:
+            new_loc.location = forms_data['location']
+        if 'reserve_number' in forms_data:
+            new_loc.reserve = forms_data['reserve_number']
+        if 'street_number_and_name' in forms_data:
+            new_loc.street_number_name = forms_data['street_number_and_name']
+        if 'town_suburb' in forms_data:
+            new_loc.suburb = forms_data['town_suburb']
+        if 'lot' in forms_data:
+            new_loc.lot = forms_data['lot']
+        if 'lot' in forms_data:
+            new_loc.intersection = forms_data['nearest_road_intersection']
 
         self.object = form.save(commit=False)
         if self.object.state == Application.APP_STATE_CHOICES.new:
@@ -362,7 +370,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
             self.object.referral = Referral.objects.get(application=app, referee=self.request.user)
         # If the request user is not in the "Referee" group, then assume they're an internal user
         # and set the new condition to "applied" status (default = "proposed").
-        referee = Group.objects.get_or_create(name='Referee')[0]
+        referee = Group.objects.get(name='Referee')
         if referee not in self.request.user.groups.all():
             self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
         self.object.save()

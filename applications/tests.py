@@ -23,10 +23,10 @@ class ApplicationTest(TestCase):
         self.user2 = mixer.blend(User, email=random_dpaw_email, is_superuser=False, is_staff=True)
         self.user2.set_password('pass')
         self.user2.save()
-        processor = Group.objects.get_or_create(name='Processor')[0]
-        assessor = Group.objects.get_or_create(name='Assessor')[0]
-        approver = Group.objects.get_or_create(name='Approver')[0]
-        referee = Group.objects.get_or_create(name='Referee')[0]
+        processor = Group.objects.get(name='Processor')
+        assessor = Group.objects.get(name='Assessor')
+        approver = Group.objects.get(name='Approver')
+        referee = Group.objects.get(name='Referee')
         self.user1.groups.add(processor)
         self.user1.groups.add(assessor)
         self.user1.groups.add(approver)
