@@ -105,6 +105,11 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
             return self.first_name
         return self.email
 
+    def get_full_name(self):
+        if self.first_name:
+            return '{} {}'.format(self.first_name, self.last_name).strip()
+        return self.email
+
 
 @python_2_unicode_compatible
 class EmailUserProfile(models.Model):

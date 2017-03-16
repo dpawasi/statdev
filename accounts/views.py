@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
@@ -303,8 +304,12 @@ class RequestDelegateAccess(LoginRequiredMixin, FormView):
         # requesting user PK (base 64-encoded) plus a unique token for that user.
         org = self.get_organisation()
         if not org.delegates.exists():
-            # TODO: handle the situation where an organisation has no delegates.
-            raise Exception('No delegates exist for {}'.format(org.name))
+            # In the event that an organisation has no delegates, the request
+            # will be sent to all users in the "Processor" group.
+            processor = Group.objects.get(name='Processor')
+            recipients = [i.email for i in EmailUser.objects.filter(groups__in=[processor])]
+        else:
+            recipients = [i.emailuser.email for i in org.delegates.all()]
         user = self.request.user
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
@@ -315,7 +320,7 @@ class RequestDelegateAccess(LoginRequiredMixin, FormView):
         Click here to confirm and grant this access request:\n{}'''.format(org.name, user, url)
         html_message = '''<p>The following user has requested delegate access for {}: {}</p>
         <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, org.delegates.all(), fail_silently=False, html_message=html_message)
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False, html_message=html_message)
         messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
         return super(RequestDelegateAccess, self).post(request, *args, **kwargs)
 
