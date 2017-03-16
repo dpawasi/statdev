@@ -4,4 +4,5 @@ django-model-utils==2.6.1
 webtemplate-dpaw==0.4.7
 django-crispy-forms==1.6.1
 django-extra-views==0.9.0
+django-reversion==2.0.8
 mixer==5.6.6
