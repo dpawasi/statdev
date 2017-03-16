@@ -1,0 +1,35 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<div class="container-fluid">
+    <div class="row">
+        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <p><a href="{% url 'application_detail' object.pk %}">Return to application details</a></p>
+        <h2>Action/communication log</h2>
+        {% if actions %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Date & time</th>
+                    <th>Category</th>
+                    <th>User</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for action in actions %}
+                <tr>
+                    <td>{{ action.timestamp|date:"d-M-Y H:i" }}</td>
+                    <td>{{ action.get_category_display }}</td>
+                    <td>{{ action.user }}</td>
+                    <td>{{ action.action }}</td>
+                </tr>
+                {% endfor %}
+        </table>
+        <p><a href="{% url 'application_detail' object.pk %}">Return to application details</a></p>
+        {% else %}
+        <p>No actions recorded.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock page_content_inner %}

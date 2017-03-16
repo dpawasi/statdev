@@ -1,17 +1,19 @@
-from django.contrib import admin
-from django.contrib.admin import register, ModelAdmin, SimpleListFilter
+from __future__ import unicode_literals
+from django.contrib.admin import register, SimpleListFilter
+from reversion.admin import VersionAdmin
+
 from .forms import OrganisationAdminForm
 from .models import Address, EmailUser, EmailUserProfile, Organisation
 
 
 @register(Address)
-class AddressAdmin(ModelAdmin):
+class AddressAdmin(VersionAdmin):
     list_filter = ('state', )
     search_fields = ('line1', 'line2', 'locality', 'postcode')
 
 
 @register(EmailUser)
-class EmailUserAdmin(ModelAdmin):
+class EmailUserAdmin(VersionAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active')
     list_filter = ('is_staff', 'is_active')
     search_fields = ('email', 'first_name', 'last_name')
@@ -52,7 +54,7 @@ class IdVerifiedListFilter(SimpleListFilter):
 
 
 @register(EmailUserProfile)
-class EmailUserProfileAdmin(ModelAdmin):
+class EmailUserProfileAdmin(VersionAdmin):
     list_display = ('emailuser', 'dob', 'id_supplied', 'id_verified', 'home_phone', 'work_phone', 'mobile')
     list_filter = (IdSuppliedListFilter, IdVerifiedListFilter)
     search_fields = ('emailuser__email', 'emailuser__first_name', 'emailuser__last_name')
@@ -64,7 +66,7 @@ class EmailUserProfileAdmin(ModelAdmin):
 
 
 @register(Organisation)
-class OrganisationAdmin(ModelAdmin):
+class OrganisationAdmin(VersionAdmin):
     filter_horizontal = ('delegates', )
     form = OrganisationAdminForm
     list_display = ('name', 'abn')

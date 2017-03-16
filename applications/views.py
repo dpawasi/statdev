@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from extra_views import ModelFormSetView
@@ -21,8 +22,6 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
-        context['page_heading'] = 'Home Page'
-        context['may_create'] = True
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
         if Application.objects.filter(assignee=self.request.user).exists():
@@ -47,6 +46,12 @@ class ApplicationList(ListView):
             query = get_query(query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
             qs = qs.filter(query).distinct()
         return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationList, self).get_context_data(**kwargs)
+        # TODO: any restrictions on who can create new applications?
+        context['may_create'] = True
+        return context
 
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
@@ -135,6 +140,19 @@ class ApplicationDetail(DetailView):
                     context['may_request_compliance'] = True
             elif self.request.user == app.applicant:
                 context['may_request_compliance'] = True
+        return context
+
+
+class ApplicationActions(DetailView):
+    model = Application
+    template_name = 'applications/application_actions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationActions, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+            content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
 
 
