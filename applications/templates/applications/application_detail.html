@@ -105,7 +105,7 @@
                 </div>
                 <div class="panel-body">
                     <table class="table table-bordered table-striped">
-                        <tr> 
+                        <tr>
                             <th>Nominated Vessel</th>
                             <th>Vessel ID</th>
                             <th>Hire and Drive Reg.</th>
@@ -465,7 +465,7 @@
                                 <td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
                                 <td>{{ cond.get_status_display }}</td>
                                 <td>
-                                    {% if cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
+                                    {% if cond.status == cond.CONDITION_STATUS_CHOICES.proposed and may_apply_condition %}
                                     <a href="{% url 'condition_apply' cond.pk %}">Apply</a>
                                     {% endif %}
                                 </td>

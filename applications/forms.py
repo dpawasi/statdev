@@ -122,7 +122,6 @@ class ApplicationPermitForm(ModelForm):
 
 class ApplicationPart5Form(ModelForm):
 
-
     certificate_of_title_volume = CharField(required=False)
     folio = CharField(required=False)
     diagram_plan_deposit_number = CharField(required=False)
@@ -132,7 +131,7 @@ class ApplicationPart5Form(ModelForm):
     town_suburb = CharField(required=False)
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
-  
+
     class Meta:
         model = Application
         fields = ['title', 'description','cost','project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',

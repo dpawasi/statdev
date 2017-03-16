@@ -1,6 +1,7 @@
 from datetime import date
 from django.core.management.base import BaseCommand
 import logging
+from actions.models import Action
 from applications.models import Referral
 
 logger = logging.getLogger('statdev')
@@ -28,5 +29,10 @@ class Command(BaseCommand):
                 logger.info('Setting application status to "with admin": {}'.format(app))
                 app.state = app.APP_STATE_CHOICES.with_admin
                 app.save()
+                # Record an action.
+                action = Action(
+                    content_object=app,
+                    action='[SYSTEM] No outstanding referrals, application status set to {}'.format(app.get_state_display()))
+                action.save()
 
         return

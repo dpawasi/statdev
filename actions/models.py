@@ -21,6 +21,7 @@ class Action(models.Model):
         (5, 'decline', ('Decline')),
         (6, 'publish', ('Publish')),
         (7, 'lodge', ('Lodge')),
+        # TODO: Compliance request
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
