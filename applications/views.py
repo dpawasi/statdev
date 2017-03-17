@@ -23,13 +23,22 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
-        if Referral.objects.filter(referee=self.request.user).exists():
-            context['referrals'] = Referral.objects.filter(referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
-        if Application.objects.filter(assignee=self.request.user).exists():
-            context['applications'] = Application.objects.filter(assignee=self.request.user)
+        if Application.objects.filter(assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined]).exists():
+            context['applications_wip'] = Application.objects.filter(
+                assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
         if Application.objects.filter(applicant=self.request.user).exists():
             context['applications_submitted'] = Application.objects.filter(
                 applicant=self.request.user).exclude(assignee=self.request.user)
+        if Referral.objects.filter(referee=self.request.user).exists():
+            context['referrals'] = Referral.objects.filter(
+                referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
+        # Processor users only: show unassigned applications.
+        processor = Group.objects.get(name='Processor')
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            if Application.objects.filter(assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin).exists():
+                context['applications_unassigned'] = Application.objects.filter(assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin)
+            # Rule: admin officers may self-assign applications.
+            context['may_assign_processor'] = True
         return context
 
 
@@ -583,8 +592,7 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
             app.save()
             # Record an action.
             action = Action(
-                content_object=app, user=self.request.user,
-                action='No outstanding referrals, application status set to {}'.format(app.get_state_display()))
+                content_object=app, action='No outstanding referrals, application status set to {}'.format(app.get_state_display()))
             action.save()
         return HttpResponseRedirect(app.get_absolute_url())
 
@@ -754,6 +762,11 @@ class ConditionApply(LoginRequiredMixin, UpdateView):
         self.object = form.save(commit=False)
         self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
         self.object.save()
+        # Generate an action:
+        action = Action(
+            content_object=self.object.application, user=self.request.user,
+            action='Condition {} updated (proposed -> applied)'.format(self.object.pk))
+        action.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
 
 

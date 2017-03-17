@@ -25,7 +25,7 @@
                         {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
                         {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
-                        <li><a href="{% url 'application_actions' object.pk %}">Show action/comm. log</a></li>
+                        <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
                         <li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>
                     </ul>
                 </div>
@@ -35,17 +35,18 @@
                     <h3 class="panel-title">Submission</h3>
                 </div>
                 <div class="panel-body">
-                    <h5>Submitted by</h5>
+                    <h4>Submitted by:</h4>
                     <p>
                         {% if object.applicant.first_name %}{{ object.applicant.first_name }} {{ object.applicant.last_name }}
                         {% else %}{{ object.applicant.email }}
                         {% endif %}
                     </p>
-                    <br />
-                    <h5>Lodged on</h5>
+                    <h4>Lodged on</h4>
                     <p>{{ object.submit_date|date:"d-M-Y" }}</p>
+                    {% comment %}
                     <br />
                     <h5>Lodgement  Date   Action</h5>
+                    {% endcomment %}
                 </div>
             </div>
             <div class="panel panel-default">
@@ -53,9 +54,9 @@
                     <h3 class="panel-title">Workflow</h3>
                 </div>
                 <div class="panel-body">
-                    <h5>Status</h5>
+                    <h4>Status:</h4>
                     <p>{{ object.get_state_display }}</p>
-                    <h5>Assigned to</h5>
+                    <h4>Assigned to:</h4>
                     {% if object.assignee %}
                         <p>
                         {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
@@ -101,6 +102,7 @@
                     <h3 class="panel-title">Vessel and Craft Details</h3>
                 </div>
                 <div class="panel-body">
+                    {% if object.vessels.exists %}
                     <table class="table table-bordered table-striped">
                         <tr>
                             <th>Nominated Vessel</th>
@@ -122,9 +124,14 @@
                             </tr>
                         {% endfor %}
                     </table>
+                    {% else %}
+                    <p>None</p>
+                    {% endif %}
+                    {% if may_update %}
                     <a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
                        Add new vessel / craft
                     </a>
+                    {% endif %}
                 </div>
             </div>
             <!-- Proposal details panel -->
@@ -415,16 +422,16 @@
                                 <td>{{ ref.feedback }}</td>
                                 <td>
                                 {% if ref.referee == user and not ref.response_date %}
-                                <a href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
-                                <a href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
+                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
+                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
                                 {% endif %}
                                 {% if may_recall_resend %}
                                 {% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
-                                <a href="{% url 'referral_recall' ref.pk %}">Recall</a>
+                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_recall' ref.pk %}">Recall</a>
                                 {% endif %}
                                 {% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}
                                 {# TODO: Referral resend function #}
-                                <a href="#">Resend</a>
+                                <a class="btn btn-primary btn-sm" role="button" href="#">Resend</a>
                                 {% endif %}
                                 {% endif %}
                                 </td>
