@@ -28,24 +28,22 @@
 {% endblock navbar_links %}
 
 {% block page_content %}
-<div class="container-fluid">
-    <!-- Messages  -->
-    {% if messages %}
-    <div class="row">
-        <div class="col-xs-12">
-            {% for message in messages %}
-            <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
-                {{ message|safe }}
-            </div>
-            {% endfor %}
+<!-- Messages  -->
+{% if messages %}
+<div class="row">
+    <div class="col-xs-12">
+        {% for message in messages %}
+        <div class="alert{% if message.tags %} alert-{{ message.tags }}{% endif %}">
+            {{ message|safe }}
         </div>
+        {% endfor %}
     </div>
-    {% endif %}
+</div>
+{% endif %}
 
-    <div class="row">
-        <div class="col-xs-12">
-            {% block page_content_inner %}{% endblock %}
-        </div>
+<div class="row">
+    <div class="col-xs-12">
+        {% block page_content_inner %}{% endblock %}
     </div>
 </div>
 {% endblock page_content %}

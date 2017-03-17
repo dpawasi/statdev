@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>{{ page_title }}</title>
+        <meta name="description" content="{{ page_description }}">
+        {% block base_style %}
+        <link rel="stylesheet" type="text/css" href="https://static.dpaw.wa.gov.au/static/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+        {% endblock base_style %}
+        {% block extra_head %}{% endblock %}
+    </head>
+    <body>
+        {% block page_content %}{% endblock %}
+        {% block page_footer %}{% endblock %}
+    </body>
+</html>
