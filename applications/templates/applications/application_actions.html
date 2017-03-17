@@ -20,8 +20,8 @@
                 {% for action in actions %}
                 <tr>
                     <td>{{ action.timestamp|date:"d-M-Y H:i" }}</td>
-                    <td>{{ action.get_category_display }}</td>
-                    <td>{{ action.user }}</td>
+                    <td>{% if action.category %}{{ action.get_category_display }}{% endif %}</td>
+                    <td>{% if action.user %}{{ action.user }}{% endif %}</td>
                     <td>{{ action.action }}</td>
                 </tr>
                 {% endfor %}
