@@ -52,6 +52,10 @@ class ApplicationList(ListView):
         context = super(ApplicationList, self).get_context_data(**kwargs)
         # TODO: any restrictions on who can create new applications?
         context['may_create'] = True
+        processor = Group.objects.get(name='Processor')
+        # Rule: admin officers may self-assign applications.
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            context['may_assign_processor'] = True
         return context
 
 
