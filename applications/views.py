@@ -5,9 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from extra_views import ModelFormSetView
+import pdfkit
 
 from accounts.utils import get_query
 from actions.models import Action
@@ -51,6 +52,10 @@ class ApplicationList(ListView):
         context = super(ApplicationList, self).get_context_data(**kwargs)
         # TODO: any restrictions on who can create new applications?
         context['may_create'] = True
+        processor = Group.objects.get(name='Processor')
+        # Rule: admin officers may self-assign applications.
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            context['may_assign_processor'] = True
         return context
 
 
@@ -141,6 +146,27 @@ class ApplicationDetail(DetailView):
             elif self.request.user == app.applicant:
                 context['may_request_compliance'] = True
         return context
+
+
+class ApplicationDetailPDF(ApplicationDetail):
+    """This view is a proof of concept for synchronous, server-side PDF generation.
+    Depending on performance and resource constraints, this might need to be
+    refactored to use an asynchronous task.
+    """
+    template_name = 'applications/application_detail_pdf.html'
+
+    def get(self, request, *args, **kwargs):
+        response = super(ApplicationDetailPDF, self).get(request)
+        options = {
+            'page-size': 'A4',
+            'encoding': 'UTF-8',
+        }
+        # Generate the PDF as a string, then use that as the response body.
+        output = pdfkit.from_string(response.rendered_content, False, options=options)
+        # TODO: store the generated PDF as a Document object.
+        response = HttpResponse(output, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=test.pdf'
+        return response
 
 
 class ApplicationActions(DetailView):
