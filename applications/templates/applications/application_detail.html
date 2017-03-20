@@ -1,6 +1,10 @@
 {% extends "base_statdev.html" %}
 
 {% block page_content_inner %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/borderless.css" %}" />
+
+
 <div class="container-fluid">
     <div class="row">
         <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
@@ -69,6 +73,7 @@
                 </div>
             </div>
         </div>
+        
 <!-- Main panel start -->
         <div class="col-sm-8 col-md-9 col-lg-10">
             <!-- Applicant panel -->
@@ -77,7 +82,78 @@
                     <h3 class="panel-title">Applicant</h3>
                 </div>
                 <div class="panel-body">
-                    <p>Applicant details here</p>
+                    {% with object.applicant as applicant %}
+                    <div class="col-sm-8 col-md-9 col-lg-4">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Personal Details</th>
+                            </tr>
+                            <tr>
+                                <th>Given name(s)</th>
+                                <td>{{ applicant.first_name }}</td>
+                            </tr>
+                                <th>Surname</th>
+                                <td>{{ applicant.last_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date of birth</th>
+                                <td>{{ applicant.emailuserprofile.dob }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-8 col-md-9 col-lg-4">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Address Details</th>
+                            </tr>
+                            {% with applicant.emailuserprofile.postal_address as address %}
+                                <tr>
+                                    <th>Postal address</th>
+                                    <td>{{ address.line1 }}</td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>{{ address.line2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Town / Suburb</th>
+                                    <td>{{ address.locality }}</td>
+                                </tr>
+                                <tr>
+                                    <th>State</th>
+                                    <td>{{ address.get_state_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Postcode</th>
+                                    <td>{{ address.postcode }}</td>
+                                </tr>
+                            {% endwith %}
+                        </table>
+                    </div>
+                    <div class="col-sm-8 col-md-9 col-lg-4">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Contact details</th>
+                            </tr>
+                            <tr>
+                                <th>Phone (home)</th>
+                                <td>{{ applicant.emailuserprofile.home_phone }}</td>
+                            </tr>
+                            <tr>
+                                <th>Phone (work)</th>
+                                <td>{{ applicant.emailuserprofile.work_phone }}</td>
+                            </tr>
+                            <tr>
+                                <th>Mobile</th>
+                                <td>{{ applicant.emailuserprofile.mobile }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ applicant.email }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    {% endwith %}
                 </div>
             </div>
             <div class="panel panel-default">

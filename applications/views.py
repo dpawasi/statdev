@@ -293,7 +293,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.state = Application.APP_STATE_CHOICES.draft
         self.object.save()
         new_loc.save()
-        form.save_m2m()
+        if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
+            form.save_m2m()
         return HttpResponseRedirect(self.get_success_url())
 
 
