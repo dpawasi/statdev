@@ -22,6 +22,7 @@ class Action(models.Model):
         (6, 'publish', ('Publish')),
         (7, 'lodge', ('Lodge')),
         # TODO: Compliance request
+        # TODO: Request/add/remove delegate
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()

@@ -13,7 +13,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from itertools import chain
 
-from .forms import EmailUserProfileForm, AddressForm, OrganisationForm, DelegateAccessForm
+from actions.models import Action
+from .forms import EmailUserProfileForm, AddressForm, OrganisationForm, DelegateAccessForm, UnlinkDelegateForm
 from .models import EmailUser, EmailUserProfile, Address, Organisation
 from .utils import get_query
 
@@ -220,6 +221,10 @@ class OrganisationCreate(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+class OrganisationDetail(LoginRequiredMixin, DetailView):
+    model = Organisation
+
+
 class OrganisationUpdate(LoginRequiredMixin, UpdateView):
     """A view to update an Organisation object.
     """
@@ -322,6 +327,9 @@ class RequestDelegateAccess(LoginRequiredMixin, FormView):
         <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False, html_message=html_message)
         messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
+        # Generate an action record:
+        action = Action(content_object=org, user=user, action='Requested delegate access')
+        action.save()
         return super(RequestDelegateAccess, self).post(request, *args, **kwargs)
 
 
@@ -372,4 +380,40 @@ class ConfirmDelegateAccess(LoginRequiredMixin, FormView):
             messages.success(self.request, '{} has been added as a delegate for {}.'.format(user, org.name))
         else:
             messages.warning(self.request, 'The request delegate token is no longer valid.')
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class OrganisationUnlinkDelegate(LoginRequiredMixin, UpdateView):
+    model = Organisation
+    form_class = UnlinkDelegateForm
+    template_name = 'accounts/confirm_unlink_delegate.html'
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        obj = self.get_object()
+        if request.user.emailuserprofile not in obj.delegates.all() and not request.user.is_superuser:
+            messages.error(self.request, 'You are not authorised to unlink a delegated user!')
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(OrganisationUnlinkDelegate, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationUnlinkDelegate, self).get_context_data(**kwargs)
+        context['delegate'] = EmailUser.objects.get(pk=self.kwargs['user_id'])
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(OrganisationUnlinkDelegate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Unlink the specified user from the organisation.
+        org = self.get_object()
+        user = EmailUser.objects.get(pk=self.kwargs['user_id'])
+        org.delegates.remove(user.emailuserprofile)
+        # TODO: success message.
+        # Generate an action record:
+        action = Action(content_object=org, user=self.request.user,
+            action='Unlinked delegate access for {}'.format(user.get_full_name()))
+        action.save()
         return HttpResponseRedirect(self.get_success_url())
