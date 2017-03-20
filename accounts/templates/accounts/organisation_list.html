@@ -29,7 +29,7 @@
                 <tbody>
                     {% for obj in object_list %}
                     <tr>
-                        <td>{{ obj.name }}</td>
+                        <td><a href="{% url 'organisation_detail' obj.pk %}">{{ obj.name }}</a></td>
                         <td>{{ obj.abn }}</td>
                         <td>{% if user.emailuserprofile not in obj.delegates.all %}<a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_request_delegate_access' obj.pk %}">Request delegate access<a/>{% endif %}</td>
                     </tr>
