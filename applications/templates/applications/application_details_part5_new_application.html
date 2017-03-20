@@ -3,7 +3,7 @@
 {% block page_content_inner %}
 <div class="container-fluid">
 	<div class="row">
-		<h1>Application for {{ object.get_app_type_display }} - {{ object.pk }} ------</h1>
+		<h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
 		<br />
 	</div>
 	<!-- Action panel start -->
@@ -97,7 +97,7 @@
 							<label>Certificate of Title Volume</Label>
 						</div>
 						<div class="col-lg-12">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ certificate_of_title_volume }}
 						</div>
 					</div>
 					<div class="col-sm-12 col-md-12 col-lg-4">
@@ -105,7 +105,7 @@
 							<label>Folio</Label>
 						</div>
 						<div class="col-lg-12">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ folio }}
 						</div>
 					</div>		
 					<div class="col-sm-12 col-md-12 col-lg-4">
@@ -113,7 +113,7 @@
 							<label>Diagram / Plan / Deposit Number</Label>
 						</div>
 						<div class="col-lg-12">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ diagram_plan_deposit_number }}
 						</div>
 					</div>
 					<div class="col-sm-12 col-md-12 col-lg-4">
@@ -121,7 +121,7 @@
 							<label>Subject Lot Lot Number</Label>
 						</div>
 						<div class="col-lg-12">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ lot }}
 						</div>
 					</div>
 					<div class="col-sm-12 col-md-12 col-lg-8">
@@ -129,7 +129,7 @@
 							<label>Location</Label>
 						</div>
 						<div class="col-lg-12">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ location }}
 						</div>
 					</div>
 
@@ -138,7 +138,7 @@
 							<label>Reserve Number</Label>
 						</div>
 						<div class="col-lg-4">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ reserve_number }}
 						</div>
 					</div>
 
@@ -147,7 +147,7 @@
 							<label>Street Number & Name</Label>
 						</div>
 						<div class="col-lg-8">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ street_number_and_name }}
 						</div>
 					</div>
 
@@ -156,7 +156,7 @@
 							<label>Town / Suburb</Label>
 						</div>
 						<div class="col-lg-4">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ town_suburb }}
 						</div>
 					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
@@ -164,258 +164,266 @@
 							<label>Nearest road intersection</Label>
 						</div>
 						<div class="col-lg-8">
-							<input type='text' name='cotv' style='width: 100%'>
+							{{ nearest_road_intersection }}
 						</div>
 					</div>
 				</div>
 			</div>	
-			 <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">River Reserve Lease (Swan and Cannning Management Act 2006 - section 29</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-								If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note " River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted. 
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Does the development reqiure a River reserve lease?</Label>
-                        </div>
-                        <div class="col-lg-12">
-                            <input type='radio' name='requirereservelease' value='Yes'> Yes <input type='radio' name='requirereservelease' value='No'> No
-                        </div>
-                    </div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">River Reserve Lease (Swan and Cannning Management Act 2006 - section 29</h3>
+				</div>
+				<div class="panel-body">
 					<div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>If Yes, Please Attach application. (PDF)</Label>
-                        </div>
-                        <div class="col-lg-12">
-								
-                            <input type='file' name='leasepdf'>
-                        </div>
-                    </div>
+						<div class="col-lg-12">
+							If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note " River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted. 
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label>Does the development reqiure a River reserve lease?</Label>
+						</div>
+						<div class="col-lg-12">
+							{% if object.river_lease_require_river_lease is True %}
+                                Yes
+                            {% else %}
+                                No
+                            {% endif %}
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label>If Yes, Please Attach application. (PDF)</Label>
+						</div>
+						<div class="col-lg-12">
+
+							<input type='file' name='leasepdf'>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">River Reserve Lease (Swan and Cannning Management Act 2006 - section 32</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
+				<div class="panel-heading">
+					<h3 class="panel-title">River Reserve Lease (Swan and Cannning Management Act 2006 - section 32</h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
 							based on screen shot something is surposed to go here..  but not sure what!
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Does the proposed development involve an activity in the River reserve that will require a River reserve licence?</Label>
-                        </div>
-                        <div class="col-lg-12">
-                            <input type='radio' name='requirereservelease' value='Yes'> Yes <input type='radio' name='requirereservelease' value='No'> No
-                        </div>
-                    </div>
+						</div>
+					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>If Yes, Enter application number (Application must have a been successfully submitted)</Label>
-                        </div>
-                        <div class="col-lg-12">
-                            <input type='text' name='requirereservelease' value=''> 
-                        </div>
-                    </div>
-					
+						<div class="col-lg-12">
+							<label>Does the proposed development involve an activity in the River reserve that will require a River reserve licence?</Label>
+						</div>
+						<div class="col-lg-12">
+							{% if object.river_lease_reserve_licence is True %} 
+								Yes
+							{% else %}
+								No
+							{% endif %}
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label>If Yes, Enter application number (Application must have a been successfully submitted)</Label>
+						</div>
+						<div class="col-lg-12">
+							{{ object.river_lease_application_number }}
+						</div>
+					</div>
+
 				</div>
 			</div>
 			<div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Details of Proposed Development</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
+				<div class="panel-heading">
+					<h3 class="panel-title">Details of Proposed Development</h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
 							<label>Estimated cost of development (AU$)</Label>
-                        </div>
-						<div class="col-lg-4">
-							<input type='text' name='costofdev' value=''>
 						</div>
-                    </div>
+						<div class="col-lg-4">
+							{{ object.cost }}
+						</div>
+					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Current use of land</Label>
-                        </div>
-                        <div class="col-lg-12">
-                            <textarea style='width: 100%' ></textarea>
-                        </div>
-                    </div>
+						<div class="col-lg-12">
+							<label>Current use of land</Label>
+						</div>
+						<div class="col-lg-12">
+							{{ object.proposed_development_current_use_of_land }}
+						</div>
+					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Proposed development</Label>
-                        </div>
-                        <div class="col-lg-12">
-                            <textarea style='width: 100%' ></textarea>
-                        </div>
-                    </div>
+						<div class="col-lg-12">
+							<label>Proposed development</Label>
+						</div>
+						<div class="col-lg-12">
+							<textarea></textarea>
+						</div>
+					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Attach a full set of plans</Label>
-                        </div>
-                        <div class="col-lg-12">
-                            <input type='file' name='leasepdf'>
-                        </div>
-                    </div>
-					
+						<div class="col-lg-12">
+							<label>Attach a full set of plans</Label>
+						</div>
+						<div class="col-lg-12">
+							<input type='file' name='leasepdf'>
+						</div>
+					</div>
+
 				</div>
 			</div>
 			<div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Landowner Consent</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            Print <a href=''>this document</a> and have it signed by each landowner (or body responsible for management.<BR><BR>
+				<div class="panel-heading">
+					<h3 class="panel-title">Landowner Consent</h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							Print <a href=''>this document</a> and have it signed by each landowner (or body responsible for management.<BR><BR>
 							Then attch all signed documents to this application.
-                        </div>
-                        <div class="col-lg-4">
-                            <input type='file' name='costofdev' >
-                        </div>
-                    </div>
+						</div>
+						<div class="col-lg-4">
+							<input type='file' name='costofdev' >
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Deed</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            Print <a href=''>this deed</a>, sign it and attach it to this application<BR>
-                        </div>
-                        <div class="col-lg-4">
-                            <input type='file' name='costofdev' >
-                        </div>
-                    </div>
-                </div>
-            </div>
-			<div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Workflow - Publication</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                           	<label>Application published in newspaper </label>
-                        </div>
-                        <div class="col-lg-12">
-							<table class="table table-bordered table-striped">
-                        <tr>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Date</th>
-							<th class="col-sm-3 col-md-3 col-lg-3">Newspaper</th>
-							<th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
-							<th class="col-sm-3 col-md-3 col-lg-3">Action</th>
-                        </tr>
-                        <tr>
-                            <td>23/02/2017</td>
-                            <td>The West</td>
-                            <td>Scan.PDF</td>
-							<td></td>
-                        </tr>
-
-						<tr>
-                            <td>26/02/2017</td>
-                            <td>Sunday Times</td>
-                            <td>Scan.PDF</td>
-                            <td></td>
-                        </tr>
-                    </table>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-8">
-                            <label>Application published on Department's website </label>
-                        </div>
-						<div class="col-lg-4">
-							<input type='button' value='Published 20170214'>
+				<div class="panel-heading">
+					<h3 class="panel-title">Deed</h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							Print <a href=''>this deed</a>, sign it and attach it to this application<BR>
 						</div>
-                        <div class="col-lg-12">
-                            <table class="table table-bordered table-striped">
-                        <tr>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Orignal Document</th>
-                            <th class="col-sm-3 col-md-3 col-lg-3">To be published document</th>
-                        </tr>
-                        <tr>
-                            <td>Application.PDF</td>
-							<td></td>
-						</tr>
-						<tr>
-                            <td>Plan.PDF</td>
-							<td>Updated PLand 20170112.PDF</td>
-						</tr>
-						<tr>
-							<td>Consent Canningvale 20161214.PDF</td>
-							<td></td>
-                        </tr>
+						<div class="col-lg-4">
+							<input type='file' name='costofdev' >
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Workflow - Publication</h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label>Application published in newspaper </label>
+						</div>
+						<div class="col-lg-12">
+							<table class="table table-bordered table-striped">
+								<tr>
+									<th class="col-sm-3 col-md-3 col-lg-3">Date</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Newspaper</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Action</th>
+								</tr>
+								<tr>
+									<td>23/02/2017</td>
+									<td>The West</td>
+									<td>Scan.PDF</td>
+									<td></td>
+								</tr>
 
-                    </table>
-                        </div>
-                    </div>
-                </div>
-
-				 <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Received Feedback</label>
-                        </div>
-                        <div class="col-lg-12">
-                            <table class="table table-bordered table-striped">                                                                                                                                                                                       <tr>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
-							<th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
-							<th class="col-sm-3 col-md-3 col-lg-3">Action</th>
-                        </tr>
-                        <tr>
-                            <td>Joe Talkback</td>
-                            <td>The comments as <a href=''>..more</a></td>
-							<td>My Feedback.PDF</td>
-							<td>View</td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td></td>
-							<td></td>
-							<td></td>
-                        </tr>
-						<tr>
-                            <td>&nbsp;</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </table>
-                        </div>
-                    </div>
-                </div>
+								<tr>
+									<td>26/02/2017</td>
+									<td>Sunday Times</td>
+									<td>Scan.PDF</td>
+									<td></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
 
 
 				<div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of draft report</label>
-                        </div>
-						<div class="col-lg-4">     
-								Signed Report Version 2.PDF 
-                        </div>
-					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-4">
-								Publish signed report on website
+						<div class="col-lg-8">
+							<label>Application published on Department's website </label>
 						</div>
 						<div class="col-lg-4">
-							<input type='button' value='Published 20170311'>
+							<input type='button' value='Published 20170214' class="btn btn-primary" >
+						</div>
+						<div class="col-lg-12">
+							<table class="table table-bordered table-striped">
+								<tr>
+									<th class="col-sm-3 col-md-3 col-lg-3">Orignal Document</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">To be published document</th>
+								</tr>
+								<tr>
+									<td>Application.PDF</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>Plan.PDF</td>
+									<td>Updated PLand 20170112.PDF</td>
+								</tr>
+								<tr>
+									<td>Consent Canningvale 20161214.PDF</td>
+									<td></td>
+								</tr>
+
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label>Received Feedback</label>
+						</div>
+						<div class="col-lg-12">
+							<table class="table table-bordered table-striped">                                                                                                                                                                                       <tr>
+									<th class="col-sm-3 col-md-3 col-lg-3">Name</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Action</th>
+								</tr>
+								<tr>
+									<td>Joe Talkback</td>
+									<td>The comments as <a href=''>..more</a></td>
+									<td>My Feedback.PDF</td>
+									<td>View</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+
+
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of draft report</label>
+						</div>
+						<div class="col-lg-4">     
+							Signed Report Version 2.PDF 
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-4">
+							Publish signed report on website
+						</div>
+						<div class="col-lg-4">
+							<input type='button' value='Published 20170311' class="btn btn-primary">
 						</div>
 
 					</div>
@@ -423,74 +431,217 @@
 
 
 				<div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-12">
-                            <label>Received Feedback</label>
-                        </div>
-                        <div class="col-lg-12">
-                            <table class="table table-bordered table-striped">                                                                                                                                                                                       <tr>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
-                            <th class="col-sm-3 col-md-3 col-lg-3">Action</th>
-                        </tr>
-                        <tr>
-                            <td>Joe Talkback</td>
-                            <td>The comments as <a href=''>..more</a></td>
-                            <td>My Feedback.PDF</td>
-                            <td>View</td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </table>
-                        </div>
-                    </div>
-                </div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label>Received Feedback</label>
+						</div>
+						<div class="col-lg-12">
+							<table class="table table-bordered table-striped">                                                                                                                                       <tr>
+									<th class="col-sm-3 col-md-3 col-lg-3">Name</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
+									<th class="col-sm-3 col-md-3 col-lg-3">Action</th>
+								</tr>
+								<tr>
+									<td>Joe Talkback</td>
+									<td>The comments as <a href=''>..more</a></td>
+									<td>My Feedback.PDF</td>
+									<td>View</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
 
 
 				<div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of final report</label>
-                        </div>
-                        <div class="col-lg-4">
-                                Signed Report Version 3.PDF
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="col-lg-4">
-                                Publish signed report on website
-                        </div>
-                        <div class="col-lg-4">
-                            <input type='button' value='Published 20170311'>
-                        </div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of final report</label>
+						</div>
+						<div class="col-lg-4">
+							Signed Report Version 3.PDF
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-4">
+							Publish signed report on website
+						</div>
+						<div class="col-lg-4">
+							<input type='button' value='Published 20170311' class="btn btn-primary">
+						</div>
 
-                    </div>
-                </div>
+					</div>
+				</div>
 
-            </div>
+			</div>
 
 			<div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Workflow - Stakeholder Communication</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
+				<div class="panel-heading">
+					<h3 class="panel-title">Workflow - Stakeholder Communication</h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<div class="col-lg-12">
+							<label><u>Application</u></label>
+						</div>
+						<div class="col-lg-12">
+							<div class="col-lg-6">
+								<label>The letter to stakeholders</label> 
+							</div>
+							<div class="col-lg-6">
+								Generated Letter.PDF
+							</div>
+						</div>
+						<div class="col-lg-12">
+
+							<div class="col-lg-6">
+								<label>Emailed to</label>
+							</div>
+							<div class="col-lg-6">
+								<div class="col-lg-12">
+									joe@gmail.com (Jow Captian - Applicat)
+								</div>
+								<div class="col-lg-12">
+									fredauthorised@agent.com (Fred Authorised - Submitter)
+								</div>
+								<div class="col-lg-12">
+									example@a.com (Joe Talkback - Feedback) 
+								</div>
+								<div class="col-lg-12">
+									info@perth.wa.gov.au (Perth City - Referral)
+								</div>
+								<div class="col-lg-12">
+									info@joon.wqa.gov.au (Joonfaloop City - Referral)
+								</div>
+							</div>
+						</div>
+		
+						<div class="col-lg-12">
+                            <label><u>Draft Report</u></label>
+                        </div>
                         <div class="col-lg-12">
-                            <label>TODO Slide 83. Part 5</Label>
+                            <div class="col-lg-6">
+                                <label>The letter to stakeholders</label>
+                            </div>
+                            <div class="col-lg-6">
+                                Generated Letter.PDF
+                            </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-12">
+
+                            <div class="col-lg-6">
+                                <label>Emailed to</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="col-lg-12">
+                                    joe@gmail.com (Jow Captian - Applicat)
+                                </div>
+                                <div class="col-lg-12">
+                                    fredauthorised@agent.com (Fred Authorised - Submitter)
+                                </div>
+                                <div class="col-lg-12">
+                                    example@a.com (Joe Talkback - Feedback)
+                                </div>
+                                <div class="col-lg-12">
+                                    info@perth.wa.gov.au (Perth City - Referral)
+                                </div>
+                                <div class="col-lg-12">
+                                    info@joon.wqa.gov.au (Joonfaloop City - Referral)
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6">Swan River Trust board</div> <div class="col-lg-6"> (Fred Van Dam 24/02/2017) </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+						<div class="col-lg-12">
+                            <label><u>Final Report</u></label>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label>The letter to stakeholders</label>
+                            </div>
+                            <div class="col-lg-6">
+                                Generated Letter.PDF
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+
+                            <div class="col-lg-6">
+                                <label>Emailed to</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="col-lg-12">
+                                    joe@gmail.com (Jow Captian - Applicat)
+                                </div>
+                                <div class="col-lg-12">
+                                    fredauthorised@agent.com (Fred Authorised - Submitter)
+                                </div>
+                                <div class="col-lg-12">
+                                    example@a.com (Joe Talkback - Feedback)
+                                </div>
+                                <div class="col-lg-12">
+                                    info@perth.wa.gov.au (Perth City - Referral)
+                                </div>
+                                <div class="col-lg-12">
+                                    info@joon.wqa.gov.au (Joonfaloop City - Referral)
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6">Swan River Trust board</div> <div class="col-lg-6"> (Fred Van Dam 24/02/2017)</div>
+                                </div>
+                            </div>
+                        </div>
+
+						<div class="col-lg-12">
+                            <label><u>Determination</u></label>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <label>The letter to stakeholders</label>
+                            </div>
+                            <div class="col-lg-6">
+                                Generated Letter.PDF
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+
+                            <div class="col-lg-6">
+                                <label>Emailed to</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="col-lg-12">
+                                    joe@gmail.com (Jow Captian - Applicat)
+                                </div>
+                                <div class="col-lg-12">
+                                    fredauthorised@agent.com (Fred Authorised - Submitter)
+                                </div>
+                                <div class="col-lg-12">
+                                    example@a.com (Joe Talkback - Feedback)
+                                </div>
+                                <div class="col-lg-12">
+                                    info@perth.wa.gov.au (Perth City - Referral)
+                                </div>
+                                <div class="col-lg-12">
+                                    info@joon.wqa.gov.au (Joonfaloop City - Referral)
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6">Swan River Trust board</div> <div class="col-lg-6"> <input type='checkbox' > Click here when done.</div>
+                                </div>
+                            </div>
+                        </div>	
+					</div>
 				</div>
 			</div>
 
@@ -544,6 +695,129 @@
 					{% endif %}
 				</div>
 			</div>
+
+
+			<!-- Workflow - Assessment -->
+
+				<div class="panel panel-default">
+	                <div class="panel-heading">
+                	    <h3 class="panel-title">Workflow - Assessment</h3>
+            	    </div>
+					<div class="panel-body">
+								
+							<div class="col-sm-12 col-md-12 col-lg-12">
+	                        <div class="col-lg-12">
+    	                        <label><u>Draft Report</u></label>
+        	                </div>
+							<div class="col-lg-12">
+										<div class="col-lg-6">
+											Current Version of Report
+										</div>
+										<div class="col-lg-6">
+											Assessment Report.PDF
+										</div>
+							</div>
+
+
+							</div>
+
+							<div class="col-lg-12">
+									<label>	Proposed conditions from referrals</label>
+							</div>
+							<div class="col-lg-12">
+									<input type='button' value='Add Condition' class="btn btn-primary" >
+	
+							</div>
+
+							<div class="col-lg-12">
+										<table class="table table-bordered table-striped">                                                                                                                                                                                       <tr>
+                                    <th class="col-sm-3 col-md-3 col-lg-3">Condition</th>
+                                    <th class="col-sm-3 col-md-3 col-lg-3">Due Date</th>
+                                    <th class="col-sm-3 col-md-3 col-lg-3">Recurrence</th>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+								<tr>
+                                    <td>&nbsp;</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+								<tr>
+                                    <td>&nbsp;</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+	
+
+							</div>
+							<div class="col-lg-12">
+									<div class="col-lg-3">
+                                    <label> Start Date</label>
+		                            </div>
+									<div class="col-lg-9">
+                                    	<input type='text' value=''>
+                                    </div>
+							</div>
+							<div class="col-lg-12">
+									<div class="col-lg-12">
+		                               <label><u>Draft Report after public consultation</u></label>
+		                            </div>
+									<div class="col-lg-12">
+										<div class="col-lg-6">
+											Draft Report after public consultation
+										</div>
+										<div class="col-lg-6">
+											<A HREF=''>Assessment Report Version 3.PDF</A>
+										</div>
+
+									</div>
+
+							</div>	
+
+							<div class="col-lg-12">
+                                    <div class="col-lg-12">
+                                       <label><u>Determination and Breifing Note</u></label>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="col-lg-6">
+                                            Determination
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <A HREF=''>Attach document</A>
+                                        </div>
+	
+                                    </div>
+									<div class="col-lg-12">
+                                        <div class="col-lg-6">
+                                           	Briefing Note 
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <A HREF=''>Attach document</A>
+                                        </div>
+
+                                    </div>
+
+
+                            </div>
+	
+
+
+					</div>		
+
+
+				</div>
+	
+
+
 			<!-- Conditions panel -->
 			<div class="panel panel-default">
 				<div class="panel-heading">
