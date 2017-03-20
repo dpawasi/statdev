@@ -78,7 +78,20 @@
                     <h3 class="panel-title">Applicant</h3>
                 </div>
                 <div class="panel-body">
-                    <p>Applicant details here</p>
+                    {% with object.applicant as applicant %}
+                        <table>
+                            <tr>
+                                <th>Given name(s)</th>
+                                <td>{{ applicant.first_name }}</td>
+                                <th>Surname</th>
+                                <td>{{ applicant.last_name }}</td>
+                            </tr>
+                            <tr>
+                                <td>Date of birth</td>
+                                <p>{{ applicant.emailuserprofile.dob }}</p>
+                            </tr>
+                        </table>
+                    {% endwith %}
                 </div>
             </div>
             <div class="panel panel-default">
