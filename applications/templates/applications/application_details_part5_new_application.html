@@ -1,6 +1,10 @@
 {% extends "base_statdev.html" %}
 
 {% block page_content_inner %}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/borderless.css" %}" />
+
 <div class="container-fluid">
 	<div class="row">
 		<h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
@@ -76,7 +80,7 @@
 					<h3 class="panel-title">Applicant</h3>
 				</div>
 				<div class="panel-body">
-					<p>Applicant details here</p>
+                    {% include "applications/applicant_snippet.html" %}
 				</div>
 			</div>
 			<div class="panel panel-default">
