@@ -1,77 +1,10 @@
-{% extends "base_statdev.html" %}
+{% extends "base_pdf.html" %}
 
-{% block page_content_inner %}
+{% block page_content %}
 <div class="container-fluid">
     <div class="row">
-        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
-        <br />
-    </div>
-<!-- Action panel start -->
-    <div class="row">
-        <div class="col-sm-4 col-md-3 col-lg-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Actions</h3>
-                </div>
-                <div class="panel-body">
-                    <ul>
-                        {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
-                        {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
-                        {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
-                        {% if may_assign_customer %}<li><a href="{% url 'application_assign' object.pk 'customer' %}">Assign back to the customer</a></li>{% endif %}
-                        {% if may_assign_processor %}<li><a href="{% url 'application_assign' object.pk 'process' %}">Assign to an admin officer</a></li>{% endif %}
-                        {% if may_assign_assessor %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
-                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
-                        {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
-                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
-                        {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
-                        <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
-                        <li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Submission</h3>
-                </div>
-                <div class="panel-body">
-                    <h4>Submitted by:</h4>
-                    <p>
-                        {% if object.applicant.first_name %}{{ object.applicant.first_name }} {{ object.applicant.last_name }}
-                        {% else %}{{ object.applicant.email }}
-                        {% endif %}
-                    </p>
-                    <h4>Lodged on</h4>
-                    <p>{{ object.submit_date|date:"d-M-Y" }}</p>
-                    {% comment %}
-                    <br />
-                    <h5>Lodgement  Date   Action</h5>
-                    {% endcomment %}
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Workflow</h3>
-                </div>
-                <div class="panel-body">
-                    <h4>Status:</h4>
-                    <p>{{ object.get_state_display }}</p>
-                    <h4>Assigned to:</h4>
-                    {% if object.assignee %}
-                        <p>
-                        {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
-                        {% else %}{{ object.assignee.email }}
-                        {% endif %}
-                        </p>
-                    {% else %}
-                        <p>--</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-<!-- Main panel start -->
-        <div class="col-sm-8 col-md-9 col-lg-10">
+        <div class="col-xs-12">
+            <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
             <!-- Applicant panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -103,7 +36,6 @@
                     <h3 class="panel-title">Vessel and Craft Details</h3>
                 </div>
                 <div class="panel-body">
-                    {% if object.vessels.exists %}
                     <table class="table table-bordered table-striped">
                         <tr>
                             <th>Nominated Vessel</th>
@@ -125,14 +57,6 @@
                             </tr>
                         {% endfor %}
                     </table>
-                    {% else %}
-                    <p>None</p>
-                    {% endif %}
-                    {% if may_update %}
-                    <a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
-                       Add new vessel / craft
-                    </a>
-                    {% endif %}
                 </div>
             </div>
             <!-- Proposal details panel -->
@@ -410,7 +334,6 @@
                                 <th>Period (days)</th>
                                 <th>Status</th>
                                 <th>Feedback</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -421,21 +344,6 @@
                                 <td>{{ ref.period }}</td>
                                 <td>{{ ref.get_status_display }}</td>
                                 <td>{{ ref.feedback }}</td>
-                                <td>
-                                {% if ref.referee == user and not ref.response_date %}
-                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
-                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
-                                {% endif %}
-                                {% if may_recall_resend %}
-                                {% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
-                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_recall' ref.pk %}">Recall</a>
-                                {% endif %}
-                                {% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}
-                                {# TODO: Referral resend function #}
-                                <a class="btn btn-primary btn-sm" role="button" href="#">Resend</a>
-                                {% endif %}
-                                {% endif %}
-                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -459,7 +367,6 @@
                                 <th>Condition</th>
                                 <th>Source</th>
                                 <th>Status</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -469,11 +376,6 @@
                                 <td>{{ cond.condition }}</td>
                                 <td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
                                 <td>{{ cond.get_status_display }}</td>
-                                <td>
-                                    {% if cond.status == cond.CONDITION_STATUS_CHOICES.proposed and may_apply_condition %}
-                                    <a href="{% url 'condition_apply' cond.pk %}">Apply</a>
-                                    {% endif %}
-                                </td>
                             </tr>
                             {% endfor %}
                     </table>
@@ -485,4 +387,4 @@
         </div>
     </div>
 </div>
-{% endblock page_content_inner %}
+{% endblock page_content %}
