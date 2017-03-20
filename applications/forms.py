@@ -53,7 +53,7 @@ class ApplicationLicencePermitForm(ModelForm):
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
             'refuel_location_method', 'berth_location', 'anchorage', 'operating_details',
             'cert_survey', 'cert_public_liability_insurance', 'risk_mgmt_plan', 'safety_mgmt_procedures',
-            'brochures_itineries_adverts', 'other_supporting_docs', 'land_owner_consent', 'deed']
+            'brochures_itineries_adverts', 'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationLicencePermitForm, self).__init__(*args, **kwargs)
@@ -88,7 +88,7 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['risk_mgmt_plan'].label = "Risk managment Plan (if available)"
         self.fields['safety_mgmt_procedures'].label = "Safety Management Procedures (if available)"
         self.fields['brochures_itineries_adverts'].label = "Brocures, itineraries or advertisements (if available)"
-        self.fields['other_supporting_docs'].label = "Other relevant supporting documentation (if available)"
+		#self.fields['other_supporting_docs'].label = "Other relevant supporting documentation (if available)"
 
         # TODO: all document fields.
 
@@ -98,7 +98,7 @@ class ApplicationPermitForm(ModelForm):
         model = Application
         fields = ['title', 'description',
             'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'documents', 'other_supporting_docs', 'land_owner_consent', 'deed']
+            'documents',  'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPermitForm, self).__init__(*args, **kwargs)
@@ -117,7 +117,7 @@ class ApplicationPermitForm(ModelForm):
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
         self.fields['documents'].label = "Attach more detailed descripton, maps or plans"
-        self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
+		#self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 
 class ApplicationPart5Form(ModelForm):
@@ -132,11 +132,20 @@ class ApplicationPart5Form(ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
+    land_owner_consent = FileField(required=False, max_length=128)
+    proposed_development_plans = FileField(required=False, max_length=128)
+    document_draft = FileField(required=False, max_length=128)
+    document_final = FileField(required=False, max_length=128)
+    document_determination = FileField(required=False, max_length=128)
+    document_completion = FileField(required=False, max_length=128)
+    river_lease_scan_of_application = FileField(required=False, max_length=128)
+
     class Meta:
         model = Application
-        fields = ['title', 'description','cost','project_no', 'documents', 'other_supporting_docs', 'land_owner_consent', 'deed',
+        fields = ['title', 'description','cost','project_no', 'documents', 'land_owner_consent', 'deed',
                  'proposed_development_current_use_of_land','proposed_development_plans','document_draft','document_final',
                  'document_determination','document_completion','river_lease_require_river_lease','river_lease_scan_of_application','river_lease_reserve_licence','river_lease_application_number','proposed_development_current_use_of_land','proposed_development_plans']
+
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
