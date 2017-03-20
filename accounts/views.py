@@ -224,6 +224,12 @@ class OrganisationCreate(LoginRequiredMixin, CreateView):
 class OrganisationDetail(LoginRequiredMixin, DetailView):
     model = Organisation
 
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationDetail, self).get_context_data(**kwargs)
+        org = self.get_object()
+        context['user_is_delegate'] = self.request.user.emailuserprofile in org.delegates.all()
+        return context
+
 
 class OrganisationUpdate(LoginRequiredMixin, UpdateView):
     """A view to update an Organisation object.
