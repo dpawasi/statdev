@@ -159,6 +159,8 @@ class ApplicationDetail(DetailView):
             if app.state == app.APP_STATE_CHOICES.with_manager:
                 context['may_assign_assessor'] = True
                 context['may_issue'] = True
+        if app.state == app.APP_STATE_CHOICES.issued:
+            context['may_generate_pdf'] = True
         if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
             # Rule: only the delegate of the organisation (or submitter) can request compliance.
             if app.organisation:
@@ -500,12 +502,19 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             # Assign the application back to the applicant and make it 'draft' status.
             self.object.assignee = self.object.applicant
             self.object.state = self.object.APP_STATE_CHOICES.draft
-            # TODO: send the feedback back to the customer.
+            # TODO: email the feedback back to the customer.
         if self.kwargs['action'] == 'assess':
             self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         if self.kwargs['action'] == 'approve':
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
+        if self.kwargs['action'] == 'customer':
+            # Record the feedback on the application:
+            d = form.cleaned_data
+            action = Action(
+                content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.communicate, user=self.request.user,
+                action='Feedback provided to applicant: {}'.format(d['feedback']))
+            action.save()
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,

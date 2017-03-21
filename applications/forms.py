@@ -275,6 +275,7 @@ class AssignCustomerForm(ModelForm):
             self.fields[k].disabled = True
         # Re-enable the feedback field.
         self.fields['feedback'].disabled = False
+        self.fields['feedback'].required = True
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Reassign this application back to the applicant, with feedback:</p>'),
