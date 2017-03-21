@@ -41,7 +41,9 @@
                     <td>{{ obj.assignee }}</td>
                     <td></td>
                     <td>
-                        {% if may_assign_processor %}<a href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>{% endif %}
+                        {% if may_assign_processor %}
+                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
