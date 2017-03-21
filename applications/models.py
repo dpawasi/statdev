@@ -282,14 +282,14 @@ class Condition(models.Model):
     CONDITION_STATUS_CHOICES = Choices(
         (1, 'proposed', ('Proposed')),
         (2, 'applied', ('Applied')),
-        (3, 'cancelled', ('Cancelled')),
+        (3, 'rejected', ('Rejected')),
+        (4, 'cancelled', ('Cancelled')),
     )
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
     condition = models.TextField(blank=True, null=True)
     referral = models.ForeignKey(Referral, null=True, blank=True, on_delete=models.PROTECT)
     status = models.IntegerField(choices=CONDITION_STATUS_CHOICES, default=CONDITION_STATUS_CHOICES.proposed)
     documents = models.ManyToManyField(Document, blank=True)
-    # TODO: Parent condition (self-reference from proposed condition)
     # TODO: Due date
     # TODO: Recurrence
     # TODO: Start date

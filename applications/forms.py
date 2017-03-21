@@ -5,8 +5,7 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput
-
+from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput
 
 from accounts.models import Organisation
 from .models import Application, Referral, Condition, Compliance, Vessel, Document
@@ -244,16 +243,16 @@ class ConditionCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
-class ConditionApplyForm(ModelForm):
+class ConditionUpdateForm(ModelForm):
     class Meta:
         model = Condition
         fields = ['condition']
 
     def __init__(self, *args, **kwargs):
-        super(ConditionApplyForm, self).__init__(*args, **kwargs)
+        super(ConditionUpdateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_condition_apply'
-        self.helper.add_input(Submit('apply', 'Apply', css_class='btn-lg'))
+        self.helper.add_input(Submit('update', 'Update', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
@@ -277,6 +276,7 @@ class AssignCustomerForm(ModelForm):
             self.fields[k].disabled = True
         # Re-enable the feedback field.
         self.fields['feedback'].disabled = False
+        self.fields['feedback'].required = True
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Reassign this application back to the applicant, with feedback:</p>'),
