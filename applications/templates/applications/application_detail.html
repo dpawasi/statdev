@@ -25,12 +25,12 @@
                         {% if may_assign_customer %}<li><a href="{% url 'application_assign' object.pk 'customer' %}">Assign back to the customer</a></li>{% endif %}
                         {% if may_assign_processor %}<li><a href="{% url 'application_assign' object.pk 'process' %}">Assign to an admin officer</a></li>{% endif %}
                         {% if may_assign_assessor %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
-                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
+                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
                         {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
                         {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
                         <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
-                        <li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>
+                        {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
                     </ul>
                 </div>
             </div>
@@ -73,18 +73,26 @@
                 </div>
             </div>
         </div>
-        
+
 <!-- Main panel start -->
         <div class="col-sm-8 col-md-9 col-lg-10">
             <!-- Applicant panel -->
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Applicant</h3>
+                <div class="panel-heading" role="tab" id="applicant_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#applicant_collapse" aria-expanded="false" aria-controls="application_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Applicant
+                        </a>
+                    </h3>
                 </div>
-                <div class="panel-body">
-                    {% include "applications/applicant_snippet.html" %}
+                <div class="panel-collapse collapse" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
+                    <div class="panel-body">
+                        {% include "applications/applicant_snippet.html" %}
+                    </div>
                 </div>
             </div>
+
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Title</h3>
@@ -93,6 +101,7 @@
                     <p>{{ object.title }}</p>
                 </div>
             </div>
+
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Proposed Commercial Acts and Activites</h3>
@@ -101,211 +110,226 @@
                     <p>{{ object.description }}</p>
                 </div>
             </div>
+
             <!-- Vessel / Craft Panel -->
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Vessel and Craft Details</h3>
+                <div class="panel-heading" role="tab" id="vessels_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#vessels_collapse" aria-expanded="false" aria-controls="vessels_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Vessel and Craft Details
+                        </a>
+                    </h3>
                 </div>
-                <div class="panel-body">
-                    {% if object.vessels.exists %}
-                    <table class="table table-bordered table-striped">
-                        <tr>
-                            <th>Nominated Vessel</th>
-                            <th>Vessel ID</th>
-                            <th>Hire and Drive Reg.</th>
-                            <th>Size (m)</th>
-                            <th>Engine (kw)</th>
-                            <th>Passenger Capacity</th>
-                        </tr>
-
-                        {% for vessel in object.vessels.all %}
+                <div class="panel-collapse collapse" id="vessels_collapse" role="tabpanel" aria-labelledby="vessels_heading">
+                    <div class="panel-body">
+                        {% if object.vessels.exists %}
+                        <table class="table table-bordered table-striped">
                             <tr>
-                                <td>{{ vessel.name }}</td>
-                                <td>{{ vessel.vessel_id }}</td>
-                                <td>{{ vessel.registration }}</td>
-                                <td>{{ vessel.size }}</td>
-                                <td>{{ vessel.engine }}</td>
-                                <td>{{ vessel.max_passengers }}</td>
+                                <th>Nominated Vessel</th>
+                                <th>Vessel ID</th>
+                                <th>Hire and Drive Reg.</th>
+                                <th>Size (m)</th>
+                                <th>Engine (kw)</th>
+                                <th>Passenger Capacity</th>
                             </tr>
-                        {% endfor %}
-                    </table>
-                    {% else %}
-                    <p>None</p>
-                    {% endif %}
-                    {% if may_update %}
-                    <a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
-                       Add new vessel / craft
-                    </a>
-                    {% endif %}
+                            {% for vessel in object.vessels.all %}
+                                <tr>
+                                    <td>{{ vessel.name }}</td>
+                                    <td>{{ vessel.vessel_id }}</td>
+                                    <td>{{ vessel.registration }}</td>
+                                    <td>{{ vessel.size }}</td>
+                                    <td>{{ vessel.engine }}</td>
+                                    <td>{{ vessel.max_passengers }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        {% if may_update %}
+                        <a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
+                           Add new vessel / craft
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+
             <!-- Proposal details panel -->
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Proposal Details</h3>
+                <div class="panel-heading" role="tab" id="prop_details_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#prop_details_collapse" aria-expanded="false" aria-controls="prop_details_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Proposal Details
+                        </a>
+                    </h3>
                 </div>
-                <div class="panel-body">
-                    <div class="fluid-container">
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Purpose of Approval</h5>
-                                <p>{{ object.purpose }}</p>
+                <div class="panel-collapse collapse" id="prop_details_collapse" role="tabpanel" aria-labelledby="prop_details_heading">
+                    <div class="panel-body">
+                        <div class="fluid-container">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Purpose of Approval</h5>
+                                    <p>{{ object.purpose }}</p>
+                                </div>
+                                <div class="col-lg-2"></div>
                             </div>
-                            <div class="col-lg-2"></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Proposed Commencement Date</h5>
-                                <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Proposed Commencement Date</h5>
+                                    <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <h5>Proposed End Date</h5>
+                                    <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
+                                </div>
                             </div>
-                            <div class="col-lg-4">
-                                <h5>Proposed End Date</h5>
-                                <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Maximum Number of Participants</h5>
+                                    <p>{{ object.max_participants }}</p>
+                                </div>
+                                <div class="col-lg-4">
+                                    <h5>Proposed Location</h5>
+                                    <p>{{ object.proposed_location }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Maximum Number of Participants</h5>
-                                <p>{{ object.max_participants }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Address of any landbased component of the commercial activity</h5>
+                                    <p>{{ object.address }}</p>
+                                </div>
                             </div>
-                            <div class="col-lg-4">
-                                <h5>Proposed Location</h5>
-                                <p>{{ object.proposed_location }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Location / Route and Access points (mark clearly in map)</h5>
+                                    <p>{{ object.location_route_access }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Address of any landbased component of the commercial activity</h5>
-                                <p>{{ object.address }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>List of jetties to be used</h5>
+                                    <p>{{ object.jetties }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Location / Route and Access points (mark clearly in map)</h5>
-                                <p>{{ object.location_route_access }}</p>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Do you have approval to use Department of Transport service jetties?</h5>
+                                </div>
+                                <div class="col-lg-2">
+                                        <label class="radio-inline">
+                                            <input type="radio" name="dotapproval"
+                                                {% if object.jetty_dot_approval is True %}
+                                                    checked="true"
+                                                {% endif %}
+                                                disabled="true">Yes
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="dotapproval"
+                                                {% if object.jetty_dot_approval is False %}
+                                                    checked="true"
+                                                {% endif %}
+                                                disabled="true">No
+                                        </label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>List of jetties to be used</h5>
-                                <p>{{ object.jetties }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>List all drop off and pick up points</h5>
+                                    <p>{{ object.drop_off_pick_up }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Do you have approval to use Department of Transport service jetties?</h5>
-                            </div>
-                            <div class="col-lg-2">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Food to be served?</h5>
+                                </div>
+                                <div class="col-lg-4">
                                     <label class="radio-inline">
-                                        <input type="radio" name="dotapproval"
-                                            {% if object.jetty_dot_approval is True %}
-                                                checked="true"
-                                            {% endif %}
+                                        <input type="radio" name="food"
+                                            {% if object.food is True %}checked="true"{% endif %}
                                             disabled="true">Yes
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" name="dotapproval"
-                                            {% if object.jetty_dot_approval is False %}
-                                                checked="true"
-                                            {% endif %}
+                                        <input type="radio" name="food"
+                                            {% if object.food is False %}checked="true"{% endif %}
                                             disabled="true">No
                                     </label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>List all drop off and pick up points</h5>
-                                <p>{{ object.drop_off_pick_up }}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Food to be served?</h5>
-                            </div>
-                            <div class="col-lg-4">
-                                <label class="radio-inline">
-                                    <input type="radio" name="food"
-                                        {% if object.food is True %}checked="true"{% endif %}
-                                        disabled="true">Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="food"
-                                        {% if object.food is False %}checked="true"{% endif %}
-                                        disabled="true">No
-                                </label>
-                            </div>
-                            <div class="col-lg-4">
+                                </div>
+                                <div class="col-lg-4">
 
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Beverage to be served?</h5>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Beverage to be served?</h5>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="beverage"
+                                            {% if object.beverage is True %}checked="true"{% endif %}
+                                            disabled="true">Yes
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="beverage"
+                                            {% if object.beverage is False %}checked="true"{% endif %}
+                                            disabled="true">No
+                                    </label>
+                                </div>
                             </div>
-                            <div class="col-lg-4">
-                                <label class="radio-inline">
-                                    <input type="radio" name="beverage"
-                                        {% if object.beverage is True %}checked="true"{% endif %}
-                                        disabled="true">Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="beverage"
-                                        {% if object.beverage is False %}checked="true"{% endif %}
-                                        disabled="true">No
-                                </label>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h5>Do you allow BYO alcohol?</h5>
+                                </div>
+                                <div class="col-lg-4">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="byo_alcohol"
+                                            {% if object.byo_alcohol is True %}checked="true"{% endif %}
+                                            disabled="true">Yes
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="byo_alcohol"
+                                            {% if object.byo_alcohol is False %}checked="true"{% endif %}
+                                            disabled="true">No
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <h5>Do you allow BYO alcohol?</h5>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Details of sullage disposal method</h5>
+                                    <p>{{ object.sullage_disposal }}</p>
+                                </div>
                             </div>
-                            <div class="col-lg-4">
-                                <label class="radio-inline">
-                                    <input type="radio" name="byo_alcohol"
-                                        {% if object.byo_alcohol is True %}checked="true"{% endif %}
-                                        disabled="true">Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="byo_alcohol"
-                                        {% if object.byo_alcohol is False %}checked="true"{% endif %}
-                                        disabled="true">No
-                                </label>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Details of waste disposal method</h5>
+                                    <p>{{ object.waste_disposal }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Details of sullage disposal method</h5>
-                                <p>{{ object.sullage_disposal }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Location and method of refueling</h5>
+                                    <p>{{ object.refuel_location_method }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Details of waste disposal method</h5>
-                                <p>{{ object.waste_disposal }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Berth location</h5>
+                                    <p>{{ object.berth_location }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Location and method of refueling</h5>
-                                <p>{{ object.refuel_location_method }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>List all anchorage areas</h5>
+                                    <p>{{ object.anchorage }}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Berth location</h5>
-                                <p>{{ object.berth_location }}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>List all anchorage areas</h5>
-                                <p>{{ object.anchorage }}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <h5>Hours and days of operation including length of tours/lessons</h5>
-                                <p>{{ object.operating_details }}</p>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h5>Hours and days of operation including length of tours/lessons</h5>
+                                    <p>{{ object.operating_details }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -475,7 +499,8 @@
                                 <td>{{ cond.get_status_display }}</td>
                                 <td>
                                     {% if cond.status == cond.CONDITION_STATUS_CHOICES.proposed and may_apply_condition %}
-                                    <a href="{% url 'condition_apply' cond.pk %}">Apply</a>
+                                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
+                                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -490,3 +515,16 @@
     </div>
 </div>
 {% endblock page_content_inner %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    $(function() {
+        $('.collapse').on('shown.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+        }).on('hidden.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+        });
+    });
+</script>
+{% endblock extra_js %}

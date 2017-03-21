@@ -1,6 +1,14 @@
 {% extends "base_statdev.html" %}
 
 {% block page_content_inner %}
+<div class="row">
+    <div class="col-xs-12">
+        {% if may_create %}
+        <a class="btn btn-primary pull-right" href="{% url 'application_create' %}">Create a new application</a>
+        {% endif %}
+    </div>
+</div>
+
 {% if applications_unassigned %}
 <div class="row">
     <div class="col-xs-12">
@@ -33,7 +41,9 @@
                     <td>{{ obj.assignee }}</td>
                     <td></td>
                     <td>
-                        {% if may_assign_processor %}<a href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>{% endif %}
+                        {% if may_assign_processor %}
+                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
