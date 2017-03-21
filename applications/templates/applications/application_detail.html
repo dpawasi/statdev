@@ -25,7 +25,7 @@
                         {% if may_assign_customer %}<li><a href="{% url 'application_assign' object.pk 'customer' %}">Assign back to the customer</a></li>{% endif %}
                         {% if may_assign_processor %}<li><a href="{% url 'application_assign' object.pk 'process' %}">Assign to an admin officer</a></li>{% endif %}
                         {% if may_assign_assessor %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
-                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create new condition</a></li>{% endif %}
+                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
                         {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
                         {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
@@ -499,7 +499,8 @@
                                 <td>{{ cond.get_status_display }}</td>
                                 <td>
                                     {% if cond.status == cond.CONDITION_STATUS_CHOICES.proposed and may_apply_condition %}
-                                    <a href="{% url 'condition_apply' cond.pk %}">Apply</a>
+                                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
+                                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>
                                     {% endif %}
                                 </td>
                             </tr>
