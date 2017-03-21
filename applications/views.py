@@ -32,6 +32,8 @@ class HomePage(LoginRequiredMixin, TemplateView):
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(
                 referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
+        # TODO: any restrictions on who can create new applications?
+        context['may_create'] = True
         # Processor users only: show unassigned applications.
         processor = Group.objects.get(name='Processor')
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
