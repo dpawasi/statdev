@@ -240,6 +240,19 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
+        app = self.get_object()
+        if app.document_draft:
+           initial['document_draft'] = app.document_draft.upload
+#        if app.proposed_development_plans:
+#           initial['proposed_development_plans'] = app.proposed_development_plans.upload
+        if app.document_final:
+           initial['document_final'] = app.document_final.upload
+        if app.document_determination:
+           initial['document_determination'] = app.document_determination.upload
+        if app.document_completion:
+           initial['document_completion'] = app.document_completion.upload
+
+
 		# LocObj = Location.get_object(id=self.object.id)
         try:
            LocObj = Location.objects.get(application_id=self.object.id)
@@ -253,6 +266,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
            initial['lot'] = LocObj.lot
            initial['nearest_road_intersection'] = LocObj.intersection
 
+#           initial['document_draft'] = self.object.document_draft        
+		   #print self.object.land_owner_consent.all()
+#	   print self.object.document_draft
+
         except ObjectDoesNotExist:
            donothing = ''
 
@@ -262,11 +279,55 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         """Override form_valid to set the state to draft is this is a new application.
         """
         forms_data = form.cleaned_data
+        app = self.get_object()
+
         try:
            new_loc = Location.objects.get(application_id=self.object.id)
         except:
            new_loc = Location()
            new_loc.application_id = self.object.id
+	
+        if self.request.POST.get('document_draft-clear'):
+           print self.request.POST['document_draft-clear']
+           application = Application.objects.get(id=self.object.id)
+           print application.document_draft.id
+           document = Document.objects.get(pk=application.document_draft.id)
+           document.delete()
+           self.object.document_draft = None
+
+        if self.request.FILES.get('land_owner_consent'):
+           new_doc = Document()
+           new_doc.upload = self.request.FILES['land_owner_consent']
+           new_doc.save()
+#           self.object.document_draft = new_doc
+           self.object.land_owner_consent.add(new_doc)
+
+        if self.request.FILES.get('document_draft'):
+           new_doc = Document()
+           new_doc.upload = self.request.FILES['document_draft']
+           new_doc.save()
+           self.object.document_draft = new_doc
+
+        if self.request.FILES.get('document_final'):
+           new_doc = Document()
+           new_doc.upload = self.request.FILES['document_final']
+           new_doc.save()
+           self.object.document_final = new_doc
+
+        if self.request.FILES.get('document_determination'):
+           new_doc = Document()
+           new_doc.upload = self.request.FILES['document_determination']
+           new_doc.save()
+           self.object.document_determination = new_doc
+
+        if self.request.FILES.get('document_completion'):
+           new_doc = Document()
+           new_doc.upload = self.request.FILES['document_completion']
+           new_doc.save()
+           self.object.document_completion = new_doc
+
+
+ #       print forms_data['document_draft']
 
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
         if 'certificate_of_title_volume' in forms_data:
