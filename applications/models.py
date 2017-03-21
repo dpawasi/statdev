@@ -21,6 +21,10 @@ class Document(models.Model):
         (3, 'assessment', ('Assessment report')),
         (4, 'referee_response', ('Referee response')),
         (5, 'lodgement', ('Lodgement document')),
+        (6, 'draft', ('Draft document')),
+        (7, 'final', ('Final document')),
+        (8, 'determination', ('Determination document')),
+        (9, 'completion', ('Completed document')),
     )
     upload = models.FileField(max_length=512, upload_to='uploads/%Y/%m/%d')
     name = models.CharField(max_length=256)

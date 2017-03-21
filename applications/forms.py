@@ -5,7 +5,7 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea
+from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput
 
 from accounts.models import Organisation
 from .models import Application, Referral, Condition, Compliance, Vessel, Document
@@ -132,19 +132,20 @@ class ApplicationPart5Form(ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = FileField(required=False, max_length=128)
-    proposed_development_plans = FileField(required=False, max_length=128)
-    document_draft = FileField(required=False, max_length=128)
-    document_final = FileField(required=False, max_length=128)
-    document_determination = FileField(required=False, max_length=128)
-    document_completion = FileField(required=False, max_length=128)
-    river_lease_scan_of_application = FileField(required=False, max_length=128)
+    land_owner_consent = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
         model = Application
-        fields = ['title', 'description','cost','project_no', 'documents', 'land_owner_consent', 'deed',
-                 'proposed_development_current_use_of_land','proposed_development_plans','document_draft','document_final',
-                 'document_determination','document_completion','river_lease_require_river_lease','river_lease_scan_of_application','river_lease_reserve_licence','river_lease_application_number','proposed_development_current_use_of_land','proposed_development_plans']
+#		fields = ['title', 'description','cost','project_no', 'documents', 'land_owner_consent', 'deed',
+#	              'proposed_development_current_use_of_land','proposed_development_plans','document_draft','document_final',
+#	              'document_determination','document_completion','river_lease_require_river_lease','river_lease_scan_of_application','river_lease_reserve_licence','river_lease_application_number','proposed_development_current_use_of_land','proposed_development_plans']
+        fields = ['title', 'description','cost','project_no', 'documents','river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
