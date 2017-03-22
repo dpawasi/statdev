@@ -391,6 +391,20 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
             content_object=app, category=Action.ACTION_CATEGORY_CHOICES.lodge,
             user=self.request.user, action='Application lodgement')
         action.save()
+        # Success message.
+        msg = """Your {0} application has been successfully submitted. The application
+        number is: <strong>{1}</strong>.<br>
+        Please note that routine applications take approximately 4-6 weeks to process.<br>
+        If any information is unclear or missing, Parks and Wildlife may return your
+        application to you to amend or complete.<br>
+        The assessment process includes a 21-day external referral period. During this time
+        your application may be referred to external departments, local government
+        agencies or other stakeholders. Following this period, an internal report will be
+        produced by an officer for approval by the Manager, Rivers and Estuaries Division,
+        to determine the outcome of your application.<br>
+        You will be notified by email once your {0} application has been determined and/or
+        further action is required.""".format(app.get_app_type_display(), app.pk)
+        messages.success(self.request, msg)
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -554,7 +568,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        # TODO: success messages.
+        messages.success(self.request, 'The application has been assigned to {}'.format(self.object.assignee.get_full_name()))
         if self.kwargs['action'] == 'customer':
             # Assign the application back to the applicant and make it 'draft' status.
             self.object.assignee = self.object.applicant
@@ -575,7 +589,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
-            action='Assigned application to {} (status: {})'.format(self.object.assignee, self.object.get_state_display()))
+            action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -618,9 +632,6 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.decline,
                 user=self.request.user, action='Application declined')
             action.save()
-        # TODO: logic for the manager to select who to assign it back to.
-        #elif d['assessment'] == 'return':
-        #    self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         self.object.save()
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
