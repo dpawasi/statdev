@@ -275,10 +275,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
            initial['lot'] = LocObj.lot
            initial['nearest_road_intersection'] = LocObj.intersection
 
-#           initial['document_draft'] = self.object.document_draft        
-		   #print self.object.land_owner_consent.all()
-#	   print self.object.document_draft
-
         except ObjectDoesNotExist:
            donothing = ''
 
@@ -295,11 +291,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         except:
            new_loc = Location()
            new_loc.application_id = self.object.id
-	
+
         if self.request.POST.get('document_draft-clear'):
-           print self.request.POST['document_draft-clear']
            application = Application.objects.get(id=self.object.id)
-           print application.document_draft.id
            document = Document.objects.get(pk=application.document_draft.id)
            document.delete()
            self.object.document_draft = None
@@ -334,9 +328,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
            new_doc.upload = self.request.FILES['document_completion']
            new_doc.save()
            self.object.document_completion = new_doc
-
-
- #       print forms_data['document_draft']
 
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
         if 'certificate_of_title_volume' in forms_data:
