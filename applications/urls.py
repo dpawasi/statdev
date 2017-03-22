@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/vessel/$', views.VesselCreate.as_view(), name='application_add_vessel'),
     url(r'^referrals/(?P<pk>\d+)/complete/$', views.ReferralComplete.as_view(), name='referral_complete'),
     url(r'^referrals/(?P<pk>\d+)/recall/$', views.ReferralRecall.as_view(), name='referral_recall'),
+    url(r'^condition/(?P<pk>\d+)/update/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/update/(?P<action>\w+)/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^compliances/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^documents/create/$', views.DocumentCreate.as_view(), name='document_create'),

@@ -148,12 +148,12 @@ class ApplicationDetail(DetailView):
                 if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
                     context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with assessor', it can have conditions added,
-            # can be sent for approval and conditions can be 'applied'.
+            # Rule: if the application status is 'with assessor', it can have conditions added
+            # of updated, and can be sent for approval.
             if app.state == app.APP_STATE_CHOICES.with_assessor:
                 context['may_create_condition'] = True
+                context['may_update_condition'] = True
                 context['may_submit_approval'] = True
-                context['may_apply_condition'] = True
         if approver in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with manager', it can be issued or
             # assigned back to an assessor.
@@ -830,28 +830,28 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
 
 class ConditionUpdate(LoginRequiredMixin, UpdateView):
-    """A view to allow an assessor to 'apply' a condition that has proposed by a referee.
-    TODO: refactor this into a more-generic 'update' view for conditions.
+    """A view to allow an assessor to update a condition that might have been
+    proposed by a referee.
     The ``action`` kwarg is used to define the new state of the condition.
     """
     model = Condition
     form_class = apps_forms.ConditionUpdateForm
-    #template_name = 'applications/condition_apply.html'
 
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
-        # Rule: can't apply a referral that is any other status than 'proposed'.
-        if condition.status != Condition.CONDITION_STATUS_CHOICES.proposed:
-            messages.error(self.request, 'This condition is not "proposed" status!')
+        # Rule: can only change a condition if the parent application is status 'with assessor'.
+        if condition.application.state != Application.APP_STATE_CHOICES.with_assessor:
+            messages.error(self.request, 'You can only change conditions when the application is "with assessor" status')
             return HttpResponseRedirect(condition.application.get_absolute_url())
         return super(ConditionUpdate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ConditionUpdate, self).get_context_data(**kwargs)
-        if self.kwargs['action'] == 'apply':
-            context['page_heading'] = 'Apply a proposed condition'
-        elif self.kwargs['action'] == 'reject':
-            context['page_heading'] = 'Reject a proposed condition'
+        if 'action' in self.kwargs:
+            if self.kwargs['action'] == 'apply':
+                context['page_heading'] = 'Apply a proposed condition'
+            elif self.kwargs['action'] == 'reject':
+                context['page_heading'] = 'Reject a proposed condition'
         return context
 
     def post(self, request, *args, **kwargs):
@@ -861,16 +861,17 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        if self.kwargs['action'] == 'apply':
-            self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
-        elif self.kwargs['action'] == 'reject':
-            self.object.status = Condition.CONDITION_STATUS_CHOICES.rejected
+        if 'action' in self.kwargs:
+            if self.kwargs['action'] == 'apply':
+                self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
+            elif self.kwargs['action'] == 'reject':
+                self.object.status = Condition.CONDITION_STATUS_CHOICES.rejected
+            # Generate an action:
+            action = Action(
+                content_object=self.object.application, user=self.request.user,
+                action='Condition {} updated (status: {})'.format(self.object.pk, self.object.get_status_display()))
+            action.save()
         self.object.save()
-        # Generate an action:
-        action = Action(
-            content_object=self.object.application, user=self.request.user,
-            action='Condition {} updated (status: {})'.format(self.object.pk, self.object.get_status_display()))
-        action.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
 
 
