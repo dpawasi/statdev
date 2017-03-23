@@ -34,11 +34,11 @@
                     <td><a href="{% url 'application_detail' obj.pk %}">{{ obj.pk }}</a></td>
                     <td>{{ obj.get_app_type_display }}</td>
                     <td>{{ obj.title }}</td>
-                    <td>{{ obj.applicant }}</td>
+                    <td>{{ obj.applicant.get_full_name }}</td>
                     <td>{{ obj.organisation }}</td>
                     <td>{{ obj.get_state_display }}</td>
                     <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
-                    <td>{{ obj.assignee }}</td>
+                    <td>{{ obj.assignee.get_full_name }}</td>
                     <td></td>
                     <td>
                         {% if may_assign_processor %}
@@ -77,11 +77,11 @@
                     <td><a href="{% url 'application_detail' obj.pk %}">{{ obj.pk }}</a></td>
                     <td>{{ obj.get_app_type_display }}</td>
                     <td>{{ obj.title }}</td>
-                    <td>{{ obj.applicant }}</td>
+                    <td>{{ obj.applicant.get_full_name }}</td>
                     <td>{{ obj.organisation }}</td>
                     <td>{{ obj.get_state_display }}</td>
                     <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
-                    <td>{{ obj.assignee }}</td>
+                    <td>{{ obj.assignee.get_full_name }}</td>
                     <td></td>
                 </tr>
                 {% endfor %}
@@ -113,7 +113,7 @@
                     <td><a href="{% url 'application_detail' obj.pk %}">{{ obj.pk }}</a></td>
                     <td>{{ obj.get_app_type_display }}</td>
                     <td>{{ obj.title }}</td>
-                    <td>{{ obj.applicant }}</td>
+                    <td>{{ obj.applicant.get_full_name }}</td>
                     <td>{{ obj.organisation }}</td>
                     <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
                     <td>{{ obj.get_state_display }}</td>
@@ -147,7 +147,7 @@
                     <td><a href="{% url 'application_detail' obj.application.pk %}">{{ obj.application.pk }}</a></td>
                     <td>{{ obj.application.get_app_type_display }}</td>
                     <td>{{ obj.application.title }}</td>
-                    <td>{{ obj.application.applicant }}</td>
+                    <td>{{ obj.application.applicant.get_full_name }}</td>
                     <td>{{ obj.application.organisation }}</td>
                     <td>{{ obj.application.submit_date|date:"d-M-Y" }}</td>
                     <td>{{ obj.expire_date|date:"d-M-Y" }}</td>
