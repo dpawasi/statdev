@@ -43,11 +43,11 @@
                     <td><a href="{% url 'application_detail' obj.pk %}">{{ obj.pk }}</a></td>
                     <td>{{ obj.get_app_type_display }}</td>
                     <td>{{ obj.title }}</td>
-                    <td>{{ obj.applicant }}</td>
+                    <td>{{ obj.applicant.get_full_name }}</td>
                     <td>{{ obj.organisation }}</td>
                     <td>{{ obj.get_state_display }}</td>
                     <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
-                    <td>{{ obj.assignee }}</td>
+                    <td>{{ obj.assignee.get_full_name }}</td>
                     <td></td>
                     <td>
                     {% if not obj.assignee and obj.state == obj.APP_STATE_CHOICES.with_admin and may_assign_processor %}
