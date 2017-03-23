@@ -5,11 +5,11 @@ from crispy_forms.bootstrap import FormActions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput
+from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, Media, HiddenInput, IntegerField
 
 from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance, Vessel, Document
-
+from .models import Application, Referral, Condition, Compliance, Vessel, Document, PublicationNewspaper
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 User = get_user_model()
 
@@ -132,7 +132,7 @@ class ApplicationPart5Form(ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    land_owner_consent = FileField(required=False, max_length=128 )
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
@@ -451,6 +451,22 @@ class VesselCreateForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+class NewsPaperPublicationCreateForm(ModelForm):
+
+	#    application = IntegerField()
+	#    documents = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    class Meta:
+        model = PublicationNewspaper
+        fields = ['application','date','newspaper']
+
+    def __init__(self, *args, **kwargs):
+        super(NewsPaperPublicationCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_newspaperpublication'
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['application'].widget = HiddenInput()
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class DocumentCreateForm(ModelForm):
     class Meta:
