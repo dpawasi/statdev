@@ -14,7 +14,7 @@ from accounts.utils import get_query
 from actions.models import Action
 from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document
+from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -122,6 +122,8 @@ class ApplicationDetail(DetailView):
                 context['town_suburb'] = LocObj.suburb
                 context['lot'] = LocObj.lot
                 context['nearest_road_intersection'] = LocObj.intersection
+                context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
+                context['test'] = 'dsafdsaf dsafdsa'
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -228,6 +230,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
+        app = self.get_object()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -249,7 +252,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
+
         app = self.get_object()
+
+		#initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_draft:
            initial['document_draft'] = app.document_draft.upload
 #        if app.proposed_development_plans:
@@ -828,6 +834,44 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         app.save()
         return super(VesselCreate, self).form_valid(form)
 
+class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
+    model = PublicationNewspaper 
+    form_class = apps_forms.NewsPaperPublicationCreateForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.errror(self.request, "Can't add new newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(NewsPaperPublicationCreate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(NewsPaperPublicationCreate, self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def get_initial(self):
+        initial = super(NewsPaperPublicationCreate, self).get_initial()
+        initial['application'] = self.kwargs['pk']
+        return initial
+
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+		#	    app = Application.objects.get(pk=self.kwargs['pk'])
+#        self.object = form.save()
+ #       app.vessels.add(self.object.id)
+  #      app.save()
+		#print self.object.id
+        return super(NewsPaperPublicationCreate, self).form_valid(form)
 
 class ConditionUpdate(LoginRequiredMixin, UpdateView):
     """A view to allow an assessor to update a condition that might have been
