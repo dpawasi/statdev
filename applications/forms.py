@@ -6,9 +6,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, Media, HiddenInput, IntegerField
+from applications.widgets import ClearableMulipleFileInput
 
 from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance, Vessel, Document, PublicationNewspaper
+from .models import Application, Referral, Condition, Compliance, Vessel, Document, PublicationNewspaper, PublicationWebsite,PublicationFeedback
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
 User = get_user_model()
@@ -135,7 +136,7 @@ class ApplicationPart5Form(ModelForm):
     land_owner_consent = FileField(required=False, max_length=128 )
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
-    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_final = FileField(required=False, max_length=128, widget=ClearableMulipleFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
@@ -453,8 +454,6 @@ class VesselCreateForm(ModelForm):
 
 class NewsPaperPublicationCreateForm(ModelForm):
 
-	#    application = IntegerField()
-	#    documents = FileField(required=False, max_length=128, widget=ClearableFileInput)
     class Meta:
         model = PublicationNewspaper
         fields = ['application','date','newspaper']
@@ -463,6 +462,36 @@ class NewsPaperPublicationCreateForm(ModelForm):
         super(NewsPaperPublicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_newspaperpublication'
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['application'].widget = HiddenInput()
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+class WebsitePublicationCreateForm(ModelForm):
+
+    class Meta:
+        model = PublicationWebsite
+        fields = ['application','original_document','published_document']
+
+    def __init__(self, *args, **kwargs):
+        super(WebsitePublicationCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_websitepublication'
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['application'].widget = HiddenInput()
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+class FeedbackPublicationCreateForm(ModelForm):
+
+    class Meta:
+        model = PublicationFeedback
+        fields = ['application','name','address','suburb','state','postcode','phone','email','comments','documents','status']
+
+    def __init__(self, *args, **kwargs):
+        super(FeedbackPublicationCreateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_websitepublication'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))

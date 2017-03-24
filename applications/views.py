@@ -14,7 +14,7 @@ from accounts.utils import get_query
 from actions.models import Action
 from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper
+from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -123,7 +123,8 @@ class ApplicationDetail(DetailView):
                 context['lot'] = LocObj.lot
                 context['nearest_road_intersection'] = LocObj.intersection
                 context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
-                context['test'] = 'dsafdsaf dsafdsa'
+                context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
+                context['publication_feedback'] = PublicationFeedback.objects.filter(application_id=self.object)
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -875,6 +876,76 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
   #      app.save()
 		#print self.object.id
         return super(NewsPaperPublicationCreate, self).form_valid(form)
+
+
+class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
+    model = PublicationWebsite 
+    form_class = apps_forms.WebsitePublicationCreateForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.errror(self.request, "Can't add new newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebsitePublicationCreate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(WebsitePublicationCreate, self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def get_initial(self):
+        initial = super(WebsitePublicationCreate, self).get_initial()
+        initial['application'] = self.kwargs['pk']
+        return initial
+
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebsitePublicationCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        return super(WebsitePublicationCreate, self).form_valid(form)
+
+class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
+    model = PublicationFeedback
+    form_class = apps_forms.FeedbackPublicationCreateForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.errror(self.request, "Can't add new newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(FeedbackPublicationCreate, self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def get_initial(self):
+        initial = super(FeedbackPublicationCreate, self).get_initial()
+        initial['application'] = self.kwargs['pk']
+        return initial
+
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(FeedbackPublicationCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        return super(FeedbackPublicationCreate, self).form_valid(form)
+
 
 class ConditionUpdate(LoginRequiredMixin, UpdateView):
     """A view to allow an assessor to update a condition that might have been
