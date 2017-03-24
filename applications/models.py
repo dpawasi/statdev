@@ -321,33 +321,3 @@ class Compliance(models.Model):
 
     def __str__(self):
         return 'Compliance {} ({})'.format(self.pk, self.condition)
-
-
-@python_2_unicode_compatible
-class Task(models.Model):
-    """This model represents a job that an internal user needs to undertake
-    with an application.
-    """
-    TASK_TYPE_CHOICES = Choices(
-        (1, 'assess', ('Assess an application')),
-        (2, 'refer', ('Refer an application for comment')),
-        (3, 'compliance', ('Assess compliance with a condition')),
-    )
-    TASK_STATUS_CHOICES = Choices(
-        (1, 'ongoing', ('Ongoing')),
-        (2, 'complete', ('Complete')),
-        (3, 'cancelled', ('Cancelled')),
-    )
-    application = models.ForeignKey(Application, on_delete=models.PROTECT)
-    task_type = models.IntegerField(choices=TASK_TYPE_CHOICES)
-    status = models.IntegerField(choices=TASK_STATUS_CHOICES)
-    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
-    description = models.TextField(blank=True, null=True)
-    comments = models.TextField(blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True)
-    due_date = models.DateField(blank=True, null=True)
-    completed_date = models.DateField(blank=True, null=True)
-    documents = models.ManyToManyField(Document, blank=True)
-
-    def __str__(self):
-        return 'Task {}: {} ({})'.format(self.pk, self.get_task_type_display(), self.get_status_display())
