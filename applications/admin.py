@@ -28,7 +28,7 @@ class ApplicationPurposeAdmin(ModelAdmin):
 class ApplicationAdmin(ModelAdmin):
     date_hierarchy = 'submit_date'
     filter_horizontal = ('documents',)
-    list_display = ('id', 'app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date', 'assignee')
+    list_display = ('id', 'app_type', 'applicant', 'organisation', 'state', 'title', 'submit_date', 'assignee', 'expire_date')
     list_filter = ('app_type', 'state')
     search_fields = ('applicant__email', 'organisation__name', 'assignee__email', 'title')
 
@@ -51,8 +51,8 @@ class ReferralAdmin(ModelAdmin):
 @register(Condition)
 class ConditionAdmin(ModelAdmin):
     filter_horizontal = ('documents',)
-    list_display = ('id', 'application', 'referral', 'status')
-    list_filter = ('status',)
+    list_display = ('id', 'referral', 'status', 'due_date', 'recur_pattern')
+    list_filter = ('status', 'recur_pattern')
     search_fields = ('application__title', 'condition')
 
 
