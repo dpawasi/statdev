@@ -193,7 +193,8 @@ class ApplicationDetailPDF(ApplicationDetail):
         output = pdfkit.from_string(response.rendered_content, False, options=options)
         # TODO: store the generated PDF as a Document object.
         response = HttpResponse(output, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=test.pdf'
+        obj = self.get_object()
+        response['Content-Disposition'] = 'attachment; filename=application_{}.pdf'.format(obj.pk)
         return response
 
 
@@ -570,7 +571,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        messages.success(self.request, 'The application has been assigned to {}'.format(self.object.assignee.get_full_name()))
+        messages.success(self.request, 'Application {} has been assigned to {}'.format(self.object.pk, self.object.assignee.get_full_name()))
         if self.kwargs['action'] == 'customer':
             # Assign the application back to the applicant and make it 'draft' status.
             self.object.assignee = self.object.applicant
@@ -626,6 +627,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.issue,
                 user=self.request.user, action='Application issued')
             action.save()
+            messages.success(self.request, 'Application {} has been issued'.format(self.object.pk))
         elif d['assessment'] == 'decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
@@ -634,6 +636,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.decline,
                 user=self.request.user, action='Application declined')
             action.save()
+            messages.warning(self.request, 'Application {} has been declined'.format(self.object.pk))
         self.object.save()
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())

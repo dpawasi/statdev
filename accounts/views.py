@@ -206,9 +206,6 @@ class OrganisationCreate(LoginRequiredMixin, CreateView):
         context['action'] = 'Create'
         return context
 
-    def get_success_url(self):
-        return reverse('user_profile')
-
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_success_url())
@@ -218,7 +215,7 @@ class OrganisationCreate(LoginRequiredMixin, CreateView):
         self.obj = form.save()
         # Attach the creating user as a delegate to the new organisation.
         self.obj.delegates.add(self.request.user.emailuserprofile)
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(self.obj.get_absolute_url())
 
 
 class OrganisationDetail(LoginRequiredMixin, DetailView):
