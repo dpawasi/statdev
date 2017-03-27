@@ -106,6 +106,7 @@ class Application(models.Model):
     submit_date = models.DateField()
     proposed_commence = models.DateField(null=True, blank=True)
     proposed_end = models.DateField(null=True, blank=True)
+    issue_date = models.DateField(null=True, blank=True)
     cost = models.CharField(max_length=256, null=True, blank=True)
     project_no = models.CharField(max_length=256, null=True, blank=True)
     related_permits = models.TextField(null=True, blank=True)

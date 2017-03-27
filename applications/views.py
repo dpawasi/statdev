@@ -246,6 +246,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             return apps_forms.ApplicationPermitForm
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.part5:
             return apps_forms.ApplicationPart5Form
+        elif self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
+            return apps_forms.ApplicationEmergencyForm
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
