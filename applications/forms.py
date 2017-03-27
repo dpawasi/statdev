@@ -100,11 +100,6 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['refuel_location_method'].label = "Location and method of refueling"
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
-        self.fields['cert_survey'].label = "Certificate of Survey"
-        self.fields['cert_public_liability_insurance'].label = "Public Liability Insurance Certificate"
-        self.fields['risk_mgmt_plan'].label = "Risk managment Plan (if available)"
-        self.fields['safety_mgmt_procedures'].label = "Safety Management Procedures (if available)"
-        self.fields['brochures_itineries_adverts'].label = "Brocures, itineraries or advertisements (if available)"
 
         # TODO: all document fields.
 
