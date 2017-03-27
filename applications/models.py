@@ -104,6 +104,7 @@ class Application(models.Model):
     title = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
     submit_date = models.DateField()
+    expire_date = models.DateField(blank=True, null=True)
     proposed_commence = models.DateField(null=True, blank=True)
     proposed_end = models.DateField(null=True, blank=True)
     cost = models.CharField(max_length=256, null=True, blank=True)
@@ -284,15 +285,22 @@ class Condition(models.Model):
         (3, 'rejected', ('Rejected')),
         (4, 'cancelled', ('Cancelled')),
     )
+    CONDITION_RECUR_CHOICES = Choices(
+        (1, 'weekly', ('Weekly')),
+        (2, 'monthly', ('Monthly')),
+        (3, 'annually', ('Annually')),
+    )
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
     condition = models.TextField(blank=True, null=True)
     referral = models.ForeignKey(Referral, null=True, blank=True, on_delete=models.PROTECT)
     status = models.IntegerField(choices=CONDITION_STATUS_CHOICES, default=CONDITION_STATUS_CHOICES.proposed)
     documents = models.ManyToManyField(Document, blank=True)
-    # TODO: Due date
-    # TODO: Recurrence
-    # TODO: Start date
-    # TODO: Expiry date
+    due_date = models.DateField(blank=True, null=True)
+    # Rule: recurrence patterns (if present) begin on the due date.
+    recur_pattern = models.IntegerField(choices=CONDITION_RECUR_CHOICES, null=True, blank=True)
+    recur_freq = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name='recurrence frequency',
+        help_text='How frequently is the recurrence pattern applied (e.g. every 2 months)')
 
     def __str__(self):
         return 'Condition {}: {}'.format(self.pk, self.condition)
