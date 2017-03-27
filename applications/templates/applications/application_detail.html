@@ -27,7 +27,7 @@
                         {% if may_assign_assessor %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
                         {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
                         {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
-                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application to customer</a></li>{% endif %}
+                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
                         {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
                         <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
                         {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
@@ -439,7 +439,7 @@
                     <table class="table table-striped table-bordered table-condensed">
                         <thead>
                             <tr>
-                                <th>Email</th>
+                                <th>Name</th>
                                 <th>Sent date</th>
                                 <th>Period (days)</th>
                                 <th>Status</th>
@@ -450,7 +450,7 @@
                         <tbody>
                         {% for ref in object.referral_set.all %}
                             <tr>
-                                <td>{{ ref.referee.email }}</td>
+                                <td>{{ ref.referee }}</td>
                                 <td>{{ ref.sent_date|date:"d-M-Y" }}</td>
                                 <td>{{ ref.period }}</td>
                                 <td>{{ ref.get_status_display }}</td>
