@@ -133,7 +133,7 @@ class ApplicationPart5Form(ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = FileField(required=False, max_length=128 )
+    land_owner_consent = FileField(required=False, max_length=128, widget=ClearableMulipleFileInput)
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableMulipleFileInput)
