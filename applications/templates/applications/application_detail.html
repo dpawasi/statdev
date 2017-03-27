@@ -346,7 +346,11 @@
                             <h5>Certificate of Survey</h5>
                         </div>
                         <div class="col-lg-4">
+                            {% if object.cert_survey %}
                             <p><a href="{{ object.cert_survey.upload.url }}">{{ object.cert_survey }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class ="row">
@@ -354,7 +358,11 @@
                             <h5>Public Liability Insurance Certificate</h5>
                         </div>
                         <div class="col-lg-4">
+                            {% if object.cert_public_liability_insurance %}
                             <p><a href="{{ object.cert_public_liability_insurance.upload.url }}">{{ object.cert_public_liability_insurance }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class ="row">
@@ -362,7 +370,11 @@
                             <h5>Risk Management Plan (if available)</h5>
                         </div>
                         <div class="col-lg-4">
+                            {% if object.risk_mgmt_plan %}
                             <p><a href="{{ object.risk_mgmt_plan.upload.url }}">{{ object.risk_mgmt_plan }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class ="row">
@@ -370,7 +382,11 @@
                             <h5>Safety Management Procedures (if available)</h5>
                         </div>
                         <div class="col-lg-4">
+                            {% if object.safety_mgmt_procedures %}
                             <p><a href="{{ object.safety_mgmt_procedures.upload.url }}">{{ object.safety_mgmt_procedures }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class ="row">
