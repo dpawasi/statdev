@@ -49,7 +49,7 @@
                     <p>{{ object.submit_date|date:"d-M-Y" }}</p>
                     {% comment %}
                     <br />
-                    <h5>Lodgement  Date   Action</h5>
+                    <h4>Lodgement  Date   Action</h4>
                     {% endcomment %}
                 </div>
             </div>
@@ -171,52 +171,68 @@
                         <div class="fluid-container">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Purpose of Approval</h5>
+                                    <h4>Purpose of Approval</h4>
                                     <p>{{ object.purpose }}</p>
                                 </div>
                                 <div class="col-lg-2"></div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Proposed Commencement Date</h5>
+                                    <h4>Proposed Commencement Date</h4>
+                                    {% if object.proposed_commence %}
                                     <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
+                                    {% else %}
+                                    <p>None</p>
+                                    {% endif %}
                                 </div>
                                 <div class="col-lg-4">
-                                    <h5>Proposed End Date</h5>
+                                    <h4>Proposed End Date</h4>
+                                    {% if object.proposed_end %}
                                     <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
+                                    {% else %}
+                                    <p>None</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Maximum Number of Participants</h5>
+                                    <h4>Maximum Number of Participants</h4>
                                     <p>{{ object.max_participants }}</p>
                                 </div>
                                 <div class="col-lg-4">
-                                    <h5>Proposed Location</h5>
+                                    <h4>Proposed Location</h4>
                                     <p>{{ object.proposed_location }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Address of any landbased component of the commercial activity</h5>
+                                    <h4>Address of any landbased component of the commercial activity</h4>
+                                    {% if object.address %}
                                     <p>{{ object.address }}</p>
+                                    {% else %}
+                                    <p>None</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Location / Route and Access points (mark clearly in map)</h5>
+                                    <h4>Location / Route and Access points (mark clearly in map)</h4>
                                     <p>{{ object.location_route_access }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>List of jetties to be used</h5>
+                                    <h4>List of jetties to be used</h4>
+                                    {% if object.jetties %}
                                     <p>{{ object.jetties }}</p>
+                                    {% else %}
+                                    <p>None</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Do you have approval to use Department of Transport service jetties?</h5>
+                                    <h4>Do you have approval to use Department of Transport service jetties?</h4>
                                 </div>
                                 <div class="col-lg-2">
                                         <label class="radio-inline">
@@ -237,13 +253,17 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>List all drop off and pick up points</h5>
+                                    <h4>List all drop off and pick up points</h4>
+                                    {% if object.drop_off_pick_up %}
                                     <p>{{ object.drop_off_pick_up }}</p>
+                                    {% else %}
+                                    <p>None</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Food to be served?</h5>
+                                    <h4>Food to be served?</h4>
                                 </div>
                                 <div class="col-lg-4">
                                     <label class="radio-inline">
@@ -263,7 +283,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Beverage to be served?</h5>
+                                    <h4>Beverage to be served?</h4>
                                 </div>
                                 <div class="col-lg-4">
                                     <label class="radio-inline">
@@ -280,7 +300,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <h5>Do you allow BYO alcohol?</h5>
+                                    <h4>Do you allow BYO alcohol?</h4>
                                 </div>
                                 <div class="col-lg-4">
                                     <label class="radio-inline">
@@ -297,37 +317,37 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Details of sullage disposal method</h5>
+                                    <h4>Details of sullage disposal method</h4>
                                     <p>{{ object.sullage_disposal }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Details of waste disposal method</h5>
+                                    <h4>Details of waste disposal method</h4>
                                     <p>{{ object.waste_disposal }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Location and method of refueling</h5>
+                                    <h4>Location and method of refueling</h4>
                                     <p>{{ object.refuel_location_method }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Berth location</h5>
+                                    <h4>Berth location</h4>
                                     <p>{{ object.berth_location }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>List all anchorage areas</h5>
+                                    <h4>List all anchorage areas</h4>
                                     <p>{{ object.anchorage }}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <h5>Hours and days of operation including length of tours/lessons</h5>
+                                    <h4>Hours and days of operation including length of tours/lessons</h4>
                                     <p>{{ object.operating_details }}</p>
                                 </div>
                             </div>
@@ -343,7 +363,7 @@
                 <div class="panel-body">
                     <div class ="row">
                         <div class="col-lg-6">
-                            <h5>Certificate of Survey</h5>
+                            <h4>Certificate of Survey</h4>
                         </div>
                         <div class="col-lg-4">
                             {% if object.cert_survey %}
@@ -355,7 +375,7 @@
                     </div>
                     <div class ="row">
                         <div class="col-lg-6">
-                            <h5>Public Liability Insurance Certificate</h5>
+                            <h4>Public Liability Insurance Certificate</h4>
                         </div>
                         <div class="col-lg-4">
                             {% if object.cert_public_liability_insurance %}
@@ -367,7 +387,7 @@
                     </div>
                     <div class ="row">
                         <div class="col-lg-6">
-                            <h5>Risk Management Plan (if available)</h5>
+                            <h4>Risk Management Plan (if available)</h4>
                         </div>
                         <div class="col-lg-4">
                             {% if object.risk_mgmt_plan %}
@@ -379,7 +399,7 @@
                     </div>
                     <div class ="row">
                         <div class="col-lg-6">
-                            <h5>Safety Management Procedures (if available)</h5>
+                            <h4>Safety Management Procedures (if available)</h4>
                         </div>
                         <div class="col-lg-4">
                             {% if object.safety_mgmt_procedures %}
@@ -391,7 +411,7 @@
                     </div>
                     <div class ="row">
                         <div class="col-lg-6">
-                            <h5>Brochures, itineraries or advertisements (if available)</h5>
+                            <h4>Brochures, itineraries or advertisements (if available)</h4>
                         </div>
                         <div class="col-lg-4">
                             {% if object.brochures_itineries_adverts.exists %}
@@ -404,7 +424,7 @@
                     {% comment %}
                     <div class ="row">
                         <div class="col-lg-6">
-                            <h5>Other relevant supporting documentation (if available)</h5>
+                            <h4>Other relevant supporting documentation (if available)</h4>
                         </div>
                         <div class="col-lg-4">
                             {% if other_supporting_docs.exists %}
