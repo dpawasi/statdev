@@ -346,7 +346,7 @@
                             <h5>Certificate of Survey</h5>
                         </div>
                         <div class="col-lg-4">
-                            <p>{{ object.cert_survey }}</p>
+                            <p><a href="{{ object.cert_survey.upload.url }}">{{ object.cert_survey }}</a></p>
                         </div>
                     </div>
                     <div class ="row">
@@ -354,7 +354,7 @@
                             <h5>Public Liability Insurance Certificate</h5>
                         </div>
                         <div class="col-lg-4">
-                            <p>{{ object.cert_public_liability_insurance }}</p>
+                            <p><a href="{{ object.cert_public_liability_insurance.upload.url }}">{{ object.cert_public_liability_insurance }}</a></p>
                         </div>
                     </div>
                     <div class ="row">
@@ -362,7 +362,7 @@
                             <h5>Risk Management Plan (if available)</h5>
                         </div>
                         <div class="col-lg-4">
-                            <p>{{ object.risk_mgmt_plan }}</p>
+                            <p><a href="{{ object.risk_mgmt_plan.upload.url }}">{{ object.risk_mgmt_plan }}</a></p>
                         </div>
                     </div>
                     <div class ="row">
@@ -370,7 +370,7 @@
                             <h5>Safety Management Procedures (if available)</h5>
                         </div>
                         <div class="col-lg-4">
-                            <p>{{ object.safety_mgmt_procedures }}</p>
+                            <p><a href="{{ object.safety_mgmt_procedures.upload.url }}">{{ object.safety_mgmt_procedures }}</a></p>
                         </div>
                     </div>
                     <div class ="row">
@@ -379,35 +379,38 @@
                         </div>
                         <div class="col-lg-4">
                             {% if object.brochures_itineries_adverts.exists %}
-                            <p>{{ object.brochures_itineries_adverts.all }}</p>
+                            <p>{% for doc in object.brochures_itineries_adverts.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}</p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
                         </div>
                     </div>
+                    {% comment %}
                     <div class ="row">
                         <div class="col-lg-6">
                             <h5>Other relevant supporting documentation (if available)</h5>
                         </div>
                         <div class="col-lg-4">
                             {% if other_supporting_docs.exists %}
-                            <p>{{ object.other_supporting_docs.all }}</p>
+                            <p>{% for doc in object.other_supporting_docs.all %}
+                                <a href="{{ doc.upload.url }}">{{ doc }}</a><br>
+                            {% endfor %}</p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
                         </div>
                     </div>
+                    {% endcomment %}
                 </div>
             </div>
             <!-- Landowner Consent panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Landowner Consent</h3>
+                    <h3 class="panel-title">Landowner Consent Documents</h3>
                 </div>
                 <div class="panel-body">
-                    <h5>Landowner consent document/s</h5>
                     {% if object.land_owner_consent.exists %}
-                    <p>{{ object.land_owner_consent.all }}</p>
+                    <p>{% for doc in object.land_owner_consent.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}</p>
                     {% else %}
                     <p>None</p>
                     {% endif %}
@@ -419,8 +422,11 @@
                     <h3 class="panel-title">Deed</h3>
                 </div>
                 <div class="panel-body">
-                    <h5>Deed</h5>
-                    <p>{{ object.deed }}</p>
+                    {% if object.deed %}
+                    <p><a href="{{ object.deed.upload.url }}">{{ object.deed }}</a></p>
+                    {% else %}
+                    <p>None</p>
+                    {% endif %}
                 </div>
             </div>
             <!-- Referrals panel -->
