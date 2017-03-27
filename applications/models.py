@@ -104,6 +104,7 @@ class Application(models.Model):
     title = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
     submit_date = models.DateField()
+    expire_date = models.DateField(blank=True, null=True)
     proposed_commence = models.DateField(null=True, blank=True)
     proposed_end = models.DateField(null=True, blank=True)
     cost = models.CharField(max_length=256, null=True, blank=True)
@@ -138,17 +139,16 @@ class Application(models.Model):
     land_owner_consent = models.ManyToManyField(Document, blank=True, related_name='land_owner_consent')
     deed = models.ForeignKey(Document, blank=True, null=True, related_name='deed')
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
-    river_lease_require_river_lease = models.NullBooleanField(default=None,null=True, blank=True)
+    river_lease_require_river_lease = models.NullBooleanField(default=None, null=True, blank=True)
     river_lease_scan_of_application = models.ForeignKey(Document, null=True, blank=True, related_name='river_lease_scan_of_application')
-    river_lease_reserve_licence = models.NullBooleanField(default=None,null=True, blank=True)
-    river_lease_application_number = models.CharField(max_length=30,null=True, blank=True)
+    river_lease_reserve_licence = models.NullBooleanField(default=None, null=True, blank=True)
+    river_lease_application_number = models.CharField(max_length=30, null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')
-    document_draft = models.ForeignKey(Document, null=True,blank=True, related_name='document_draft')
-    document_final = models.ForeignKey(Document, null=True,blank=True, related_name='document_final')
-    document_determination = models.ForeignKey(Document, null=True,blank=True, related_name='document_determination')
-    document_completion = models.ForeignKey(Document, null=True,blank=True, related_name='document_completion')
-	#location = models.ManyToManyField(Location, blank=True, related_name='location')
+    document_draft = models.ForeignKey(Document, null=True, blank=True, related_name='document_draft')
+    document_final = models.ForeignKey(Document, null=True, blank=True, related_name='document_final')
+    document_determination = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination')
+    document_completion = models.ForeignKey(Document, null=True, blank=True, related_name='document_completion')
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -285,15 +285,22 @@ class Condition(models.Model):
         (3, 'rejected', ('Rejected')),
         (4, 'cancelled', ('Cancelled')),
     )
+    CONDITION_RECUR_CHOICES = Choices(
+        (1, 'weekly', ('Weekly')),
+        (2, 'monthly', ('Monthly')),
+        (3, 'annually', ('Annually')),
+    )
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
     condition = models.TextField(blank=True, null=True)
     referral = models.ForeignKey(Referral, null=True, blank=True, on_delete=models.PROTECT)
     status = models.IntegerField(choices=CONDITION_STATUS_CHOICES, default=CONDITION_STATUS_CHOICES.proposed)
     documents = models.ManyToManyField(Document, blank=True)
-    # TODO: Due date
-    # TODO: Recurrence
-    # TODO: Start date
-    # TODO: Expiry date
+    due_date = models.DateField(blank=True, null=True)
+    # Rule: recurrence patterns (if present) begin on the due date.
+    recur_pattern = models.IntegerField(choices=CONDITION_RECUR_CHOICES, null=True, blank=True)
+    recur_freq = models.PositiveIntegerField(
+        null=True, blank=True, verbose_name='recurrence frequency',
+        help_text='How frequently is the recurrence pattern applied (e.g. every 2 months)')
 
     def __str__(self):
         return 'Condition {}: {}'.format(self.pk, self.condition)
@@ -321,33 +328,3 @@ class Compliance(models.Model):
 
     def __str__(self):
         return 'Compliance {} ({})'.format(self.pk, self.condition)
-
-
-@python_2_unicode_compatible
-class Task(models.Model):
-    """This model represents a job that an internal user needs to undertake
-    with an application.
-    """
-    TASK_TYPE_CHOICES = Choices(
-        (1, 'assess', ('Assess an application')),
-        (2, 'refer', ('Refer an application for comment')),
-        (3, 'compliance', ('Assess compliance with a condition')),
-    )
-    TASK_STATUS_CHOICES = Choices(
-        (1, 'ongoing', ('Ongoing')),
-        (2, 'complete', ('Complete')),
-        (3, 'cancelled', ('Cancelled')),
-    )
-    application = models.ForeignKey(Application, on_delete=models.PROTECT)
-    task_type = models.IntegerField(choices=TASK_TYPE_CHOICES)
-    status = models.IntegerField(choices=TASK_STATUS_CHOICES)
-    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
-    description = models.TextField(blank=True, null=True)
-    comments = models.TextField(blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True)
-    due_date = models.DateField(blank=True, null=True)
-    completed_date = models.DateField(blank=True, null=True)
-    documents = models.ManyToManyField(Document, blank=True)
-
-    def __str__(self):
-        return 'Task {}: {} ({})'.format(self.pk, self.get_task_type_display(), self.get_status_display())

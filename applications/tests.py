@@ -7,7 +7,7 @@ from django.test import Client, TestCase
 from mixer.backend.django import mixer
 
 from accounts.utils import random_dpaw_email
-from .models import Application, Referral, Condition, Task
+from .models import Application, Referral, Condition
 
 User = get_user_model()
 
@@ -49,7 +49,6 @@ class ApplicationTest(TestCase):
         self.app1 = mixer.blend(
             Application, app_type=Application.APP_TYPE_CHOICES.licence,
             state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
-        self.task1 = mixer.blend(Task)
         self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
 
     def test_get_absolute_url(self):
