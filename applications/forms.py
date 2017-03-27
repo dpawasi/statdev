@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput
+from multiupload.fields import MultiFileField
 
 from accounts.models import Organisation
 from .models import Application, Referral, Condition, Compliance, Vessel, Document
@@ -53,6 +54,12 @@ class ApplicationLicencePermitForm(ModelForm):
     safety_mgmt_procedures = FileField(
         label='Safety management procedures', required=False, max_length=128)
     deed = FileField(required=False, max_length=128)
+    brochures_itineries_adverts = MultiFileField(
+        required=False, label='Brochures, itineraries or advertisements',
+        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
+    land_owner_consent = MultiFileField(
+        required=False, label='Landowner consent statement(s)',
+        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
 
     class Meta:
         model = Application
@@ -63,7 +70,6 @@ class ApplicationLicencePermitForm(ModelForm):
             'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
             'refuel_location_method', 'berth_location', 'anchorage', 'operating_details',
-            #'brochures_itineries_adverts', 'land_owner_consent',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -94,8 +100,6 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['refuel_location_method'].label = "Location and method of refueling"
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
-        #self.fields['brochures_itineries_adverts'].label = "Brocures, itineraries or advertisements (if available)"
-        #self.fields['other_supporting_docs'].label = "Other relevant supporting documentation (if available)"
 
 
 class ApplicationPermitForm(ModelForm):

@@ -318,8 +318,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.cert_survey
             else:
                 doc = Document()
-            doc.upload = self.request.FILES['cert_survey']
-            doc.name = self.request.FILES['cert_survey'].name
+            doc.upload = forms_data['cert_survey']
+            doc.name = forms_data['cert_survey'].name
             doc.save()
             self.object.cert_survey = doc
         if 'cert_public_liability_insurance-clear' in form.data and self.object.cert_public_liability_insurance:
@@ -329,8 +329,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.cert_public_liability_insurance
             else:
                 doc = Document()
-            doc.upload = self.request.FILES['cert_public_liability_insurance']
-            doc.name = self.request.FILES['cert_public_liability_insurance'].name
+            doc.upload = forms_data['cert_public_liability_insurance']
+            doc.name = forms_data['cert_public_liability_insurance'].name
             doc.save()
             self.object.cert_public_liability_insurance = doc
         if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
@@ -340,8 +340,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.risk_mgmt_plan
             else:
                 doc = Document()
-            doc.upload = self.request.FILES['risk_mgmt_plan']
-            doc.name = self.request.FILES['risk_mgmt_plan'].name
+            doc.upload = forms_data['risk_mgmt_plan']
+            doc.name = forms_data['risk_mgmt_plan'].name
             doc.save()
             self.object.risk_mgmt_plan = doc
         if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
@@ -351,8 +351,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.safety_mgmt_procedures
             else:
                 doc = Document()
-            doc.upload = self.request.FILES['safety_mgmt_procedures']
-            doc.name = self.request.FILES['safety_mgmt_procedures'].name
+            doc.upload = forms_data['safety_mgmt_procedures']
+            doc.name = forms_data['safety_mgmt_procedures'].name
             doc.save()
             self.object.safety_mgmt_procedures = doc
         if 'deed-clear' in form.data and self.object.deed:
@@ -362,23 +362,38 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.deed
             else:
                 doc = Document()
-            doc.upload = self.request.FILES['deed']
-            doc.name = self.request.FILES['deed'].name
+            doc.upload = forms_data['deed']
+            doc.name = forms_data['deed'].name
             doc.save()
             self.object.deed = doc
+        if self.request.FILES.get('brochures_itineries_adverts'):
+            # Remove existing documents.
+            for d in self.object.brochures_itineries_adverts.all():
+                self.object.brochures_itineries_adverts.remove(d)
+            # Add new uploads.
+            for f in forms_data['brochures_itineries_adverts']:
+                doc = Document()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.brochures_itineries_adverts.add(doc)
+        if self.request.FILES.get('land_owner_consent'):
+            # Remove existing documents.
+            for d in self.object.land_owner_consent.all():
+                self.object.land_owner_consent.remove(d)
+            # Add new uploads.
+            for f in forms_data['land_owner_consent']:
+                doc = Document()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.land_owner_consent.add(doc)
 
         if self.request.POST.get('document_draft-clear'):
             application = Application.objects.get(id=self.object.id)
             document = Document.objects.get(pk=application.document_draft.id)
             document.delete()
             self.object.document_draft = None
-
-        if self.request.FILES.get('land_owner_consent'):
-            new_doc = Document()
-            new_doc.upload = self.request.FILES['land_owner_consent']
-            new_doc.save()
-#           self.object.document_draft = new_doc
-            self.object.land_owner_consent.add(new_doc)
 
         if self.request.FILES.get('document_draft'):
             new_doc = Document()
