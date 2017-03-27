@@ -38,7 +38,8 @@ class HomePage(LoginRequiredMixin, TemplateView):
         processor = Group.objects.get(name='Processor')
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             if Application.objects.filter(assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin).exists():
-                context['applications_unassigned'] = Application.objects.filter(assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin)
+                context['applications_unassigned'] = Application.objects.filter(
+                    assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin)
             # Rule: admin officers may self-assign applications.
             context['may_assign_processor'] = True
         return context
@@ -54,8 +55,10 @@ class ApplicationList(ListView):
             query_str = self.request.GET['q']
             # Replace single-quotes with double-quotes
             query_str = query_str.replace("'", r'"')
-            # Filter by pk, title, applicant__email, organisation__name, assignee__email
-            query = get_query(query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
+            # Filter by pk, title, applicant__email, organisation__name,
+            # assignee__email
+            query = get_query(
+                query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
             qs = qs.filter(query).distinct()
         return qs
 
@@ -111,17 +114,17 @@ class ApplicationDetail(DetailView):
         app = self.get_object()
 
         if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
-                self.template_name = 'applications/application_details_part5_new_application.html'
-                LocObj = Location.objects.get(application_id=self.object.id)
-                context['certificate_of_title_volume'] = LocObj.title_volume
-                context['folio'] = LocObj.folio
-                context['diagram_plan_deposit_number'] = LocObj.dpd_number
-                context['location'] = LocObj.location
-                context['reserve_number'] = LocObj.reserve
-                context['street_number_and_name'] = LocObj.street_number_name
-                context['town_suburb'] = LocObj.suburb
-                context['lot'] = LocObj.lot
-                context['nearest_road_intersection'] = LocObj.intersection
+            self.template_name = 'applications/application_details_part5_new_application.html'
+            LocObj = Location.objects.get(application_id=self.object.id)
+            context['certificate_of_title_volume'] = LocObj.title_volume
+            context['folio'] = LocObj.folio
+            context['diagram_plan_deposit_number'] = LocObj.dpd_number
+            context['location'] = LocObj.location
+            context['reserve_number'] = LocObj.reserve
+            context['street_number_and_name'] = LocObj.street_number_name
+            context['town_suburb'] = LocObj.suburb
+            context['lot'] = LocObj.lot
+            context['nearest_road_intersection'] = LocObj.intersection
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -134,17 +137,20 @@ class ApplicationDetail(DetailView):
                 context['may_update'] = True
                 context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with admin', it can be sent back to the customer.
+            # Rule: if the application status is 'with admin', it can be sent
+            # back to the customer.
             if app.state == app.APP_STATE_CHOICES.with_admin:
                 context['may_assign_customer'] = True
             # Rule: if the application status is 'with admin' or 'with referee', it can
-            # be referred, have conditions added, and referrals can be recalled/resent.
+            # be referred, have conditions added, and referrals can be
+            # recalled/resent.
             if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
                 context['may_refer'] = True
                 context['may_create_condition'] = True
                 context['may_recall_resend'] = True
                 context['may_assign_processor'] = True
-                # Rule: if there are no "outstanding" referrals, it can be assigned to an assessor.
+                # Rule: if there are no "outstanding" referrals, it can be
+                # assigned to an assessor.
                 if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
                     context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
@@ -161,13 +167,15 @@ class ApplicationDetail(DetailView):
                 context['may_assign_assessor'] = True
                 context['may_issue'] = True
         if referee in self.request.user.groups.all():
-            # Rule: if the application has a current referral to the request user, they can create conditions.
+            # Rule: if the application has a current referral to the request
+            # user, they can create conditions.
             if Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
                 context['may_create_condition'] = True
         if app.state == app.APP_STATE_CHOICES.issued:
             context['may_generate_pdf'] = True
         if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
-            # Rule: only the delegate of the organisation (or submitter) can request compliance.
+            # Rule: only the delegate of the organisation (or submitter) can
+            # request compliance.
             if app.organisation:
                 if self.request.user.emailprofile in app.organisation.delegates.all():
                     context['may_request_compliance'] = True
@@ -190,11 +198,13 @@ class ApplicationDetailPDF(ApplicationDetail):
             'encoding': 'UTF-8',
         }
         # Generate the PDF as a string, then use that as the response body.
-        output = pdfkit.from_string(response.rendered_content, False, options=options)
+        output = pdfkit.from_string(
+            response.rendered_content, False, options=options)
         # TODO: store the generated PDF as a Document object.
         response = HttpResponse(output, content_type='application/pdf')
         obj = self.get_object()
-        response['Content-Disposition'] = 'attachment; filename=application_{}.pdf'.format(obj.pk)
+        response['Content-Disposition'] = 'attachment; filename=application_{}.pdf'.format(
+            obj.pk)
         return response
 
 
@@ -215,7 +225,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     """A view for updating a draft (non-lodged) application.
     """
     model = Application
-#    LocObj = Location.objects.get(id=self.object.id)
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
@@ -231,15 +240,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['page_heading'] = 'Update application details'
         return context
 
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            app = Application.objects.get(id=kwargs['pk'])
-            if app.state == app.APP_STATE_CHOICES.new:
-                app.delete()
-                return HttpResponseRedirect(reverse('application_list'))
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ApplicationUpdate, self).post(request, *args, **kwargs)
-
     def get_form_class(self):
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
             return apps_forms.ApplicationLicencePermitForm
@@ -252,83 +252,157 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial = super(ApplicationUpdate, self).get_initial()
         app = self.get_object()
         if app.document_draft:
-           initial['document_draft'] = app.document_draft.upload
+            initial['document_draft'] = app.document_draft.upload
 #        if app.proposed_development_plans:
 #           initial['proposed_development_plans'] = app.proposed_development_plans.upload
         if app.document_final:
-           initial['document_final'] = app.document_final.upload
+            initial['document_final'] = app.document_final.upload
         if app.document_determination:
-           initial['document_determination'] = app.document_determination.upload
+            initial['document_determination'] = app.document_determination.upload
         if app.document_completion:
-           initial['document_completion'] = app.document_completion.upload
+            initial['document_completion'] = app.document_completion.upload
+        # Document FK fields:
+        if app.cert_survey:
+            initial['cert_survey'] = app.cert_survey.upload
+        if app.cert_public_liability_insurance:
+            initial['cert_public_liability_insurance'] = app.cert_public_liability_insurance.upload
+        if app.risk_mgmt_plan:
+            initial['risk_mgmt_plan'] = app.risk_mgmt_plan.upload
+        if app.safety_mgmt_procedures:
+            initial['safety_mgmt_procedures'] = app.safety_mgmt_procedures.upload
+        if app.deed:
+            initial['deed'] = app.deed.upload
 
-
-		# LocObj = Location.get_object(id=self.object.id)
         try:
-           LocObj = Location.objects.get(application_id=self.object.id)
-           initial['certificate_of_title_volume'] = LocObj.title_volume
-           initial['folio'] = LocObj.folio
-           initial['diagram_plan_deposit_number'] = LocObj.dpd_number
-           initial['location'] = LocObj.location
-           initial['reserve_number'] = LocObj.reserve
-           initial['street_number_and_name'] = LocObj.street_number_name
-           initial['town_suburb'] = LocObj.suburb
-           initial['lot'] = LocObj.lot
-           initial['nearest_road_intersection'] = LocObj.intersection
-
+            LocObj = Location.objects.get(application_id=self.object.id)
+            initial['certificate_of_title_volume'] = LocObj.title_volume
+            initial['folio'] = LocObj.folio
+            initial['diagram_plan_deposit_number'] = LocObj.dpd_number
+            initial['location'] = LocObj.location
+            initial['reserve_number'] = LocObj.reserve
+            initial['street_number_and_name'] = LocObj.street_number_name
+            initial['town_suburb'] = LocObj.suburb
+            initial['lot'] = LocObj.lot
+            initial['nearest_road_intersection'] = LocObj.intersection
         except ObjectDoesNotExist:
-           donothing = ''
+            donothing = ''
 
         return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(id=kwargs['pk'])
+            if app.state == app.APP_STATE_CHOICES.new:
+                app.delete()
+                return HttpResponseRedirect(reverse('application_list'))
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         """Override form_valid to set the state to draft is this is a new application.
         """
         forms_data = form.cleaned_data
-        app = self.get_object()
+        self.object = form.save(commit=False)
 
         try:
-           new_loc = Location.objects.get(application_id=self.object.id)
+            new_loc = Location.objects.get(application_id=self.object.id)
         except:
-           new_loc = Location()
-           new_loc.application_id = self.object.id
+            new_loc = Location()
+            new_loc.application_id = self.object.id
+
+        # Document upload fields.
+        if 'cert_survey-clear' in form.data and self.object.cert_survey:  # 'Clear' was checked.
+            self.object.cert_survey = None
+        if self.request.FILES.get('cert_survey'):  # Uploaded new file.
+            if self.object.cert_survey:
+                doc = self.object.cert_survey
+            else:
+                doc = Document()
+            doc.upload = self.request.FILES['cert_survey']
+            doc.name = self.request.FILES['cert_survey'].name
+            doc.save()
+            self.object.cert_survey = doc
+        if 'cert_public_liability_insurance-clear' in form.data and self.object.cert_public_liability_insurance:
+            self.object.cert_public_liability_insurance = None
+        if self.request.FILES.get('cert_public_liability_insurance'):
+            if self.object.cert_public_liability_insurance:
+                doc = self.object.cert_public_liability_insurance
+            else:
+                doc = Document()
+            doc.upload = self.request.FILES['cert_public_liability_insurance']
+            doc.name = self.request.FILES['cert_public_liability_insurance'].name
+            doc.save()
+            self.object.cert_public_liability_insurance = doc
+        if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
+            self.object.risk_mgmt_plan = None
+        if self.request.FILES.get('risk_mgmt_plan'):
+            if self.object.risk_mgmt_plan:
+                doc = self.object.risk_mgmt_plan
+            else:
+                doc = Document()
+            doc.upload = self.request.FILES['risk_mgmt_plan']
+            doc.name = self.request.FILES['risk_mgmt_plan'].name
+            doc.save()
+            self.object.risk_mgmt_plan = doc
+        if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
+            self.object.safety_mgmt_procedures = None
+        if self.request.FILES.get('safety_mgmt_procedures'):
+            if self.object.safety_mgmt_procedures:
+                doc = self.object.safety_mgmt_procedures
+            else:
+                doc = Document()
+            doc.upload = self.request.FILES['safety_mgmt_procedures']
+            doc.name = self.request.FILES['safety_mgmt_procedures'].name
+            doc.save()
+            self.object.safety_mgmt_procedures = doc
+        if 'deed-clear' in form.data and self.object.deed:
+            self.object.deed = None
+        if self.request.FILES.get('deed'):
+            if self.object.deed:
+                doc = self.object.deed
+            else:
+                doc = Document()
+            doc.upload = self.request.FILES['deed']
+            doc.name = self.request.FILES['deed'].name
+            doc.save()
+            self.object.deed = doc
 
         if self.request.POST.get('document_draft-clear'):
-           application = Application.objects.get(id=self.object.id)
-           document = Document.objects.get(pk=application.document_draft.id)
-           document.delete()
-           self.object.document_draft = None
+            application = Application.objects.get(id=self.object.id)
+            document = Document.objects.get(pk=application.document_draft.id)
+            document.delete()
+            self.object.document_draft = None
 
         if self.request.FILES.get('land_owner_consent'):
-           new_doc = Document()
-           new_doc.upload = self.request.FILES['land_owner_consent']
-           new_doc.save()
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['land_owner_consent']
+            new_doc.save()
 #           self.object.document_draft = new_doc
-           self.object.land_owner_consent.add(new_doc)
+            self.object.land_owner_consent.add(new_doc)
 
         if self.request.FILES.get('document_draft'):
-           new_doc = Document()
-           new_doc.upload = self.request.FILES['document_draft']
-           new_doc.save()
-           self.object.document_draft = new_doc
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_draft']
+            new_doc.save()
+            self.object.document_draft = new_doc
 
         if self.request.FILES.get('document_final'):
-           new_doc = Document()
-           new_doc.upload = self.request.FILES['document_final']
-           new_doc.save()
-           self.object.document_final = new_doc
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_final']
+            new_doc.save()
+            self.object.document_final = new_doc
 
         if self.request.FILES.get('document_determination'):
-           new_doc = Document()
-           new_doc.upload = self.request.FILES['document_determination']
-           new_doc.save()
-           self.object.document_determination = new_doc
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_determination']
+            new_doc.save()
+            self.object.document_determination = new_doc
 
         if self.request.FILES.get('document_completion'):
-           new_doc = Document()
-           new_doc.upload = self.request.FILES['document_completion']
-           new_doc.save()
-           self.object.document_completion = new_doc
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_completion']
+            new_doc.save()
+            self.object.document_completion = new_doc
 
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
         if 'certificate_of_title_volume' in forms_data:
@@ -350,7 +424,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if 'lot' in forms_data:
             new_loc.intersection = forms_data['nearest_road_intersection']
 
-        self.object = form.save(commit=False)
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
         self.object.save()
@@ -421,7 +494,8 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
             # TODO: better/explicit error response.
-            messages.error(self.request, 'This application cannot be referred!')
+            messages.error(
+                self.request, 'This application cannot be referred!')
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationRefer, self).get(request, *args, **kwargs)
 
@@ -479,9 +553,11 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
-        # Rule: conditions can be created when the app is with admin, with referee or with assessor.
+        # Rule: conditions can be created when the app is with admin, with
+        # referee or with assessor.
         if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
-            messages.error(self.request, 'New conditions cannot be created for this application!')
+            messages.error(
+                self.request, 'New conditions cannot be created for this application!')
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ConditionCreate, self).get(request, *args, **kwargs)
 
@@ -508,7 +584,8 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         # If a referral exists for the parent application for this user,
         # link that to the new condition.
         if Referral.objects.filter(application=app, referee=self.request.user).exists():
-            self.object.referral = Referral.objects.get(application=app, referee=self.request.user)
+            self.object.referral = Referral.objects.get(
+                application=app, referee=self.request.user)
         # If the request user is not in the "Referee" group, then assume they're an internal user
         # and set the new condition to "applied" status (default = "proposed").
         referee = Group.objects.get(name='Referee')
@@ -532,22 +609,28 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         app = self.get_object()
         if self.kwargs['action'] == 'customer':
-            # Rule: application can go back to customer when only status is 'with admin'.
+            # Rule: application can go back to customer when only status is
+            # 'with admin'.
             if app.state != app.APP_STATE_CHOICES.with_admin:
-                messages.error(self.request, 'This application cannot be returned to the customer!')
+                messages.error(
+                    self.request, 'This application cannot be returned to the customer!')
                 return HttpResponseRedirect(app.get_absolute_url())
         if self.kwargs['action'] == 'assess':
-            # Rule: application can be assessed when status is 'with admin', 'with referee' or 'with manager'.
+            # Rule: application can be assessed when status is 'with admin',
+            # 'with referee' or 'with manager'.
             if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
-                messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                messages.error(
+                    self.request, 'This application cannot be assigned to an assessor!')
                 return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
         if self.kwargs['action'] == 'approve':
             if app.state != app.APP_STATE_CHOICES.with_assessor:
-                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                messages.error(
+                    self.request, 'You are unable to assign this application for approval/issue!')
                 return HttpResponseRedirect(app.get_absolute_url())
             if app.assignee != request.user and not request.user.is_superuser:
-                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                messages.error(
+                    self.request, 'You are unable to assign this application for approval/issue!')
                 return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
@@ -569,9 +652,11 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        messages.success(self.request, 'Application {} has been assigned to {}'.format(self.object.pk, self.object.assignee.get_full_name()))
+        messages.success(self.request, 'Application {} has been assigned to {}'.format(
+            self.object.pk, self.object.assignee.get_full_name()))
         if self.kwargs['action'] == 'customer':
-            # Assign the application back to the applicant and make it 'draft' status.
+            # Assign the application back to the applicant and make it 'draft'
+            # status.
             self.object.assignee = self.object.applicant
             self.object.state = self.object.APP_STATE_CHOICES.draft
             # TODO: email the feedback back to the customer.
@@ -606,7 +691,8 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         app = self.get_object()
         if app.assignee == request.user or request.user.is_superuser:
             return super(ApplicationIssue, self).get(request, *args, **kwargs)
-        messages.error(self.request, 'You are unable to issue this application!')
+        messages.error(
+            self.request, 'You are unable to issue this application!')
         return HttpResponseRedirect(app.get_absolute_url())
 
     def post(self, request, *args, **kwargs):
@@ -625,7 +711,8 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.issue,
                 user=self.request.user, action='Application issued')
             action.save()
-            messages.success(self.request, 'Application {} has been issued'.format(self.object.pk))
+            messages.success(
+                self.request, 'Application {} has been issued'.format(self.object.pk))
         elif d['assessment'] == 'decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
@@ -634,7 +721,8 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.decline,
                 user=self.request.user, action='Application declined')
             action.save()
-            messages.warning(self.request, 'Application {} has been declined'.format(self.object.pk))
+            messages.warning(
+                self.request, 'Application {} has been declined'.format(self.object.pk))
         self.object.save()
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
@@ -652,10 +740,12 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         if referral.response_date:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
-        # Rule: only the referee (or a superuser) can mark a referral "complete".
+        # Rule: only the referee (or a superuser) can mark a referral
+        # "complete".
         if referral.referee == request.user or request.user.is_superuser:
             return super(ReferralComplete, self).get(request, *args, **kwargs)
-        messages.error(self.request, 'You are unable to mark this referral as complete!')
+        messages.error(
+            self.request, 'You are unable to mark this referral as complete!')
         return HttpResponseRedirect(referral.application.get_absolute_url())
 
     def get_context_data(self, **kwargs):
@@ -679,7 +769,8 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
             content_object=app, user=self.request.user,
             action='Referral to {} marked as completed'.format(self.object.referee))
         action.save()
-        # If there are no further outstanding referrals, then set the application status to "with admin".
+        # If there are no further outstanding referrals, then set the
+        # application status to "with admin".
         if not Referral.objects.filter(
                 application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
             app.state = Application.APP_STATE_CHOICES.with_admin
@@ -699,7 +790,8 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
-        # Rule: can't recall a referral that is any other status than 'referred'.
+        # Rule: can't recall a referral that is any other status than
+        # 'referred'.
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
@@ -732,13 +824,15 @@ class ComplianceList(ListView):
 
     def get_queryset(self):
         qs = super(ComplianceList, self).get_queryset()
-        # Did we pass in a search string? If so, filter the queryset and return it.
+        # Did we pass in a search string? If so, filter the queryset and return
+        # it.
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             # Replace single-quotes with double-quotes
             query_str = query_str.replace("'", r'"')
             # Filter by applicant__email, assignee__email, compliance
-            query = get_query(query_str, ['applicant__email', 'assignee__email', 'compliance'])
+            query = get_query(
+                query_str, ['applicant__email', 'assignee__email', 'compliance'])
             qs = qs.filter(query).distinct()
         return qs
 
@@ -780,7 +874,8 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     def formset_valid(self, formset):
         for form in formset:
             data = form.cleaned_data
-            # If text has been input to the compliance field, create a new compliance object.
+            # If text has been input to the compliance field, create a new
+            # compliance object.
             if 'compliance' in data and data.get('compliance', None):
                 new_comp = form.save(commit=False)
                 new_comp.applicant = self.request.user
@@ -792,7 +887,8 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
                     content_object=new_comp.application, user=self.request.user,
                     action='Request for compliance created')
                 action.save()
-        messages.success(self.request, 'New requests for compliance have been submitted.')
+        messages.success(
+            self.request, 'New requests for compliance have been submitted.')
         return super(ComplianceCreate, self).formset_valid(formset)
 
     def get_success_url(self):
@@ -806,7 +902,8 @@ class VesselCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(self.request, "Can't add new vessels to this application")
+            messages.errror(
+                self.request, "Can't add new vessels to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselCreate, self).get(request, *args, **kwargs)
 
@@ -842,9 +939,11 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
-        # Rule: can only change a condition if the parent application is status 'with assessor'.
+        # Rule: can only change a condition if the parent application is status
+        # 'with assessor'.
         if condition.application.state != Application.APP_STATE_CHOICES.with_assessor:
-            messages.error(self.request, 'You can only change conditions when the application is "with assessor" status')
+            messages.error(
+                self.request, 'You can only change conditions when the application is "with assessor" status')
             return HttpResponseRedirect(condition.application.get_absolute_url())
         return super(ConditionUpdate, self).get(request, *args, **kwargs)
 

@@ -44,16 +44,27 @@ class ApplicationCreateForm(ModelForm):
 
 
 class ApplicationLicencePermitForm(ModelForm):
+    cert_survey = FileField(
+        label='Certificate of survey', required=False, max_length=128)
+    cert_public_liability_insurance = FileField(
+        label='Public liability insurance certificate', required=False, max_length=128)
+    risk_mgmt_plan = FileField(
+        label='Risk managment plan', required=False, max_length=128)
+    safety_mgmt_procedures = FileField(
+        label='Safety management procedures', required=False, max_length=128)
+    deed = FileField(required=False, max_length=128)
+
     class Meta:
         model = Application
-        fields = ['title', 'description',
-            'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'purpose', 'max_participants', 'proposed_location', 'address', 'vessels',
+        fields = [
+            'title', 'description', 'proposed_commence', 'proposed_end',
+            'cost', 'project_no', 'related_permits', 'over_water',
+            'purpose', 'max_participants', 'proposed_location', 'address',
             'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
             'refuel_location_method', 'berth_location', 'anchorage', 'operating_details',
-            'cert_survey', 'cert_public_liability_insurance', 'risk_mgmt_plan', 'safety_mgmt_procedures',
-            'brochures_itineries_adverts', 'land_owner_consent', 'deed']
+            #'brochures_itineries_adverts', 'land_owner_consent',
+        ]
 
     def __init__(self, *args, **kwargs):
         super(ApplicationLicencePermitForm, self).__init__(*args, **kwargs)
@@ -71,7 +82,7 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['proposed_end'].label = "Proposed End Date"
         self.fields['max_participants'].label = "Maximum Number of Participants"
         self.fields['address'].label = "Address of any landbased component of the commercial activity"
-        self.fields['proposed_location'].label = "Location / Route and Acces Points"
+        self.fields['proposed_location'].label = "Location / Route and Access Points"
         self.fields['jetties'].label = "List all jetties to be used"
         self.fields['jetty_dot_approval'].label = "Do you have approval to use Departmen of Transport service jetties?"
         self.fields['drop_off_pick_up'].label = "List all drop off and pick up points"
@@ -83,14 +94,8 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['refuel_location_method'].label = "Location and method of refueling"
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
-        self.fields['cert_survey'].label = "Certificate of Survey"
-        self.fields['cert_public_liability_insurance'].label = "Public Liability Insurance Certificate"
-        self.fields['risk_mgmt_plan'].label = "Risk managment Plan (if available)"
-        self.fields['safety_mgmt_procedures'].label = "Safety Management Procedures (if available)"
-        self.fields['brochures_itineries_adverts'].label = "Brocures, itineraries or advertisements (if available)"
-		#self.fields['other_supporting_docs'].label = "Other relevant supporting documentation (if available)"
-
-        # TODO: all document fields.
+        #self.fields['brochures_itineries_adverts'].label = "Brocures, itineraries or advertisements (if available)"
+        #self.fields['other_supporting_docs'].label = "Other relevant supporting documentation (if available)"
 
 
 class ApplicationPermitForm(ModelForm):
