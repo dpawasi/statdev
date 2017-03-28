@@ -61,6 +61,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'statdev.context_processors.template_context',
             ],
         },
     },
@@ -68,6 +69,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'statdev.wsgi.application'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home_page'
+STATIC_CONTEXT_VARS = {}
+APPLICATION_VERSION_NO = '0.1'
 
 
 # Email settings
