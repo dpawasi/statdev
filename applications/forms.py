@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML
 from crispy_forms.bootstrap import FormActions
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
@@ -114,6 +115,27 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['refuel_location_method'].label = "Location and method of refueling"
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
+
+    def clean(self):
+        cleaned_data = super(ApplicationLicencePermitForm, self).clean()
+        # Clean the uploaded file fields (acceptable file types).
+        for field in [
+                'cert_survey', 'cert_public_liability_insurance', 'risk_mgmt_plan',
+                'safety_mgmt_procedures', 'deed']:
+            up = cleaned_data.get(field)
+            if up and hasattr(up, 'content_type') and up.content_type not in settings.ALLOWED_UPLOAD_TYPES:
+                self._errors[field] = self.error_class(['{}: this file type is not permitted'.format(up.name)])
+        # Clean multi-upload fields:
+        for field in ['brochures_itineries_adverts', 'land_owner_consent']:
+            up = cleaned_data.get(field)
+            errors = []
+            if up:
+                for f in up:
+                    if hasattr(f, 'content_type') and f.content_type not in settings.ALLOWED_UPLOAD_TYPES:
+                        errors.append('{}: this file type is not permitted'.format(f.name))
+                if errors:
+                    self._errors[field] = self.error_class(errors)
+        return cleaned_data
 
 
 class ApplicationPermitForm(ApplicationFormMixin, ModelForm):

@@ -71,6 +71,19 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home_page'
 STATIC_CONTEXT_VARS = {}
 APPLICATION_VERSION_NO = '0.1'
+ALLOWED_UPLOAD_TYPES = [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-word.document.12',
+    'application/rtf',
+    'application/pdf',
+    'image/tiff',
+    'image/jpeg',
+    'image/gif',
+    'image/png',
+    'text/csv',
+    'text/plain'
+]
 
 
 # Email settings
