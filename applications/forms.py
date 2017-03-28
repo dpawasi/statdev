@@ -35,8 +35,9 @@ class ApplicationCreateForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
-        # Limit the organisation queryset.
-        self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
+        # Limit the organisation queryset unless the user is a superuser.
+        if not user.is_superuser:
+            self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
@@ -169,7 +170,7 @@ class ApplicationPart5Form(ModelForm):
 class ApplicationEmergencyForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['issue_date', 'proposed_commence', 'proposed_end']
+        fields = ['applicant', 'organisation', 'issue_date', 'proposed_commence', 'proposed_end']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationEmergencyForm, self).__init__(*args, **kwargs)
@@ -180,8 +181,8 @@ class ApplicationEmergencyForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
         # Add labels and help text for fields
-        self.fields['proposed_commence'].label = "Proposed commencement date"
-        self.fields['proposed_end'].label = "Proposed end date"
+        self.fields['proposed_commence'].label = "Start date"
+        self.fields['proposed_end'].label = "Expiry date"
 
 
 class ApplicationLodgeForm(ModelForm):
