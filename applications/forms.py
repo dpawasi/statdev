@@ -201,6 +201,24 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
+class ApplicationEmergencyForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['issue_date', 'proposed_commence', 'proposed_end']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationEmergencyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_emergency'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+        # Add labels and help text for fields
+        self.fields['proposed_commence'].label = "Proposed commencement date"
+        self.fields['proposed_end'].label = "Proposed end date"
+
+
 class ApplicationLodgeForm(ModelForm):
     class Meta:
         model = Application
