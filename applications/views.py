@@ -159,7 +159,7 @@ class ApplicationDetail(DetailView):
                     context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added
-            # of updated, and can be sent for approval.
+            # or updated, and can be sent for approval.
             if app.state == app.APP_STATE_CHOICES.with_assessor:
                 context['may_create_condition'] = True
                 context['may_update_condition'] = True
