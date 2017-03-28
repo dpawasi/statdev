@@ -44,7 +44,21 @@ class ApplicationCreateForm(ModelForm):
         self.fields['app_type'].label = "Application Type"
 
 
-class ApplicationLicencePermitForm(ModelForm):
+class ApplicationFormMixin(object):
+    """Form mixin containing validation rules common to all application types.
+    """
+    def clean(self):
+        cleaned_data = super(ApplicationFormMixin, self).clean()
+        # Rule: proposed commence date cannot be later then proposed end date.
+        if cleaned_data.get('proposed_commence') and cleaned_data.get('proposed_end'):
+            if cleaned_data['proposed_commence'] > cleaned_data['proposed_end']:
+                msg = 'Commence date cannot be later than the end date'
+                self._errors['proposed_commence'] = self.error_class([msg])
+                self._errors['proposed_end'] = self.error_class([msg])
+        return cleaned_data
+
+
+class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     cert_survey = FileField(
         label='Certificate of survey', required=False, max_length=128)
     cert_public_liability_insurance = FileField(
@@ -102,7 +116,7 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
 
 
-class ApplicationPermitForm(ModelForm):
+class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     class Meta:
         model = Application
         fields = ['title', 'description',
@@ -126,10 +140,10 @@ class ApplicationPermitForm(ModelForm):
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
         self.fields['documents'].label = "Attach more detailed descripton, maps or plans"
-		#self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
+        #self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 
-class ApplicationPart5Form(ModelForm):
+class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     certificate_of_title_volume = CharField(required=False)
     folio = CharField(required=False)
