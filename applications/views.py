@@ -256,6 +256,19 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial = super(ApplicationUpdate, self).get_initial()
 
         app = self.get_object()
+        initial['land_owner_consent'] = app.land_owner_consent
+#       print "LOC" 
+#        a1 = app.land_owner_consent.all()
+#        print a1.all();
+#        for b1 in a1:
+#            print 'y'
+ #           print b1.upload
+  #          print b1.id
+			#            b2 = b1.object.all()
+#            for a2 in b2.object.all():
+ #               print a2
+				
+	
 
 		#initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_draft:
@@ -384,15 +397,18 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.name = f.name
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
+        print self.request.FILES.get('land_owner_consent')
         if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
             for d in self.object.land_owner_consent.all():
                 self.object.land_owner_consent.remove(d)
             # Add new uploads.
-            for f in forms_data['land_owner_consent']:
+			
+#            print forms_data['land_owner_consent']
+            for f in self.request.FILES.getlist('land_owner_consent'):
                 doc = Document()
-                doc.upload = f
-                doc.name = f.name
+                doc.upload = f 
+	   #         doc.name = f.name
                 doc.save()
                 self.object.land_owner_consent.add(doc)
 

@@ -26,6 +26,7 @@ from django.utils.html import conditional_escape, format_html, html_safe
 from django.utils.safestring import mark_safe
 from django.utils.six.moves import range
 from django.utils.translation import ugettext_lazy
+from .models import Document
 
 __all__ = (
     'ClearableMulipleFileInput', 'FileInput',
@@ -245,7 +246,8 @@ class Input(Widget):
     def render(self, name, value, attrs=None):
         if value is None:
             value = ''
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+            attrs['multiple'] = 'multiple'
+        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name, )
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
             final_attrs['value'] = force_text(self.format_value(value))
@@ -319,8 +321,19 @@ class ClearableMulipleFileInput(FileInput):
         template = '%(input)s'
         substitutions['input'] = super(ClearableMulipleFileInput, self).render(name, value, attrs)
 
+        if name in 'land_owner_consent':
+            print name
+#            print value
+
+#        for fi in value.all():
+			# print fi.upload
+			#  doc = Document.objects.get(id=fi.id)
+			#print doc.id
+
         if self.is_initial(value):
             template = self.template_with_initial
+            print name
+            print value
             substitutions.update(self.get_template_substitution_values(value))
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)

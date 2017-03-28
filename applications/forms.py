@@ -149,6 +149,13 @@ class ApplicationPart5Form(ModelForm):
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
+#    land_owner_consent = MultiFileField(
+#                      allow_empty_file=True,
+#                      required=False, label='Landowner consent statement(s)',
+#                      help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.', 
+#					  #widget=ClearableMulipleFileInput
+ #                     )
+
 
     class Meta:
         model = Application
