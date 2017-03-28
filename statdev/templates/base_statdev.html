@@ -48,6 +48,19 @@
 </div>
 {% endblock page_content %}
 
+{% block page_footer %}
+<div id="footer">
+    <div class="container-fluid">
+        <hr>
+        <div class="row">
+            <div class="col-xs-12 text-muted">
+                <small>v{{ project_version }} &copy; Department of Parks and Wildlife</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block extra_js %}
 <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
 <script>

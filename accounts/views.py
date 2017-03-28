@@ -414,7 +414,7 @@ class OrganisationUnlinkDelegate(LoginRequiredMixin, UpdateView):
         org = self.get_object()
         user = EmailUser.objects.get(pk=self.kwargs['user_id'])
         org.delegates.remove(user.emailuserprofile)
-        # TODO: success message.
+        messages.success(self.request, '{} has been removed as a delegate for {}.'.format(user, org.name))
         # Generate an action record:
         action = Action(content_object=org, user=self.request.user,
             action='Unlinked delegate access for {}'.format(user.get_full_name()))
