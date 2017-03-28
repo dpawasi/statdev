@@ -100,7 +100,7 @@
                             {{ d.emailuser.get_full_name}}
                         </td>
                         <td>
-                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'organisation_unlink_delegate' org.pk d.pk %}">Unlink</a>
+                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'organisation_unlink_delegate' org.pk d.emailuser.pk %}">Unlink</a>
                         </td>
                     </tr>
                     {% endfor %}
