@@ -500,15 +500,16 @@ class ComplianceCreateForm(ModelForm):
         self.fields['condition'].queryset = Condition.objects.filter(application=application)
 
 
-class VesselCreateForm(ModelForm):
+class VesselForm(ModelForm):
+    registration = FileField(label='Registration document (copy)', required=False, max_length=128)
+
     class Meta:
         model = Vessel
-        fields = ['vessel_type', 'name', 'vessel_id', 'registration', 'size', 'engine',
-            'passenger_capacity']
+        fields = ['vessel_type', 'name', 'vessel_id', 'size', 'engine', 'passenger_capacity']
 
     def __init__(self, *args, **kwargs):
         # User must be passed in as a kwarg.
-        super(VesselCreateForm, self).__init__(*args, **kwargs)
+        super(VesselForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_vessel'
         self.helper.attrs = {'novalidate': ''}

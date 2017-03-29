@@ -125,21 +125,27 @@
                         {% if object.vessels.exists %}
                         <table class="table table-bordered table-striped">
                             <tr>
-                                <th>Nominated Vessel</th>
+                                <th>Nominated vessel</th>
                                 <th>Vessel ID</th>
-                                <th>Hire and Drive Reg.</th>
+                                <th>Hire and drive registration</th>
                                 <th>Size (m)</th>
-                                <th>Engine (kw)</th>
-                                <th>Passenger Capacity</th>
+                                <th>Engine (kW)</th>
+                                <th>Passenger capacity</th>
+                                <th></th>
                             </tr>
                             {% for vessel in object.vessels.all %}
                                 <tr>
                                     <td>{{ vessel.name }}</td>
                                     <td>{{ vessel.vessel_id }}</td>
                                     <td>{{ vessel.registration }}</td>
-                                    <td>{{ vessel.size }}</td>
-                                    <td>{{ vessel.engine }}</td>
-                                    <td>{{ vessel.max_passengers }}</td>
+                                    <td>{% if vessel.size %}{{ vessel.size }}{% endif %}</td>
+                                    <td>{% if vessel.engine %}{{ vessel.engine }}{% endif %}</td>
+                                    <td>{% if vessel.passenger_capacity %}{{ vessel.passenger_capacity }}{% endif %}</td>
+                                    <td>
+                                    {% if may_update %}
+                                    <a href="{% url 'vessel_update' vessel.pk %}" class="btn btn-primary btn-sm" role="button">Update</a>
+                                    {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </table>

@@ -919,7 +919,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
 
 class VesselCreate(LoginRequiredMixin, CreateView):
     model = Vessel
-    form_class = apps_forms.VesselCreateForm
+    form_class = apps_forms.VesselForm
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
@@ -948,6 +948,16 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         self.object = form.save()
         app.vessels.add(self.object.id)
         app.save()
+
+        """
+        if self.request.FILES.get('registration'):
+            doc = Document()
+            doc.upload = forms_data['registration']
+            doc.name = forms_data['registration'].name
+            doc.save()
+            self.object.registration.add(doc)
+        """
+
         return super(VesselCreate, self).form_valid(form)
 
 
@@ -997,6 +1007,31 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
             action.save()
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
+
+
+class VesselUpdate(LoginRequiredMixin, UpdateView):
+    model = Vessel
+    form_class = apps_forms.VesselForm
+
+    def get(self, request, *args, **kwargs):
+        app = self.get_object().application_set.first()
+        # Rule: can only change a vessel if the parent application is status 'draft'.
+        if app.state != Application.APP_STATE_CHOICES.draft:
+            messages.error(
+                self.request, 'You can only change a vessel details when the application is "draft" status')
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselUpdate, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselUpdate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        app = self.object.application_set.first()
+        return HttpResponseRedirect(app.get_absolute_url())
 
 
 class DocumentCreate(LoginRequiredMixin, CreateView):
