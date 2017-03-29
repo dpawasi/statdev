@@ -87,6 +87,7 @@
                 </div>
                 <div class="panel-collapse collapse" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
                     <div class="panel-body">
+                        {# TODO: applicant details should only be visible to internal users. #}
                         {% include "applications/applicant_snippet.html" %}
                     </div>
                 </div>
@@ -137,7 +138,11 @@
                                 <tr>
                                     <td>{{ vessel.name }}</td>
                                     <td>{{ vessel.vessel_id }}</td>
-                                    <td>{{ vessel.registration }}</td>
+                                    <td>
+                                        {% if vessel.registration.exists %}
+                                        {% for doc in vessel.registration.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}
+                                        {% endif %}
+                                    </td>
                                     <td>{% if vessel.size %}{{ vessel.size }}{% endif %}</td>
                                     <td>{% if vessel.engine %}{{ vessel.engine }}{% endif %}</td>
                                     <td>{% if vessel.passenger_capacity %}{{ vessel.passenger_capacity }}{% endif %}</td>

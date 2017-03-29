@@ -501,7 +501,9 @@ class ComplianceCreateForm(ModelForm):
 
 
 class VesselForm(ModelForm):
-    registration = FileField(label='Registration document (copy)', required=False, max_length=128)
+    registration = MultiFileField(
+        required=False, label='Registration & licence documents',
+        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
 
     class Meta:
         model = Vessel

@@ -384,11 +384,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.name = f.name
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
-        if self.request.FILES.get('land_owner_consent'):
-            # Remove existing documents.
+        if self.request.files.get('land_owner_consent'):
+            # remove existing documents.
             for d in self.object.land_owner_consent.all():
                 self.object.land_owner_consent.remove(d)
-            # Add new uploads.
+            # add new uploads.
             for f in forms_data['land_owner_consent']:
                 doc = Document()
                 doc.upload = f
@@ -934,7 +934,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(VesselCreate, self).get_context_data(**kwargs)
-        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        context['page_heading'] = 'Create new vessel details'
         return context
 
     def post(self, request, *args, **kwargs):
@@ -948,15 +948,18 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         self.object = form.save()
         app.vessels.add(self.object.id)
         app.save()
-
-        """
+        # Registration document uploads.
         if self.request.FILES.get('registration'):
-            doc = Document()
-            doc.upload = forms_data['registration']
-            doc.name = forms_data['registration'].name
-            doc.save()
-            self.object.registration.add(doc)
-        """
+            # Remove any existing documents.
+            for d in self.object.registration.all():
+                self.object.registration.remove(d)
+            # Add new uploads.
+            for f in form.cleaned_data['registration']:
+                doc = Document()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.registration.add(doc)
 
         return super(VesselCreate, self).form_valid(form)
 
@@ -1022,6 +1025,11 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselUpdate, self).get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(VesselUpdate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Update vessel details'
+        return context
+
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
@@ -1030,6 +1038,18 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
+        # Registration document uploads.
+        if self.request.FILES.get('registration'):
+            # Remove any existing documents.
+            for d in self.object.registration.all():
+                self.object.registration.remove(d)
+            # Add new uploads.
+            for f in form.cleaned_data['registration']:
+                doc = Document()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.registration.add(doc)
         app = self.object.application_set.first()
         return HttpResponseRedirect(app.get_absolute_url())
 
