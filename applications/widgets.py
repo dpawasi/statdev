@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy
 from .models import Document
 
 __all__ = (
-    'ClearableMulipleFileInput', 'FileInput',
+    'ClearableMultipleFileInput', 'FileInput',
 )
 
 MEDIA_TYPES = ('css', 'js')
@@ -271,7 +271,7 @@ class FileInput(Input):
 
 #@html_safe
 #@python_2_unicode_compatible
-class ClearableMulipleFileInput(FileInput):
+class ClearableMultipleFileInput(FileInput):
     initial_text = ugettext_lazy('Currently testing')
     input_text = ugettext_lazy('Change')
     clear_checkbox_label = ugettext_lazy('Clear')
@@ -306,10 +306,10 @@ class ClearableMulipleFileInput(FileInput):
         """
         Return value-related substitutions.
         """
-        return {
-            'initial': conditional_escape(value),
-            'initial_url': conditional_escape(value.url),
-        }
+		#return {
+		#    'initial': conditional_escape(value),
+		#    'initial_url': conditional_escape(value.url),
+		#}
 
     def render(self, name, value, attrs=None):
         substitutions = {
@@ -318,22 +318,25 @@ class ClearableMulipleFileInput(FileInput):
             'clear_template': '',
             'clear_checkbox_label': self.clear_checkbox_label,
         }
-        template = '%(input)s'
-        substitutions['input'] = super(ClearableMulipleFileInput, self).render(name, value, attrs)
-
-        if name in 'land_owner_consent':
-            print name
-#            print value
-
-#        for fi in value.all():
-			# print fi.upload
-			#  doc = Document.objects.get(id=fi.id)
-			#print doc.id
+        template = '%(input)s %(clearfiles)s'
+        substitutions['input'] = super(ClearableMultipleFileInput, self).render(name, value, attrs)
+        
+#        if name in 'land_owner_consent':
+			#           print name
+#           print value
+        substitutions['clearfiles'] = ''
+        if type(value) is list:
+           if value:
+              for fi in value:
+                  print fi
+                  print fi['path'] 
+                  if fi:
+                     substitutions['clearfiles'] += "<div><A HREF='/media/"+fi['path']+"'>"+fi['path']+"</A>"+"<input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
 
         if self.is_initial(value):
             template = self.template_with_initial
-            print name
-            print value
+#            print name
+#            print value
             substitutions.update(self.get_template_substitution_values(value))
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)
@@ -346,7 +349,7 @@ class ClearableMulipleFileInput(FileInput):
         return mark_safe(template % substitutions)
 
     def value_from_datadict(self, data, files, name):
-        upload = super(ClearableMulipleFileInput, self).value_from_datadict(data, files, name)
+        upload = super(ClearableMultipleFileInput, self).value_from_datadict(data, files, name)
         if not self.is_required and CheckboxInput().value_from_datadict(
                 data, files, self.clear_checkbox_name(name)):
 
@@ -360,11 +363,11 @@ class ClearableMulipleFileInput(FileInput):
         return upload
 
     def use_required_attribute(self, initial):
-        return super(ClearableMulipleFileInput, self).use_required_attribute(initial) and not initial
+        return super(ClearableMultipleFileInput, self).use_required_attribute(initial) and not initial
 
     def value_omitted_from_data(self, data, files, name):
         return (
-            super(ClearableMulipleFileInput, self).value_omitted_from_data(data, files, name) and
+            super(ClearableMultipleFileInput, self).value_omitted_from_data(data, files, name) and
             self.clear_checkbox_name(name) not in data
         )
 

@@ -6,8 +6,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, Media, HiddenInput, IntegerField
-from applications.widgets import ClearableMulipleFileInput
+from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, Media, HiddenInput, IntegerField, Field
+from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
 from accounts.models import Organisation
@@ -179,13 +179,15 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = FileField(required=False, max_length=128, widget=ClearableMulipleFileInput)
+    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput)
+#   land_owner_consent = MultiWidget(required=False, max_length=128, widget=ClearableMulipleFileInput)
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
-    document_final = FileField(required=False, max_length=128, widget=ClearableMulipleFileInput)
+    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
 #    land_owner_consent = MultiFileField(
 #                      allow_empty_file=True,
 #                      required=False, label='Landowner consent statement(s)',
@@ -525,6 +527,7 @@ class VesselCreateForm(ModelForm):
 
 class NewsPaperPublicationCreateForm(ModelForm):
 
+    documents = Field(required=False, widget=ClearableMultipleFileInput)
     class Meta:
         model = PublicationNewspaper
         fields = ['application','date','newspaper']
@@ -539,11 +542,14 @@ class NewsPaperPublicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class WebsitePublicationCreateForm(ModelForm):
+    
+    original_document = Field(required=False, widget=ClearableMultipleFileInput)
+    published_document = Field(required=False, widget=ClearableMultipleFileInput)
 
     class Meta:
         model = PublicationWebsite
-        fields = ['application','original_document','published_document']
-
+#        fields = ['application','original_document','published_document']
+        fields = ['application']
     def __init__(self, *args, **kwargs):
         super(WebsitePublicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()

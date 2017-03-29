@@ -115,23 +115,26 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
 
-		if app.app_type == app.APP_TYPE_CHOICES.part5:
-                self.template_name = 'applications/application_details_part5_new_application.html'
-                LocObj = Location.objects.get(application_id=self.object.id)
-                context['certificate_of_title_volume'] = LocObj.title_volume
-                context['folio'] = LocObj.folio
-                context['diagram_plan_deposit_number'] = LocObj.dpd_number
-                context['location'] = LocObj.location
-                context['reserve_number'] = LocObj.reserve
-                context['street_number_and_name'] = LocObj.street_number_name
-                context['town_suburb'] = LocObj.suburb
-                context['lot'] = LocObj.lot
-                context['nearest_road_intersection'] = LocObj.intersection
-                context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
-                context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
-                context['publication_feedback'] = PublicationFeedback.objects.filter(application_id=self.object)
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+           self.template_name = 'applications/application_details_part5_new_application.html'
+           try:
+               LocObj = Location.objects.get(application_id=self.object.id)
+               context['certificate_of_title_volume'] = LocObj.title_volume
+               context['folio'] = LocObj.folio
+               context['diagram_plan_deposit_number'] = LocObj.dpd_number
+               context['location'] = LocObj.location
+               context['reserve_number'] = LocObj.reserve
+               context['street_number_and_name'] = LocObj.street_number_name
+               context['town_suburb'] = LocObj.suburb
+               context['lot'] = LocObj.lot
+               context['nearest_road_intersection'] = LocObj.intersection
+               context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
+               context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
+               context['publication_feedback'] = PublicationFeedback.objects.filter(application_id=self.object)
+           except:
+               donothing = ''
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
-            self.template_name = 'applications/application_detail_emergency.html'
+           self.template_name = 'applications/application_detail_emergency.html'
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -262,14 +265,23 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial = super(ApplicationUpdate, self).get_initial()
 
         app = self.get_object()
-        initial['land_owner_consent'] = app.land_owner_consent
+
+#       initial['land_owner_consent'] = app.land_owner_consent.all()
 #       print "LOC" 
-#        a1 = app.land_owner_consent.all()
-#        print a1.all();
-#        for b1 in a1:
-#            print 'y'
- #           print b1.upload
-  #          print b1.id
+        multifilelist = []
+        a1 = app.land_owner_consent.all()
+#       print a1.all();
+        for b1 in a1:
+             fileitem = {}
+             fileitem['fileid'] = b1.id
+             fileitem['path'] = b1.upload.name
+             multifilelist.append(fileitem)
+
+        initial['land_owner_consent'] = multifilelist
+#        for d1 in multifilelist:
+ #           print d1['path']
+
+#          print b1.id
 			#            b2 = b1.object.all()
 #            for a2 in b2.object.all():
  #               print a2
@@ -301,15 +313,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         try:
             LocObj = Location.objects.get(application_id=self.object.id)
-            initial['certificate_of_title_volume'] = LocObj.title_volume
-            initial['folio'] = LocObj.folio
-            initial['diagram_plan_deposit_number'] = LocObj.dpd_number
-            initial['location'] = LocObj.location
-            initial['reserve_number'] = LocObj.reserve
-            initial['street_number_and_name'] = LocObj.street_number_name
-            initial['town_suburb'] = LocObj.suburb
-            initial['lot'] = LocObj.lot
-            initial['nearest_road_intersection'] = LocObj.intersection
+            if LocObj:
+               initial['certificate_of_title_volume'] = LocObj.title_volume
+               initial['folio'] = LocObj.folio
+               initial['diagram_plan_deposit_number'] = LocObj.dpd_number
+               initial['location'] = LocObj.location
+               initial['reserve_number'] = LocObj.reserve
+               initial['street_number_and_name'] = LocObj.street_number_name
+               initial['town_suburb'] = LocObj.suburb
+               initial['lot'] = LocObj.lot
+               initial['nearest_road_intersection'] = LocObj.intersection
         except ObjectDoesNotExist:
             donothing = ''
 
@@ -329,6 +342,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         """
         forms_data = form.cleaned_data
         self.object = form.save(commit=False)
+        # ToDO remove dupes of this line below..   doesn't need to be called multiple times
+        application = Application.objects.get(id=self.object.id)
 
         try:
             new_loc = Location.objects.get(application_id=self.object.id)
@@ -338,6 +353,17 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         # TODO: Potentially refactor to separate process_documents method
         # Document upload fields.
+
+
+        land_owner_consent = application.land_owner_consent.all()
+        print land_owner_consent
+        for la_co in land_owner_consent:
+            print la_co.id
+            if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
+                print "YES"
+                application.land_owner_consent.remove(la_co)
+#       if 'land_owner_consent-clear_multifileid' in forms_data:
+
         if 'cert_survey-clear' in form.data and self.object.cert_survey:  # 'Clear' was checked.
             self.object.cert_survey = None
         if self.request.FILES.get('cert_survey'):  # Uploaded new file.
@@ -407,8 +433,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         print self.request.FILES.get('land_owner_consent')
         if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
-            for d in self.object.land_owner_consent.all():
-                self.object.land_owner_consent.remove(d)
+			#for d in self.object.land_owner_consent.all():
+			#    self.object.land_owner_consent.remove(d)
             # Add new uploads.
 			
 #            print forms_data['land_owner_consent']
@@ -1035,8 +1061,23 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
     def get_initial(self):
         initial = super(WebsitePublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
-        return initial
+        print self.kwargs['pk']
+        try:
+          pub_web = PublicationWebsite.objects.get(application=self.kwargs['pk'])
+        except:
+          pub_web = None
+        multifilelist = []
+        if pub_web:
+           original_document = pub_web.original_document.all()
+           for b1 in original_document:
+               fileitem = {}
+               fileitem['fileid'] = b1.id
+               fileitem['path'] = b1.upload.name
+               multifilelist.append(fileitem)
+           initial['orignal_document'] = multifilelist
 
+
+        return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -1045,6 +1086,14 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         return super(WebsitePublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
+		#        print self.objects 
+        if self.request.FILES.get('original_document'):
+            for f in self.request.FILES.getlist('original_document'):
+                doc = Document()
+                doc.upload = f
+                doc.save()
+                pub_web = PublicationWebsite.objects.get(application=self.kwargs['pk'])
+                pub_web.original_document.add(doc)
         return super(WebsitePublicationCreate, self).form_valid(form)
 
 class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
