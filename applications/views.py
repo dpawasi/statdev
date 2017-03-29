@@ -384,7 +384,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.name = f.name
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
-        if self.request.files.get('land_owner_consent'):
+        if self.request.FILES.get('land_owner_consent'):
             # remove existing documents.
             for d in self.object.land_owner_consent.all():
                 self.object.land_owner_consent.remove(d)
