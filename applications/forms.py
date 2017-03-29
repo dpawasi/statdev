@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML
 from crispy_forms.bootstrap import FormActions
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
@@ -36,8 +37,9 @@ class ApplicationCreateForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
-        # Limit the organisation queryset.
-        self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
+        # Limit the organisation queryset unless the user is a superuser.
+        if not user.is_superuser:
+            self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
@@ -45,7 +47,21 @@ class ApplicationCreateForm(ModelForm):
         self.fields['app_type'].label = "Application Type"
 
 
-class ApplicationLicencePermitForm(ModelForm):
+class ApplicationFormMixin(object):
+    """Form mixin containing validation rules common to all application types.
+    """
+    def clean(self):
+        cleaned_data = super(ApplicationFormMixin, self).clean()
+        # Rule: proposed commence date cannot be later then proposed end date.
+        if cleaned_data.get('proposed_commence') and cleaned_data.get('proposed_end'):
+            if cleaned_data['proposed_commence'] > cleaned_data['proposed_end']:
+                msg = 'Commence date cannot be later than the end date'
+                self._errors['proposed_commence'] = self.error_class([msg])
+                self._errors['proposed_end'] = self.error_class([msg])
+        return cleaned_data
+
+
+class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     cert_survey = FileField(
         label='Certificate of survey', required=False, max_length=128)
     cert_public_liability_insurance = FileField(
@@ -102,8 +118,29 @@ class ApplicationLicencePermitForm(ModelForm):
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
 
+    def clean(self):
+        cleaned_data = super(ApplicationLicencePermitForm, self).clean()
+        # Clean the uploaded file fields (acceptable file types).
+        for field in [
+                'cert_survey', 'cert_public_liability_insurance', 'risk_mgmt_plan',
+                'safety_mgmt_procedures', 'deed']:
+            up = cleaned_data.get(field)
+            if up and hasattr(up, 'content_type') and up.content_type not in settings.ALLOWED_UPLOAD_TYPES:
+                self._errors[field] = self.error_class(['{}: this file type is not permitted'.format(up.name)])
+        # Clean multi-upload fields:
+        for field in ['brochures_itineries_adverts', 'land_owner_consent']:
+            up = cleaned_data.get(field)
+            errors = []
+            if up:
+                for f in up:
+                    if hasattr(f, 'content_type') and f.content_type not in settings.ALLOWED_UPLOAD_TYPES:
+                        errors.append('{}: this file type is not permitted'.format(f.name))
+                if errors:
+                    self._errors[field] = self.error_class(errors)
+        return cleaned_data
 
-class ApplicationPermitForm(ModelForm):
+
+class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     class Meta:
         model = Application
         fields = ['title', 'description',
@@ -127,10 +164,10 @@ class ApplicationPermitForm(ModelForm):
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
         self.fields['documents'].label = "Attach more detailed descripton, maps or plans"
-		#self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
+        #self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 
-class ApplicationPart5Form(ModelForm):
+class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     certificate_of_title_volume = CharField(required=False)
     folio = CharField(required=False)
@@ -171,6 +208,24 @@ class ApplicationPart5Form(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ApplicationEmergencyForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['applicant', 'organisation', 'issue_date', 'proposed_commence', 'proposed_end']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationEmergencyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_update_emergency'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+        # Add labels and help text for fields
+        self.fields['proposed_commence'].label = "Start date"
+        self.fields['proposed_end'].label = "Expiry date"
 
 
 class ApplicationLodgeForm(ModelForm):

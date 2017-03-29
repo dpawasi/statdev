@@ -96,7 +96,9 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         """Override form_valid to set the assignee as the object creator.
         """
         self.object = form.save(commit=False)
-        self.object.applicant = self.request.user
+        # If this is not an Emergency Works set the applicant as current user
+        if not (self.object.app_type == Application.APP_TYPE_CHOICES.emergency):
+            self.object.applicant = self.request.user
         self.object.assignee = self.request.user
         self.object.submitted_by = self.request.user
         self.object.submit_date = date.today()
@@ -113,7 +115,7 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
 
-        if app.APP_TYPE_CHOICES[app.app_type] == "Part 5":
+		if app.app_type == app.APP_TYPE_CHOICES.part5:
                 self.template_name = 'applications/application_details_part5_new_application.html'
                 LocObj = Location.objects.get(application_id=self.object.id)
                 context['certificate_of_title_volume'] = LocObj.title_volume
@@ -128,6 +130,8 @@ class ApplicationDetail(DetailView):
                 context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
                 context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
                 context['publication_feedback'] = PublicationFeedback.objects.filter(application_id=self.object)
+        elif app.app_type == app.APP_TYPE_CHOICES.emergency:
+            self.template_name = 'applications/application_detail_emergency.html'
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -158,7 +162,7 @@ class ApplicationDetail(DetailView):
                     context['may_assign_assessor'] = True
         if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with assessor', it can have conditions added
-            # of updated, and can be sent for approval.
+            # or updated, and can be sent for approval.
             if app.state == app.APP_STATE_CHOICES.with_assessor:
                 context['may_create_condition'] = True
                 context['may_update_condition'] = True
@@ -251,6 +255,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             return apps_forms.ApplicationPermitForm
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.part5:
             return apps_forms.ApplicationPart5Form
+        elif self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
+            return apps_forms.ApplicationEmergencyForm
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
@@ -330,6 +336,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_loc = Location()
             new_loc.application_id = self.object.id
 
+        # TODO: Potentially refactor to separate process_documents method
         # Document upload fields.
         if 'cert_survey-clear' in form.data and self.object.cert_survey:  # 'Clear' was checked.
             self.object.cert_survey = None
