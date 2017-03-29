@@ -709,7 +709,6 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
     """
     model = Application
-    form_class = apps_forms.ApplicationIssueForm
 
     def get(self, request, *args, **kwargs):
         # Rule: only the assignee (or a superuser) can perform this action.
@@ -724,6 +723,14 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationIssue, self).post(request, *args, **kwargs)
+
+    def get_form_class(self):
+        app = self.get_object()
+        
+        if app.app_type == app.APP_TYPE_CHOICES.emergency:
+            return apps_forms.ApplicationEmergencyIssueForm
+        else:
+            return apps_forms.ApplicationIssueForm
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
