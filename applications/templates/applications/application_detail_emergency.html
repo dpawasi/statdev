@@ -2,7 +2,7 @@
 
 {% block page_content_inner %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static "/css/borderless.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
 
 
 <div class="container-fluid">
@@ -80,20 +80,27 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Holder</h3>
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#holder_collapse" aria-expanded="false" aria-controls="holder_collapse">
+                            Holder
+                        <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        </a>
+                    </h3>
                 </div>
-                <div class="panel-body">
-                    <div class="col-sm-8 col-md-6 col-lg-4">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Name</th>
-                                <td>{{ object.organisation.name }}</td>
-                            </tr>
-                            <tr>
-                                <th>ABN</th>
-                                <td>{{ object.organisation.abn }}</td>
-                            </tr>
-                        </table>
+                <div class="panel-collapse collapse" id="holder_collapse" role="tabpanel" aria-labelledby="holder_heading">
+                    <div class="panel-body">
+                        <div class="col-sm-8 col-md-6 col-lg-4">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Name</th>
+                                    <td>{{ object.organisation.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>ABN</th>
+                                    <td>{{ object.organisation.abn }}</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -101,36 +108,43 @@
             <!-- Address details panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Address Details</h3>
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#address_collapse" aria-expanded="false" aria-controls="address_collapse">
+                            Address Details
+                            <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        </a>
+                    </h3>
                 </div>
-                <div class="panel-body">
-                    <div class="col-sm-4 col-md-3 col-lg-3">
-                        {% with object.organisation.postal_address as address %}
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th>Postal address</th>
-                                    <td>{{ address.line1 }}</td>
-                                </tr>
-                                {% if address.line2 %}
-                                <tr>
-                                    <td></td>
-                                    <td>{{ address.line2 }}</td>
-                                </tr>
-                                {% endif %}
-                                <tr>
-                                    <th>Town / Suburb</th>
-                                    <td>{{ address.locality }}</td>
-                                </tr>
-                                <tr>
-                                    <th>State</th>
-                                    <td>{{ address.state }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Postcode</th>
-                                    <td>{{ address.postcode }}</td>
-                                </tr>
-                            </table>
-                        {% endwith %}
+                <div class="panel-collapse collapse" id="address_collapse" role="tabpanel" aria-labelledby="emergency_heading">
+                    <div class="panel-body">
+                        <div class="col-sm-4 col-md-3 col-lg-3">
+                            {% with object.organisation.postal_address as address %}
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>Postal address</th>
+                                        <td>{{ address.line1 }}</td>
+                                    </tr>
+                                    {% if address.line2 %}
+                                    <tr>
+                                        <td></td>
+                                        <td>{{ address.line2 }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <th>Town / Suburb</th>
+                                        <td>{{ address.locality }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>State</th>
+                                        <td>{{ address.state }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Postcode</th>
+                                        <td>{{ address.postcode }}</td>
+                                    </tr>
+                                </table>
+                            {% endwith %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -138,28 +152,35 @@
             <!-- Emergency works panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Proposed Commercial Acts and Activites</h3>
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#emergency_collapse" aria-expanded="false" aria-controls="emergency_collapse">
+                            Emergency Works
+                            <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        </a>
+                    </h3>
                 </div>
-                <div class="panel-body">
-                    <div class="col-sm-8 col-md-6 col-lg-3">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Issue Date</th>
-                                <td>{{ object.issue_date|date:"d-M-Y" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Start Date</th>
-                                <td>{{ object.proposed_commence|date:"d-M-Y" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Expiry Date</th>
-                                <td>{{ object.proposed_end|date:"d-M-Y" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Emergency Works</th>
-                                <td><a href="#">EmergencyWorks.pdf</a></td>
-                            </tr>
-                        </table>
+                <div class="panel-collapse collapse" id="emergency_collapse" role="tabpanel" aria-labelledby="emergency_heading">
+                    <div class="panel-body">
+                        <div class="col-sm-8 col-md-6 col-lg-3">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Issue Date</th>
+                                    <td>{{ object.issue_date|date:"d-M-Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Start Date</th>
+                                    <td>{{ object.proposed_commence|date:"d-M-Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Expiry Date</th>
+                                    <td>{{ object.proposed_end|date:"d-M-Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Emergency Works</th>
+                                    <td><a href="#">EmergencyWorks.pdf</a></td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

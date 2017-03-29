@@ -139,7 +139,10 @@ class ApplicationDetail(DetailView):
             # Rule: if the application status is 'draft', it can be lodged.
             if app.applicant == self.request.user or self.request.user.is_superuser:
                 context['may_update'] = True
-                context['may_lodge'] = True
+                if not app.app_type == app.APP_TYPE_CHOICES.emergency:
+                    context['may_lodge'] = True
+                else:
+                    context['may_issue'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin', it can be sent
             # back to the customer.
