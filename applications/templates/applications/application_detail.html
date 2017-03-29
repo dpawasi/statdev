@@ -4,7 +4,6 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static "/css/borderless.css" %}" />
 
-
 <div class="container-fluid">
     <div class="row">
         <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
@@ -104,7 +103,7 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Proposed Commercial Acts and Activites</h3>
+                    <h3 class="panel-title">Proposed commercial acts and activites</h3>
                 </div>
                 <div class="panel-body">
                     <p>{{ object.description }}</p>
@@ -117,7 +116,7 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#vessels_collapse" aria-expanded="false" aria-controls="vessels_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Vessel and Craft Details
+                            Vessel and craft details
                         </a>
                     </h3>
                 </div>
@@ -162,7 +161,7 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#prop_details_collapse" aria-expanded="false" aria-controls="prop_details_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Proposal Details
+                            Proposal details
                         </a>
                     </h3>
                 </div>
@@ -170,185 +169,107 @@
                     <div class="panel-body">
                         <div class="fluid-container">
                             <div class="row">
-                                <div class="col-lg-4">
-                                    <h4>Purpose of Approval</h4>
+                                <div class="col-xs-12">
+                                    <h4>Purpose of application:</h4>
+                                    {% if object.purpose %}
                                     <p>{{ object.purpose }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
                                 </div>
-                                <div class="col-lg-2"></div>
                             </div>
                             <div class="row">
-                                <div class="col-lg-4">
-                                    <h4>Proposed Commencement Date</h4>
+                                <div class="col-md-6">
+                                    <h4>Proposed commencement date:</h4>
                                     {% if object.proposed_commence %}
                                     <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
                                     {% else %}
-                                    <p>None</p>
+                                    <p>Not stated</p>
                                     {% endif %}
                                 </div>
-                                <div class="col-lg-4">
-                                    <h4>Proposed End Date</h4>
+                                <div class="col-md-6">
+                                    <h4>Proposed end date:</h4>
                                     {% if object.proposed_end %}
                                     <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
                                     {% else %}
-                                    <p>None</p>
+                                    <p>Not stated</p>
                                     {% endif %}
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-lg-4">
-                                    <h4>Maximum Number of Participants</h4>
+                                <div class="col-xs-12">
+                                    <h4>Maximum number of participants:</h4>
                                     <p>{{ object.max_participants }}</p>
-                                </div>
-                                <div class="col-lg-4">
-                                    <h4>Proposed Location</h4>
+                                    <h4>Proposed location:</h4>
                                     <p>{{ object.proposed_location }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Address of any landbased component of the commercial activity</h4>
+                                    <h4>Address of any land-based component of the commercial activity:</h4>
                                     {% if object.address %}
                                     <p>{{ object.address }}</p>
                                     {% else %}
-                                    <p>None</p>
+                                    <p>Not stated</p>
                                     {% endif %}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Location / Route and Access points (mark clearly in map)</h4>
-                                    <p>{{ object.location_route_access }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>List of jetties to be used</h4>
+                                    <h4>Location/route and access points (mark clearly on map):</h4>
+                                    {% if object.location_route_access %}
+                                    <p><a href="{{ object.location_route_access.upload.url }}">{{ object.location_route_access }}</a></p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>List of jetties to be used:</h4>
                                     {% if object.jetties %}
                                     <p>{{ object.jetties }}</p>
                                     {% else %}
-                                    <p>None</p>
+                                    <p>Not stated</p>
                                     {% endif %}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4">
                                     <h4>Do you have approval to use Department of Transport service jetties?</h4>
-                                </div>
-                                <div class="col-lg-2">
-                                        <label class="radio-inline">
-                                            <input type="radio" name="dotapproval"
-                                                {% if object.jetty_dot_approval is True %}
-                                                    checked="true"
-                                                {% endif %}
-                                                disabled="true">Yes
-                                        </label>
-                                        <label class="radio-inline">
-                                            <input type="radio" name="dotapproval"
-                                                {% if object.jetty_dot_approval is False %}
-                                                    checked="true"
-                                                {% endif %}
-                                                disabled="true">No
-                                        </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
+                                    <p>{{ object.jetty_dot_approval|yesno:"Yes,No,Not stated" }}</p>
                                     <h4>List all drop off and pick up points</h4>
                                     {% if object.drop_off_pick_up %}
                                     <p>{{ object.drop_off_pick_up }}</p>
                                     {% else %}
-                                    <p>None</p>
+                                    <p>Not stated</p>
                                     {% endif %}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4">
                                     <h4>Food to be served?</h4>
-                                </div>
-                                <div class="col-lg-4">
-                                    <label class="radio-inline">
-                                        <input type="radio" name="food"
-                                            {% if object.food is True %}checked="true"{% endif %}
-                                            disabled="true">Yes
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="food"
-                                            {% if object.food is False %}checked="true"{% endif %}
-                                            disabled="true">No
-                                    </label>
-                                </div>
-                                <div class="col-lg-4">
-
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4">
+                                    <p>{{ object.food|yesno:"Yes,No,Not stated" }}</p>
                                     <h4>Beverage to be served?</h4>
-                                </div>
-                                <div class="col-lg-4">
-                                    <label class="radio-inline">
-                                        <input type="radio" name="beverage"
-                                            {% if object.beverage is True %}checked="true"{% endif %}
-                                            disabled="true">Yes
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="beverage"
-                                            {% if object.beverage is False %}checked="true"{% endif %}
-                                            disabled="true">No
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4">
+                                    <p>{{ object.beverage|yesno:"Yes,No,Not stated" }}</p>
                                     <h4>Do you allow BYO alcohol?</h4>
-                                </div>
-                                <div class="col-lg-4">
-                                    <label class="radio-inline">
-                                        <input type="radio" name="byo_alcohol"
-                                            {% if object.byo_alcohol is True %}checked="true"{% endif %}
-                                            disabled="true">Yes
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="byo_alcohol"
-                                            {% if object.byo_alcohol is False %}checked="true"{% endif %}
-                                            disabled="true">No
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Details of sullage disposal method</h4>
+                                    <p>{{ object.byo_alcohol|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Details of sullage disposal method:</h4>
+                                    {% if object.sullage_disposal %}
                                     <p>{{ object.sullage_disposal }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Details of waste disposal method</h4>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Details of waste disposal method:</h4>
+                                    {% if object.waste_disposal %}
                                     <p>{{ object.waste_disposal }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Location and method of refueling</h4>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Location and method of refueling:</h4>
+                                    {% if object.refuel_location_method %}
                                     <p>{{ object.refuel_location_method }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Berth location</h4>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Berth location:</h4>
+                                    {% if object.berth_location %}
                                     <p>{{ object.berth_location }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>List all anchorage areas</h4>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>List all anchorage areas:</h4>
+                                    {% if object.anchorage %}
                                     <p>{{ object.anchorage }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4>Hours and days of operation including length of tours/lessons</h4>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Hours and days of operation including length of tours/lessons:</h4>
+                                    {% if object.operating_details %}
                                     <p>{{ object.operating_details }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -358,75 +279,43 @@
             <!-- Other Documents panel -->
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Other Documents</h3>
+                    <h3 class="panel-title">Other documents</h3>
                 </div>
                 <div class="panel-body">
                     <div class ="row">
-                        <div class="col-lg-6">
-                            <h4>Certificate of Survey</h4>
-                        </div>
-                        <div class="col-lg-4">
+                        <div class="col-xs-12">
+                            <h4>Certificate of survey:</h4>
                             {% if object.cert_survey %}
                             <p><a href="{{ object.cert_survey.upload.url }}">{{ object.cert_survey }}</a></p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
-                        </div>
-                    </div>
-                    <div class ="row">
-                        <div class="col-lg-6">
-                            <h4>Public Liability Insurance Certificate</h4>
-                        </div>
-                        <div class="col-lg-4">
+                            <h4>Public liability insurance certificate:</h4>
                             {% if object.cert_public_liability_insurance %}
                             <p><a href="{{ object.cert_public_liability_insurance.upload.url }}">{{ object.cert_public_liability_insurance }}</a></p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
-                        </div>
-                    </div>
-                    <div class ="row">
-                        <div class="col-lg-6">
-                            <h4>Risk Management Plan (if available)</h4>
-                        </div>
-                        <div class="col-lg-4">
+                            <h4>Risk management plan (if available):</h4>
                             {% if object.risk_mgmt_plan %}
                             <p><a href="{{ object.risk_mgmt_plan.upload.url }}">{{ object.risk_mgmt_plan }}</a></p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
-                        </div>
-                    </div>
-                    <div class ="row">
-                        <div class="col-lg-6">
-                            <h4>Safety Management Procedures (if available)</h4>
-                        </div>
-                        <div class="col-lg-4">
+                            <h4>Safety management procedures (if available):</h4>
                             {% if object.safety_mgmt_procedures %}
                             <p><a href="{{ object.safety_mgmt_procedures.upload.url }}">{{ object.safety_mgmt_procedures }}</a></p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
-                        </div>
-                    </div>
-                    <div class ="row">
-                        <div class="col-lg-6">
-                            <h4>Brochures, itineraries or advertisements (if available)</h4>
-                        </div>
-                        <div class="col-lg-4">
+                            <h4>Brochures, itineraries or advertisements (if applicable):</h4>
                             {% if object.brochures_itineries_adverts.exists %}
                             <p>{% for doc in object.brochures_itineries_adverts.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}</p>
                             {% else %}
                             <p>None</p>
                             {% endif %}
-                        </div>
-                    </div>
-                    {% comment %}
-                    <div class ="row">
-                        <div class="col-lg-6">
+                            {% comment %}
                             <h4>Other relevant supporting documentation (if available)</h4>
-                        </div>
-                        <div class="col-lg-4">
                             {% if other_supporting_docs.exists %}
                             <p>{% for doc in object.other_supporting_docs.all %}
                                 <a href="{{ doc.upload.url }}">{{ doc }}</a><br>
@@ -434,9 +323,9 @@
                             {% else %}
                             <p>None</p>
                             {% endif %}
+                            {% endcomment %}
                         </div>
                     </div>
-                    {% endcomment %}
                 </div>
             </div>
             <!-- Landowner Consent panel -->
