@@ -1,15 +1,10 @@
 {% with object.applicant as applicant %}
 <div class="col-sm-8 col-md-9 col-lg-4">
+    <h4>Applicant details:</h4>
     <table class="table table-borderless">
         <tr>
-            <th>Personal Details</th>
-        </tr>
-        <tr>
-            <th>Given name(s)</th>
-            <td>{{ applicant.first_name }}</td>
-        </tr>
-            <th>Surname</th>
-            <td>{{ applicant.last_name }}</td>
+            <th>Name</th>
+            <td>{{ applicant.get_full_name }}</td>
         </tr>
         <tr>
             <th>Date of birth</th>
@@ -18,19 +13,19 @@
     </table>
 </div>
 <div class="col-sm-8 col-md-9 col-lg-4">
+    <h4>Address details:</h4>
     <table class="table table-borderless">
-        <tr>
-            <th>Address Details</th>
-        </tr>
         {% with applicant.emailuserprofile.postal_address as address %}
             <tr>
                 <th>Postal address</th>
                 <td>{{ address.line1 }}</td>
             </tr>
+            {% if address.line2 %}
             <tr>
                 <th></th>
                 <td>{{ address.line2 }}</td>
             </tr>
+            {% endif %}
             <tr>
                 <th>Town / Suburb</th>
                 <td>{{ address.locality }}</td>
@@ -47,10 +42,8 @@
     </table>
 </div>
 <div class="col-sm-8 col-md-9 col-lg-4">
+    <h4>Contact details:</h4>
     <table class="table table-borderless">
-        <tr>
-            <th>Contact details</th>
-        </tr>
         <tr>
             <th>Phone (home)</th>
             <td>{{ applicant.emailuserprofile.home_phone }}</td>
