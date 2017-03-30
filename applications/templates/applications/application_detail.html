@@ -456,9 +456,11 @@
                                         {% if may_accept_condition and cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
                                         <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
                                         <a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>
-                                        {% endif %}
-                                        {% if not cond.status == cond.CONDITION_STATUS_CHOICES.proposed and not cond.status == cond.CONDITION_STATUS_CHOICES.rejected %}
+                                        {% else %}
+                                        {% if cond.status == cond.CONDITION_STATUS_CHOICES.applied %}
                                         <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk %}">Update</a>
+                                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_delete' cond.pk %}">Delete</a>
+                                        {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>

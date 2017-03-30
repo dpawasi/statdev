@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^referrals/(?P<pk>\d+)/recall/$', views.ReferralRecall.as_view(), name='referral_recall'),
     url(r'^condition/(?P<pk>\d+)/update/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/update/(?P<action>\w+)/$', views.ConditionUpdate.as_view(), name='condition_update'),
+    url(r'^condition/(?P<pk>\d+)/delete/$', views.ConditionDelete.as_view(), name='condition_delete'),
     url(r'^vessel/(?P<pk>\d+)/update/$', views.VesselUpdate.as_view(), name='vessel_update'),
     url(r'^compliances/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^documents/create/$', views.DocumentCreate.as_view(), name='document_create'),

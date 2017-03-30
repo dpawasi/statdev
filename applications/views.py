@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from extra_views import ModelFormSetView
 import pdfkit
 
@@ -1254,6 +1254,43 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
             action.save()
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url())
+
+
+class ConditionDelete(LoginRequiredMixin, DeleteView):
+    model = Condition
+
+    def get(self, request, *args, **kwargs):
+        condition = self.get_object()
+        # Rule: can only delete a condition if the parent application is status
+        # 'with referral' or 'with assessor'.
+        if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
+            messages.warning(self.request, 'You cannot delete this condition')
+            return HttpResponseRedirect(condition.application.get_absolute_url())
+        # Rule: can only delete a condition if the request user is an Assessor
+        # or they are assigned the referral to which the condition is attached
+        # and that referral is not completed.
+        assessor = Group.objects.get(name='Assessor')
+        ref = condition.referral
+        if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+            return super(ConditionDelete, self).get(request, *args, **kwargs)
+        else:
+            messages.warning(self.request, 'You cannot delete this condition')
+            return HttpResponseRedirect(condition.application.get_absolute_url())
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.get_object().application.pk,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        # Generate an action.
+        condition = self.get_object()
+        action = Action(
+            content_object=condition.application, user=self.request.user,
+            action='Condition {} deleted (status: {})'.format(condition.pk, condition.get_status_display()))
+        action.save()
+        messages.success(self.request, 'Condition {} has been deleted'.format(condition.pk))
+        return super(ConditionDelete, self).post(request, *args, **kwargs)
 
 
 class VesselUpdate(LoginRequiredMixin, UpdateView):
