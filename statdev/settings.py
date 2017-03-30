@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'reversion',
     'crispy_forms',
     'webtemplate_dpaw',
+    'django_q',
     'accounts',
     'applications',
     'actions',
@@ -179,3 +180,23 @@ LOGGING = {
 
 # django-crispy-forms
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+# Cache settings.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache_table',
+    }
+}
+
+# django-q configuration
+Q_CLUSTER = {
+    'name': 'statutory_dev_cluster',
+    'workers': 4,
+    'recycle': 100,
+    'timeout': 90,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',
+}
