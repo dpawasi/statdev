@@ -363,7 +363,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         # Document upload fields.
 
         land_owner_consent = application.land_owner_consent.all()
-        print land_owner_consent
         for la_co in land_owner_consent:
             print la_co.id
             if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
