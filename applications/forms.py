@@ -192,7 +192,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #    land_owner_consent = MultiFileField(
 #                      allow_empty_file=True,
 #                      required=False, label='Landowner consent statement(s)',
-#                      help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.', 
+#                      help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.',
 #					  #widget=ClearableMulipleFileInput
  #                     )
 
@@ -259,7 +259,7 @@ class ApplicationLodgeForm(ModelForm):
 class ReferralForm(ModelForm):
     class Meta:
         model = Referral
-        fields = ['referee', 'period', 'details', 'documents']
+        fields = ['referee', 'period', 'details']
 
     def __init__(self, *args, **kwargs):
         # Application must be passed in as a kwarg.
@@ -329,6 +329,14 @@ class ConditionUpdateForm(ModelForm):
         self.helper.form_id = 'id_form_condition_apply'
         self.helper.add_input(Submit('update', 'Update', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ConditionActionForm(ConditionUpdateForm):
+    """A extension of ConditionUpdateForm with the condition field disabled.
+    """
+    def __init__(self, *args, **kwargs):
+        super(ConditionActionForm, self).__init__(*args, **kwargs)
+        self.fields['condition'].disabled = True
 
 
 class AssignCustomerForm(ModelForm):
@@ -545,8 +553,9 @@ class NewsPaperPublicationCreateForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+
 class WebsitePublicationCreateForm(ModelForm):
-    
+
     original_document = Field(required=False, widget=ClearableMultipleFileInput)
     published_document = Field(required=False, widget=ClearableMultipleFileInput)
 
