@@ -6,3 +6,7 @@
 .table-borderless > thead > tr > th {
 	border: none;
 }
+
+.collapse-glyph {
+    float: right;
+}

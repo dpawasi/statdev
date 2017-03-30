@@ -502,6 +502,42 @@ class ApplicationIssueForm(ModelForm):
         )
 
 
+class ApplicationEmergencyIssueForm(ModelForm):
+    assessment = ChoiceField(choices=[
+        (None, '---------'),
+        ('issue', 'Issue'),
+        ('decline', 'Decline'),
+    ])
+
+    holder = CharField(required=False)
+    abn = CharField(required=False)
+
+    class Meta:
+        model = Application
+        fields = ['app_type', 'issue_date', 'proposed_commence', 'proposed_end']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationEmergencyIssueForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_application_issue'
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['app_type'].required = False
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the assessment field.
+        self.fields['assessment'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Issue or decline this completed Emergency Works application:</p>'),
+            'app_type', 'holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment',
+            FormActions(
+                Submit('save', 'Issue', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
 class ComplianceCreateForm(ModelForm):
     supporting_document = FileField(required=False, max_length=128)
 

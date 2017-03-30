@@ -3,7 +3,7 @@
 {% block page_content_inner %}
 
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static "/css/borderless.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
 
 <div class="container-fluid">
 	<div class="row">
@@ -219,8 +219,6 @@
 							<label>If Yes, Please Attach application. (PDF)</Label>
 						</div>
 						<div class="col-lg-12">
-
-							<input type='file' name='leasepdf'>
 						</div>
 					</div>
 				</div>
@@ -284,7 +282,7 @@
 							<label>Proposed development</Label>
 						</div>
 						<div class="col-lg-12">
-							<textarea></textarea>
+							 {{ object.proposed_development_e_of_land }}
 						</div>
 					</div>
 					<div class="col-sm-12 col-md-12 col-lg-12">
@@ -292,7 +290,6 @@
 							<label>Attach a full set of plans</Label>
 						</div>
 						<div class="col-lg-12">
-							<input type='file' name='leasepdf'>
 						</div>
 					</div>
 
@@ -396,16 +393,20 @@
                             {% for webpub in publication_website.all %}
                                 <tr>
                                     <td>
-                                        {% if webpub.original_document %}
-
+                                        {% if webpub.original_document == None %}
                                         {% else %}
-                                        {{ webpub.original_document }}
-									    {% endif %}
+                                        {% for doc in webpub.original_document.all %}
+											{{ doc.upload }}
+	
+										{% endfor %}
+										{% endif %}
 									</td>
 									<td>
-                                        {% if webpub.published_document %}
+                                        {% if webpub.published_document == None %}
                                         {% else %}
-                                        {{ webpub.published_document }}
+										   {% for doc in webpub.published_document.all %}
+                                              {{ doc.upload }}
+                                           {% endfor %}
                                         {% endif %}
                                     </td>
                                 </tr>
