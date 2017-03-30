@@ -8,3 +8,4 @@ django-reversion==2.0.8
 mixer==5.6.6
 pdfkit==0.6.1
 django-multiupload==0.5.2
+django-q==0.7.18

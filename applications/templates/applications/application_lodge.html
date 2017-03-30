@@ -1,0 +1,255 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content_inner %}
+<h1>Lodge application {{ object.pk }} for assessment</h1>
+
+<div class="row">
+    <div class="col-xm-12">
+        <!-- Applicant panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="applicant_heading">
+                <h3 class="panel-title">Applicant</h3>
+            </div>
+            <div class="panel-body">
+                {# TODO: applicant details should only be visible to internal users. #}
+                <div class="row">
+                    {% include "applications/applicant_snippet.html" %}
+                </div>
+                {% if object.organisation %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h4>Company:</h4>
+                        <p>{{ object.organisation.name }}{% if object.organisation.abn %} (ABN: {{ object.organisation.abn }}){% endif %}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Title</h3>
+            </div>
+            <div class="panel-body">
+                <p>{{ object.title }}</p>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Proposed commercial acts and activites</h3>
+            </div>
+            <div class="panel-body">
+                <p>{{ object.description }}</p>
+            </div>
+        </div>
+
+        <!-- Vessel / Craft Panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="vessels_heading">
+                <h3 class="panel-title">Vessel and craft details</h3>
+            </div>
+            <div class="panel-body">
+                {% if object.vessels.exists %}
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Nominated vessel</th>
+                        <th>Vessel ID</th>
+                        <th>Hire and drive registration</th>
+                        <th>Size (m)</th>
+                        <th>Engine (kW)</th>
+                        <th>Passenger capacity</th>
+                    </tr>
+                    {% for vessel in object.vessels.all %}
+                        <tr>
+                            <td>{{ vessel.name }}</td>
+                            <td>{{ vessel.vessel_id }}</td>
+                            <td>
+                                {% if vessel.registration.exists %}
+                                {% for doc in vessel.registration.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>{% if vessel.size %}{{ vessel.size }}{% endif %}</td>
+                            <td>{% if vessel.engine %}{{ vessel.engine }}{% endif %}</td>
+                            <td>{% if vessel.passenger_capacity %}{{ vessel.passenger_capacity }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p>None</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Proposal details panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="prop_details_heading">
+                <h3 class="panel-title">Proposal details</h3>
+            </div>
+            <div class="panel-body">
+                <div class="fluid-container">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4>Purpose of application:</h4>
+                            {% if object.purpose %}
+                            <p>{{ object.purpose }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Proposed commencement date:</h4>
+                            {% if object.proposed_commence %}
+                            <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Proposed end date:</h4>
+                            {% if object.proposed_end %}
+                            <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4>Maximum number of participants:</h4>
+                            <p>{{ object.max_participants }}</p>
+                            <h4>Proposed location:</h4>
+                            <p>{{ object.proposed_location }}</p>
+                            <h4>Address of any land-based component of the commercial activity:</h4>
+                            {% if object.address %}
+                            <p>{{ object.address }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Location/route and access points (mark clearly on map):</h4>
+                            {% if object.location_route_access %}
+                            <p><a href="{{ object.location_route_access.upload.url }}">{{ object.location_route_access }}</a></p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>List of jetties to be used:</h4>
+                            {% if object.jetties %}
+                            <p>{{ object.jetties }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Do you have approval to use Department of Transport service jetties?</h4>
+                            <p>{{ object.jetty_dot_approval|yesno:"Yes,No,Not stated" }}</p>
+                            <h4>List all drop off and pick up points</h4>
+                            {% if object.drop_off_pick_up %}
+                            <p>{{ object.drop_off_pick_up }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Food to be served?</h4>
+                            <p>{{ object.food|yesno:"Yes,No,Not stated" }}</p>
+                            <h4>Beverage to be served?</h4>
+                            <p>{{ object.beverage|yesno:"Yes,No,Not stated" }}</p>
+                            <h4>Do you allow BYO alcohol?</h4>
+                            <p>{{ object.byo_alcohol|yesno:"Yes,No,Not stated" }}</p>
+                            <h4>Details of sullage disposal method:</h4>
+                            {% if object.sullage_disposal %}
+                            <p>{{ object.sullage_disposal }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Details of waste disposal method:</h4>
+                            {% if object.waste_disposal %}
+                            <p>{{ object.waste_disposal }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Location and method of refueling:</h4>
+                            {% if object.refuel_location_method %}
+                            <p>{{ object.refuel_location_method }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Berth location:</h4>
+                            {% if object.berth_location %}
+                            <p>{{ object.berth_location }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>List all anchorage areas:</h4>
+                            {% if object.anchorage %}
+                            <p>{{ object.anchorage }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                            <h4>Hours and days of operation including length of tours/lessons:</h4>
+                            {% if object.operating_details %}
+                            <p>{{ object.operating_details }}</p>
+                            {% else %}
+                            <p>Not stated</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Documents panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Other documents</h3>
+            </div>
+            <div class="panel-body">
+                <div class ="row">
+                    <div class="col-xs-12">
+                        <h4>Certificate of survey:</h4>
+                        {% if object.cert_survey %}
+                        <p><a href="{{ object.cert_survey.upload.url }}">{{ object.cert_survey }}</a></p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        <h4>Public liability insurance certificate:</h4>
+                        {% if object.cert_public_liability_insurance %}
+                        <p><a href="{{ object.cert_public_liability_insurance.upload.url }}">{{ object.cert_public_liability_insurance }}</a></p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        <h4>Risk management plan (if available):</h4>
+                        {% if object.risk_mgmt_plan %}
+                        <p><a href="{{ object.risk_mgmt_plan.upload.url }}">{{ object.risk_mgmt_plan }}</a></p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        <h4>Safety management procedures (if available):</h4>
+                        {% if object.safety_mgmt_procedures %}
+                        <p><a href="{{ object.safety_mgmt_procedures.upload.url }}">{{ object.safety_mgmt_procedures }}</a></p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        <h4>Brochures, itineraries or advertisements (if applicable):</h4>
+                        {% if object.brochures_itineries_adverts.exists %}
+                        <p>{% for doc in object.brochures_itineries_adverts.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}</p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        <h4>Landowner consent documents:</h4>
+                        {% if object.land_owner_consent.exists %}
+                        <p>{% for doc in object.land_owner_consent.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}</p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                        <h4>Deed:</h4>
+                        {% if object.deed %}
+                        <p><a href="{{ object.deed.upload.url }}">{{ object.deed }}</a></p>
+                        {% else %}
+                        <p>None</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% crispy form %}
+{% endblock %}
