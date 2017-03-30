@@ -1140,7 +1140,7 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(WebsitePublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
         try:
-			pub_web = PublicationWebsite.objects.get(
+            pub_web = PublicationWebsite.objects.get(
             application=self.kwargs['pk'])
         except:
             pub_web = None
