@@ -8,7 +8,7 @@ from django.forms.utils import flatatt, to_current_timezone
 from django.utils.html import conditional_escape, format_html, html_safe
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
-from django.forms import Media, MediaDefiningClass, Widget, CheckboxInput 
+from django.forms import Media, MediaDefiningClass, Widget, CheckboxInput
 
 __all__ = (
     'ClearableMultipleFileInput', 'FileInput',
@@ -101,7 +101,7 @@ class ClearableMultipleFileInput(FileInput):
         }
         template = '%(input)s %(clearfiles)s'
         substitutions['input'] = super(ClearableMultipleFileInput, self).render(name, value, attrs)
-        
+
 #        if name in 'land_owner_consent':
 			#           print name
 #           print value
@@ -109,8 +109,6 @@ class ClearableMultipleFileInput(FileInput):
         if type(value) is list:
            if value:
               for fi in value:
-                  print fi
-                  print fi['path'] 
                   if fi:
                      substitutions['clearfiles'] += "<div><A HREF='/media/"+fi['path']+"'>"+fi['path']+"</A>"+"<input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
 
