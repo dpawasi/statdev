@@ -137,12 +137,16 @@ class ApplicationDetail(DetailView):
         if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
+            # Rule: if the application is an Emergency Works and status is 'draft' 
+            #   conditions can be added
             if app.applicant == self.request.user or self.request.user.is_superuser:
                 context['may_update'] = True
                 if not app.app_type == app.APP_TYPE_CHOICES.emergency:
                     context['may_lodge'] = True
                 else:
                     context['may_issue'] = True
+                    context['may_create_condition'] = True
+                    context['may_update_condition'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin', it can be sent
             # back to the customer.
@@ -184,7 +188,7 @@ class ApplicationDetail(DetailView):
             # Rule: only the delegate of the organisation (or submitter) can
             # request compliance.
             if app.organisation:
-                if self.request.user.emailprofile in app.organisation.delegates.all():
+                if self.request.user.emailuserprofile in app.organisation.delegates.all():
                     context['may_request_compliance'] = True
             elif self.request.user == app.applicant:
                 context['may_request_compliance'] = True
@@ -580,7 +584,12 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         app = Application.objects.get(pk=self.kwargs['pk'])
         # Rule: conditions can be created when the app is with admin, with
         # referee or with assessor.
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
+        if app.app_type == app.APP_TYPE_CHOICES.emergency:
+           if app.state != app.APP_STATE_CHOICES.draft or app.assignee != self.request.user:
+               messages.error(
+                   self.request, 'New conditions cannot be created for this application!')
+               return HttpResponseRedirect(app.get_absolute_url())
+        elif app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
             messages.error(
                 self.request, 'New conditions cannot be created for this application!')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -985,8 +994,13 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
         # Rule: can only change a condition if the parent application is status
-        # 'with assessor'.
-        if condition.application.state != Application.APP_STATE_CHOICES.with_assessor:
+        # 'with assessor' unless it is an emergency works.
+        if condition.application.app_type == Application.APP_TYPE_CHOICES.emergency:
+            if condition.application.state != Application.APP_STATE_CHOICES.draft:
+                messages.error(
+                    self.request, 'You can not change conditions when the application has been issued')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+        elif condition.application.state != Application.APP_STATE_CHOICES.with_assessor:
             messages.error(
                 self.request, 'You can only change conditions when the application is "with assessor" status')
             return HttpResponseRedirect(condition.application.get_absolute_url())
