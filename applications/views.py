@@ -50,7 +50,8 @@ class ApplicationList(ListView):
 
     def get_queryset(self):
         qs = super(ApplicationList, self).get_queryset()
-        # Did we pass in a search string? If so, filter the queryset and return it.
+        # Did we pass in a search string? If so, filter the queryset and return
+        # it.
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             # Replace single-quotes with double-quotes
@@ -116,25 +117,28 @@ class ApplicationDetail(DetailView):
         app = self.get_object()
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
-           self.template_name = 'applications/application_details_part5_new_application.html'
-           try:
-               LocObj = Location.objects.get(application_id=self.object.id)
-               context['certificate_of_title_volume'] = LocObj.title_volume
-               context['folio'] = LocObj.folio
-               context['diagram_plan_deposit_number'] = LocObj.dpd_number
-               context['location'] = LocObj.location
-               context['reserve_number'] = LocObj.reserve
-               context['street_number_and_name'] = LocObj.street_number_name
-               context['town_suburb'] = LocObj.suburb
-               context['lot'] = LocObj.lot
-               context['nearest_road_intersection'] = LocObj.intersection
-               context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
-               context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
-               context['publication_feedback'] = PublicationFeedback.objects.filter(application_id=self.object)
-           except:
-               donothing = ''
+            self.template_name = 'applications/application_details_part5_new_application.html'
+            try:
+                LocObj = Location.objects.get(application_id=self.object.id)
+                context['certificate_of_title_volume'] = LocObj.title_volume
+                context['folio'] = LocObj.folio
+                context['diagram_plan_deposit_number'] = LocObj.dpd_number
+                context['location'] = LocObj.location
+                context['reserve_number'] = LocObj.reserve
+                context['street_number_and_name'] = LocObj.street_number_name
+                context['town_suburb'] = LocObj.suburb
+                context['lot'] = LocObj.lot
+                context['nearest_road_intersection'] = LocObj.intersection
+                context['publication_newspaper'] = PublicationNewspaper.objects.filter(
+                    application_id=self.object)
+                context['publication_website'] = PublicationWebsite.objects.filter(
+                    application_id=self.object)
+                context['publication_feedback'] = PublicationFeedback.objects.filter(
+                    application_id=self.object)
+            except:
+                donothing = ''
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
-           self.template_name = 'applications/application_detail_emergency.html'
+            self.template_name = 'applications/application_detail_emergency.html'
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -272,24 +276,23 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         a1 = app.land_owner_consent.all()
 #       print a1.all();
         for b1 in a1:
-             fileitem = {}
-             fileitem['fileid'] = b1.id
-             fileitem['path'] = b1.upload.name
-             multifilelist.append(fileitem)
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
 
         initial['land_owner_consent'] = multifilelist
 
         a1 = app.proposed_development_plans.all()
         multifilelist = []
         for b1 in a1:
-             fileitem = {}
-             fileitem['fileid'] = b1.id
-             fileitem['path'] = b1.upload.name
-             multifilelist.append(fileitem)
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
         initial['proposed_development_plans'] = multifilelist
 
-
-		#initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
+        #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_draft:
             initial['document_draft'] = app.document_draft.upload
 #        if app.proposed_development_plans:
@@ -318,19 +321,18 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if app.river_lease_scan_of_application:
             initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
 
-
         try:
             LocObj = Location.objects.get(application_id=self.object.id)
             if LocObj:
-               initial['certificate_of_title_volume'] = LocObj.title_volume
-               initial['folio'] = LocObj.folio
-               initial['diagram_plan_deposit_number'] = LocObj.dpd_number
-               initial['location'] = LocObj.location
-               initial['reserve_number'] = LocObj.reserve
-               initial['street_number_and_name'] = LocObj.street_number_name
-               initial['town_suburb'] = LocObj.suburb
-               initial['lot'] = LocObj.lot
-               initial['nearest_road_intersection'] = LocObj.intersection
+                initial['certificate_of_title_volume'] = LocObj.title_volume
+                initial['folio'] = LocObj.folio
+                initial['diagram_plan_deposit_number'] = LocObj.dpd_number
+                initial['location'] = LocObj.location
+                initial['reserve_number'] = LocObj.reserve
+                initial['street_number_and_name'] = LocObj.street_number_name
+                initial['town_suburb'] = LocObj.suburb
+                initial['lot'] = LocObj.lot
+                initial['nearest_road_intersection'] = LocObj.intersection
         except ObjectDoesNotExist:
             donothing = ''
 
@@ -350,7 +352,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         """
         forms_data = form.cleaned_data
         self.object = form.save(commit=False)
-        # ToDO remove dupes of this line below..   doesn't need to be called multiple times
+        # ToDO remove dupes of this line below..   doesn't need to be called
+        # multiple times
         application = Application.objects.get(id=self.object.id)
 
         try:
@@ -364,17 +367,18 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         land_owner_consent = application.land_owner_consent.all()
         for la_co in land_owner_consent:
-            if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
+            if 'land_owner_consent-clear_multifileid-' + str(la_co.id) in form.data:
                 application.land_owner_consent.remove(la_co)
 
         proposed_development_plans = application.proposed_development_plans.all()
         for filelist in proposed_development_plans:
-            if 'proposed_development_plans-clear_multifileid-'+str(filelist.id) in form.data:
+            if 'proposed_development_plans-clear_multifileid-' + str(filelist.id) in form.data:
                 application.proposed_development_plans.remove(filelist)
 
         # if 'land_owner_consent-clear_multifileid' in forms_data:
         # Check for clear checkbox (remove files)
-        if 'cert_survey-clear' in form.data and self.object.cert_survey:  # 'Clear' was checked.
+        # 'Clear' was checked.
+        if 'cert_survey-clear' in form.data and self.object.cert_survey:
             self.object.cert_survey = None
         if 'river_lease_scan_of_application-clear' in form.data:
             self.object.river_lease_scan_of_application = None
@@ -383,12 +387,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
             self.object.risk_mgmt_plan = None
         if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
-			self.object.safety_mgmt_procedures = None
+            self.object.safety_mgmt_procedures = None
         if 'deed-clear' in form.data and self.object.deed:
             self.object.deed = None
-
-
-
 
         # Upload New Files
         if self.request.FILES.get('cert_survey'):  # Uploaded new file.
@@ -438,13 +439,13 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.deed = doc
         if self.request.FILES.get('river_lease_scan_of_application'):
             if self.object.river_lease_scan_of_application:
-               doc = self.object.river_lease_scan_of_application
+                doc = self.object.river_lease_scan_of_application
             else:
-               doc = Document()
-               doc.upload = forms_data['river_lease_scan_of_application']
-               doc.name = forms_data['river_lease_scan_of_application'].name
-               doc.save()
-               self.object.river_lease_scan_of_application = doc
+                doc = Document()
+                doc.upload = forms_data['river_lease_scan_of_application']
+                doc.name = forms_data['river_lease_scan_of_application'].name
+                doc.save()
+                self.object.river_lease_scan_of_application = doc
         if self.request.FILES.get('brochures_itineries_adverts'):
             # Remove existing documents.
             for d in self.object.brochures_itineries_adverts.all():
@@ -458,23 +459,23 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 self.object.brochures_itineries_adverts.add(doc)
         if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
-			#for d in self.object.land_owner_consent.all():
-			#    self.object.land_owner_consent.remove(d)
+            # for d in self.object.land_owner_consent.all():
+            #    self.object.land_owner_consent.remove(d)
             # Add new uploads.
 
             for f in self.request.FILES.getlist('land_owner_consent'):
                 doc = Document()
                 doc.upload = f
-	   #         doc.name = f.name
+       #         doc.name = f.name
                 doc.save()
                 self.object.land_owner_consent.add(doc)
 
         if self.request.FILES.get('proposed_development_plans'):
-             for f in self.request.FILES.getlist('proposed_development_plans'):
-                 doc = Document()
-                 doc.upload = f
-                 doc.save()
-                 self.object.proposed_development_plans.add(doc)
+            for f in self.request.FILES.getlist('proposed_development_plans'):
+                doc = Document()
+                doc.upload = f
+                doc.save()
+                self.object.proposed_development_plans.add(doc)
         if self.request.POST.get('document_draft-clear'):
             application = Application.objects.get(id=self.object.id)
             document = Document.objects.get(pk=application.document_draft.id)
@@ -1053,6 +1054,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
         return super(VesselCreate, self).form_valid(form)
 
+
 class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
@@ -1060,7 +1062,8 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(self.request, "Can't add new newspaper publication to this application")
+            messages.errror(
+                self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(NewsPaperPublicationCreate, self).get(request, *args, **kwargs)
 
@@ -1068,7 +1071,8 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         return reverse('application_detail', args=(self.kwargs['pk'],))
 
     def get_context_data(self, **kwargs):
-        context = super(NewsPaperPublicationCreate, self).get_context_data(**kwargs)
+        context = super(NewsPaperPublicationCreate,
+                        self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
         return context
 
@@ -1077,7 +1081,6 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         initial['application'] = self.kwargs['pk']
         return initial
 
-
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
@@ -1085,11 +1088,11 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-		#	    app = Application.objects.get(pk=self.kwargs['pk'])
-#        self.object = form.save()
- #       app.vessels.add(self.object.id)
-  #      app.save()
-		#print self.object.id
+        #       app = Application.objects.get(pk=self.kwargs['pk'])
+        #        self.object = form.save()
+     #       app.vessels.add(self.object.id)
+      #      app.save()
+        # print self.object.id
         return super(NewsPaperPublicationCreate, self).form_valid(form)
 
 
@@ -1100,7 +1103,8 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(self.request, "Can't add new newspaper publication to this application")
+            messages.errror(
+                self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(WebsitePublicationCreate, self).get(request, *args, **kwargs)
 
@@ -1108,7 +1112,8 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         return reverse('application_detail', args=(self.kwargs['pk'],))
 
     def get_context_data(self, **kwargs):
-        context = super(WebsitePublicationCreate, self).get_context_data(**kwargs)
+        context = super(WebsitePublicationCreate,
+                        self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
         return context
 
@@ -1116,19 +1121,19 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(WebsitePublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
         try:
-          pub_web = PublicationWebsite.objects.get(application=self.kwargs['pk'])
+            pub_web = PublicationWebsite.objects.get(
+                application=self.kwargs['pk'])
         except:
-          pub_web = None
+            pub_web = None
         multifilelist = []
         if pub_web:
-           original_document = pub_web.original_document.all()
-           for b1 in original_document:
-               fileitem = {}
-               fileitem['fileid'] = b1.id
-               fileitem['path'] = b1.upload.name
-               multifilelist.append(fileitem)
-           initial['orignal_document'] = multifilelist
-
+            original_document = pub_web.original_document.all()
+            for b1 in original_document:
+                fileitem = {}
+                fileitem['fileid'] = b1.id
+                fileitem['path'] = b1.upload.name
+                multifilelist.append(fileitem)
+            initial['orignal_document'] = multifilelist
 
         return initial
 
@@ -1139,15 +1144,17 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         return super(WebsitePublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-		#        print self.objects
+        #        print self.objects
         if self.request.FILES.get('original_document'):
             for f in self.request.FILES.getlist('original_document'):
                 doc = Document()
                 doc.upload = f
                 doc.save()
-                pub_web = PublicationWebsite.objects.get(application=self.kwargs['pk'])
+                pub_web = PublicationWebsite.objects.get(
+                    application=self.kwargs['pk'])
                 pub_web.original_document.add(doc)
         return super(WebsitePublicationCreate, self).form_valid(form)
+
 
 class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationFeedback
@@ -1156,7 +1163,8 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(self.request, "Can't add new newspaper publication to this application")
+            messages.errror(
+                self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
 
@@ -1164,7 +1172,8 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
         return reverse('application_detail', args=(self.kwargs['pk'],))
 
     def get_context_data(self, **kwargs):
-        context = super(FeedbackPublicationCreate, self).get_context_data(**kwargs)
+        context = super(FeedbackPublicationCreate,
+                        self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
         return context
 
@@ -1172,7 +1181,6 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(FeedbackPublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
         return initial
-
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -1238,7 +1246,8 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         app = self.get_object().application_set.first()
-        # Rule: can only change a vessel if the parent application is status 'draft'.
+        # Rule: can only change a vessel if the parent application is status
+        # 'draft'.
         if app.state != Application.APP_STATE_CHOICES.draft:
             messages.error(
                 self.request, 'You can only change a vessel details when the application is "draft" status')
