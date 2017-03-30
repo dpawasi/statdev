@@ -146,6 +146,7 @@ class Application(models.Model):
     river_lease_application_number = models.CharField(max_length=30, null=True, blank=True)
     proposed_development_current_use_of_land = models.TextField(null=True, blank=True)
     proposed_development_plans = models.ManyToManyField(Document, blank=True, related_name='proposed_development_plans')
+    proposed_development_description = models.TextField(null=True, blank=True)
     document_draft = models.ForeignKey(Document, null=True, blank=True, related_name='document_draft')
     document_final = models.ForeignKey(Document, null=True, blank=True, related_name='document_final')
     document_determination = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination')

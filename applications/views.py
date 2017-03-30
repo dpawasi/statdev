@@ -1121,8 +1121,8 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(WebsitePublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
         try:
-            pub_web = PublicationWebsite.objects.get(
-                application=self.kwargs['pk'])
+			pub_web = PublicationWebsite.objects.get(
+            application=self.kwargs['pk'])
         except:
             pub_web = None
         multifilelist = []
@@ -1144,15 +1144,25 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         return super(WebsitePublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=True)
+	
         #        print self.objects
         if self.request.FILES.get('original_document'):
             for f in self.request.FILES.getlist('original_document'):
                 doc = Document()
                 doc.upload = f
                 doc.save()
-                pub_web = PublicationWebsite.objects.get(
-                    application=self.kwargs['pk'])
-                pub_web.original_document.add(doc)
+				#pub_web = PublicationWebsite.objects.get(
+				#    application=self.kwargs['pk'])
+                self.object.original_document.add(doc)
+#                form.save_m2m()
+        if self.request.FILES.get('published_document'):
+             for f in self.request.FILES.getlist('published_document'):
+                 doc = Document()
+                 doc.upload = f
+                 doc.save()
+                 self.object.published_document.add(doc)
         return super(WebsitePublicationCreate, self).form_valid(form)
 
 
