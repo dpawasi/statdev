@@ -267,7 +267,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         app = self.get_object()
 
 #       initial['land_owner_consent'] = app.land_owner_consent.all()
-#       print "LOC" 
+#       print "LOC"
         multifilelist = []
         a1 = app.land_owner_consent.all()
 #       print a1.all();
@@ -363,9 +363,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         # Document upload fields.
 
         land_owner_consent = application.land_owner_consent.all()
-        print land_owner_consent
         for la_co in land_owner_consent:
-            print la_co.id
             if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
                 application.land_owner_consent.remove(la_co)
 
@@ -388,7 +386,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 			self.object.safety_mgmt_procedures = None
         if 'deed-clear' in form.data and self.object.deed:
             self.object.deed = None
-        
+
 
 
 
@@ -458,17 +456,15 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.name = f.name
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
-        print self.request.FILES.get('land_owner_consent')
         if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
 			#for d in self.object.land_owner_consent.all():
 			#    self.object.land_owner_consent.remove(d)
             # Add new uploads.
-			
-#            print forms_data['land_owner_consent']
+
             for f in self.request.FILES.getlist('land_owner_consent'):
                 doc = Document()
-                doc.upload = f 
+                doc.upload = f
 	   #         doc.name = f.name
                 doc.save()
                 self.object.land_owner_consent.add(doc)
@@ -1058,7 +1054,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         return super(VesselCreate, self).form_valid(form)
 
 class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
-    model = PublicationNewspaper 
+    model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
 
     def get(self, request, *args, **kwargs):
@@ -1098,7 +1094,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
 
 class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
-    model = PublicationWebsite 
+    model = PublicationWebsite
     form_class = apps_forms.WebsitePublicationCreateForm
 
     def get(self, request, *args, **kwargs):
@@ -1119,7 +1115,6 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
     def get_initial(self):
         initial = super(WebsitePublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
-        print self.kwargs['pk']
         try:
           pub_web = PublicationWebsite.objects.get(application=self.kwargs['pk'])
         except:
@@ -1144,7 +1139,7 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         return super(WebsitePublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-		#        print self.objects 
+		#        print self.objects
         if self.request.FILES.get('original_document'):
             for f in self.request.FILES.getlist('original_document'):
                 doc = Document()
