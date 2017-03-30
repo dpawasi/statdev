@@ -367,7 +367,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         land_owner_consent = application.land_owner_consent.all()
         for la_co in land_owner_consent:
-            if 'land_owner_consent-clear_multifileid-' + str(la_co.id) in form.data:
+            if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
                 application.land_owner_consent.remove(la_co)
 
         proposed_development_plans = application.proposed_development_plans.all()
