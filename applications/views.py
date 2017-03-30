@@ -363,9 +363,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         # Document upload fields.
 
         land_owner_consent = application.land_owner_consent.all()
-        print land_owner_consent
         for la_co in land_owner_consent:
-            print la_co.id
             if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
                 application.land_owner_consent.remove(la_co)
 
@@ -458,7 +456,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.name = f.name
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
-        print self.request.FILES.get('land_owner_consent')
         if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
 			#for d in self.object.land_owner_consent.all():
@@ -1118,7 +1115,6 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
     def get_initial(self):
         initial = super(WebsitePublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
-        print self.kwargs['pk']
         try:
           pub_web = PublicationWebsite.objects.get(application=self.kwargs['pk'])
         except:
