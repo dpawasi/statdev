@@ -44,12 +44,14 @@
                         {% else %}{{ object.applicant.email }}
                         {% endif %}
                     </p>
-                    <h4>Lodged on</h4>
+                    {% if object.organisation %}
+                    <h4>On behalf of:</h4>
+                    <p>{{ object.organisation.name }}</p>
+                    {% endif %}
+                    {% if object.state != object.APP_STATE_CHOICES.draft %}
+                    <h4>Lodged on:</h4>
                     <p>{{ object.submit_date|date:"d-M-Y" }}</p>
-                    {% comment %}
-                    <br />
-                    <h4>Lodgement  Date   Action</h4>
-                    {% endcomment %}
+                    {% endif %}
                 </div>
             </div>
             <div class="panel panel-default">
@@ -88,7 +90,17 @@
                 <div class="panel-collapse collapse" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
                     <div class="panel-body">
                         {# TODO: applicant details should only be visible to internal users. #}
-                        {% include "applications/applicant_snippet.html" %}
+                        <div class="row">
+                            {% include "applications/applicant_snippet.html" %}
+                        </div>
+                        {% if object.organisation %}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h4>Company:</h4>
+                                <p>{{ object.organisation.name }}{% if object.organisation.abn %} (ABN: {{ object.organisation.abn }}){% endif %}</p>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

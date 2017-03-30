@@ -12,11 +12,20 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from itertools import chain
+import logging
 
 from actions.models import Action
 from .forms import EmailUserProfileForm, AddressForm, OrganisationForm, DelegateAccessForm, UnlinkDelegateForm
 from .models import EmailUser, EmailUserProfile, Address, Organisation
 from .utils import get_query
+
+
+def log_task_result(task):
+    """A function to act as a hook for logging any errors in async tasks.
+    """
+    logger = logging.getLogger('statdev')
+    if not task.success:
+        logger.error(task.result)
 
 
 class UserProfile(LoginRequiredMixin, DetailView):
@@ -320,6 +329,10 @@ class RequestDelegateAccess(LoginRequiredMixin, FormView):
             recipients = [i.emailuser.email for i in org.delegates.all()]
         user = self.request.user
         uid = urlsafe_base64_encode(force_bytes(user.pk))
+        # Note that the token generator uses the requesting user object to generate a hash.
+        # This means that if the user object changes (e.g. they log out and in again),
+        # the hash will be invalid. Therefore, this request/response needs to occur
+        # fairly promptly to work.
         token = default_token_generator.make_token(user)
         url = reverse('organisation_confirm_delegate_access', args=(org.pk, uid, token))
         url = request.build_absolute_uri(url)
@@ -329,7 +342,14 @@ class RequestDelegateAccess(LoginRequiredMixin, FormView):
         html_message = '''<p>The following user has requested delegate access for {}: {}</p>
         <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False, html_message=html_message)
-        messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
+        # Send a request email to the recipients asynchronously.
+        # NOTE: the lines below should remain commented until (if) async tasking is implemented in prod.
+        #from django_q.tasks import async
+        #async(
+        #    'django.core.mail.send_mail', subject, message,
+        #    settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=True, html_message=html_message,
+        #    hook='log_task_result')
+        #messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
         # Generate an action record:
         action = Action(content_object=org, user=user, action='Requested delegate access')
         action.save()
