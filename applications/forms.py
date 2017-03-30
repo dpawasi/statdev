@@ -181,12 +181,13 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput)
 #   land_owner_consent = MultiWidget(required=False, max_length=128, widget=ClearableMulipleFileInput)
-    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
 #    land_owner_consent = MultiFileField(
 #                      allow_empty_file=True,

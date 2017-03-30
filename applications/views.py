@@ -278,21 +278,26 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
              multifilelist.append(fileitem)
 
         initial['land_owner_consent'] = multifilelist
-#        for d1 in multifilelist:
- #           print d1['path']
 
-#          print b1.id
-			#            b2 = b1.object.all()
-#            for a2 in b2.object.all():
- #               print a2
-				
-	
+        a1 = app.proposed_development_plans.all()
+        multifilelist = []
+        for b1 in a1:
+             fileitem = {}
+             fileitem['fileid'] = b1.id
+             fileitem['path'] = b1.upload.name
+             multifilelist.append(fileitem)
+        initial['proposed_development_plans'] = multifilelist
+
 
 		#initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_draft:
             initial['document_draft'] = app.document_draft.upload
 #        if app.proposed_development_plans:
 #           initial['proposed_development_plans'] = app.proposed_development_plans.upload
+
+        if app.deed:
+            initial['deed'] = app.deed.upload
+
         if app.document_final:
             initial['document_final'] = app.document_final.upload
         if app.document_determination:
@@ -310,6 +315,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['safety_mgmt_procedures'] = app.safety_mgmt_procedures.upload
         if app.deed:
             initial['deed'] = app.deed.upload
+        if app.river_lease_scan_of_application:
+            initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
+
 
         try:
             LocObj = Location.objects.get(application_id=self.object.id)
@@ -354,18 +362,37 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         # TODO: Potentially refactor to separate process_documents method
         # Document upload fields.
 
-
         land_owner_consent = application.land_owner_consent.all()
         print land_owner_consent
         for la_co in land_owner_consent:
             print la_co.id
             if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
-                print "YES"
                 application.land_owner_consent.remove(la_co)
-#       if 'land_owner_consent-clear_multifileid' in forms_data:
 
+        proposed_development_plans = application.proposed_development_plans.all()
+        for filelist in proposed_development_plans:
+            if 'proposed_development_plans-clear_multifileid-'+str(filelist.id) in form.data:
+                application.proposed_development_plans.remove(filelist)
+
+        # if 'land_owner_consent-clear_multifileid' in forms_data:
+        # Check for clear checkbox (remove files)
         if 'cert_survey-clear' in form.data and self.object.cert_survey:  # 'Clear' was checked.
             self.object.cert_survey = None
+        if 'river_lease_scan_of_application-clear' in form.data:
+            self.object.river_lease_scan_of_application = None
+        if 'cert_public_liability_insurance-clear' in form.data and self.object.cert_public_liability_insurance:
+            self.object.cert_public_liability_insurance = None
+        if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
+            self.object.risk_mgmt_plan = None
+        if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
+			self.object.safety_mgmt_procedures = None
+        if 'deed-clear' in form.data and self.object.deed:
+            self.object.deed = None
+        
+
+
+
+        # Upload New Files
         if self.request.FILES.get('cert_survey'):  # Uploaded new file.
             if self.object.cert_survey:
                 doc = self.object.cert_survey
@@ -375,8 +402,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             doc.name = forms_data['cert_survey'].name
             doc.save()
             self.object.cert_survey = doc
-        if 'cert_public_liability_insurance-clear' in form.data and self.object.cert_public_liability_insurance:
-            self.object.cert_public_liability_insurance = None
         if self.request.FILES.get('cert_public_liability_insurance'):
             if self.object.cert_public_liability_insurance:
                 doc = self.object.cert_public_liability_insurance
@@ -386,8 +411,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             doc.name = forms_data['cert_public_liability_insurance'].name
             doc.save()
             self.object.cert_public_liability_insurance = doc
-        if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
-            self.object.risk_mgmt_plan = None
         if self.request.FILES.get('risk_mgmt_plan'):
             if self.object.risk_mgmt_plan:
                 doc = self.object.risk_mgmt_plan
@@ -397,8 +420,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             doc.name = forms_data['risk_mgmt_plan'].name
             doc.save()
             self.object.risk_mgmt_plan = doc
-        if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
-            self.object.safety_mgmt_procedures = None
         if self.request.FILES.get('safety_mgmt_procedures'):
             if self.object.safety_mgmt_procedures:
                 doc = self.object.safety_mgmt_procedures
@@ -408,8 +429,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             doc.name = forms_data['safety_mgmt_procedures'].name
             doc.save()
             self.object.safety_mgmt_procedures = doc
-        if 'deed-clear' in form.data and self.object.deed:
-            self.object.deed = None
         if self.request.FILES.get('deed'):
             if self.object.deed:
                 doc = self.object.deed
@@ -419,6 +438,15 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             doc.name = forms_data['deed'].name
             doc.save()
             self.object.deed = doc
+        if self.request.FILES.get('river_lease_scan_of_application'):
+            if self.object.river_lease_scan_of_application:
+               doc = self.object.river_lease_scan_of_application
+            else:
+               doc = Document()
+               doc.upload = forms_data['river_lease_scan_of_application']
+               doc.name = forms_data['river_lease_scan_of_application'].name
+               doc.save()
+               self.object.river_lease_scan_of_application = doc
         if self.request.FILES.get('brochures_itineries_adverts'):
             # Remove existing documents.
             for d in self.object.brochures_itineries_adverts.all():
@@ -445,6 +473,12 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.land_owner_consent.add(doc)
 
+        if self.request.FILES.get('proposed_development_plans'):
+             for f in self.request.FILES.getlist('proposed_development_plans'):
+                 doc = Document()
+                 doc.upload = f
+                 doc.save()
+                 self.object.proposed_development_plans.add(doc)
         if self.request.POST.get('document_draft-clear'):
             application = Application.objects.get(id=self.object.id)
             document = Document.objects.get(pk=application.document_draft.id)
@@ -463,6 +497,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.document_final = new_doc
 
+        if self.request.FILES.get('deed'):
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['deed']
+            new_doc.save()
+            self.object.deed = new_doc
+        if self.request.FILES.get('river_lease_scan_of_application'):
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['river_lease_scan_of_application']
+            new_doc.save()
+            self.object.river_lease_scan_of_application = new_doc
         if self.request.FILES.get('document_determination'):
             new_doc = Document()
             new_doc.upload = self.request.FILES['document_determination']
