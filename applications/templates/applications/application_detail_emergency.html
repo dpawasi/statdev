@@ -83,11 +83,17 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <th>Name</th>
-                                    <td>{{ object.organisation.name }}</td>
+                                    {% if object.organisation %}
+                                        <td>{{ object.organisation.name }}</td>
+                                    {% elif object.applicant %}
+                                        <td>{{ object.applicant.get_full_name }}</td>
+                                    {% endif %}
                                 </tr>
                                 <tr>
-                                    <th>ABN</th>
-                                    <td>{{ object.organisation.abn }}</td>
+                                    {% if object.organisation %}
+                                        <th>ABN</th>
+                                        <td>{{ object.organisation.abn }}</td>
+                                    {% endif %}
                                 </tr>
                             </table>
                         </div>

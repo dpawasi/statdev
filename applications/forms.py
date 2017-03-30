@@ -501,8 +501,8 @@ class ApplicationEmergencyIssueForm(ModelForm):
         ('decline', 'Decline'),
     ])
 
-    holder = CharField()
-    abn = CharField()
+    holder = CharField(required=False)
+    abn = CharField(required=False)
 
     class Meta:
         model = Application
@@ -513,8 +513,6 @@ class ApplicationEmergencyIssueForm(ModelForm):
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_application_issue'
         self.helper.attrs = {'novalidate': ''}
-        self.fields['holder'].required = False
-        self.fields['abn'].required = False
         self.fields['app_type'].required = False
         # Disable all form fields.
         for k, v in self.fields.items():

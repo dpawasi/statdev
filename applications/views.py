@@ -832,6 +832,19 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         else:
             return apps_forms.ApplicationIssueForm
 
+    def get_initial(self):
+        initial = super(ApplicationIssue, self).get_initial()
+        app = self.get_object()
+
+        if app.app_type == app.APP_TYPE_CHOICES.emergency:
+            if app.organisation:
+                initial['holder'] = app.organisation.name
+                initial['abn'] = app.organisation.abn
+            elif app.applicant:
+                initial['holder'] = app.applicant.get_full_name()
+        
+        return initial
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         d = form.cleaned_data
