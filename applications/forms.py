@@ -223,7 +223,7 @@ class ApplicationEmergencyForm(ModelForm):
 class ApplicationLodgeForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description', 'submit_date']
+        fields = []
 
     def __init__(self, *args, **kwargs):
         super(ApplicationLodgeForm, self).__init__(*args, **kwargs)

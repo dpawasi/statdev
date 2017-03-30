@@ -458,6 +458,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 class ApplicationLodge(LoginRequiredMixin, UpdateView):
     model = Application
     form_class = apps_forms.ApplicationLodgeForm
+    template_name = 'applications/application_lodge.html'
 
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be lodged.
