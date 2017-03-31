@@ -145,7 +145,7 @@ class ApplicationDetail(DetailView):
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload.name
                 orignaldoclist.append(fileitem)
-  
+
             context['original_document_list'] = orignaldoclist
 
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
@@ -291,10 +291,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         app = self.get_object()
 
 #       initial['land_owner_consent'] = app.land_owner_consent.all()
-#       print "LOC"
         multifilelist = []
         a1 = app.land_owner_consent.all()
-#       print a1.all();
         for b1 in a1:
             fileitem = {}
             fileitem['fileid'] = b1.id
@@ -1054,11 +1052,11 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
                 doc.upload = f
                 doc.save()
                 self.object.original_document.add(doc)
- 
+
         return super(NewsPaperPublicationCreate, self).form_valid(form)
 
 class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
-    model = PublicationNewspaper 
+    model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
 
     def get(self, request, *args, **kwargs):
@@ -1075,7 +1073,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(NewsPaperPublicationUpdate, self).get_initial()
 #       initial['application'] = self.kwargs['pk']
-       
+
         try:
             pub_news = PublicationNewspaper.objects.get(
             pk=self.kwargs['pk'])
@@ -1211,7 +1209,6 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
         forms_data = form.cleaned_data
         self.object = form.save(commit=True)
 
-        #        print self.objects
         if self.request.FILES.get('original_document'):
             for f in self.request.FILES.getlist('original_document'):
                 doc = Document()

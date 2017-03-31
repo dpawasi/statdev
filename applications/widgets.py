@@ -102,11 +102,6 @@ class ClearableMultipleFileInput(FileInput):
         }
         template = '%(input)s %(clearfiles)s'
         substitutions['input'] = super(ClearableMultipleFileInput, self).render(name, value, attrs)
-        print ('test:')
-        print value
-#        if name in 'land_owner_consent':
-			#           print name
-#           print value
         substitutions['clearfiles'] = ''
         if type(value) is list:
            substitutions['clearfiles'] = "<div class='col-sm-12'><Label>Files:</Label></div>"
@@ -117,8 +112,6 @@ class ClearableMultipleFileInput(FileInput):
 
         if self.is_initial(value):
             template = self.template_with_initial
-#            print name
-#            print value
             substitutions.update(self.get_template_substitution_values(value))
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)
