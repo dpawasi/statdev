@@ -990,7 +990,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
+            messages.error(
                 self.request, "Can't add new vessels to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselCreate, self).get(request, *args, **kwargs)
@@ -1037,7 +1037,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
+            messages.error(
                 self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(NewsPaperPublicationCreate, self).get(request, *args, **kwargs)
@@ -1078,7 +1078,7 @@ class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
+            messages.error(
                 self.request, "Can't add new Website publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(WebsitePublicationCreate, self).get(request, *args, **kwargs)
@@ -1148,7 +1148,7 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
+            messages.error(
                 self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
