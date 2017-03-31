@@ -94,21 +94,21 @@ class ApplicationTest(TestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_update_application_view_get(self):
+    def test_update_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_update_application_view_redirect(self):
+    def test_update_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_update_application_view_post(self):
+    def test_update_application_post(self):
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
@@ -118,38 +118,38 @@ class ApplicationTest(TestCase):
         a = Application.objects.get(pk=self.app1.pk)
         self.assertEquals(a.title, 'foo')
 
-    def test_update_application_lodge_get(self):
+    def test_lodge_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.draft
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_update_application_lodge_get_redirect(self):
+    def test_lodge_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_update_application_lodge_post(self):
+    def test_lodge_application_post(self):
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.post(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_update_application_refer_get(self):
+    def test_refer_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_update_application_refer_get_redirect(self):
+    def test_refer_application_get_redirect(self):
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_update_application_refer_post(self):
+    def test_refer_application_post(self):
         referee = Group.objects.get(name='Referee')
         self.user1.groups.add(referee)  # Make user1 a referee.
         count = Referral.objects.count()

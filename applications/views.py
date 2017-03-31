@@ -717,8 +717,11 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        messages.success(self.request, 'Application {} has been assigned to {}'.format(
-            self.object.pk, self.object.assignee.get_full_name()))
+        if self.kwargs['action'] == 'customer':
+            messages.success(self.request, 'Application {} has been assigned back to customer'.format(self.object.pk))
+        else:
+            messages.success(self.request, 'Application {} has been assigned to {}'.format(
+                self.object.pk, self.object.assignee.get_full_name()))
         if self.kwargs['action'] == 'customer':
             # Assign the application back to the applicant and make it 'draft'
             # status.
@@ -893,15 +896,15 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         return super(ReferralRecall, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.status = Referral.REFERRAL_STATUS_CHOICES.recalled
-        self.object.save()
+        ref = self.get_object()
+        ref.status = Referral.REFERRAL_STATUS_CHOICES.recalled
+        ref.save()
         # Record an action on the referral's application:
         action = Action(
-            content_object=self.object.application, user=self.request.user,
-            action='Referral to {} recalled'.format(self.object.referee))
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} recalled'.format(ref.referee))
         action.save()
-        return HttpResponseRedirect(self.object.application.get_absolute_url())
+        return HttpResponseRedirect(ref.application.get_absolute_url())
 
 
 class ComplianceList(ListView):
