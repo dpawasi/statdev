@@ -983,53 +983,6 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
         return reverse('application_detail', args=(self.get_application().pk,))
 
 
-class VesselCreate(LoginRequiredMixin, CreateView):
-    model = Vessel
-    form_class = apps_forms.VesselForm
-
-    def get(self, request, *args, **kwargs):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
-            messages.error(
-                self.request, "Can't add new vessels to this application")
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(VesselCreate, self).get(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('application_detail', args=(self.kwargs['pk'],))
-
-    def get_context_data(self, **kwargs):
-        context = super(VesselCreate, self).get_context_data(**kwargs)
-        context['page_heading'] = 'Create new vessel details'
-        return context
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            app = Application.objects.get(pk=self.kwargs['pk'])
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(VesselCreate, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        self.object = form.save()
-        app.vessels.add(self.object.id)
-        app.save()
-        # Registration document uploads.
-        if self.request.FILES.get('registration'):
-            # Remove any existing documents.
-            for d in self.object.registration.all():
-                self.object.registration.remove(d)
-            # Add new uploads.
-            for f in form.cleaned_data['registration']:
-                doc = Document()
-                doc.upload = f
-                doc.name = f.name
-                doc.save()
-                self.object.registration.add(doc)
-
-        return super(VesselCreate, self).form_valid(form)
-
-
 class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
@@ -1343,6 +1296,53 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
         action.save()
         messages.success(self.request, 'Condition {} has been deleted'.format(condition.pk))
         return super(ConditionDelete, self).post(request, *args, **kwargs)
+
+
+class VesselCreate(LoginRequiredMixin, CreateView):
+    model = Vessel
+    form_class = apps_forms.VesselForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(
+                self.request, "Can't add new vessels to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselCreate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(VesselCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new vessel details'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        self.object = form.save()
+        app.vessels.add(self.object.id)
+        app.save()
+        # Registration document uploads.
+        if self.request.FILES.get('registration'):
+            # Remove any existing documents.
+            for d in self.object.registration.all():
+                self.object.registration.remove(d)
+            # Add new uploads.
+            for f in form.cleaned_data['registration']:
+                doc = Document()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.registration.add(doc)
+
+        return super(VesselCreate, self).form_valid(form)
 
 
 class VesselUpdate(LoginRequiredMixin, UpdateView):

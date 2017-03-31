@@ -563,6 +563,7 @@ class VesselForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+
 class NewsPaperPublicationCreateForm(ModelForm):
 
     documents = Field(required=False, widget=ClearableMultipleFileInput)

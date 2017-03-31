@@ -336,3 +336,28 @@ class ApplicationTest(TestCase):
         resp = self.client.post(url, {'name': 'foo'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
         self.assertTrue(Vessel.objects.exists())
+
+    def test_vessel_update_get(self):
+        vessel = mixer.blend(Vessel)
+        self.app1.vessels.add(vessel)
+        url = reverse('vessel_update', args=(vessel.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
+
+    def test_vessel_update_get_redirect(self):
+        vessel = mixer.blend(Vessel)
+        self.app1.vessels.add(vessel)
+        self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.save()
+        url = reverse('vessel_update', args=(vessel.pk,))
+        resp = self.client.get(url)
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+
+    def test_vessel_update_post(self):
+        vessel = mixer.blend(Vessel)
+        self.app1.vessels.add(vessel)
+        url = reverse('vessel_update', args=(vessel.pk,))
+        resp = self.client.post(url, {'name': 'foo'})
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+        v = Vessel.objects.get(pk=vessel.pk)
+        self.assertEquals(v.name, 'foo')
