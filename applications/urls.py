@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^condition/(?P<pk>\d+)/update/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/update/(?P<action>\w+)/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^vessel/(?P<pk>\d+)/update/$', views.VesselUpdate.as_view(), name='vessel_update'),
+    url(r'^newspaperpublication/(?P<pk>\d+)/update/', views.NewsPaperPublicationUpdate.as_view(), name='newspaperpublication_update'),
     url(r'^compliances/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^documents/create/$', views.DocumentCreate.as_view(), name='document_create'),
     url(r'^documents/$', views.DocumentList.as_view(), name='document_list'),

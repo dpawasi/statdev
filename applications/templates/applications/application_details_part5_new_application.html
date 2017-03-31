@@ -290,6 +290,7 @@
 							<label>Attach a full set of plans</Label>
 						</div>
 						<div class="col-lg-12">
+							{{ object.proposed_development_description }}
 						</div>
 					</div>
 
@@ -349,12 +350,18 @@
                                     <td>{{ newspub.date }}</td>
                                     <td>{{ newspub.newspaper }}</td>
                                     <td>
-										{% if newspub.documents %}
+										{% if newspub.documents == None %}
+                                        {% else %}
+                                        {% for doc in newspub.documents.all %}
+										<div class="col-sm-12">{{ doc.upload }}</div>
+                                        {% endfor %}
+                                        {% endif %}	
 
-										{% else %}
-										{{ newspub.documents }}</td>
-										{% endif %}
-                                    <td></td>
+                                    <td>
+											<a href="{% url 'newspaperpublication_update' newspub.pk %}" class="btn btn-primary" role="button">
+                            								Edit	
+    					                    </a>
+									</td>
                                 </tr>
                             {% endfor %}
                         </table>
@@ -368,9 +375,6 @@
                         {% endif %}
 
                     </div>
-	
-
-
 					</div>
 				</div>
 
@@ -430,7 +434,7 @@
 				<div class="panel-body">
 					<div class="col-sm-12 col-md-12 col-lg-12">
 						<div class="col-lg-12">
-							<label>Received Feedback</label>
+							<label>Received Feedback (Draft)</label>
 						</div>
 
 						<div class="panel-body">
@@ -498,7 +502,7 @@
 				<div class="panel-body">
 					<div class="col-sm-12 col-md-12 col-lg-12">
 						<div class="col-lg-12">
-							<label>Received Feedback</label>
+							<label>Received Feedback (Final)</label>
 						</div>
 					<div class="panel-body">
                         {% if publication_feedback.exists %}

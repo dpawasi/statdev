@@ -1079,6 +1079,23 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     def get_initial(self):
         initial = super(NewsPaperPublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
+
+        try:
+            pub_news = PublicationNewspaper.objects.get(
+            application=self.kwargs['pk'])
+        except:
+            pub_news = None
+        multifilelist = []
+        if pub_news:
+            original_document = pub_news.original_document.all()
+            for b1 in original_document:
+                fileitem = {}
+                fileitem['fileid'] = b1.id
+                fileitem['path'] = b1.upload.name
+                multifilelist.append(fileitem)
+            initial['documents'] = multifilelist
+
+
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -1088,12 +1105,84 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        #       app = Application.objects.get(pk=self.kwargs['pk'])
-        #        self.object = form.save()
-     #       app.vessels.add(self.object.id)
-      #      app.save()
-        # print self.object.id
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=True)
+
+        if self.request.FILES.get('documents'):
+            for f in self.request.FILES.getlist('documents'):
+                doc = Document()
+                doc.upload = f
+                doc.save()
+                self.object.original_document.add(doc)
+ 
         return super(NewsPaperPublicationCreate, self).form_valid(form)
+
+class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
+    model = PublicationNewspaper 
+    form_class = apps_forms.NewsPaperPublicationCreateForm
+
+    def get(self, request, *args, **kwargs):
+		#app = self.get_object().application_set.first()
+        app = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        # Rule: can only change a vessel if the parent application is status
+        # 'draft'.
+		#if app.state != Application.APP_STATE_CHOICES.draft:
+		#    messages.error(
+		#        self.request, 'You can only change a publication details when the application is "draft" status')
+#        return HttpResponseRedirect(app.get_absolute_url())
+        return super(NewsPaperPublicationUpdate, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(NewsPaperPublicationUpdate, self).get_initial()
+#       initial['application'] = self.kwargs['pk']
+       
+        try:
+            pub_news = PublicationNewspaper.objects.get(
+            pk=self.kwargs['pk'])
+        except:
+            pub_news = None
+
+        multifilelist = []
+        if pub_news:
+            documents = pub_news.documents.all()
+            for b1 in documents:
+                fileitem = {}
+                fileitem['fileid'] = b1.id
+                fileitem['path'] = b1.upload.name
+                multifilelist.append(fileitem)
+        initial['documents'] = multifilelist
+        return initial
+    def get_context_data(self, **kwargs):
+        context = super(NewsPaperPublicationUpdate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Update Newspaper Publication details'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(NewsPaperPublicationUpdate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        app = Application.objects.get(pk=self.object.application.id)
+
+        pub_news = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+
+        documents = pub_news.documents.all()
+        for filelist in documents:
+            if 'documents-clear_multifileid-'+str(filelist.id) in form.data:
+                pub_news.documents.remove(filelist)
+
+
+        if self.request.FILES.get('documents'):
+            for f in self.request.FILES.getlist('documents'):
+                doc = Document()
+                doc.upload = f
+                doc.save()
+                self.object.documents.add(doc)
+
+        return HttpResponseRedirect(app.get_absolute_url())
 
 
 class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
