@@ -134,8 +134,20 @@ class ApplicationDetail(DetailView):
                     application_id=self.object)
                 context['publication_feedback'] = PublicationFeedback.objects.filter(
                     application_id=self.object)
+
             except:
                 donothing = ''
+
+            orignaldoclist = []
+            landoc = app.land_owner_consent.all()
+            for doc in landoc:
+                fileitem = {}
+                fileitem['fileid'] = doc.id
+                fileitem['path'] = doc.upload.name
+                orignaldoclist.append(fileitem)
+  
+            context['original_document_list'] = orignaldoclist
+
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
 
@@ -1156,6 +1168,41 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
         return HttpResponseRedirect(app.get_absolute_url())
 
+class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
+    model = PublicationNewspaper
+
+    def get(self, request, *args, **kwargs):
+        modelobject = self.get_object()
+        # Rule: can only delete a condition if the parent application is status
+        # 'with referral' or 'with assessor'.
+#        if modelobject.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
+ #           messages.warning(self.request, 'You cannot delete this condition')
+  #          return HttpResponseRedirect(modelobject.application.get_absolute_url())
+        # Rule: can only delete a condition if the request user is an Assessor
+        # or they are assigned the referral to which the condition is attached
+        # and that referral is not completed.
+  #      assessor = Group.objects.get(name='Assessor')
+   #     ref = condition.referral
+	#    if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+        return super(NewsPaperPublicationDelete, self).get(request, *args, **kwargs)
+	#    else:
+	 #       messages.warning(self.request, 'You cannot delete this condition')
+	  #      return HttpResponseRedirect(condition.application.get_absolute_url())
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.get_object().application.pk,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        # Generate an action.
+        modelobject = self.get_object()
+        action = Action(
+            content_object=modelobject.application, user=self.request.user,
+            action='Delete Newspaper Publication {} deleted (status: {})'.format(modelobject.pk,'delete'))
+        action.save()
+        messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
+        return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
 
 class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationWebsite

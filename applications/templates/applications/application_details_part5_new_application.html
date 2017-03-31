@@ -359,8 +359,11 @@
 
                                     <td>
 											<a href="{% url 'newspaperpublication_update' newspub.pk %}" class="btn btn-primary" role="button">
-                            								Edit	
+                            						Edit	
     					                    </a>
+											<a href="{% url 'newspaperpublication_delete' newspub.pk %}" class="btn btn-primary" role="button">
+                                                    Delete
+                                            </a>
 									</td>
                                 </tr>
                             {% endfor %}
@@ -391,17 +394,34 @@
                         {% if publication_website.exists %}
                         <table class="table table-bordered table-striped">
                             <tr>
-                                    <th class="col-sm-3 col-md-3 col-lg-3">Orignal Document</th>
-                                    <th class="col-sm-3 col-md-3 col-lg-3">To be published document</th>
+                                    <th class="col-sm-5 col-md-5 col-lg-5">Orignal Document</th>
+                                    <th class="col-sm-6 col-md-6 col-lg-6">To be published document</th>
+									<th class="col-sm-1 col-md-1 col-lg-1">Action</th>
                             </tr>
-                            {% for webpub in publication_website.all %}
+							{% for origdoc in original_document_list %}
+								<tr>
+									<td>
+										{{ origdoc.path }}
+									</td>
+									<td>
+	
+									</td>
+									<td>
+										<a href="{% url 'application_add_websitepublication' object.pk %}" class="btn btn-primary" role="button">
+											          Attach / Change
+				                        </a>
+									</td>
+								</tr>
+
+							{% endfor %}
+
+                            {% for webpub in publication_website.aall %}
                                 <tr>
                                     <td>
                                         {% if webpub.original_document == None %}
                                         {% else %}
                                         {% for doc in webpub.original_document.all %}
 											{{ doc.upload }}
-	
 										{% endfor %}
 										{% endif %}
 									</td>

@@ -209,8 +209,8 @@ class PublicationWebsite(models.Model):
     """
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
-    original_document = models.ManyToManyField(Document, blank=True, related_name='original_document')
-    published_document = models.ManyToManyField(Document, blank=True, related_name='published_document')
+    original_document = models.ForeignKey(Document, blank=True, null=True, related_name='original_document')
+    published_document = models.ForeignKey(Document, blank=True, null=True, related_name='published_document')
 
     def __str__(self):
         return 'PublicationWebsite {} ({})'.format(self.pk, self.application)
