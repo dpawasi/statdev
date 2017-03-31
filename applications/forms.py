@@ -193,7 +193,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #    land_owner_consent = MultiFileField(
 #                      allow_empty_file=True,
 #                      required=False, label='Landowner consent statement(s)',
-#                      help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.', 
+#                      help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.',
 #					  #widget=ClearableMulipleFileInput
  #                     )
 
@@ -260,7 +260,7 @@ class ApplicationLodgeForm(ModelForm):
 class ReferralForm(ModelForm):
     class Meta:
         model = Referral
-        fields = ['referee', 'period', 'details', 'documents']
+        fields = ['referee', 'period', 'details']
 
     def __init__(self, *args, **kwargs):
         # Application must be passed in as a kwarg.
@@ -330,6 +330,14 @@ class ConditionUpdateForm(ModelForm):
         self.helper.form_id = 'id_form_condition_apply'
         self.helper.add_input(Submit('update', 'Update', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class ConditionActionForm(ConditionUpdateForm):
+    """A extension of ConditionUpdateForm with the condition field disabled.
+    """
+    def __init__(self, *args, **kwargs):
+        super(ConditionActionForm, self).__init__(*args, **kwargs)
+        self.fields['condition'].disabled = True
 
 
 class AssignCustomerForm(ModelForm):
@@ -495,6 +503,42 @@ class ApplicationIssueForm(ModelForm):
         )
 
 
+class ApplicationEmergencyIssueForm(ModelForm):
+    assessment = ChoiceField(choices=[
+        (None, '---------'),
+        ('issue', 'Issue'),
+        ('decline', 'Decline'),
+    ])
+
+    holder = CharField(required=False)
+    abn = CharField(required=False)
+
+    class Meta:
+        model = Application
+        fields = ['app_type', 'issue_date', 'proposed_commence', 'proposed_end']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationEmergencyIssueForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_application_issue'
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['app_type'].required = False
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the assessment field.
+        self.fields['assessment'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Issue or decline this completed Emergency Works application:</p>'),
+            'app_type', 'holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment',
+            FormActions(
+                Submit('save', 'Issue', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
 class ComplianceCreateForm(ModelForm):
     supporting_document = FileField(required=False, max_length=128)
 
@@ -546,8 +590,9 @@ class NewsPaperPublicationCreateForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+
 class WebsitePublicationCreateForm(ModelForm):
-    
+
     original_document = Field(required=False, widget=ClearableMultipleFileInput)
     published_document = Field(required=False, widget=ClearableMultipleFileInput)
 
