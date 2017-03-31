@@ -407,7 +407,7 @@
 	
 									</td>
 									<td>
-										<a href="{% url 'application_add_websitepublication' object.pk %}" class="btn btn-primary" role="button">
+										<a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
 											          Attach / Change
 				                        </a>
 									</td>
@@ -438,11 +438,6 @@
                         </table>
                         {% else %}
                         <p>None</p>
-                        {% endif %}
-                        {% if may_update %}
-                        <a href="{% url 'application_add_websitepublication' object.pk %}" class="btn btn-primary" role="button">
-                            Add Website Publication
-                        </a>
                         {% endif %}
 
                     </div>

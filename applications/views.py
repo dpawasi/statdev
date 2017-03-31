@@ -1204,74 +1204,90 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
         return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
 
-class WebsitePublicationCreate(LoginRequiredMixin, CreateView):
+class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     model = PublicationWebsite
-    form_class = apps_forms.WebsitePublicationCreateForm
+    form_class = apps_forms.WebsitePublicationForm
 
     def get(self, request, *args, **kwargs):
+        
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
-                self.request, "Can't add new Website publication to this application")
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(WebsitePublicationCreate, self).get(request, *args, **kwargs)
+	#	   return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('application_detail', args=(self.kwargs['pk'],))
+        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
-        context = super(WebsitePublicationCreate,
+		# self.object.original_document = self.kwargs['original_document']
+        context = super(WebsitePublicationChange,
                         self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
         return context
 
     def get_initial(self):
-        initial = super(WebsitePublicationCreate, self).get_initial()
+        initial = super(WebsitePublicationChange, self).get_initial()
         initial['application'] = self.kwargs['pk']
-        try:
-            pub_web = PublicationWebsite.objects.get(
-            application=self.kwargs['pk'])
-        except:
-            pub_web = None
-        multifilelist = []
-        if pub_web:
-            original_document = pub_web.original_document.all()
-            for b1 in original_document:
-                fileitem = {}
-                fileitem['fileid'] = b1.id
-                fileitem['path'] = b1.upload.name
-                multifilelist.append(fileitem)
-            initial['orignal_document'] = multifilelist
 
+        doc = Document.objects.get(pk=self.kwargs['docid'])
+        print (self.kwargs['pk'])
+        try:
+           pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+        except:
+           pub_web = None
+
+        filelist = []
+        print pub_web
+        if pub_web:
+           if pub_web.published_document:
+           
+        
+#          documents = pub_news.documents.all()
+              fileitem = {}
+              fileitem['fileid'] = pub_web.published_document.id
+              fileitem['path'] = pub_web.published_document.upload.name
+              filelist.append(fileitem)
+        if pub_web:
+           if pub_web.id:
+              initial['id'] = pub_web.id
+
+		#print initial['id']
+        initial['published_document'] = filelist
+        doc = Document.objects.get(pk=self.kwargs['docid'])
+        initial['original_document'] = doc
         return initial
 
     def post(self, request, *args, **kwargs):
+
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
             return HttpResponseRedirect(app.get_absolute_url())
-        return super(WebsitePublicationCreate, self).post(request, *args, **kwargs)
+        return super(WebsitePublicationChange, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         forms_data = form.cleaned_data
-        self.object = form.save(commit=True)
+        self.object = form.save(commit=False)
+        pub_web = None
+        try:
+           pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+        except:
+           pub_web = None
+        if pub_web:
+           self.object.id = pub_web.id
+           self.object.published_document = pub_web.published_document
+           if pub_web.published_document:
+              if 'published_document-clear_multifileid-'+str(pub_web.published_document.id) in self.request.POST:
+                  self.object.published_document = None
 
-        #        print self.objects
-        if self.request.FILES.get('original_document'):
-            for f in self.request.FILES.getlist('original_document'):
-                doc = Document()
-                doc.upload = f
-                doc.save()
-				#pub_web = PublicationWebsite.objects.get(
-				#    application=self.kwargs['pk'])
-                self.object.original_document.add(doc)
-#                form.save_m2m()
+        orig_doc = Document.objects.get(id=self.kwargs['docid'])
+        self.object.original_document = orig_doc
+        
         if self.request.FILES.get('published_document'):
              for f in self.request.FILES.getlist('published_document'):
                  doc = Document()
                  doc.upload = f
                  doc.save()
-                 self.object.published_document.add(doc)
-        return super(WebsitePublicationCreate, self).form_valid(form)
+                 self.object.published_document = doc
+        return super(WebsitePublicationChange, self).form_valid(form)
 
 
 class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
