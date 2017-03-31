@@ -88,10 +88,10 @@ class ClearableMultipleFileInput(FileInput):
         """
         Return value-related substitutions.
         """
-		#return {
-		#    'initial': conditional_escape(value),
-		#    'initial_url': conditional_escape(value.url),
-		#}
+        #return {
+        #    'initial': conditional_escape(value),
+        #    'initial_url': conditional_escape(value.url),
+        #}
 
     def render(self, name, value, attrs=None):
         substitutions = {
@@ -108,7 +108,7 @@ class ClearableMultipleFileInput(FileInput):
            if value:
               for fi in value:
                   if fi:
-					  substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeUnicode(fi['path'])[19:]+"</A>"+"</div><div class='col-sm-4'><input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
+                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeUnicode(fi['path'])[19:]+"</A>"+"</div><div class='col-sm-4'><input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
 
         if self.is_initial(value):
             template = self.template_with_initial
