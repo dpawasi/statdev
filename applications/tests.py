@@ -176,10 +176,74 @@ class ApplicationTest(TestCase):
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_condition_create_post(self):
+        self.assertFalse(Condition.objects.exists())
         url = reverse('condition_create', args=(self.app1.pk,))
         resp = self.client.post(url, {'condition': 'foobar'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
         self.assertTrue(Condition.objects.exists())
+
+    def test_condition_update_get(self):
+        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+        self.app1.save()
+        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+        url = reverse('condition_update', args=(condition.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
+
+    def test_condition_update_get_redirect(self):
+        # Redirect on application status (Draft).
+        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+        url = reverse('condition_update', args=(condition.pk,))
+        resp = self.client.get(url)
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+        # Redirect on user permission (not an Assessor).
+        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+        self.app1.save()
+        assessor = Group.objects.get(name='Assessor')
+        self.user1.groups.remove(assessor)
+        resp = self.client.get(url)
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+
+    def test_condition_update_post(self):
+        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+        self.app1.save()
+        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+        url = reverse('condition_update', args=(condition.pk,))
+        resp = self.client.post(url, {'condition': 'foobar'})
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+        c = Condition.objects.get(pk=condition.pk)
+        self.assertEquals(c.condition, 'foobar')
+
+    def test_condition_delete_get(self):
+        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+        self.app1.save()
+        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+        url = reverse('condition_delete', args=(condition.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
+
+    def test_condition_delete_get_redirect(self):
+        # Redirect on application status (Draft).
+        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+        url = reverse('condition_delete', args=(condition.pk,))
+        resp = self.client.get(url)
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+        # Redirect on user permission (not an Assessor).
+        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+        self.app1.save()
+        assessor = Group.objects.get(name='Assessor')
+        self.user1.groups.remove(assessor)
+        resp = self.client.get(url)
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+
+    def test_condition_delete_post(self):
+        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+        self.app1.save()
+        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+        url = reverse('condition_delete', args=(condition.pk,))
+        resp = self.client.post(url)
+        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertFalse(Condition.objects.exists())
 
     def test_application_assign_processor_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
