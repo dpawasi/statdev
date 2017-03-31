@@ -9,7 +9,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from extra_views import ModelFormSetView
 import pdfkit
-
 from accounts.utils import get_query
 from actions.models import Action
 from applications import forms as apps_forms
@@ -666,62 +665,6 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         return super(ApplicationRefer, self).form_valid(form)
 
 
-class ConditionCreate(LoginRequiredMixin, CreateView):
-    """A view for a referee or an internal user to create a Condition object
-    on an Application.
-    """
-    model = Condition
-    form_class = apps_forms.ConditionCreateForm
-
-    def get(self, request, *args, **kwargs):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        # Rule: conditions can be created when the app is with admin, with
-        # referee or with assessor.
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
-            messages.error(
-                self.request, 'New conditions cannot be created for this application!')
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(ConditionCreate, self).get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(ConditionCreate, self).get_context_data(**kwargs)
-        context['page_heading'] = 'Create a new condition'
-        return context
-
-    def get_success_url(self):
-        """Override to redirect to the condition's parent application detail view.
-        """
-        return reverse('application_detail', args=(self.object.application.pk,))
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            app = Application.objects.get(pk=self.kwargs['pk'])
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(ConditionCreate, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        self.object = form.save(commit=False)
-        self.object.application = app
-        # If a referral exists for the parent application for this user,
-        # link that to the new condition.
-        if Referral.objects.filter(application=app, referee=self.request.user).exists():
-            self.object.referral = Referral.objects.get(
-                application=app, referee=self.request.user)
-        # If the request user is not in the "Referee" group, then assume they're an internal user
-        # and set the new condition to "applied" status (default = "proposed").
-        referee = Group.objects.get(name='Referee')
-        if referee not in self.request.user.groups.all():
-            self.object.status = Condition.CONDITION_STATUS_CHOICES.applied
-        self.object.save()
-        # Record an action on the application:
-        action = Action(
-            content_object=app, user=self.request.user,
-            action='Created condition {} (status: {})'.format(self.object.pk, self.object.get_status_display()))
-        action.save()
-        return super(ConditionCreate, self).form_valid(form)
-
-
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
@@ -1242,7 +1185,12 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         app = Application.objects.get(pk=self.kwargs['pk'])
         # Rule: conditions can be created when the app is with admin, with
         # referee or with assessor.
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
+        if app.app_type == app.APP_TYPE_CHOICES.emergency:
+            if app.state != app.APP_STATE_CHOICES.draft or app.assignee != self.request.user:
+                messages.error(
+                    self.request, 'New conditions cannot be created for this application!')
+                return HttpResponseRedirect(app.get_absolute_url())
+        elif app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_assessor]:
             messages.error(
                 self.request, 'New conditions cannot be created for this application!')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -1297,9 +1245,17 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
         # Rule: can only change a condition if the parent application is status
-        # 'with referral' or 'with assessor'.
-        if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
-            messages.warning(self.request, 'You cannot update this condition')
+        # 'with assessor' or 'with_referee' unless it is an emergency works.
+        if condition.application.app_type == Application.APP_TYPE_CHOICES.emergency:
+            if condition.application.state != Application.APP_STATE_CHOICES.draft:
+                messages.error(
+                    self.request, 'You can not change conditions when the application has been issued')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+            else:
+                return super(ConditionUpdate, self).get(request, *args, **kwargs)
+        elif condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
+            messages.error(
+                self.request, 'You can only change conditions when the application is "with assessor" or "with referee" status')
             return HttpResponseRedirect(condition.application.get_absolute_url())
         # Rule: can only change a condition if the request user is an Assessor
         # or they are assigned the referral to which the condition is attached
@@ -1310,18 +1266,7 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
             return super(ConditionUpdate, self).get(request, *args, **kwargs)
         else:
             messages.warning(self.request, 'You cannot update this condition')
-        # Rule: can only change a condition if the parent application is status
-        # 'with assessor' unless it is an emergency works.
-        if condition.application.app_type == Application.APP_TYPE_CHOICES.emergency:
-            if condition.application.state != Application.APP_STATE_CHOICES.draft:
-                messages.error(
-                    self.request, 'You can not change conditions when the application has been issued')
-                return HttpResponseRedirect(condition.application.get_absolute_url())
-        elif condition.application.state != Application.APP_STATE_CHOICES.with_assessor:
-            messages.error(
-                self.request, 'You can only change conditions when the application is "with assessor" status')
             return HttpResponseRedirect(condition.application.get_absolute_url())
-        return super(ConditionUpdate, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
         # Updating the condition as an 'action' should not allow the user to
