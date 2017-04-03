@@ -151,8 +151,10 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
 
-            # Add address context to avoid logic in the template
-            context['address'] = app.applicant.emailuserprofile.postal_address
+            if app.organisation:
+                context['address'] = app.organisation.postal_address
+            elif app.applicant:
+                context['address'] = app.applicant.emailuserprofile.postal_address
 
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
