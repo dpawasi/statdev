@@ -151,6 +151,9 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
 
+            # Add address context to avoid logic in the template
+            context['address'] = app.applicant.emailuserprofile.postal_address
+
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
@@ -1416,20 +1419,31 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
         # Rule: can only delete a condition if the parent application is status
-        # 'with referral' or 'with assessor'.
-        if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
-            messages.warning(self.request, 'You cannot delete this condition')
-            return HttpResponseRedirect(condition.application.get_absolute_url())
-        # Rule: can only delete a condition if the request user is an Assessor
-        # or they are assigned the referral to which the condition is attached
-        # and that referral is not completed.
-        assessor = Group.objects.get(name='Assessor')
-        ref = condition.referral
-        if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
-            return super(ConditionDelete, self).get(request, *args, **kwargs)
+        # 'with referral' or 'with assessor'. Can also delete if you are the user assigned
+        # to an Emergency Works
+        if condition.application.app_type != Application.APP_TYPE_CHOICES.emergency:
+            if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
+                messages.warning(self.request, 'You cannot delete this condition')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+            # Rule: can only delete a condition if the request user is an Assessor
+            # or they are assigned the referral to which the condition is attached
+            # and that referral is not completed.
+            assessor = Group.objects.get(name='Assessor')
+            ref = condition.referral
+            if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+                return super(ConditionDelete, self).get(request, *args, **kwargs)
+            else:
+                messages.warning(self.request, 'You cannot delete this condition')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
         else:
-            messages.warning(self.request, 'You cannot delete this condition')
-            return HttpResponseRedirect(condition.application.get_absolute_url())
+            # Rule: can only delete a condition if the request user is the assignee and the application 
+            # has not been issued.
+            if condition.application.assignee == request.user and condition.application.state != Application.APP_STATE_CHOICES.issued:
+                return super(ConditionDelete, self).get(request, *args, **kwargs)
+            else:
+                messages.warning(self.request, 'You cannot delete this condition')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))
