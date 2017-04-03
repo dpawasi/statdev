@@ -32,7 +32,6 @@ class InputMultiFile(Widget):
     def render(self, name, value, attrs=None):
         if value is None:
             value = ''
-            attrs['multiple'] = 'multiple'
         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name, )
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
@@ -100,6 +99,7 @@ class ClearableMultipleFileInput(FileInput):
             'clear_template': '',
             'clear_checkbox_label': self.clear_checkbox_label,
         }
+
         template = '%(input)s %(clearfiles)s'
         substitutions['input'] = super(ClearableMultipleFileInput, self).render(name, value, attrs)
         substitutions['clearfiles'] = ''
@@ -108,7 +108,11 @@ class ClearableMultipleFileInput(FileInput):
            if value:
               for fi in value:
                   if fi:
-                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeText(fi['path'])[19:]+"</A>"+"</div><div class='col-sm-4'><input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
+                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeText(fi['path'])[19:]+"</A>"+"</div>"
+                      substitutions['clearfiles'] += "<div class='col-sm-4'><input type='checkbox' "
+                      substitutions['clearfiles'] += " name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
+                      substitutions['clearfiles'] += " id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
+                      substitutions['clearfiles'] += " > Clear</div>"
 
         if self.is_initial(value):
             template = self.template_with_initial

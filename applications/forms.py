@@ -178,10 +178,10 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput,  label='Land Owner Consent',
+    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent',
                                help_text='Choose multiple files to upload (if required).')
 #   land_owner_consent = MultiWidget(required=False, max_length=128, widget=ClearableMulipleFileInput)
-    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput)
+    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
@@ -567,7 +567,7 @@ class VesselForm(ModelForm):
 
 class NewsPaperPublicationCreateForm(ModelForm):
 
-    documents = Field(required=False, widget=ClearableMultipleFileInput)
+    documents = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
     class Meta:
         model = PublicationNewspaper
         fields = ['application','date','newspaper']
@@ -584,8 +584,8 @@ class NewsPaperPublicationCreateForm(ModelForm):
 
 class WebsitePublicationCreateForm(ModelForm):
 
-    original_document = Field(required=False, widget=ClearableMultipleFileInput)
-    published_document = Field(required=False, widget=ClearableMultipleFileInput)
+    original_document = FileField(required=False, max_length=128 , widget=ClearableFileInput(attrs={'multiple':'multiple'})) 
+    published_document = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
 
     class Meta:
         model = PublicationWebsite
@@ -597,6 +597,25 @@ class WebsitePublicationCreateForm(ModelForm):
         self.helper.form_id = 'id_form_create_websitepublication'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+class WebsitePublicationForm(ModelForm):
+
+    original_document = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    published_document = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput)
+
+    #    original_document = IntegerField()
+    class Meta:
+        model = PublicationWebsite
+        fields = ['application','original_document']
+    def __init__(self, *args, **kwargs):
+        super(WebsitePublicationForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_websitepublication'
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['application'].widget = HiddenInput()
+        self.fields['original_document'].widget = HiddenInput()
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
@@ -612,6 +631,7 @@ class FeedbackPublicationCreateForm(ModelForm):
         self.helper.form_id = 'id_form_create_websitepublication'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
+        self.fields['status'].widget = HiddenInput()
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 

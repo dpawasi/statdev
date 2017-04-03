@@ -401,13 +401,13 @@
 							{% for origdoc in original_document_list %}
 								<tr>
 									<td>
-										{{ origdoc.path }}
+										<A HREF='/media/{{ origdoc.path }}'>{{ origdoc.path_short }}</A>
 									</td>
 									<td>
-	
+										<A HREF='/media/{{ origdoc.publish_doc }}'>{{ origdoc.publish_doc_short }}</A>
 									</td>
 									<td>
-										<a href="{% url 'application_add_websitepublication' object.pk %}" class="btn btn-primary" role="button">
+										<a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
 											          Attach / Change
 				                        </a>
 									</td>
@@ -439,11 +439,6 @@
                         {% else %}
                         <p>None</p>
                         {% endif %}
-                        {% if may_update %}
-                        <a href="{% url 'application_add_websitepublication' object.pk %}" class="btn btn-primary" role="button">
-                            Add Website Publication
-                        </a>
-                        {% endif %}
 
                     </div>
 
@@ -468,6 +463,7 @@
 
                             </tr>
                             {% for feedpub in publication_feedback.all %}
+							{% if feedpub.status == 'draft' %}
                                 <tr>
                                     <td>{{ feedpub.name }}</td>
                                     <td>{{ feedpub.comments }}</td>
@@ -477,15 +473,24 @@
                                         {% else %}
                                         {{ feedpub.documents }}</td>
                                         {% endif %}
-                                    <td></td>
+										<td> <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+						                            Change
+									         </a>
+											<a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+                                                   Delete 
+											</a>
+
+										
+										</td>
                                 </tr>
+							{% endif %}
                             {% endfor %}
                         </table>
                         {% else %}
                         <p>None</p>
                         {% endif %}
                         {% if may_update %}
-                        <a href="{% url 'application_add_feedbackpublication' object.pk %}" class="btn btn-primary" role="button">
+                        <a href="{% url 'application_add_feedbackpublication_draft' object.pk 'draft' %}" class="btn btn-primary" role="button">
                             Add Feedback
                         </a>
                         {% endif %}
@@ -535,6 +540,7 @@
 
                             </tr>
                             {% for feedpub in publication_feedback.all %}
+						    {% if feedpub.status == 'final' %}
                                 <tr>
                                     <td>{{ feedpub.name }}</td>
                                     <td>{{ feedpub.comments }}</td>
@@ -544,15 +550,23 @@
                                         {% else %}
                                         {{ feedpub.documents }}</td>
                                         {% endif %}
-                                    <td></td>
+                                    <td>
+										<a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+                                            Change
+                                        </a>
+                                        <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+                                            Delete
+                                        </a>
+									</td>
                                 </tr>
+								{% endif %}
                             {% endfor %}
                         </table>
                         {% else %}
                         <p>None</p>
                         {% endif %}
                         {% if may_update %}
-                        <a href="{% url 'application_add_feedbackpublication' object.pk %}" class="btn btn-primary" role="button">
+                        <a href="{% url 'application_add_feedbackpublication_final' object.pk 'final' %}" class="btn btn-primary" role="button">
                             Add Feedback
                         </a>
                         {% endif %}
