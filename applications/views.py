@@ -809,8 +809,24 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.issue,
                 user=self.request.user, action='Application issued')
             action.save()
-            messages.success(
-                self.request, 'Application {} has been issued'.format(self.object.pk))
+            if self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
+                msg = """<strong>The emergency works has been successfully issued.</strong><br />
+                <br />
+                <strong>Emergency Works:</strong> \t{0}<br />
+                <strong>Date / Time:</strong> \t{1}<br />
+                <br />
+                <a href="{2}">{3}</a>
+                <br />
+                """
+                if self.object.applicant:
+                    msg = msg + """The Emergency Works has been emailed."""
+                else:
+                    msg = msg + """The Emergency Works needs to be printed and posted."""
+                messages.success(self.request, msg.format(self.object.pk, self.object.issue_date, 
+                        self.get_success_url() + "pdf", 'EmergencyWorks.pdf'))
+            else:
+                messages.success(
+                    self.request, 'Application {} has been issued'.format(self.object.pk))
         elif d['assessment'] == 'decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
