@@ -640,6 +640,7 @@ class FeedbackPublicationCreateForm(ModelForm):
         self.helper.form_id = 'id_form_create_websitepublication'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
+        self.fields['status'].widget = HiddenInput()
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
