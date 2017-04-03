@@ -9,7 +9,7 @@ from django.utils.html import conditional_escape, format_html, html_safe
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
 from django.forms import Media, MediaDefiningClass, Widget, CheckboxInput
-from django.utils.safestring import SafeUnicode
+from django.utils.safestring import SafeText
 
 __all__ = (
     'ClearableMultipleFileInput', 'FileInput',
@@ -87,10 +87,10 @@ class ClearableMultipleFileInput(FileInput):
         """
         Return value-related substitutions.
         """
-		#return {
-		#    'initial': conditional_escape(value),
-		#    'initial_url': conditional_escape(value.url),
-		#}
+        #return {
+        #    'initial': conditional_escape(value),
+        #    'initial_url': conditional_escape(value.url),
+        #}
 
     def render(self, name, value, attrs=None):
         substitutions = {
@@ -108,7 +108,7 @@ class ClearableMultipleFileInput(FileInput):
            if value:
               for fi in value:
                   if fi:
-                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeUnicode(fi['path'])[19:]+"</A>"+"</div>"
+                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeText(fi['path'])[19:]+"</A>"+"</div>"
                       substitutions['clearfiles'] += "<div class='col-sm-4'><input type='checkbox' "
                       substitutions['clearfiles'] += " name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
                       substitutions['clearfiles'] += " id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"

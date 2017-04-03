@@ -168,7 +168,6 @@ class ApplicationDetail(DetailView):
                 else:
                    fileitem['publish_doc'] = ""
                 orignaldoclist.append(fileitem)
-                
             context['original_document_list'] = orignaldoclist
 
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
@@ -314,10 +313,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         app = self.get_object()
 
 #       initial['land_owner_consent'] = app.land_owner_consent.all()
-#       print "LOC"
         multifilelist = []
         a1 = app.land_owner_consent.all()
-#       print a1.all();
         for b1 in a1:
             fileitem = {}
             fileitem['fileid'] = b1.id
@@ -752,8 +749,11 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        messages.success(self.request, 'Application {} has been assigned to {}'.format(
-            self.object.pk, self.object.assignee.get_full_name()))
+        if self.kwargs['action'] == 'customer':
+            messages.success(self.request, 'Application {} has been assigned back to customer'.format(self.object.pk))
+        else:
+            messages.success(self.request, 'Application {} has been assigned to {}'.format(
+                self.object.pk, self.object.assignee.get_full_name()))
         if self.kwargs['action'] == 'customer':
             # Assign the application back to the applicant and make it 'draft'
             # status.
@@ -831,8 +831,24 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.issue,
                 user=self.request.user, action='Application issued')
             action.save()
-            messages.success(
-                self.request, 'Application {} has been issued'.format(self.object.pk))
+            if self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
+                msg = """<strong>The emergency works has been successfully issued.</strong><br />
+                <br />
+                <strong>Emergency Works:</strong> \t{0}<br />
+                <strong>Date / Time:</strong> \t{1}<br />
+                <br />
+                <a href="{2}">{3}</a>
+                <br />
+                """
+                if self.object.applicant:
+                    msg = msg + """The Emergency Works has been emailed."""
+                else:
+                    msg = msg + """The Emergency Works needs to be printed and posted."""
+                messages.success(self.request, msg.format(self.object.pk, self.object.issue_date, 
+                        self.get_success_url() + "pdf", 'EmergencyWorks.pdf'))
+            else:
+                messages.success(
+                    self.request, 'Application {} has been issued'.format(self.object.pk))
         elif d['assessment'] == 'decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
@@ -928,15 +944,15 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         return super(ReferralRecall, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.status = Referral.REFERRAL_STATUS_CHOICES.recalled
-        self.object.save()
+        ref = self.get_object()
+        ref.status = Referral.REFERRAL_STATUS_CHOICES.recalled
+        ref.save()
         # Record an action on the referral's application:
         action = Action(
-            content_object=self.object.application, user=self.request.user,
-            action='Referral to {} recalled'.format(self.object.referee))
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} recalled'.format(ref.referee))
         action.save()
-        return HttpResponseRedirect(self.object.application.get_absolute_url())
+        return HttpResponseRedirect(ref.application.get_absolute_url())
 
 
 class ComplianceList(ListView):
@@ -1015,53 +1031,6 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
         return reverse('application_detail', args=(self.get_application().pk,))
 
 
-class VesselCreate(LoginRequiredMixin, CreateView):
-    model = Vessel
-    form_class = apps_forms.VesselForm
-
-    def get(self, request, *args, **kwargs):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
-                self.request, "Can't add new vessels to this application")
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(VesselCreate, self).get(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('application_detail', args=(self.kwargs['pk'],))
-
-    def get_context_data(self, **kwargs):
-        context = super(VesselCreate, self).get_context_data(**kwargs)
-        context['page_heading'] = 'Create new vessel details'
-        return context
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            app = Application.objects.get(pk=self.kwargs['pk'])
-            return HttpResponseRedirect(app.get_absolute_url())
-        return super(VesselCreate, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        app = Application.objects.get(pk=self.kwargs['pk'])
-        self.object = form.save()
-        app.vessels.add(self.object.id)
-        app.save()
-        # Registration document uploads.
-        if self.request.FILES.get('registration'):
-            # Remove any existing documents.
-            for d in self.object.registration.all():
-                self.object.registration.remove(d)
-            # Add new uploads.
-            for f in form.cleaned_data['registration']:
-                doc = Document()
-                doc.upload = f
-                doc.name = f.name
-                doc.save()
-                self.object.registration.add(doc)
-
-        return super(VesselCreate, self).form_valid(form)
-
-
 class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
@@ -1069,7 +1038,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
-            messages.errror(
+            messages.error(
                 self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(NewsPaperPublicationCreate, self).get(request, *args, **kwargs)
@@ -1125,7 +1094,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         return super(NewsPaperPublicationCreate, self).form_valid(form)
 
 class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
-    model = PublicationNewspaper 
+    model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
 
     def get(self, request, *args, **kwargs):
@@ -1142,7 +1111,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(NewsPaperPublicationUpdate, self).get_initial()
 #       initial['application'] = self.kwargs['pk']
-       
+
         try:
             pub_news = PublicationNewspaper.objects.get(
             pk=self.kwargs['pk'])
@@ -1234,8 +1203,11 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         
         app = Application.objects.get(pk=self.kwargs['pk'])
-	#	   return HttpResponseRedirect(app.get_absolute_url())
-        return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(
+                self.request, "Can't add new Website publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebsitePublicationCreate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.kwargs['pk']))
@@ -1575,6 +1547,53 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
         action.save()
         messages.success(self.request, 'Condition {} has been deleted'.format(condition.pk))
         return super(ConditionDelete, self).post(request, *args, **kwargs)
+
+
+class VesselCreate(LoginRequiredMixin, CreateView):
+    model = Vessel
+    form_class = apps_forms.VesselForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(
+                self.request, "Can't add new vessels to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselCreate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(VesselCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new vessel details'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(VesselCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        self.object = form.save()
+        app.vessels.add(self.object.id)
+        app.save()
+        # Registration document uploads.
+        if self.request.FILES.get('registration'):
+            # Remove any existing documents.
+            for d in self.object.registration.all():
+                self.object.registration.remove(d)
+            # Add new uploads.
+            for f in form.cleaned_data['registration']:
+                doc = Document()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.registration.add(doc)
+
+        return super(VesselCreate, self).form_valid(form)
 
 
 class VesselUpdate(LoginRequiredMixin, UpdateView):

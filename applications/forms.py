@@ -5,14 +5,12 @@ from crispy_forms.bootstrap import FormActions
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
-from django.forms import ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, Media, HiddenInput, IntegerField, Field
+from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
 from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance, Vessel, Document, PublicationNewspaper, PublicationWebsite,PublicationFeedback
-from django.contrib.admin.widgets import FilteredSelectMultiple
+from .models import Application, Referral, Condition, Compliance, Vessel, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
 
 User = get_user_model()
 
@@ -143,9 +141,10 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     class Meta:
         model = Application
-        fields = ['title', 'description',
-            'proposed_commence', 'proposed_end', 'cost', 'project_no', 'related_permits', 'over_water',
-            'documents',  'land_owner_consent', 'deed']
+        fields = [
+            'title', 'description', 'proposed_commence', 'proposed_end',
+            'cost', 'project_no', 'related_permits', 'over_water', 'documents',
+            'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPermitForm, self).__init__(*args, **kwargs)
@@ -157,7 +156,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
 
         # Add labels and help text for fields
         self.fields['proposed_commence'].label = "Proposed commencement date"
-        self.fields['proposed_commence'].help_text = "(Please consider routine assessment takes approximately 4 - 6 weeks, and set your commencement date accordingly)"
+        self.fields['proposed_commence'].help_text = "(Please that consider routine assessment takes approximately 4 - 6 weeks, and set your commencement date accordingly)"
         self.fields['proposed_end'].label = "Proposed end date"
         self.fields['cost'].label = "Approximate cost"
         self.fields['project_no'].label = "Riverbank project number (if applicable)"
@@ -232,24 +231,16 @@ class ApplicationEmergencyForm(ModelForm):
         self.fields['proposed_end'].label = "Expiry date"
 
 
-class ApplicationLodgeForm(ModelForm):
-    class Meta:
-        model = Application
-        fields = []
-
+class ApplicationLodgeForm(Form):
+    """A basic form to submit a request to lodge an application.
+    """
     def __init__(self, *args, **kwargs):
+        kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
         super(ApplicationLodgeForm, self).__init__(*args, **kwargs)
-        app = kwargs['instance']
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_lodge_application'
-        self.helper.form_action = reverse('application_lodge', args=(app.pk,))
-        # Disable all form fields.
-        for k, v in self.fields.items():
-            self.fields[k].disabled = True
-        # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Confirm that this application should be lodged for assessment:</p>'),
-            'app_type', 'title', 'description', 'submit_date',
             FormActions(
                 Submit('lodge', 'Lodge', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -292,12 +283,11 @@ class ReferralCompleteForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
-class ReferralRecallForm(ModelForm):
-    class Meta:
-        model = Referral
-        exclude = ['effective_to', 'application', 'referee', 'details', 'sent_date', 'period', 'response_date', 'feedback', 'documents', 'status']
-
+class ReferralRecallForm(Form):
+    """A basic form to submit a request to lodge an application.
+    """
     def __init__(self, *args, **kwargs):
+        kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
         super(ReferralRecallForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_referral_recall'
@@ -573,6 +563,7 @@ class VesselForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
 
 class NewsPaperPublicationCreateForm(ModelForm):
 

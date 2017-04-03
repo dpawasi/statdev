@@ -412,10 +412,12 @@
                                 {% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
                                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_recall' ref.pk %}">Recall</a>
                                 {% endif %}
+                                {% comment %}
                                 {% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}
                                 {# TODO: Referral resend function #}
                                 <a class="btn btn-primary btn-sm" role="button" href="#">Resend</a>
                                 {% endif %}
+                                {% endcomment %}
                                 {% endif %}
                                 </td>
                             </tr>
