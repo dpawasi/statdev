@@ -9,6 +9,7 @@ from django.utils.html import conditional_escape, format_html, html_safe
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
 from django.forms import Media, MediaDefiningClass, Widget, CheckboxInput
+from django.utils.safestring import SafeUnicode
 
 __all__ = (
     'ClearableMultipleFileInput', 'FileInput',
@@ -87,10 +88,10 @@ class ClearableMultipleFileInput(FileInput):
         """
         Return value-related substitutions.
         """
-		#return {
-		#    'initial': conditional_escape(value),
-		#    'initial_url': conditional_escape(value.url),
-		#}
+        #return {
+        #    'initial': conditional_escape(value),
+        #    'initial_url': conditional_escape(value.url),
+        #}
 
     def render(self, name, value, attrs=None):
         substitutions = {
@@ -101,21 +102,16 @@ class ClearableMultipleFileInput(FileInput):
         }
         template = '%(input)s %(clearfiles)s'
         substitutions['input'] = super(ClearableMultipleFileInput, self).render(name, value, attrs)
-
-#        if name in 'land_owner_consent':
-			#           print name
-#           print value
         substitutions['clearfiles'] = ''
         if type(value) is list:
+           substitutions['clearfiles'] = "<div class='col-sm-12'><Label>Files:</Label></div>"
            if value:
               for fi in value:
                   if fi:
-                     substitutions['clearfiles'] += "<div><A HREF='/media/"+fi['path']+"'>"+fi['path']+"</A>"+"<input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
+                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeUnicode(fi['path'])[19:]+"</A>"+"</div><div class='col-sm-4'><input type='checkbox' name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"' > Clear</div>"
 
         if self.is_initial(value):
             template = self.template_with_initial
-#            print name
-#            print value
             substitutions.update(self.get_template_substitution_values(value))
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)
