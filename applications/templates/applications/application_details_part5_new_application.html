@@ -408,13 +408,13 @@
 									</td>
 									<td>
 										<a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
-											          Attach / Change
+											   Attach / Change
 				                        </a>
 									</td>
 								</tr>
 
 							{% endfor %}
-
+							<!-- to remove once above loop contains all original documents -->
                             {% for webpub in publication_website.aall %}
                                 <tr>
                                     <td>
@@ -435,6 +435,7 @@
                                     </td>
                                 </tr>
                             {% endfor %}
+							<!-- end  of loop -->
                         </table>
                         {% else %}
                         <p>None</p>
@@ -453,7 +454,7 @@
 						</div>
 
 						<div class="panel-body">
-                        {% if publication_feedback.exists %}
+                        {% if publication_feedback %}
                         <table class="table table-bordered table-striped">
                             <tr>
                                     <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
@@ -462,25 +463,24 @@
                                     <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
 
                             </tr>
-                            {% for feedpub in publication_feedback.all %}
+                            {% for feedpub in publication_feedback %}
 							{% if feedpub.status == 'draft' %}
                                 <tr>
                                     <td>{{ feedpub.name }}</td>
                                     <td>{{ feedpub.comments }}</td>
                                     <td>
-                                        {% if feedpub.documents %}
-
+                                        {% if feedpub.documents.name %}
                                         {% else %}
-                                        {{ feedpub.documents }}</td>
+	                                        {{ feedpub.documents.name }}
                                         {% endif %}
-										<td> <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+									</td>
+										<td> 
+											<a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
 						                            Change
-									         </a>
+									        </a>
 											<a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                    Delete 
 											</a>
-
-										
 										</td>
                                 </tr>
 							{% endif %}
@@ -494,12 +494,7 @@
                             Add Feedback
                         </a>
                         {% endif %}
-
                     </div>
-
-
-
-
 					</div>
 				</div>
 
@@ -530,7 +525,7 @@
 							<label>Received Feedback (Final)</label>
 						</div>
 					<div class="panel-body">
-                        {% if publication_feedback.exists %}
+                        {% if publication_feedback %}
                         <table class="table table-bordered table-striped">
                             <tr>
                                     <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
@@ -539,7 +534,7 @@
                                     <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
 
                             </tr>
-                            {% for feedpub in publication_feedback.all %}
+                            {% for feedpub in publication_feedback %}
 						    {% if feedpub.status == 'final' %}
                                 <tr>
                                     <td>{{ feedpub.name }}</td>
