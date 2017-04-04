@@ -14,7 +14,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
-from django.utils.safestring import SafeUnicode
+from django.utils.safestring import SafeText
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -161,10 +161,10 @@ class ApplicationDetail(DetailView):
                 fileitem = {}
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload.name
-                fileitem['path_short'] = SafeUnicode(doc.upload.name)[19:]
+                fileitem['path_short'] = SafeText(doc.upload.name)[19:]
                 if doc.id in new_documents_to_publish:
                     fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
-                    fileitem['publish_doc_short'] = SafeUnicode(new_documents_to_publish[doc.id]['path'])[19:]
+                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
                 else:
                    fileitem['publish_doc'] = ""
                 orignaldoclist.append(fileitem)
