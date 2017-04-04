@@ -219,6 +219,7 @@
 							<label>If Yes, Please Attach application. (PDF)</Label>
 						</div>
 						<div class="col-lg-12">
+							<A HREF='/media/{{ object.river_lease_scan_of_application.upload.name }}'>{{ river_lease_scan_of_application_short }}</A>
 						</div>
 					</div>
 				</div>
@@ -253,7 +254,6 @@
 							{{ object.river_lease_application_number }}
 						</div>
 					</div>
-
 				</div>
 			</div>
 			<div class="panel panel-default">
@@ -304,10 +304,12 @@
 					<div class="col-sm-12 col-md-12 col-lg-12">
 						<div class="col-lg-12">
 							Print <a href=''>this document</a> and have it signed by each landowner (or body responsible for management.<BR><BR>
-							Then attch all signed documents to this application.
+							<label>Attached signed documents to this application.</label>
 						</div>
 						<div class="col-lg-4">
-							<input type='file' name='costofdev' >
+							{% for doc in land_owner_consent_list %}
+								<div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+							{% endfor %}
 						</div>
 					</div>
 				</div>
@@ -321,9 +323,9 @@
 						<div class="col-lg-12">
 							Print <a href=''>this deed</a>, sign it and attach it to this application<BR>
 						</div>
-						<div class="col-lg-4">
-							<input type='file' name='costofdev' >
-						</div>
+						<div class="col-lg-12">
+                          <A HREF='/media/{{ object.deed.upload.name }}'>{{ deed_short }}</A>
+                        </div>
 					</div>
 				</div>
 			</div>
@@ -337,7 +339,7 @@
 							<label>Application published in newspaper </label>
 						</div>
                     <div class="panel-body">
-                        {% if publication_newspaper.exists %}
+                        {% if publication_newspaper %}
                         <table class="table table-bordered table-striped">
                             <tr>
 									<th class="col-sm-3 col-md-3 col-lg-3">Date</th>
@@ -345,15 +347,15 @@
                                     <th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
                                     <th class="col-sm-3 col-md-3 col-lg-3">Action</th>
                             </tr>
-                            {% for newspub in publication_newspaper.all %}
+                            {% for newspub in publication_newspaper_list %}
                                 <tr>
                                     <td>{{ newspub.date }}</td>
                                     <td>{{ newspub.newspaper }}</td>
                                     <td>
-										{% if newspub.documents == None %}
+										{% if newspub.documents_short == None %}
                                         {% else %}
-                                        {% for doc in newspub.documents.all %}
-										<div class="col-sm-12">{{ doc.upload }}</div>
+                                        {% for doc in newspub.documents_short %}
+                                        <div class="col-sm-12"><A href='/media/{{ doc.path }}'>{{ doc.path_short }}</a></div>
                                         {% endfor %}
                                         {% endif %}	
 
@@ -468,12 +470,13 @@
                                 <tr>
                                     <td>{{ feedpub.name }}</td>
                                     <td>{{ feedpub.comments }}</td>
-                                    <td>
-                                        {% if feedpub.documents.name %}
-                                        {% else %}
-	                                        {{ feedpub.documents.name }}
-                                        {% endif %}
-									</td>
+									<td>
+                                        {% for doc in feedpub.documents_short %}
+                                            <div class="col-sm-12 col-md-12 col-lg-12">
+												<a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
+											</div>
+                                        {% endfor %}
+                                    </td>
 										<td> 
 											<a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
 						                            Change
@@ -540,11 +543,12 @@
                                     <td>{{ feedpub.name }}</td>
                                     <td>{{ feedpub.comments }}</td>
                                     <td>
-                                        {% if feedpub.documents %}
-
-                                        {% else %}
-                                        {{ feedpub.documents }}</td>
-                                        {% endif %}
+										{% for doc in feedpub.documents_short %}
+										<div class="col-sm-12 col-md-12 col-lg-12">
+											<a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
+										</div>
+                                        {% endfor %}
+									</td>
                                     <td>
 										<a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                             Change

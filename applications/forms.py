@@ -621,9 +621,11 @@ class WebsitePublicationForm(ModelForm):
 
 class FeedbackPublicationCreateForm(ModelForm):
 
+    documents = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+
     class Meta:
         model = PublicationFeedback
-        fields = ['application','name','address','suburb','state','postcode','phone','email','comments','documents','status']
+        fields = ['application','name','address','suburb','state','postcode','phone','email','comments','status']
 
     def __init__(self, *args, **kwargs):
         super(FeedbackPublicationCreateForm, self).__init__(*args, **kwargs)

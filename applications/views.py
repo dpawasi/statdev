@@ -128,10 +128,41 @@ class ApplicationDetail(DetailView):
                 context['town_suburb'] = LocObj.suburb
                 context['lot'] = LocObj.lot
                 context['nearest_road_intersection'] = LocObj.intersection
-                context['publication_newspaper'] = PublicationNewspaper.objects.filter(
-                    application_id=self.object)
-                context['publication_website'] = PublicationWebsite.objects.filter(
-                    application_id=self.object)
+                context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
+                context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
+                context['river_lease_scan_of_application_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
+                context['deed_short'] = SafeText(self.object.deed.upload.name)[19:]
+    
+                context['land_owner_consent_list'] = []
+                landoc = app.land_owner_consent.all()
+                for doc in landoc:
+                    fileitem = {}
+                    fileitem['fileid'] = doc.id
+                    fileitem['path'] = doc.upload.name
+                    fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+                    context['land_owner_consent_list'].append(fileitem)
+
+              
+                context['publication_newspaper_list'] = []
+                pub_news_obj = []
+                pub_news_mod  = PublicationNewspaper.objects.filter(application_id=self.object)
+                for pubrow in pub_news_mod:
+                    rowitem = {}
+                    rowitem['pk'] = pubrow.pk
+                    rowitem['id'] = pubrow.id
+                    rowitem['date'] = pubrow.date
+                    rowitem['newspaper'] = pubrow.newspaper
+                    rowitem['application'] = pubrow.application
+                    rowitem['documents'] = pubrow.documents
+                    rowitem['documents_short'] = []
+                    documents = pubrow.documents.all()
+                    for doc in documents:
+                        fileitem = {}
+                        fileitem['fileid'] = doc.id
+                        fileitem['path'] = doc.upload
+                        fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+                        rowitem['documents_short'].append(fileitem)
+                    context['publication_newspaper_list'].append(rowitem)
 
                 pub_feed_obj = []
                 pub_feed_mod = PublicationFeedback.objects.filter(application_id=self.object)
@@ -147,11 +178,18 @@ class ApplicationDetail(DetailView):
                     rowitem['email'] = pubrow.email
                     rowitem['comments'] = pubrow.comments
                     rowitem['documents'] = pubrow.documents
-                    rowitem['documents_short'] = pubrow.documents.name 
+                    rowitem['documents_short'] = [] # needed so we can add documents to list
                     rowitem['status'] = pubrow.status
                     rowitem['application'] = pubrow.application
-                    pub_feed_obj.append(rowitem)
+                    documents = pubrow.documents.all()
+                    for doc in documents:
+                        fileitem = {}
+                        fileitem['fileid'] = doc.id
+                        fileitem['path'] = doc.upload
+                        fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+                        rowitem['documents_short'].append(fileitem)
 
+                    pub_feed_obj.append(rowitem)
                 context['publication_feedback'] = pub_feed_obj
             except:
                 donothing = ''
@@ -161,9 +199,7 @@ class ApplicationDetail(DetailView):
             pub_web = PublicationWebsite.objects.filter(application_id=self.object.id)
             for pub_doc in pub_web:
                 if pub_doc.published_document_id:
-					#                   print pub_doc.published_document_id
                    doc = Document.objects.get(id=pub_doc.published_document_id)
-#                   print doc.upload
                    fileitem = {}
                    fileitem['fileid'] = doc.id
                    fileitem['path'] = doc.upload.name
@@ -1225,7 +1261,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
             messages.error(
                 self.request, "Can't add new Website publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
-        return super(WebsitePublicationCreate, self).get(request, *args, **kwargs)
+        return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.kwargs['pk']))
@@ -1261,7 +1297,6 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
            if pub_web.id:
               initial['id'] = pub_web.id
 
-		#print initial['id']
         initial['published_document'] = filelist
         doc = Document.objects.get(pk=self.kwargs['docid'])
         initial['original_document'] = doc
@@ -1339,6 +1374,14 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
         return super(FeedbackPublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        self.object = form.save(commit=True)
+        if self.request.FILES.get('documents'):
+            for f in self.request.FILES.getlist('documents'):
+                doc = Document()
+                doc.upload = f
+                doc.save()
+                self.object.documents.add(doc)
+ 
         return super(FeedbackPublicationCreate, self).form_valid(form)
 
 
@@ -1367,6 +1410,21 @@ class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(FeedbackPublicationUpdate, self).get_initial()
         initial['application'] = self.kwargs['application']
+        try:
+            pub_feed = PublicationFeedback.objects.get(
+            pk=self.kwargs['pk'])
+        except:
+            pub_feed = None
+
+        multifilelist = []
+        if pub_feed:
+            documents = pub_feed.documents.all()
+            for b1 in documents:
+                fileitem = {}
+                fileitem['fileid'] = b1.id
+                fileitem['path'] = b1.upload.name
+                multifilelist.append(fileitem)
+        initial['documents'] = multifilelist
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -1376,6 +1434,25 @@ class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
         return super(FeedbackPublicationUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        self.object = form.save()
+        app = Application.objects.get(pk=self.object.application.id)
+
+        pub_feed = PublicationFeedback.objects.get(pk=self.kwargs['pk'])
+
+        documents = pub_feed.documents.all()
+        for filelist in documents:
+            if 'documents-clear_multifileid-'+str(filelist.id) in form.data:
+                pub_feed.documents.remove(filelist)
+
+
+        if self.request.FILES.get('documents'):
+            for f in self.request.FILES.getlist('documents'):
+                doc = Document()
+                doc.upload = f
+                doc.save()
+                self.object.documents.add(doc)
+
+
         return super(FeedbackPublicationUpdate, self).form_valid(form)
 
 class FeedbackPublicationDelete(LoginRequiredMixin, DeleteView):
