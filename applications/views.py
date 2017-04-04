@@ -132,13 +132,31 @@ class ApplicationDetail(DetailView):
                     application_id=self.object)
                 context['publication_website'] = PublicationWebsite.objects.filter(
                     application_id=self.object)
-                context['publication_feedback'] = PublicationFeedback.objects.filter(
-                    application_id=self.object)
 
+                pub_feed_obj = []
+                pub_feed_mod = PublicationFeedback.objects.filter(application_id=self.object)
+                for pubrow in pub_feed_mod:
+                    rowitem = {}
+                    rowitem['id'] = pubrow.id
+                    rowitem['name'] = pubrow.name
+                    rowitem['address'] = pubrow.address
+                    rowitem['suburb'] = pubrow.suburb
+                    rowitem['state'] = pubrow.state
+                    rowitem['postcode'] = pubrow.postcode
+                    rowitem['phone'] = pubrow.phone
+                    rowitem['email'] = pubrow.email
+                    rowitem['comments'] = pubrow.comments
+                    rowitem['documents'] = pubrow.documents
+                    rowitem['documents_short'] = pubrow.documents.name 
+                    rowitem['status'] = pubrow.status
+                    rowitem['application'] = pubrow.application
+                    pub_feed_obj.append(rowitem)
+
+                context['publication_feedback'] = pub_feed_obj
             except:
                 donothing = ''
 
-           # Get a list of To be Published documents Changes
+            # Get a list of To be Published documents Changes
             new_documents_to_publish = {}
             pub_web = PublicationWebsite.objects.filter(application_id=self.object.id)
             for pub_doc in pub_web:

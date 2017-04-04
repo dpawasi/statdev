@@ -182,7 +182,7 @@ class PublicationFeedback(models.Model):
     phone = models.CharField(max_length=20)
     email = models.EmailField()
     comments = models.TextField(null=True, blank=True)
-    documents = models.FileField()
+    documents = models.ManyToManyField(Document, blank=True, related_name='feedback')
     status = models.CharField(max_length=20)
 
     def __str__(self):
