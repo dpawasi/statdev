@@ -1132,6 +1132,55 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_application().pk,))
 
+class WebPublish(LoginRequiredMixin, CreateView):
+    model = Application
+    form_class = apps_forms.ApplicationWebPublishForm
+
+    def get(self, request, *args, **kwargs):
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        return super(WebPublish, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(WebPublish,
+                        self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def get_initial(self):
+        initial = super(WebPublish, self).get_initial()
+        initial['application'] = self.kwargs['pk']
+
+        publish_type = self.kwargs['publish_type']
+        if publish_type in 'documents':
+            initial['publish_documents'] = '06/04/2017'
+        elif publish_type in 'draft':
+            initial['publish_draft_report'] = '06/04/2017'
+        elif publish_type in 'final':
+            initial['publish_final_report'] = '06/04/2017'
+
+        initial['publish_type'] = self.kwargs['publish_type']
+        #try:
+        #    pub_news = PublicationNewspaper.objects.get(
+        #    application=self.kwargs['pk'])
+        #except:
+        #    pub_news = None
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebPublish, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=True)
+
+        return super(WebPublish, self).form_valid(form)
+
 
 class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationNewspaper
