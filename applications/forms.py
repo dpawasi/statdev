@@ -178,8 +178,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent',
-                               help_text='Choose multiple files to upload (if required).')
+    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
 #   land_owner_consent = MultiWidget(required=False, max_length=128, widget=ClearableMulipleFileInput)
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)

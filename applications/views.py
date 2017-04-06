@@ -114,7 +114,8 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
-
+#        print self.object.river_lease_scan_of_application.upload.name
+#        print app.river_lease_scan_of_application.upload
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             try:
@@ -131,8 +132,12 @@ class ApplicationDetail(DetailView):
                 context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
                 context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
                 context['river_lease_scan_of_application_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
+                context['document_draft_short'] = SafeText(self.object.document_draft.upload.name)[19:]
+                context['document_final_short'] = SafeText(self.object.document_final.upload.name)[19:]
+
                 context['deed_short'] = SafeText(self.object.deed.upload.name)[19:]
     
+                
                 context['land_owner_consent_list'] = []
                 landoc = app.land_owner_consent.all()
                 for doc in landoc:
@@ -204,24 +209,67 @@ class ApplicationDetail(DetailView):
                    fileitem['fileid'] = doc.id
                    fileitem['path'] = doc.upload.name
                    new_documents_to_publish[pub_doc.original_document_id] = fileitem
-            
+           
 
 
 
+            #print app.river_lease_scan_of_application
             # Should contain a list of all documents TODO need to append rest of docs.
             orignaldoclist = []
+            if self.object.river_lease_scan_of_application:
+                fileitem = {}
+                fileitem['fileid'] = self.object.river_lease_scan_of_application.id
+                fileitem['path'] = self.object.river_lease_scan_of_application.upload.name
+                fileitem['path_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
+                fileitem['group_name'] = "River Lease Scan of Application"
+                if self.object.river_lease_scan_of_application.id in new_documents_to_publish:
+                    fileitem['publish_doc'] = new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path']
+                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path'])[19:]
+                orignaldoclist.append(fileitem)
+
+            if self.object.deed:
+                fileitem = {}
+                fileitem['fileid'] = self.object.deed.id
+                fileitem['path'] = self.object.deed.upload.name
+                fileitem['path_short'] = SafeText(self.object.deed.upload.name)[19:]
+                fileitem['group_name'] = "Deed"
+                if self.object.deed.id in new_documents_to_publish:
+                    fileitem['publish_doc'] = new_documents_to_publish[self.object.deed.id]['path']
+                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.deed.id]['path'])[19:]
+                orignaldoclist.append(fileitem)
+ 
+
             landoc = app.land_owner_consent.all()
             for doc in landoc:
                 fileitem = {}
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload.name
                 fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+                fileitem['group_name'] = "Land Owner Consent"
                 if doc.id in new_documents_to_publish:
                     fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
                     fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
                 else:
                    fileitem['publish_doc'] = ""
+                   fileitem['publish_doc_short'] = ""
+
                 orignaldoclist.append(fileitem)
+            
+            doclist = app.proposed_development_plans.all()
+            for doc in doclist:
+                fileitem = {}
+                fileitem['fileid'] = doc.id
+                fileitem['path'] = doc.upload.name
+                fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+                fileitem['group_name'] = "Proposed Development Plans"
+                if doc.id in new_documents_to_publish:
+                    fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
+                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
+                else:
+                   fileitem['publish_doc'] = ""
+                   fileitem['publish_doc_short'] = ""
+                orignaldoclist.append(fileitem)
+
             context['original_document_list'] = orignaldoclist
 
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
@@ -1110,22 +1158,11 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(NewsPaperPublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
 
-        try:
-            pub_news = PublicationNewspaper.objects.get(
-            application=self.kwargs['pk'])
-        except:
-            pub_news = None
-        multifilelist = []
-        if pub_news:
-            original_document = pub_news.original_document.all()
-            for b1 in original_document:
-                fileitem = {}
-                fileitem['fileid'] = b1.id
-                fileitem['path'] = b1.upload.name
-                multifilelist.append(fileitem)
-            initial['documents'] = multifilelist
-
-
+        #try:
+        #    pub_news = PublicationNewspaper.objects.get(
+        #    application=self.kwargs['pk'])
+        #except:
+        #    pub_news = None
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -1255,7 +1292,6 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     form_class = apps_forms.WebsitePublicationForm
 
     def get(self, request, *args, **kwargs):
-        
         app = Application.objects.get(pk=self.kwargs['pk'])
         if app.state != app.APP_STATE_CHOICES.draft:
             messages.error(
@@ -1264,7 +1300,12 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('application_detail', args=(self.kwargs['pk']))
+        return reverse('application_detail', args=(self.kwargs['pk'],))
+
+#    def get_success_url(self):
+#        print self.kwargs['pk']
+        #        return reverse('application_detail', args=(self.get_object().application.pk,))
+#        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
 		# self.object.original_document = self.kwargs['original_document']
