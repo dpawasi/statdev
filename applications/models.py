@@ -151,6 +151,9 @@ class Application(models.Model):
     document_final = models.ForeignKey(Document, null=True, blank=True, related_name='document_final')
     document_determination = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination')
     document_completion = models.ForeignKey(Document, null=True, blank=True, related_name='document_completion')
+    publish_documents = models.DateField(null=True, blank=True)
+    publish_draft_report = models.DateField(null=True, blank=True)
+    publish_final_report = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
