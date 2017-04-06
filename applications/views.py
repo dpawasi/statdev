@@ -132,6 +132,9 @@ class ApplicationDetail(DetailView):
                 context['publication_newspaper'] = PublicationNewspaper.objects.filter(application_id=self.object)
                 context['publication_website'] = PublicationWebsite.objects.filter(application_id=self.object)
                 context['river_lease_scan_of_application_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
+                context['document_draft_short'] = SafeText(self.object.document_draft.upload.name)[19:]
+                context['document_final_short'] = SafeText(self.object.document_final.upload.name)[19:]
+
                 context['deed_short'] = SafeText(self.object.deed.upload.name)[19:]
     
                 
@@ -213,30 +216,28 @@ class ApplicationDetail(DetailView):
             #print app.river_lease_scan_of_application
             # Should contain a list of all documents TODO need to append rest of docs.
             orignaldoclist = []
-            fileitem = {}
-            fileitem['fileid'] = self.object.river_lease_scan_of_application.id
-            fileitem['path'] = self.object.river_lease_scan_of_application.upload.name
-            fileitem['path_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
-            fileitem['group_name'] = "River Lease Scan of Application"
-            if self.object.river_lease_scan_of_application.id in new_documents_to_publish:
-                fileitem['publish_doc'] = new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path']
-                fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path'])[19:]
+            if self.object.river_lease_scan_of_application:
+                fileitem = {}
+                fileitem['fileid'] = self.object.river_lease_scan_of_application.id
+                fileitem['path'] = self.object.river_lease_scan_of_application.upload.name
+                fileitem['path_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
+                fileitem['group_name'] = "River Lease Scan of Application"
+                if self.object.river_lease_scan_of_application.id in new_documents_to_publish:
+                    fileitem['publish_doc'] = new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path']
+                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path'])[19:]
+                orignaldoclist.append(fileitem)
 
-            orignaldoclist.append(fileitem)
-
-            fileitem = {}
-            fileitem['fileid'] = self.object.deed.id
-            fileitem['path'] = self.object.deed.upload.name
-            fileitem['path_short'] = SafeText(self.object.deed.upload.name)[19:]
-            fileitem['group_name'] = "Deed"
-            if self.object.deed.id in new_documents_to_publish:
-                fileitem['publish_doc'] = new_documents_to_publish[self.object.deed.id]['path']
-                fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.deed.id]['path'])[19:]
-            orignaldoclist.append(fileitem)
+            if self.object.deed:
+                fileitem = {}
+                fileitem['fileid'] = self.object.deed.id
+                fileitem['path'] = self.object.deed.upload.name
+                fileitem['path_short'] = SafeText(self.object.deed.upload.name)[19:]
+                fileitem['group_name'] = "Deed"
+                if self.object.deed.id in new_documents_to_publish:
+                    fileitem['publish_doc'] = new_documents_to_publish[self.object.deed.id]['path']
+                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.deed.id]['path'])[19:]
+                orignaldoclist.append(fileitem)
  
-
-            print self.object.river_lease_scan_of_application.upload.name
-            print self.object.river_lease_scan_of_application.id
 
             landoc = app.land_owner_consent.all()
             for doc in landoc:
@@ -1157,22 +1158,11 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(NewsPaperPublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
 
-        try:
-            pub_news = PublicationNewspaper.objects.get(
-            application=self.kwargs['pk'])
-        except:
-            pub_news = None
-        multifilelist = []
-        if pub_news:
-            original_document = pub_news.original_document.all()
-            for b1 in original_document:
-                fileitem = {}
-                fileitem['fileid'] = b1.id
-                fileitem['path'] = b1.upload.name
-                multifilelist.append(fileitem)
-            initial['documents'] = multifilelist
-
-
+        #try:
+        #    pub_news = PublicationNewspaper.objects.get(
+        #    application=self.kwargs['pk'])
+        #except:
+        #    pub_news = None
         return initial
 
     def post(self, request, *args, **kwargs):
