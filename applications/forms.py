@@ -58,8 +58,6 @@ class ApplicationWebPublishForm(ModelForm):
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_web_publish_application'
         self.helper.attrs = {'novalidate': ''}
-        print kwargs['initial']['publish_type']
-        print kwargs
         if kwargs['initial']['publish_type'] in 'documents':
            self.fields['publish_draft_report'].widget = HiddenInput()
            self.fields['publish_final_report'].widget = HiddenInput()
