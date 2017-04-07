@@ -1122,6 +1122,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
             if 'compliance' in data and data.get('compliance', None):
                 new_comp = form.save(commit=False)
                 new_comp.applicant = self.request.user
+                new_comp.application = self.get_application()
                 new_comp.submit_date = date.today()
                 # TODO: handle the uploaded file.
                 new_comp.save()
