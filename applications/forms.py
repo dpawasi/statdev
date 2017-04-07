@@ -45,6 +45,45 @@ class ApplicationCreateForm(ModelForm):
         self.fields['app_type'].label = "Application Type"
 
 
+class ApplicationWebPublishForm(ModelForm):
+
+    class Meta:
+        model = Application
+        fields = ['publish_documents', 'publish_draft_report','publish_final_report']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        #user = kwargs.pop('user')
+        super(ApplicationWebPublishForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_web_publish_application'
+        self.helper.attrs = {'novalidate': ''}
+        if kwargs['initial']['publish_type'] in 'documents':
+           self.fields['publish_draft_report'].widget = HiddenInput()
+           self.fields['publish_final_report'].widget = HiddenInput()
+        elif kwargs['initial']['publish_type'] in 'draft':
+            self.fields['publish_final_report'].widget = HiddenInput()
+            self.fields['publish_documents'].widget = HiddenInput()
+        elif kwargs['initial']['publish_type'] in 'final':
+            self.fields['publish_draft_report'].widget = HiddenInput()
+            self.fields['publish_documents'].widget = HiddenInput()
+        else:
+            self.fields['publish_draft_report'].widget = HiddenInput()
+            self.fields['publish_final_report'].widget = HiddenInput()
+            self.fields['publish_documents'].widget = HiddenInput()
+
+        self.fields['publish_documents'].label = "Published Date"
+        self.fields['publish_draft_report'].label = "Published Date"
+        self.fields['publish_final_report'].label = "Published Date"
+
+        self.fields['publish_documents'].widget.attrs['disabled'] = True
+        self.fields['publish_final_report'].widget.attrs['disabled'] = True
+        self.fields['publish_draft_report'].widget.attrs['disabled'] = True
+        self.helper.add_input(Submit('save', 'Publish to Website', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Limit the organisation queryset unless the user is a superuser.
+
+
 class ApplicationFormMixin(object):
     """Form mixin containing validation rules common to all application types.
     """
@@ -178,9 +217,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     lot = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent',
-                               help_text='Choose multiple files to upload (if required).')
-#   land_owner_consent = MultiWidget(required=False, max_length=128, widget=ClearableMulipleFileInput)
+    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
@@ -189,19 +226,8 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
-#    land_owner_consent = MultiFileField(
-#                      allow_empty_file=True,
-#                      required=False, label='Landowner consent statement(s)',
-#                      help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.',
-#					  #widget=ClearableMulipleFileInput
- #                     )
-
-
     class Meta:
         model = Application
-#		fields = ['title', 'description','cost','project_no', 'documents', 'land_owner_consent', 'deed',
-#	              'proposed_development_current_use_of_land','proposed_development_plans','document_draft','document_final',
-#	              'document_determination','document_completion','river_lease_require_river_lease','river_lease_scan_of_application','river_lease_reserve_licence','river_lease_application_number','proposed_development_current_use_of_land','proposed_development_plans']
         fields = ['title', 'description','cost','project_no', 'documents','river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description']
 
     def __init__(self, *args, **kwargs):
@@ -621,9 +647,11 @@ class WebsitePublicationForm(ModelForm):
 
 class FeedbackPublicationCreateForm(ModelForm):
 
+    documents = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+
     class Meta:
         model = PublicationFeedback
-        fields = ['application','name','address','suburb','state','postcode','phone','email','comments','documents','status']
+        fields = ['application','name','address','suburb','state','postcode','phone','email','comments','status']
 
     def __init__(self, *args, **kwargs):
         super(FeedbackPublicationCreateForm, self).__init__(*args, **kwargs)
