@@ -85,7 +85,7 @@
                         </a>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
+                <div class="panel-collapse collapse {{ collapse.applicant }}" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
                     <div class="panel-body">
                         {% include "applications/applicant_snippet.html" %}
                     </div>
@@ -465,9 +465,16 @@
 						</div>
 						<div class="col-lg-2 align-right text-right">
 							 <td>
-                               <a href="{% url 'application_publish_documents' object.pk 'documents' %}" class="btn btn-primary" role="button">
-                                 Published 20170311 --
+                                {% if object.publish_documents %}
+                               <a href="javascript:void();" class="btn btn-primary" role="button">
+                                   
+                                   Published {% if object.publish_documents %} on the {{ object.publish_documents }} {% endif %}
                                </a>
+                               {% else %}
+                                   <a href="{% url 'application_publish_documents' object.pk 'documents' %}" class="btn btn-primary" role="button">
+                                         Publish
+                                    </a>
+                               {% endif %}
                             </td>
 						</div>
 						<div class="panel-body">
@@ -596,9 +603,15 @@
 						</div>
 						<div class="col-lg-2 align-right text-right">
 							<td>
+                                {% if object.publish_draft_report %}
+                                    <a href="javascript:void();" class="btn btn-primary" role="button">
+                                        Published on the {{ object.publish_draft_report }}
+                                    </a>
+                                {% else %} 
                                <a href="{% url 'application_publish_documents' object.pk 'draft' %}" class="btn btn-primary" role="button">
-                                 Published 20170311 -- 
+                                 Publish 
                                </a>
+                               {% endif %}
                             </td>
 
 						</div>
@@ -679,9 +692,15 @@
 						</div>
 						<div class="col-lg-2 align-right text-right">
 							 <td>
-                               <a href="{% url 'application_publish_documents' object.pk 'final' %}" class="btn btn-primary" role="button">
-                                 Published 20170311 --
-                               </a>
+                                 {% if object.publish_final_report %}
+                                    <a href="javascript:void();" class="btn btn-primary" role="button">
+                                        Published on the {{ object.publish_final_report }}
+                                    </a>
+                                 {% else %}
+                                   <a href="{% url 'application_publish_documents' object.pk 'final' %}" class="btn btn-primary" role="button">
+                                     Publish
+                                   </a>
+                               {% endif %}
                             </td>
 						</div>
 

@@ -58,30 +58,32 @@ class ApplicationWebPublishForm(ModelForm):
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_web_publish_application'
         self.helper.attrs = {'novalidate': ''}
+
+        # Delete publish fields not required for update.
         if kwargs['initial']['publish_type'] in 'documents':
-           self.fields['publish_draft_report'].widget = HiddenInput()
-           self.fields['publish_final_report'].widget = HiddenInput()
+            del self.fields['publish_draft_report']
+            del self.fields['publish_final_report']
+            self.fields['publish_documents'].label = "Published Date"
+            self.fields['publish_documents'].widget.attrs['disabled'] = True
         elif kwargs['initial']['publish_type'] in 'draft':
-            self.fields['publish_final_report'].widget = HiddenInput()
-            self.fields['publish_documents'].widget = HiddenInput()
+            del self.fields['publish_final_report']
+            del self.fields['publish_documents']
+            self.fields['publish_draft_report'].label = "Published Date"
+            self.fields['publish_draft_report'].widget.attrs['disabled'] = True
         elif kwargs['initial']['publish_type'] in 'final':
-            self.fields['publish_draft_report'].widget = HiddenInput()
-            self.fields['publish_documents'].widget = HiddenInput()
+            del self.fields['publish_draft_report']
+            del self.fields['publish_documents']
+            self.fields['publish_final_report'].label = "Published Date"
+            self.fields['publish_final_report'].widget.attrs['disabled'] = True
+
         else:
-            self.fields['publish_draft_report'].widget = HiddenInput()
-            self.fields['publish_final_report'].widget = HiddenInput()
-            self.fields['publish_documents'].widget = HiddenInput()
 
-        self.fields['publish_documents'].label = "Published Date"
-        self.fields['publish_draft_report'].label = "Published Date"
-        self.fields['publish_final_report'].label = "Published Date"
+            del self.fields['publish_draft_report']
+            del self.fields['publish_final_report']
+            del self.fields['publish_documents']
 
-        self.fields['publish_documents'].widget.attrs['disabled'] = True
-        self.fields['publish_final_report'].widget.attrs['disabled'] = True
-        self.fields['publish_draft_report'].widget.attrs['disabled'] = True
         self.helper.add_input(Submit('save', 'Publish to Website', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
-        # Limit the organisation queryset unless the user is a superuser.
 
 
 class ApplicationFormMixin(object):
@@ -228,7 +230,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     class Meta:
         model = Application
-        fields = ['title', 'description','cost','project_no', 'documents','river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description']
+        fields = ['title', 'description','cost','project_no', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)

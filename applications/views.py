@@ -15,6 +15,8 @@ from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
 from django.utils.safestring import SafeText
+from datetime import datetime
+from workflow import Flow 
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -114,9 +116,28 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
-#        print self.object.river_lease_scan_of_application.upload.name
-#        print app.river_lease_scan_of_application.upload
         if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+                app.routeid = 1
+
+            processor = Group.objects.get(name='Processor')
+            assessor = Group.objects.get(name='Assessor')
+            approver = Group.objects.get(name='Approver')
+            referee = Group.objects.get(name='Referee')
+            flow = Flow()
+            workflow = flow.get('part5')
+
+            context = flow.getCollapse(context,app.routeid,'part5')
+            if processor in self.request.user.groups.all():
+                context = flow.getGroupAccess(context,app.routeid,'Processor','part5')
+            if assessor in self.request.user.groups.all():
+                context = flow.getGroupAccess(context,app.routeid,'Assessor','part5')
+            if approver in self.request.user.groups.all():
+                context = flow.getGroupAccess(context,app.routeid,'Approver','part5')
+            if referee in self.request.user.groups.all():
+                context = flow.getGroupAccess(context,app.routeid,'Referee','part5')
+
+
             self.template_name = 'applications/application_details_part5_new_application.html'
             try:
                 LocObj = Location.objects.get(application_id=self.object.id)
@@ -272,6 +293,8 @@ class ApplicationDetail(DetailView):
 
             context['original_document_list'] = orignaldoclist
 
+            return context
+
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
 
@@ -279,6 +302,8 @@ class ApplicationDetail(DetailView):
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
         referee = Group.objects.get(name='Referee')
+
+
         if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
@@ -414,6 +439,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         app = self.get_object()
 
+        flow = Flow()
+        workflow = flow.get()
+        print (workflow)
 #       initial['land_owner_consent'] = app.land_owner_consent.all()
         multifilelist = []
         a1 = app.land_owner_consent.all()
@@ -1132,7 +1160,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_application().pk,))
 
-class WebPublish(LoginRequiredMixin, CreateView):
+class WebPublish(LoginRequiredMixin, UpdateView):
     model = Application
     form_class = apps_forms.ApplicationWebPublishForm
 
@@ -1153,13 +1181,15 @@ class WebPublish(LoginRequiredMixin, CreateView):
         initial = super(WebPublish, self).get_initial()
         initial['application'] = self.kwargs['pk']
 
+        current_date = datetime.now().strftime('%d/%m/%Y')
+
         publish_type = self.kwargs['publish_type']
         if publish_type in 'documents':
-            initial['publish_documents'] = '06/04/2017'
+            initial['publish_documents'] = current_date 
         elif publish_type in 'draft':
-            initial['publish_draft_report'] = '06/04/2017'
+            initial['publish_draft_report'] = current_date
         elif publish_type in 'final':
-            initial['publish_final_report'] = '06/04/2017'
+            initial['publish_final_report'] = current_date
 
         initial['publish_type'] = self.kwargs['publish_type']
         #try:
@@ -1178,6 +1208,16 @@ class WebPublish(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         forms_data = form.cleaned_data
         self.object = form.save(commit=True)
+        publish_type = self.kwargs['publish_type']
+
+        current_date = datetime.now().strftime('%Y-%m-%d')
+
+        if publish_type in 'documents':
+            self.object.publish_documents = current_date
+        elif publish_type in 'draft':
+			self.object.publish_draft_report = current_date
+        elif publish_type in 'final':
+            self.object.publish_final_report = current_date
 
         return super(WebPublish, self).form_valid(form)
 
