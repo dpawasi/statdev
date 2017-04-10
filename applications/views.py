@@ -120,7 +120,6 @@ class ApplicationDetail(DetailView):
             if app.routeid is None:
                 app.routeid = 1
 
-            print app.routeid
             processor = Group.objects.get(name='Processor')
             assessor = Group.objects.get(name='Assessor')
             approver = Group.objects.get(name='Approver')
@@ -128,7 +127,6 @@ class ApplicationDetail(DetailView):
             flow = Flow()
             workflow = flow.get('part5')
             context = flow.getCollapse(context,app.routeid,'part5')
-            print context
             if processor in self.request.user.groups.all():
                 context = flow.getGroupAccess(context,app.routeid,'Processor','part5')
             if assessor in self.request.user.groups.all():
@@ -464,8 +462,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
         app = self.get_object()
-        print "TYTP"
-        print app.app_type
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             if app.routeid is None:
                 app.routeid = 1
@@ -761,14 +757,12 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # Rule: application state must be 'draft'.
         app = self.get_object()
         flowcontext = {}
-        print "HELO"
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             if app.routeid is None:
                app.routeid = 1
             request = self.request
             flow = Flow()
             flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
-            print flowcontext['may_lodge']
             if flowcontext['may_lodge'] == "True": 
                 donothing = ""     
             else:
