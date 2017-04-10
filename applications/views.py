@@ -1281,7 +1281,7 @@ class WebPublish(LoginRequiredMixin, UpdateView):
         if publish_type in 'documents':
             self.object.publish_documents = current_date
         elif publish_type in 'draft':
-			self.object.publish_draft_report = current_date
+            self.object.publish_draft_report = current_date
         elif publish_type in 'final':
             self.object.publish_final_report = current_date
 
