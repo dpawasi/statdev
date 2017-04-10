@@ -16,7 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
 from django.utils.safestring import SafeText
 from datetime import datetime
-from workflow import Flow 
+from applications.workflow import Flow 
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
