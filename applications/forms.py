@@ -234,6 +234,10 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
+
+        for fielditem in self.initial["fieldstatus"]:
+            del self.fields[fielditem]
+
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_update_part_5'
         self.helper.attrs = {'novalidate': ''}

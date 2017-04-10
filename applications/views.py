@@ -120,14 +120,15 @@ class ApplicationDetail(DetailView):
             if app.routeid is None:
                 app.routeid = 1
 
+            print app.routeid
             processor = Group.objects.get(name='Processor')
             assessor = Group.objects.get(name='Assessor')
             approver = Group.objects.get(name='Approver')
             referee = Group.objects.get(name='Referee')
             flow = Flow()
             workflow = flow.get('part5')
-
             context = flow.getCollapse(context,app.routeid,'part5')
+            print context
             if processor in self.request.user.groups.all():
                 context = flow.getGroupAccess(context,app.routeid,'Processor','part5')
             if assessor in self.request.user.groups.all():
@@ -137,6 +138,7 @@ class ApplicationDetail(DetailView):
             if referee in self.request.user.groups.all():
                 context = flow.getGroupAccess(context,app.routeid,'Referee','part5')
 
+            context = flow.getHiddenAreas(context,app.routeid,'part5')
 
             self.template_name = 'applications/application_details_part5_new_application.html'
             try:
@@ -412,16 +414,41 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
+       
         # Rule: if the application status is 'draft', it can be updated.
-        if app.state != app.APP_STATE_CHOICES.draft and app.state != app.APP_STATE_CHOICES.new:
-            messages.error(self.request, 'This application cannot be updated!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        context = {}
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+                app.routeid = 1
+
+            processor = Group.objects.get(name='Processor')
+            assessor = Group.objects.get(name='Assessor')
+            approver = Group.objects.get(name='Approver')
+            referee = Group.objects.get(name='Referee')
+
+            flow = Flow()
+            context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
+
+            if context['may_update'] != "True":
+                messages.error(self.request, 'This application cannot be updated!')
+                return HttpResponseRedirect(app.get_absolute_url())
+        else: 
+            if app.state != app.APP_STATE_CHOICES.draft and app.state != app.APP_STATE_CHOICES.new:
+                messages.error(self.request, 'This application cannot be updated!')
+                return HttpResponseRedirect(app.get_absolute_url())
+
         return super(ApplicationUpdate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
         app = self.get_object()
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+                app.routeid = 1
+            request = self.request
+            flow = Flow()
+            context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
         return context
 
     def get_form_class(self):
@@ -436,12 +463,21 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
-
         app = self.get_object()
+        print "TYTP"
+        print app.app_type
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+                app.routeid = 1
+            request = self.request
+            flow = Flow()
+            flowcontent = {}
+            flowcontent = flow.getFields(flowcontent,app.routeid,'part5')
+            initial['fieldstatus'] = flowcontent['fields']
 
-        flow = Flow()
-        workflow = flow.get()
-        print (workflow)
+#       flow = Flow()
+        #workflow = flow.get()
+#        print (workflow)
 #       initial['land_owner_consent'] = app.land_owner_consent.all()
         multifilelist = []
         a1 = app.land_owner_consent.all()
@@ -724,10 +760,26 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # TODO: business logic to check the application may be lodged.
         # Rule: application state must be 'draft'.
         app = self.get_object()
-        if app.state != app.APP_STATE_CHOICES.draft:
-            # TODO: better/explicit error response.
-            messages.error(self.request, 'This application cannot be lodged!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        flowcontext = {}
+        print "HELO"
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+               app.routeid = 1
+            request = self.request
+            flow = Flow()
+            flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+            print flowcontext['may_lodge']
+            if flowcontext['may_lodge'] == "True": 
+                donothing = ""     
+            else:
+                messages.error(self.request, 'This application cannot be lodged!')
+                return HttpResponseRedirect(app.get_absolute_url())
+
+        else:
+            if app.state != app.APP_STATE_CHOICES.draft:
+                # TODO: better/explicit error response.
+                messages.error(self.request, 'This application cannot be lodged!')
+                return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationLodge, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -739,10 +791,19 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """Override form_valid to set the submit_date and status of the new application.
         """
         app = self.get_object()
+        # print "APP"
+        # print app.app_type
+
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            flow = Flow()
+            nextroute = flow.getNextRoute('lodge',app.routeid,"part5")
+            app.routeid = nextroute 
+
         app.state = app.APP_STATE_CHOICES.with_admin
         self.object.submit_date = date.today()
         app.assignee = None
         app.save()
+
         # Generate a 'lodge' action:
         action = Action(
             content_object=app, category=Action.ACTION_CATEGORY_CHOICES.lodge,
@@ -879,6 +940,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        app = self.object 
         if self.kwargs['action'] == 'customer':
             messages.success(self.request, 'Application {} has been assigned back to customer'.format(self.object.pk))
         else:
@@ -891,8 +953,18 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             self.object.state = self.object.APP_STATE_CHOICES.draft
             # TODO: email the feedback back to the customer.
         if self.kwargs['action'] == 'assess':
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                nextroute = flow.getNextRoute('assess',app.routeid,"part5")
+                self.object.routeid = nextroute
             self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         if self.kwargs['action'] == 'approve':
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                nextroute = flow.getNextRoute('manager',app.routeid,"part5")
+                self.object.routeid = nextroute
+
+
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
         if self.kwargs['action'] == 'customer':
