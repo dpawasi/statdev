@@ -7,7 +7,7 @@ __all__ = (
 
 class Flow():
     def get(self,flow):
-        with open('applications/config/workflow.'+flow+'.json') as json_data_file:
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
         return json_obj
 #       print(data['1']['groupaccess']['Processor'])
@@ -40,7 +40,7 @@ class Flow():
             context["may_generate_pdf"] = "False"
 
 
-        with open('applications/config/workflow.'+flow+'.json') as json_data_file:
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
             if json_obj[str(route)]:
                 if "groupaccess" in json_obj[str(route)]:
@@ -74,7 +74,7 @@ class Flow():
         return context
     def getCollapse(self,context,route,flow):
         context['collapse'] = {} 
-        with open('applications/config/workflow.'+flow+'.json') as json_data_file:
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
             if "collapse" in json_obj[str(route)]: 
                 collapse = json_obj[str(route)]['collapse']
@@ -85,7 +85,7 @@ class Flow():
 
     def getHiddenAreas(self,context,route,flow):
         context['hidden'] = {}
-        with open('applications/config/workflow.'+flow+'.json') as json_data_file:
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
            json_obj = json.load(json_data_file)
            if json_obj[str(route)]:
                if json_obj[str(route)]['hidden']:
@@ -93,14 +93,14 @@ class Flow():
         return context
     def getFields(self,context,route,flow):
         context['fields'] = {}
-        with open('applications/config/workflow.'+flow+'.json') as json_data_file:
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
            json_obj = json.load(json_data_file)
            if json_obj[str(route)]:
                if json_obj[str(route)]['fields']:
                   context["fields"] = json_obj[str(route)]['fields']
         return context
     def getNextRoute(self,action,route,flow):
-        with open('applications/config/workflow.'+flow+'.json') as json_data_file:
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
             if json_obj[str(route)]:
                 if json_obj[str(route)]['actions']:
