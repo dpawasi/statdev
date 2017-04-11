@@ -66,7 +66,7 @@
                 </div>
                 <div class="panel-body">
                     <h5>Status</h5>
-                    <p>{{ object.get_state_display }}</p>
+                    <p>{% if routetitle %}{{ routetitle }}{% else %}{{ object.get_state_display }}{% endif %} </p>
                     <h5>Assigned to</h5>
                     {% if object.assignee %}
                     <p>
@@ -737,7 +737,7 @@
                 </div>
             </div>
             {% endif %}
-            {% if hidden.publication == "False" %}
+            {% if hidden.stakeholdercommunication == "False" %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="stakeholder_communication_heading">
                     <h3 class="panel-title">
@@ -902,6 +902,9 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+
+            {% if hidden.referrals == "False" %}
             <!-- Referrals panel -->
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="referrals_heading">

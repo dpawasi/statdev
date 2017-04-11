@@ -12,7 +12,14 @@ class Flow():
         return json_obj
 #       print(data['1']['groupaccess']['Processor'])
 #       print(data['1']['title'])
-#       print data 
+#       print data
+    def getAllRouteConf(self,flow,routeid):
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
+            json_obj = json.load(json_data_file)
+            if routeid:
+                if json_obj[str(routeid)]:
+                    return json_obj[str(routeid)]
+            return None
     def getGroupAccess(self,context,route,group,flow): 
         if "may_update" not in context:
             context["may_update"] = "False"
