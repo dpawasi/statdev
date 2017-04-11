@@ -154,6 +154,7 @@ class Application(models.Model):
     publish_documents = models.DateField(null=True, blank=True)
     publish_draft_report = models.DateField(null=True, blank=True)
     publish_final_report = models.DateField(null=True, blank=True)
+    routeid = models.IntegerField(null=True, blank=True, default=1) 
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
