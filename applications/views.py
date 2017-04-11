@@ -937,8 +937,8 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             else:
                 if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
                     messages.error(
-        	            self.request, 'This application cannot be assigned to an assessor!')
-            	    return HttpResponseRedirect(app.get_absolute_url())
+                       self.request, 'This application cannot be assigned to an assessor!')
+                return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
         if self.kwargs['action'] == 'approve':
  #           if app.routeid is None:
