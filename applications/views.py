@@ -120,12 +120,18 @@ class ApplicationDetail(DetailView):
             if app.routeid is None:
                 app.routeid = 1
 
+            
+
             processor = Group.objects.get(name='Processor')
             assessor = Group.objects.get(name='Assessor')
             approver = Group.objects.get(name='Approver')
             referee = Group.objects.get(name='Referee')
             flow = Flow()
-            workflow = flow.get('part5')
+#            workflow = flow.get('part5')
+            routeflow = flow.getAllRouteConf('part5',app.routeid)
+#           print routeflow['title']
+            context['routetitle'] = routeflow['title']
+            
             context = flow.getCollapse(context,app.routeid,'part5')
             if processor in self.request.user.groups.all():
                 context = flow.getGroupAccess(context,app.routeid,'Processor','part5')
@@ -830,11 +836,25 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         # TODO: business logic to check the application may be referred.
         # Rule: application state must be 'with admin' or 'with referee'
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
-            # TODO: better/explicit error response.
-            messages.error(
-                self.request, 'This application cannot be referred!')
-            return HttpResponseRedirect(app.get_absolute_url())
+
+        flowcontext = {}
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+                app.routeid = 1
+
+            flow = Flow()
+            flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+
+            if flowcontext['may_refer'] != "True":
+                messages.error(self.request, 'This application cannot be updated!')
+                return HttpResponseRedirect(app.get_absolute_url())
+
+        else:
+            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+               # TODO: better/explicit error response.
+                messages.error(
+                    self.request, 'This application cannot be referred!')
+                return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationRefer, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -866,6 +886,12 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         app = Application.objects.get(pk=self.kwargs['pk'])
+
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            flow = Flow()
+            nextroute = flow.getNextRoute('referral',app.routeid,"part5")
+            app.routeid = nextroute
+
         self.object = form.save(commit=False)
         self.object.application = app
         self.object.sent_date = date.today()
@@ -900,19 +926,24 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         if self.kwargs['action'] == 'assess':
             # Rule: application can be assessed when status is 'with admin',
             # 'with referee' or 'with manager'.
-            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
-                messages.error(
-                    self.request, 'This application cannot be assigned to an assessor!')
-                return HttpResponseRedirect(app.get_absolute_url())
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                flowcontext = {}
+                flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+                if flowcontext["may_assign_assessor"] != "True":
+                    messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                    return HttpResponseRedirect(app.get_absolute_url())
+            else:
+                if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
+                    messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                    return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
         if self.kwargs['action'] == 'approve':
             if app.state != app.APP_STATE_CHOICES.with_assessor:
-                messages.error(
-                    self.request, 'You are unable to assign this application for approval/issue!')
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
                 return HttpResponseRedirect(app.get_absolute_url())
             if app.assignee != request.user and not request.user.is_superuser:
-                messages.error(
-                    self.request, 'You are unable to assign this application for approval/issue!')
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
                 return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
@@ -957,7 +988,12 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 nextroute = flow.getNextRoute('manager',app.routeid,"part5")
                 self.object.routeid = nextroute
-
+            self.object.state = self.object.APP_STATE_CHOICES.with_manager
+        if self.kwargs['action'] == 'process': 
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                nextroute = flow.getNextRoute('admin',app.routeid,"part5")
+                self.object.routeid = nextroute
 
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
