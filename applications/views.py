@@ -931,38 +931,19 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flowcontext = {}
                 flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
                 if flowcontext["may_assign_assessor"] != "True":
-                    messages.error(
-                        self.request, 'This application cannot be assigned to an assessor!')
+                    messages.error(self.request, 'This application cannot be assigned to an assessor!')
                     return HttpResponseRedirect(app.get_absolute_url())
             else:
                 if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee, app.APP_STATE_CHOICES.with_manager]:
-                    messages.error(
-                       self.request, 'This application cannot be assigned to an assessor!')
-                return HttpResponseRedirect(app.get_absolute_url())
+                    messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                    return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
         if self.kwargs['action'] == 'approve':
- #           if app.routeid is None:
- #               app.routeid = 1
-
-            #processor = Group.objects.get(name='Processor')
-            #assessor = Group.objects.get(name='Assessor')
-            #approver = Group.objects.get(name='Approver')
-            #referee = Group.objects.get(name='Referee')
-
-#            flow = Flow()
-#            flowcontext = {}
-#            flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
-#            print "YES"
-#            print flowcontext
-           
-
             if app.state != app.APP_STATE_CHOICES.with_assessor:
-                messages.error(
-                    self.request, 'You are unable to assign this application for approval/issue!')
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
                 return HttpResponseRedirect(app.get_absolute_url())
             if app.assignee != request.user and not request.user.is_superuser:
-                messages.error(
-                    self.request, 'You are unable to assign this application for approval/issue!')
+                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
                 return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
@@ -1007,6 +988,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 nextroute = flow.getNextRoute('manager',app.routeid,"part5")
                 self.object.routeid = nextroute
+            self.object.state = self.object.APP_STATE_CHOICES.with_manager
         if self.kwargs['action'] == 'process': 
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
