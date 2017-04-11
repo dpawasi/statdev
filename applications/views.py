@@ -888,7 +888,6 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         app = Application.objects.get(pk=self.kwargs['pk'])
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
-            print app.routeid
             flow = Flow()
             nextroute = flow.getNextRoute('referral',app.routeid,"part5")
             app.routeid = nextroute
