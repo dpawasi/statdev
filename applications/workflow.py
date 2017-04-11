@@ -61,7 +61,7 @@ class Flow():
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
         referee = Group.objects.get(name='Referee')
-        print route
+ 
         if processor in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Processor',flow)
         if assessor in request.user.groups.all():
