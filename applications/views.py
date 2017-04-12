@@ -492,7 +492,15 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             flow = Flow()
             flowcontent = {}
             flowcontent = flow.getFields(flowcontent,app.routeid,'part5')
-            initial['fieldstatus'] = flowcontent['fields']
+            initial['fieldstatus'] = []
+           
+            if "fields" in flowcontent:
+                initial['fieldstatus'] = flowcontent['fields']
+            initial['fieldrequired'] = []
+            flowcontent = flow.getRequired(flowcontent,app.routeid,'part5')
+            print flowcontent['required']
+            if "required" in flowcontent:
+                initial['fieldrequired'] = flowcontent['required']
 
 #       flow = Flow()
         #workflow = flow.get()

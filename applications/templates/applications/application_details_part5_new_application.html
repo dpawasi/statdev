@@ -362,12 +362,12 @@
                             </div>
                             <div class="col-lg-12">
                                 {% if proposed_development_plans_list %}
-                                    
+
                                 {% for doc in proposed_development_plans_list %}
-                                    <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+                                <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
                                 {% endfor %}
                                 {% else %}
-                                    No Attachments
+                                No Attachments
                                 {% endif %}
                             </div>
                         </div>
@@ -399,7 +399,7 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
                                 {% endfor %}
                                 {% else %}
-                                    No Attachments Added
+                                No Attachments Added
                                 {% endif %}
                             </div>
                         </div>
@@ -1022,7 +1022,7 @@
                                 {% endfor %}
                         </table>
                         {% else %}
-                        <p>None</p>
+                        <p>No Conditions</p>
                         {% endif %}
 
                         {% if may_create_condition == "True" %}
@@ -1051,6 +1051,8 @@
                 <div class="panel-collapse collapse {{ collapse.assessments }}" id="assessment_collapse" role="tabpanel" aria-labelledby="assessment_heading">
                     <div class="panel-body">
 
+
+                        {% if hidden.assessments_draft_report == "False" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-12">
                                 <label><u>Draft Report</u></label>
@@ -1063,12 +1065,11 @@
                                     {% if object.document_draft %}
                                     <A HREF='/media/{{ object.document_draft.upload }}'>Assessment Report.PDF</A>
                                     {% else %}
-                                        No Attachment
+                                    No Attachment
                                     {% endif %}
 
                                 </div>
                             </div>
-
 
                         </div>
 
@@ -1080,6 +1081,18 @@
                                 {{ object.assessment_start_date }}
                             </div>
                         </div>
+
+                        {% if may_update_assessment_draft == "True" %}
+                        <a href="{% url 'application_update' object.pk %}" class="btn btn-primary" role="button">
+                            Update
+                        </a>
+                        {% endif %}
+
+
+
+                        {% endif %}
+                        {% if hidden.assessments_draft_report_after_public_consultation == "False" %}
+
                         <div class="col-lg-12">
                             <div class="col-lg-12">
                                 <label><u>Draft Report after public consultation</u></label>
@@ -1095,6 +1108,9 @@
                             </div>
 
                         </div>	
+                        {% endif %}
+
+                        {% if hidden.assessments_determination_and_breifing_note == "False" %}
 
                         <div class="col-lg-12">
                             <div class="col-lg-12">
@@ -1119,8 +1135,8 @@
 
                             </div>
 
-
                         </div>
+                        {% endif %}
 
                     </div>
 
