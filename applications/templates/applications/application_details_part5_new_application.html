@@ -353,7 +353,7 @@
                                 <label>Proposed development</Label>
                             </div>
                             <div class="col-lg-12">
-                                {{ object.proposed_development_e_of_land }}
+                                {{ object.proposed_development_description }}
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12">
@@ -361,7 +361,14 @@
                                 <label>Attach a full set of plans</Label>
                             </div>
                             <div class="col-lg-12">
-                                {{ object.proposed_development_description }}
+                                {% if proposed_development_plans_list %}
+                                    
+                                {% for doc in proposed_development_plans_list %}
+                                    <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+                                {% endfor %}
+                                {% else %}
+                                    No Attachments
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -392,7 +399,7 @@
                                 <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
                                 {% endfor %}
                                 {% else %}
-                                No Attachments Added
+                                    No Attachments Added
                                 {% endif %}
                             </div>
                         </div>
@@ -481,7 +488,6 @@
                                     Add News Publication 
                                 </a>
                                 {% endif %}
-
                             </div>
                         </div>
                     </div>
@@ -1054,7 +1060,12 @@
                                     Current Version of Report
                                 </div>
                                 <div class="col-lg-6">
-                                    Assessment Report.PDF
+                                    {% if object.document_draft %}
+                                    <A HREF='/media/{{ object.document_draft.upload }}'>Assessment Report.PDF</A>
+                                    {% else %}
+                                        No Attachment
+                                    {% endif %}
+
                                 </div>
                             </div>
 
@@ -1062,11 +1073,11 @@
                         </div>
 
                         <div class="col-lg-12">
-                            <div class="col-lg-3">
+                            <div class="col-lg-6">
                                 <label> Start Date</label>
                             </div>
-                            <div class="col-lg-9">
-                                <input type='text' value=''>
+                            <div class="col-lg-6">
+                                {{ object.assessment_start_date }}
                             </div>
                         </div>
                         <div class="col-lg-12">
