@@ -86,7 +86,7 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "False"
 
         },
         "actions": [
@@ -303,7 +303,8 @@
                 "may_create_condition": "True",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_recall_resend": "True"
             },
             "Assessor": {
                 "may_update": "False",
