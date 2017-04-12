@@ -239,7 +239,6 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
             del self.fields[fielditem]
 
         for fielditem in self.initial["fieldrequired"]:
-            print fielditem
             self.fields[fielditem].required = True
 
         self.helper = BaseFormHelper()
