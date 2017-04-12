@@ -238,6 +238,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
         for fielditem in self.initial["fieldstatus"]:
             del self.fields[fielditem]
 
+        for fielditem in self.initial["fieldrequired"]:
+            self.fields[fielditem].required = True
+
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_update_part_5'
         self.helper.attrs = {'novalidate': ''}
