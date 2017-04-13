@@ -40,13 +40,32 @@
             },
             "Assessor": {
                 "may_update": "True",
-                "may_lodge":null,
-                "may_refer":"True",
-                "may_assign":"True",
-                "may_create_condition":"True",
-                "may_submit_approval": "True",
-                "may_issue": "True"
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Approver": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+
             }
+
         },
         "collapse": {
             "applicant": "False",
@@ -120,13 +139,6 @@
                 "may_generate_pdf": "False"
             },
             "Assessor": {
-                "may_update": "False",
-                "may_lodge":"False",
-                "may_refer":"False",
-                "may_assign":"False",
-                "may_create_condition":"False",
-                "may_submit_approval": "False",
-                "may_issue": "False"
             }
         },
         "collapse": {
@@ -188,7 +200,7 @@
         }
         ],
         "groupaccess": {
-            "Processor": {
+            "ProcessorOFf": {
                 "may_update": "True",
                 "may_update_assessment_draft": "True",
                 "may_lodge":"False",
@@ -335,6 +347,78 @@
 
         }
     },
+    "6": {
+        "title": "Director",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Reject Back to Manager",
+                "route": "5",
+                "routegroup": "manager"
+
+            },
+            {
+                "title": "Approve to Exec Officer",
+                "route": "7",
+                "routegroup": "manager"
+            }
+
+        ],
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
     "5": {
         "title": "Manager",
         "hidden": {
@@ -365,12 +449,12 @@
             {
                 "title": "Approve to Director",
                 "route": "6",
-                "routegroup": "director"
+                "routegroup": "manager"
             }
 
         ],
         "groupaccess": {
-            "Processor": {
+            "Approver": {
                 "may_update": "False",
                 "may_lodge":"False",
                 "may_refer":"False",
@@ -378,22 +462,13 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                "may_submit_approval": "False",
+                "may_submit_approval": "True",
                 "may_assign_assessor": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
-            },
-            "Assessor":{
-                "may_update": "True",
-                "may_lodge":"True",
-                "may_refer":"True",
-                "may_assign":"True",
-                "may_create_condition":"True",
-                "may_submit_approval": "True",
-                "may_issue": "True"
             }
-        },
 
+        },
         "collapse": {
             "applicant": "True",
             "title": "True",
