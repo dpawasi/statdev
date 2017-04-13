@@ -71,7 +71,7 @@ WSGI_APPLICATION = 'statdev.wsgi.application'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home_page'
 STATIC_CONTEXT_VARS = {}
-APPLICATION_VERSION_NO = '0.1'
+APPLICATION_VERSION_NO = '0.2'
 ALLOWED_UPLOAD_TYPES = [
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
