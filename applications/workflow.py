@@ -103,9 +103,18 @@ class Flow():
         with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
            json_obj = json.load(json_data_file)
            if json_obj[str(route)]:
-               if json_obj[str(route)]['fields']:
+               if "fields" in json_obj[str(route)]:
                   context["fields"] = json_obj[str(route)]['fields']
         return context
+    def getRequired(self,context,route,flow):
+        context['required'] = {}
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
+            json_obj = json.load(json_data_file)
+            if json_obj[str(route)]:
+                if "required" in json_obj[str(route)]:
+                    context["required"] = json_obj[str(route)]['required']
+        return context
+
     def getNextRoute(self,action,route,flow):
         with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)

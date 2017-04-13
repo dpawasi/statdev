@@ -63,11 +63,11 @@
         },
         "fields": {
             "location": "hide",
-            "river_lease_require_river_lease": "hide",
             "document_draft": "hide",
             "document_final": "hide",
             "document_determination": "hide",
-            "document_completion": "hide"
+            "document_completion": "hide",
+            "assessment_start_date": "hide"
         }
     },
     "2": {
@@ -143,6 +143,12 @@
             "deed": "False"
         },
         "fields": {
+            "location": "hide",
+            "document_draft": "hide",
+            "document_final": "hide",
+            "document_determination": "hide",
+            "document_completion": "hide",
+            "assessment_start_date": "hide"
 
         }
     }, 
@@ -158,11 +164,14 @@
             "river_reserve_lease_section_32": "False",
             "landowner_consent": "False",
             "deed": "False",
-            "publication": "False",
+            "publication": "True",
             "conditions": "False",
             "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "assessments_draft_report": "False",
+            "assessments_draft_report_after_public_consultation":"True",
+            "assessments_determination_and_breifing_note":"True"
 
         },
         "actions": [{
@@ -180,7 +189,22 @@
         ],
         "groupaccess": {
             "Processor": {
-                "may_update": "False",
+                "may_update": "True",
+                "may_update_assessment_draft": "True",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"True",
+                "may_submit_approval": "True",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor": {
+                "may_update": "True",
+                "may_update_assessment_draft": "True",
                 "may_lodge":"False",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -209,8 +233,36 @@
             "assessments": "False"
         },
         "fields": {
-
-        }
+            "title": "hide",
+            "description": "hide",
+            "cost": "hide",
+            "project_no": "hide",
+            "river_lease_require_river_lease":"hide",
+            "river_lease_reserve_licence": "hide",
+            "river_lease_application_number":"hide",
+            "proposed_development_description":"hide",
+            "proposed_development_current_use_of_land":"hide",
+            "certificate_of_title_volume":"hide",
+            "folio":"hide",
+            "diagram_plan_deposit_number":"hide",
+            "location":"hide",
+            "reserve_number":"hide",
+            "street_number_and_name":"hide",
+            "town_suburb":"hide",
+            "lot":"hide",
+            "nearest_road_intersection":"hide",
+            "land_owner_consent":"hide",
+            "proposed_development_plans":"hide",
+            "document_final":"hide",
+            "document_completion":"hide",
+            "river_lease_scan_of_application":"hide",
+            "deed":"hide",
+            "document_determination":"hide"
+        },
+        "required": [
+            "assessment_start_date",
+            "document_draft"
+        ]
     },
     "4": {
         "title": "Referrals",
@@ -229,6 +281,7 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "False"
+
 
         },
         "actions": [
@@ -295,9 +348,10 @@
             "deed": "False",
             "publication": "False",
             "conditions": "False",
-            "assessments": "True",
+            "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "False"
+            "referrals": "False",
+            "assessments_draft_report": "False"
 
         },
         "actions": [
@@ -340,7 +394,7 @@
         },
 
         "collapse": {
-            "applicant": "False",
+            "applicant": "True",
             "title": "True",
             "proposed_activities": "True",
             "certificate_commerical_acts_and_activities": "True",
@@ -351,7 +405,8 @@
             "publication": "True",
             "referrals": "False",
             "deed": "True",
-            "conditions": "False"
+            "conditions": "False",
+            "assessments": "False"
         },
 
         "fields": {

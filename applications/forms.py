@@ -230,13 +230,16 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     class Meta:
         model = Application
-        fields = ['title', 'description','cost','project_no', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description']
+        fields = ['title', 'description','cost','project_no', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
 
         for fielditem in self.initial["fieldstatus"]:
             del self.fields[fielditem]
+
+        for fielditem in self.initial["fieldrequired"]:
+            self.fields[fielditem].required = True
 
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_update_part_5'
