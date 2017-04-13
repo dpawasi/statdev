@@ -337,14 +337,15 @@ class ApplicationDetail(DetailView):
             # Rule: if the application status is 'draft', it can be lodged.
             # Rule: if the application is an Emergency Works and status is 'draft'
             #   conditions can be added
-            if app.applicant == self.request.user or self.request.user.is_superuser:
-                context['may_update'] = True
-                if not app.app_type == app.APP_TYPE_CHOICES.emergency:
-                    context['may_lodge'] = True
-                else:
+            if app.app_type == app.APP_TYPE_CHOICES.emergency:
+                if app.assignee == self.request.user or self.request.user.is_superuser:
+                    context['may_update'] = True
                     context['may_issue'] = True
                     context['may_create_condition'] = True
                     context['may_update_condition'] = True
+            elif app.applicant == self.request.user or self.request.user.is_superuser:
+                context['may_update'] = True
+                context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin', it can be sent
             # back to the customer.
@@ -775,6 +776,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
+
+        if self.object.app_type == Application.APP_TYPE_CHOICES.emergency:
+            self.object.issued_date = datetime.today()
         self.object.save()
         new_loc.save()
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:

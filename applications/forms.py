@@ -251,7 +251,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 class ApplicationEmergencyForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['applicant', 'organisation', 'issue_date', 'proposed_commence', 'proposed_end']
+        fields = ['applicant', 'organisation', 'proposed_commence', 'proposed_end']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationEmergencyForm, self).__init__(*args, **kwargs)
