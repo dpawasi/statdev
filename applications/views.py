@@ -321,6 +321,11 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
 
+            if app.organisation:
+                context['address'] = app.organisation.postal_address
+            elif app.applicant:
+                context['address'] = app.applicant.emailuserprofile.postal_address
+
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
@@ -332,14 +337,15 @@ class ApplicationDetail(DetailView):
             # Rule: if the application status is 'draft', it can be lodged.
             # Rule: if the application is an Emergency Works and status is 'draft'
             #   conditions can be added
-            if app.applicant == self.request.user or self.request.user.is_superuser:
-                context['may_update'] = True
-                if not app.app_type == app.APP_TYPE_CHOICES.emergency:
-                    context['may_lodge'] = True
-                else:
+            if app.app_type == app.APP_TYPE_CHOICES.emergency:
+                if app.assignee == self.request.user or self.request.user.is_superuser:
+                    context['may_update'] = True
                     context['may_issue'] = True
                     context['may_create_condition'] = True
                     context['may_update_condition'] = True
+            elif app.applicant == self.request.user or self.request.user.is_superuser:
+                context['may_update'] = True
+                context['may_lodge'] = True
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             # Rule: if the application status is 'with admin', it can be sent
             # back to the customer.
@@ -770,6 +776,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
+
+        if self.object.app_type == Application.APP_TYPE_CHOICES.emergency:
+            self.object.issued_date = datetime.today()
         self.object.save()
         new_loc.save()
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
@@ -1281,6 +1290,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
             if 'compliance' in data and data.get('compliance', None):
                 new_comp = form.save(commit=False)
                 new_comp.applicant = self.request.user
+                new_comp.application = self.get_application()
                 new_comp.submit_date = date.today()
                 # TODO: handle the uploaded file.
                 new_comp.save()
@@ -1879,20 +1889,31 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
         # Rule: can only delete a condition if the parent application is status
-        # 'with referral' or 'with assessor'.
-        if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
-            messages.warning(self.request, 'You cannot delete this condition')
-            return HttpResponseRedirect(condition.application.get_absolute_url())
-        # Rule: can only delete a condition if the request user is an Assessor
-        # or they are assigned the referral to which the condition is attached
-        # and that referral is not completed.
-        assessor = Group.objects.get(name='Assessor')
-        ref = condition.referral
-        if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
-            return super(ConditionDelete, self).get(request, *args, **kwargs)
+        # 'with referral' or 'with assessor'. Can also delete if you are the user assigned
+        # to an Emergency Works
+        if condition.application.app_type != Application.APP_TYPE_CHOICES.emergency:
+            if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
+                messages.warning(self.request, 'You cannot delete this condition')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+            # Rule: can only delete a condition if the request user is an Assessor
+            # or they are assigned the referral to which the condition is attached
+            # and that referral is not completed.
+            assessor = Group.objects.get(name='Assessor')
+            ref = condition.referral
+            if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+                return super(ConditionDelete, self).get(request, *args, **kwargs)
+            else:
+                messages.warning(self.request, 'You cannot delete this condition')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
         else:
-            messages.warning(self.request, 'You cannot delete this condition')
-            return HttpResponseRedirect(condition.application.get_absolute_url())
+            # Rule: can only delete a condition if the request user is the assignee and the application 
+            # has not been issued.
+            if condition.application.assignee == request.user and condition.application.state != Application.APP_STATE_CHOICES.issued:
+                return super(ConditionDelete, self).get(request, *args, **kwargs)
+            else:
+                messages.warning(self.request, 'You cannot delete this condition')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))

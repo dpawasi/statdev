@@ -74,10 +74,10 @@
                 <div class="panel-heading" data-toggle="collapse" data-target="#holder_collapse">
                     <h3 class="panel-title">
                         Holder
-                        <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse" id="holder_collapse">
+                <div class="panel-collapse collapse in" id="holder_collapse">
                     <div class="panel-body">
                         <div class="col-sm-8 col-md-6 col-lg-4">
                             <table class="table table-borderless">
@@ -106,38 +106,36 @@
                 <div class="panel-heading" data-toggle="collapse" data-target="#address_collapse">
                     <h3 class="panel-title">
                         Address Details
-                        <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse" id="address_collapse">
+                <div class="panel-collapse collapse in" id="address_collapse">
                     <div class="panel-body">
                         <div class="col-sm-4 col-md-3 col-lg-3">
-                            {% with object.organisation.postal_address as address %}
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <th>Postal address</th>
-                                        <td>{{ address.line1 }}</td>
-                                    </tr>
-                                    {% if address.line2 %}
-                                    <tr>
-                                        <td></td>
-                                        <td>{{ address.line2 }}</td>
-                                    </tr>
-                                    {% endif %}
-                                    <tr>
-                                        <th>Town / Suburb</th>
-                                        <td>{{ address.locality }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>State</th>
-                                        <td>{{ address.state }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Postcode</th>
-                                        <td>{{ address.postcode }}</td>
-                                    </tr>
-                                </table>
-                            {% endwith %}
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Postal address</th>
+                                    <td>{{ address.line1 }}</td>
+                                </tr>
+                                {% if address.line2 %}
+                                <tr>
+                                    <td></td>
+                                    <td>{{ address.line2 }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>Town / Suburb</th>
+                                    <td>{{ address.locality }}</td>
+                                </tr>
+                                <tr>
+                                    <th>State</th>
+                                    <td>{{ address.state }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Postcode</th>
+                                    <td>{{ address.postcode }}</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -148,10 +146,10 @@
                 <div class="panel-heading" data-toggle="collapse" data-target="#emergency_collapse">
                     <h3 class="panel-title">
                         Emergency Works
-                        <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse" id="emergency_collapse">
+                <div class="panel-collapse collapse in" id="emergency_collapse">
                     <div class="panel-body">
                         <div class="col-sm-8 col-md-6 col-lg-3">
                             <table class="table table-borderless">
@@ -182,10 +180,10 @@
                 <div class="panel-heading" data-toggle="collapse" data-target="#conditions_collapse">
                     <h3 class="panel-title">
                         Conditions
-                        <span class="glyphicon glyphicon-plus collapse-glyph"></span>
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse" id="conditions_collapse">
+                <div class="panel-collapse collapse in" id="conditions_collapse">
                     <div class="panel-body">
                         {% if object.condition_set.exists %}
                         <table class="table table-bordered table-striped">
@@ -206,6 +204,7 @@
                                     <td>
                                         {% if may_update_condition %}
                                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk %}">Update</a>
+                                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_delete' cond.pk %}">Delete</a>
                                         {% endif %}
                                     </td>
                                 </tr>
