@@ -51,7 +51,7 @@ class Flow():
             json_obj = json.load(json_data_file)
             if json_obj[str(route)]:
                 if "groupaccess" in json_obj[str(route)]:
-                    if json_obj[str(route)]['groupaccess'][group]:
+                    if group in json_obj[str(route)]['groupaccess']:
                         groupaccess = json_obj[str(route)]['groupaccess'][group]
                         for ga in groupaccess:
                             if ga in context:
