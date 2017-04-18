@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from datetime import date
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,7 +14,7 @@ from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
 from django.utils.safestring import SafeText
-from datetime import datetime
+from datetime import datetime, date
 from applications.workflow import Flow 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -777,8 +776,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
 
-        if self.object.app_type == Application.APP_TYPE_CHOICES.emergency:
-            self.object.issued_date = datetime.today()
         self.object.save()
         new_loc.save()
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
@@ -1107,6 +1104,8 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 user=self.request.user, action='Application issued')
             action.save()
             if self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
+                self.object.issue_date = date.today()
+
                 msg = """<strong>The emergency works has been successfully issued.</strong><br />
                 <br />
                 <strong>Emergency Works:</strong> \t{0}<br />
