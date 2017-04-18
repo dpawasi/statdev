@@ -979,12 +979,21 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                     return HttpResponseRedirect(app.get_absolute_url())
         # Rule: only the assignee (or a superuser) can assign for approval.
         if self.kwargs['action'] == 'approve':
-            if app.state != app.APP_STATE_CHOICES.with_assessor:
-                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
-                return HttpResponseRedirect(app.get_absolute_url())
-            if app.assignee != request.user and not request.user.is_superuser:
-                messages.error(self.request, 'You are unable to assign this application for approval/issue!')
-                return HttpResponseRedirect(app.get_absolute_url())
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                flowcontext = {}
+                flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+                
+                if flowcontext["may_submit_approval"] != "True":
+                    messages.error(self.request, 'This application cannot be assigned to an assessor!')
+                    return HttpResponseRedirect(app.get_absolute_url())
+            else:
+                if app.state != app.APP_STATE_CHOICES.with_assessor:
+                    messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                    return HttpResponseRedirect(app.get_absolute_url())
+                if app.assignee != request.user and not request.user.is_superuser:
+                    messages.error(self.request, 'You are unable to assign this application for approval/issue!')
+                    return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssign, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
