@@ -1030,6 +1030,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             # 'with referee' or 'with manager'.
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 flowcontext = {}
                 flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
                 if flowcontext["may_assign_assessor"] != "True":
@@ -1043,6 +1044,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         if self.kwargs['action'] == 'approve':
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 flowcontext = {}
                 flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
                 
@@ -1076,38 +1078,39 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        app = self.object
-
+        app = self.object 
         if self.kwargs['action'] == 'customer':
             messages.success(self.request, 'Application {} has been assigned back to customer'.format(self.object.pk))
         else:
-            messages.success(self.request, 'Application {} has been assigned to {}'.format(
-                self.object.pk, self.object.assignee.get_full_name()))
-        #    if self.kwargs['action'] == 'customer':
+            messages.success(self.request, 'Application {} has been assigned to {}'.format(self.object.pk, self.object.assignee.get_full_name()))
+        if self.kwargs['action'] == 'customer':
             # Assign the application back to the applicant and make it 'draft'
             # status.
             self.object.assignee = self.object.applicant
-#           self.object.state = self.object.APP_STATE_CHOICES.draft
+            self.object.state = self.object.APP_STATE_CHOICES.draft
             # TODO: email the feedback back to the customer.
-  #      if self.kwargs['action'] == 'assess':
-   #         if app.app_type == app.APP_TYPE_CHOICES.part5:
-                #          flow = Flow()
-   #             nextroute = flow.getNextRoute('assess',app.routeid,"part5")
-    #            self.object.routeid = nextroute
-     #       self.object.state = self.object.APP_STATE_CHOICES.with_assessor
-#        if self.kwargs['action'] == 'approve':
- #           if app.app_type == app.APP_TYPE_CHOICES.part5:
-                #                flow = Flow()
-#                nextroute = flow.getNextRoute('manager',app.routeid,"part5")
- #               self.object.routeid = nextroute
-  #          self.object.state = self.object.APP_STATE_CHOICES.with_manager
-        #if self.kwargs['action'] == 'process': 
-            #            if app.app_type == app.APP_TYPE_CHOICES.part5:
-                # flow = Flow()
-                # nextroute = flow.getNextRoute('admin',app.routeid,"part5")
-                # self.object.routeid = nextroute
+        if self.kwargs['action'] == 'assess':
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                flow.get('part5')
+                nextroute = flow.getNextRoute('assess',app.routeid,"part5")
+                self.object.routeid = nextroute
+            self.object.state = self.object.APP_STATE_CHOICES.with_assessor
+        if self.kwargs['action'] == 'approve':
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                flow.get('part5')
+                nextroute = flow.getNextRoute('manager',app.routeid,"part5")
+                self.object.routeid = nextroute
+            self.object.state = self.object.APP_STATE_CHOICES.with_manager
+        if self.kwargs['action'] == 'process': 
+            if app.app_type == app.APP_TYPE_CHOICES.part5:
+                flow = Flow()
+                flow.get('part5')
+                nextroute = flow.getNextRoute('admin',app.routeid,"part5")
+                self.object.routeid = nextroute
 
-                # self.object.state = self.object.APP_STATE_CHOICES.with_manager
+            self.object.state = self.object.APP_STATE_CHOICES.with_manager
         self.object.save()
         if self.kwargs['action'] == 'customer':
             # Record the feedback on the application:
@@ -1122,7 +1125,6 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
-
 
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
