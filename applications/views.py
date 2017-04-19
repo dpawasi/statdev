@@ -127,9 +127,10 @@ class ApplicationDetail(DetailView):
             referee = Group.objects.get(name='Referee')
             flow = Flow()
 #            workflow = flow.get('part5')
-            routeflow = flow.getAllRouteConf('part5',app.routeid)
+#            routeflow = flow.getAllRouteConf('part5',app.routeid)
+
 #           print routeflow['title']
-            context['routetitle'] = routeflow['title']
+ #           context['routetitle'] = routeflow['title']
             
             context = flow.getCollapse(context,app.routeid,'part5')
             if processor in self.request.user.groups.all():
@@ -142,6 +143,7 @@ class ApplicationDetail(DetailView):
                 context = flow.getGroupAccess(context,app.routeid,'Referee','part5')
 
             context = flow.getHiddenAreas(context,app.routeid,'part5')
+            context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
 
             self.template_name = 'applications/application_details_part5_new_application.html'
             try:
@@ -947,38 +949,53 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         action.save()
         return super(ApplicationRefer, self).form_valid(form)
 
-class ApplicationAssignGroup(LoginRequiredMixin, UpdateView):
+class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
     """
+
     model = Application
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
 
-        DefaultGroups ={}
+        DefaultGroups = {}
         DefaultGroups['admin'] = 'Processor'
-        DefaultGroups['assessor'] = 'Assessor'
+        DefaultGroups['assess'] = 'Assessor'
         DefaultGroups['manager'] = 'Approver'
         DefaultGroups['director'] = 'Director'
-        DefaultGroups['admin'] = 'Processor'
 
-        group = self.kwargs['group']
-        print group 
+        action = self.kwargs['action']
 
-        return super(ApplicationAssignGroup, self).get(request, *args, **kwargs)
+        flow = Flow()
+        flowcontext = {}
+        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+        # nextroute = flow.getNextRoute(action,app.routeid,"part5")
+        assign_action = flow.checkAssignedAction(action,flowcontext)
+        if assign_action != True:
+            messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups[action])
+            return HttpResponseRedirect(app.get_absolute_url())
+
+        return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
-        return apps_forms.ApplicationAssignGroup
+        return apps_forms.ApplicationAssignNextAction
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ApplicationAssignGroup, self).post(request, *args, **kwargs)
+        return super(ApplicationAssignNextAction, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        app = self.object
+        app = self.get_object()
+        action = self.kwargs['action']
+        flow = Flow()
+        route = flow.getNextRouteObj(action,app.routeid,"part5")
+        self.object.routeid = route["route"]
+        self.object.state = route["state"]
+
+        self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
