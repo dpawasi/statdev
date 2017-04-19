@@ -25,7 +25,6 @@
                     {# TODO: hide the Actions dropdown when no actions can be performed #}
                     <ul>
 
-                        <ul>
                             {% if workflow_actions %}
 
 
@@ -78,6 +77,13 @@
                             {% endif %}
 
                         </ul>
+
+                <h5>Form Options</h5>
+                <ul>
+                    {% if may_update == "True" %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
+                    {% if may_create_condition == "True" %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
+                    {% if may_refer == "True" %}<li><a href="{% url 'application_refer' object.pk %}">Add Referrals</a></li>{% endif %}
+                </ul>
                 </div>
             </div>
             <div class="panel panel-default">
