@@ -126,6 +126,7 @@ class ApplicationDetail(DetailView):
             approver = Group.objects.get(name='Approver')
             referee = Group.objects.get(name='Referee')
             flow = Flow()
+            flow.get('part5')
 #            workflow = flow.get('part5')
 #            routeflow = flow.getAllRouteConf('part5',app.routeid)
 
@@ -455,6 +456,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             referee = Group.objects.get(name='Referee')
 
             flow = Flow()
+            flow.get('part5')
             context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
 
             if context['may_update'] != "True":
@@ -476,6 +478,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 app.routeid = 1
             request = self.request
             flow = Flow()
+            flow.get('part5')
             context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
         return context
 
@@ -497,6 +500,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 app.routeid = 1
             request = self.request
             flow = Flow()
+            flow.get('part5')
             flowcontent = {}
             flowcontent = flow.getFields(flowcontent,app.routeid,'part5')
             initial['fieldstatus'] = []
@@ -810,9 +814,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
                app.routeid = 1
             request = self.request
             flow = Flow()
+            flow.get('part5')
             flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
             if flowcontext['may_lodge'] == "True": 
-                donothing = ""     
+                donothing = ""
             else:
                 messages.error(self.request, 'This application cannot be lodged!')
                 return HttpResponseRedirect(app.get_absolute_url())
@@ -837,7 +842,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # print app.app_type
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
+            if app.routeid is None:
+                app.routeid = 1
             flow = Flow()
+            flow.get('part5')
             nextroute = flow.getNextRoute('lodge',app.routeid,"part5")
             app.routeid = nextroute 
 
@@ -885,6 +893,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
                 app.routeid = 1
 
             flow = Flow()
+            flow.get('part5')
             flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
 
             if flowcontext['may_refer'] != "True":
@@ -931,6 +940,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             flow = Flow()
+            flow.get('part5')
             nextroute = flow.getNextRoute('referral',app.routeid,"part5")
             app.routeid = nextroute
 
@@ -968,6 +978,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         action = self.kwargs['action']
 
         flow = Flow()
+        flow.get('part5')
         flowcontext = {}
         flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
         # nextroute = flow.getNextRoute(action,app.routeid,"part5")
@@ -991,10 +1002,11 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         app = self.get_object()
         action = self.kwargs['action']
         flow = Flow()
+        flow.get('part5')
         route = flow.getNextRouteObj(action,app.routeid,"part5")
         self.object.routeid = route["route"]
         self.object.state = route["state"]
-
+        self.object.assignee = None
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1018,6 +1030,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             # 'with referee' or 'with manager'.
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 flowcontext = {}
                 flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
                 if flowcontext["may_assign_assessor"] != "True":
@@ -1031,6 +1044,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         if self.kwargs['action'] == 'approve':
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 flowcontext = {}
                 flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
                 
@@ -1068,8 +1082,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         if self.kwargs['action'] == 'customer':
             messages.success(self.request, 'Application {} has been assigned back to customer'.format(self.object.pk))
         else:
-            messages.success(self.request, 'Application {} has been assigned to {}'.format(
-                self.object.pk, self.object.assignee.get_full_name()))
+            messages.success(self.request, 'Application {} has been assigned to {}'.format(self.object.pk, self.object.assignee.get_full_name()))
         if self.kwargs['action'] == 'customer':
             # Assign the application back to the applicant and make it 'draft'
             # status.
@@ -1079,18 +1092,21 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         if self.kwargs['action'] == 'assess':
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 nextroute = flow.getNextRoute('assess',app.routeid,"part5")
                 self.object.routeid = nextroute
             self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         if self.kwargs['action'] == 'approve':
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 nextroute = flow.getNextRoute('manager',app.routeid,"part5")
                 self.object.routeid = nextroute
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
         if self.kwargs['action'] == 'process': 
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
+                flow.get('part5')
                 nextroute = flow.getNextRoute('admin',app.routeid,"part5")
                 self.object.routeid = nextroute
 
@@ -1109,7 +1125,6 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
-
 
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
