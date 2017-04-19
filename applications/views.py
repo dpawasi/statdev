@@ -950,6 +950,39 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         action.save()
         return super(ApplicationRefer, self).form_valid(form)
 
+class ApplicationAssignGroup(LoginRequiredMixin, UpdateView):
+    """A view to allow an application to be assigned to an internal user or back to the customer.
+    The ``action`` kwarg is used to define the new state of the application.
+    """
+    model = Application
+
+    def get(self, request, *args, **kwargs):
+        app = self.get_object()
+
+        DefaultGroups ={}
+        DefaultGroups['admin'] = 'Processor'
+        DefaultGroups['assessor'] = 'Assessor'
+        DefaultGroups['manager'] = 'Approver'
+        DefaultGroups['director'] = 'Director'
+        DefaultGroups['admin'] = 'Processor'
+
+        group = self.kwargs['group']
+        print group 
+
+        return super(ApplicationAssignGroup, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        return apps_forms.ApplicationAssignGroup
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationAssignGroup, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        app = self.object
+        return HttpResponseRedirect(self.get_success_url())
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
