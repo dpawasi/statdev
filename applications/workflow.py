@@ -140,7 +140,7 @@ class Flow():
             json_obj = json.load(json_data_file)
             if json_obj[str(route)]:
                 if json_obj[str(route)]['actions']:
-					return json_obj[str(route)]['actions']
+                   return json_obj[str(route)]['actions']
  
     def checkAssignedAction(self,action,context):
         assign_action = False
