@@ -938,11 +938,11 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         app = Application.objects.get(pk=self.kwargs['pk'])
 
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            flow = Flow()
-            flow.get('part5')
-            nextroute = flow.getNextRoute('referral',app.routeid,"part5")
-            app.routeid = nextroute
+#        if app.app_type == app.APP_TYPE_CHOICES.part5:
+#            flow = Flow()
+#            flow.get('part5')
+#            nextroute = flow.getNextRoute('referral',app.routeid,"part5")
+#            app.routeid = nextroute
 
         self.object = form.save(commit=False)
         self.object.application = app
