@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/refer/$', views.ApplicationRefer.as_view(), name='application_refer'),
     url(r'^applications/(?P<pk>\d+)/create-condition/$', views.ConditionCreate.as_view(), name='condition_create'),
     url(r'^applications/(?P<pk>\d+)/assign/(?P<action>\w+)/$', views.ApplicationAssign.as_view(), name='application_assign'),
+    url(r'^applications/(?P<pk>\d+)/nextaction/(?P<action>\w+)/$', views.ApplicationAssignNextAction.as_view(), name='application_nextaction'),
     url(r'^applications/(?P<pk>\d+)/issue/$', views.ApplicationIssue.as_view(), name='application_issue'),
     url(r'^applications/(?P<pk>\d+)/create-compliance/$', views.ComplianceCreate.as_view(), name='compliance_create'),
     url(r'^applications/(?P<pk>\d+)/vessel/$', views.VesselCreate.as_view(), name='application_add_vessel'),

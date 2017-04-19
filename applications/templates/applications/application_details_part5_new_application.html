@@ -26,6 +26,43 @@
                     <ul>
 
                         <ul>
+                            {% if workflow_actions %}
+
+
+                            {% for action in workflow_actions %}
+                            <!-- Lodge -->
+                            {% if action.routegroup == "lodge" %} 
+                            {% if may_lodge == "True" %}<li><a href="{% url 'application_lodge' object.pk %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
+                            <!-- End Lodge -->
+                            <!-- Admin Officer/Processor -->
+                            {% if action.routegroup == "admin" %}
+                                {% if may_assign_processor == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'admin' %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
+
+                            <!-- End Admin Officer/Processor -->
+
+                            {{ action.route }}
+
+                            <!-- Assessor -->
+                            {% if action.routegroup == "assess" %}
+                            {% if may_assign_assessor == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'assess' %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
+                            <!-- Assessor -->
+
+                            <!-- Referrals -->
+                            {% if action.routegroup == "referral" %}
+                            {% if may_refer == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'referral' %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
+
+                            <!-- Referrals -->
+
+
+                            {% endfor %}
+
+                            {% else %}
+
+
                             {% if may_update == "True" %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
                             {% if may_lodge == "True" %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
                             {% if may_refer == "True" %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
@@ -38,6 +75,7 @@
                             {% if may_request_compliance == "True" %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
                             <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
                             {% if may_generate_pdf == "True"  %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
+                            {% endif %}
 
                         </ul>
                 </div>
@@ -66,7 +104,7 @@
                 </div>
                 <div class="panel-body">
                     <h5>Status</h5>
-                    <p>{% if routetitle %}{{ routetitle }}{% else %}{{ object.get_state_display }}{% endif %} </p>
+                    <p>{% if routetitlei %}{{ routetitle }}{% else %}{{ object.get_state_display }}{% endif %} </p>
                     <h5>Assigned to</h5>
                     {% if object.assignee %}
                     <p>

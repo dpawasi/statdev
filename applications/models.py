@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
 from accounts.models import Organisation
-
+from datetime import datetime
 
 @python_2_unicode_compatible
 class Document(models.Model):
@@ -81,14 +81,19 @@ class Application(models.Model):
     )
     APP_STATE_CHOICES = Choices(
         (1, 'draft', ('Draft')),
-        (2, 'with_admin', ('With admin')),
-        (3, 'with_referee', ('With referee')),
-        (4, 'with_assessor', ('With assessor')),
-        (5, 'with_manager', ('With manager')),
+        (2, 'with_admin', ('With Admin Officer')),
+        (3, 'with_referee', ('With Referrals')),
+        (4, 'with_assessor', ('With Assessor')),
+        (5, 'with_manager', ('With Manager')),
         (6, 'issued', ('Issued')),
         (7, 'issued_with_admin', ('Issued (with admin)')),
         (8, 'declined', ('Declined')),
         (9, 'new', ('New')),
+        (10,'approved',('Approved')),
+        (11 ,'expird', ('Expired')),
+        (12 ,'with_director',('With Director')),
+        (13 ,'with_exec', ('With Exec'))
+
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
@@ -335,3 +340,17 @@ class Compliance(models.Model):
 
     def __str__(self):
         return 'Compliance {} ({})'.format(self.pk, self.condition)
+
+
+class Communication(models.Model):
+      """This model represents the communication model 
+      """
+      application = models.ForeignKey(Application, on_delete=models.PROTECT)
+      details = models.TextField(blank=True, null=True)
+      documents = models.ManyToManyField(Document, blank=True, related_name='communication_docs')
+      state = models.IntegerField() # move to foreign key once APP_STATE_CHOICES becomes a model 
+      created = models.DateTimeField(("Date"), default=datetime.now())
+
+
+
+

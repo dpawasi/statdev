@@ -125,7 +125,36 @@ class Flow():
                             if a["routegroup"] == action:
                                return a["route"]
 
+    def getNextRouteObj(self,action,route,flow):
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
+            json_obj = json.load(json_data_file)
+            if json_obj[str(route)]:
+                if json_obj[str(route)]['actions']:
+                    for a in json_obj[str(route)]['actions']:
+                        if a["routegroup"]:
+                            if a["routegroup"] == action:
+                               return a
 
+    def getAllRouteActions(self,route,flow):
+        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
+            json_obj = json.load(json_data_file)
+            if json_obj[str(route)]:
+                if json_obj[str(route)]['actions']:
+                   return json_obj[str(route)]['actions']
+ 
+    def checkAssignedAction(self,action,context):
+        assign_action = False
+        if action == "admin":
+           if context["may_assign_processor"] == "True":
+                assign_action = True
+        elif action == "assess":
+            if context["may_assign_assessor"] == "True":
+                assign_action = True
+        elif action == "referral":
+            if context["may_refer"] == "True":
+                assign_action = True
+        elif action == "manager":
+            if context["may_submit_approval"] == "True":
+                assign_action = True
 
-
-
+        return assign_action
