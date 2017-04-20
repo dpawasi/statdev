@@ -519,12 +519,12 @@ class AssignEmergencyForm(ModelForm):
     """
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
         super(AssignEmergencyForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.form_id = 'id_form_assign_application'
+        self.helper.form_id = 'id_form_assign_emergency_application'
         self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
         emergency = Group.objects.get(name='Emergency')
@@ -537,8 +537,8 @@ class AssignEmergencyForm(ModelForm):
         self.fields['assignee'].disabled = False
         # Define the form layout.
         self.helper.layout = Layout(
-            HTML('<p>Assign this application for processing:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            HTML('<p>Assign this Emergency Works to a new Admin officer:</p>'),
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
