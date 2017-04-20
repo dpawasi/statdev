@@ -364,6 +364,24 @@ class ConditionActionForm(ConditionUpdateForm):
         super(ConditionActionForm, self).__init__(*args, **kwargs)
         self.fields['condition'].disabled = True
 
+class ApplicationAssignNextAction(ModelForm):
+    """A form for assigning an application back to a group.
+    """
+    details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
+    document = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+
+    class Meta:
+        model = Application
+        fields = ['id']
+    def __init__(self, *args, **kwargs):
+        super(ApplicationAssignNextAction, self).__init__(*args, **kwargs)
+
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assigngroup_application'
+        self.helper.attrs = {'novalidate': ''}
+#        self.fields['title'].disabled = True 
+        self.helper.add_input(Submit('assign', 'Assign', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class AssignCustomerForm(ModelForm):
     """A form for assigning an application back to the customer.
@@ -402,7 +420,8 @@ class AssignProcessorForm(ModelForm):
     """
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
         super(AssignProcessorForm, self).__init__(*args, **kwargs)
@@ -435,8 +454,8 @@ class AssignAssessorForm(ModelForm):
     """
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
-
+#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['assignee']
     def __init__(self, *args, **kwargs):
         super(AssignAssessorForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
@@ -467,7 +486,8 @@ class AssignApproverForm(ModelForm):
     """
     class Meta:
         model = Application
-        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
         super(AssignApproverForm, self).__init__(*args, **kwargs)

@@ -117,6 +117,11 @@
                     <td>{{ obj.organisation }}</td>
                     <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
                     <td>{{ obj.get_state_display }}</td>
+                    <td>
+                       {% if may_assign_processor %}
+                          <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>
+                       {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
