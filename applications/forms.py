@@ -615,6 +615,8 @@ class ApplicationEmergencyIssueForm(ModelForm):
             )
         )
 
+        self.fields['proposed_commence'].label = "Start Date"
+        self.fields['proposed_end'].label = "Expiry Date"
 
 class ComplianceCreateForm(ModelForm):
     supporting_document = FileField(required=False, max_length=128)
