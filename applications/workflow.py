@@ -45,6 +45,8 @@ class Flow():
             context["may_assign_director"] = "False"
         if "may_assign_exec" not in context:
             context["may_assign_exec"] = "False"
+        if "may_send_for_referral" not in context:
+            context["may_send_for_referral" ] = "False"
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
