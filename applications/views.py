@@ -332,6 +332,7 @@ class ApplicationDetail(DetailView):
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
         referee = Group.objects.get(name='Referee')
+        emergency = Group.objects.get(name='Emergency')
 
 
         if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
@@ -345,6 +346,9 @@ class ApplicationDetail(DetailView):
                     context['may_issue'] = True
                     context['may_create_condition'] = True
                     context['may_update_condition'] = True
+                    context['may_assign_emergency'] = True
+                elif emergency in self.request.user.groups.all(): 
+                    context['may_assign_emergency'] = True
             elif app.applicant == self.request.user or self.request.user.is_superuser:
                 context['may_update'] = True
                 context['may_lodge'] = True
@@ -1070,6 +1074,8 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             return apps_forms.AssignAssessorForm
         elif self.kwargs['action'] == 'approve':
             return apps_forms.AssignApproverForm
+        elif self.kwargs['action'] == 'assign_emergency':
+            return apps_forms.AssignEmergencyForm
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
