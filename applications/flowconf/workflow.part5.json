@@ -19,7 +19,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Admin Officer",
+                "title": "Lodge Application",
                 "route": "2",
                 "routegroup":"lodge"
             }
@@ -113,13 +113,15 @@
             {
                 "title": "Assign to Assessor",
                 "route": "3",
-                "routegroup": "assess"
+                "routegroup": "assess",
+                "state": "4"
 
             },
             {
                 "title": "Send to Referrals",
                 "route": "4",
-                "routegroup": "referral"
+                "routegroup": "referral",
+                "state": "3"
 
             } 
 
@@ -189,18 +191,20 @@
         "actions": [{
             "title": "Assign to Admin Officer",
             "route": "2",
-            "routegroup": "admin"
+            "routegroup": "admin",
+            "state": "2"
 
         },
         { 
             "title": "Submit to Manager",
             "route": "5",
-            "routegroup": "manager"
+            "routegroup": "manager",
+            "state": "5"
 
         }
         ],
         "groupaccess": {
-            "ProcessorOFf": {
+            "Processor": {
                 "may_update": "True",
                 "may_update_assessment_draft": "True",
                 "may_lodge":"False",
@@ -300,7 +304,8 @@
             {
                 "title": "Assign to Admin Officer",
                 "route": "2",
-                "routegroup": "admin"
+                "routegroup": "admin",
+                "state": "2"
             }
 
         ],
@@ -312,7 +317,7 @@
                 "may_assign": "False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "True",
-                "may_create_condition": "True",
+                "may_create_condition": "False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
@@ -371,13 +376,16 @@
             {
                 "title": "Reject Back to Manager",
                 "route": "5",
-                "routegroup": "manager"
+                "routegroup": "manager",
+                "state":"5"
 
             },
             {
                 "title": "Approve to Exec Officer",
                 "route": "7",
-                "routegroup": "manager"
+                "routegroup": "manager",
+                "state": "13"
+
             }
 
         ],
@@ -443,13 +451,16 @@
             {
                 "title": "Send Back to Assessor",
                 "route": "3",
-                "routegroup": "assess"
+                "routegroup": "assess",
+                "state": "4"
+
 
             },
             {
                 "title": "Approve to Director",
                 "route": "6",
-                "routegroup": "manager"
+                "routegroup": "manager",
+                "state": "12"
             }
 
         ],

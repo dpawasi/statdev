@@ -9,17 +9,13 @@ class Flow():
     def get(self,flow):
         with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
-        return json_obj
-#       print(data['1']['groupaccess']['Processor'])
-#       print(data['1']['title'])
-#       print data
+            self.json_obj = json_obj
     def getAllRouteConf(self,flow,routeid):
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-            json_obj = json.load(json_data_file)
-            if routeid:
-                if json_obj[str(routeid)]:
-                    return json_obj[str(routeid)]
-            return None
+        json_obj = self.json_obj
+        if routeid:
+           if json_obj[str(routeid)]:
+              return json_obj[str(routeid)]
+        return None
     def getGroupAccess(self,context,route,group,flow): 
         if "may_update" not in context:
             context["may_update"] = "False"
@@ -46,23 +42,22 @@ class Flow():
         if "may_generate_pdf" not in context:
             context["may_generate_pdf"] = "False"
 
-
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-            json_obj = json.load(json_data_file)
-            if json_obj[str(route)]:
-                if "groupaccess" in json_obj[str(route)]:
-                    if group in json_obj[str(route)]['groupaccess']:
-                        groupaccess = json_obj[str(route)]['groupaccess'][group]
-                        for ga in groupaccess:
-                            if ga in context:
-                                if context[ga]:
-                                    if context[ga] in 'True':
-                                        donothing = ''            
-                                    else:
-                                      context[ga] = groupaccess[ga]
-                            else:
-                                context[ga] = groupaccess[ga]
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+           if "groupaccess" in json_obj[str(route)]:
+              if group in json_obj[str(route)]['groupaccess']:
+                 groupaccess = json_obj[str(route)]['groupaccess'][group]
+                 for ga in groupaccess:
+                     if ga in context:
+                        if context[ga]:
+                           if context[ga] in 'True':
+                              donothing = ''            
+                           else:
+                              context[ga] = groupaccess[ga]
+                        else:
+                           context[ga] = groupaccess[ga]
         return context
+
     def getAllGroupAccess(self,request,context,route,flow):
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -81,51 +76,73 @@ class Flow():
         return context
     def getCollapse(self,context,route,flow):
         context['collapse'] = {} 
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-            json_obj = json.load(json_data_file)
-            if "collapse" in json_obj[str(route)]: 
-                collapse = json_obj[str(route)]['collapse']
-                for c in collapse:
-                    if collapse[c] in "False":
-                       context['collapse'][c] = "in"
+        json_obj = self.json_obj
+        if "collapse" in json_obj[str(route)]: 
+           collapse = json_obj[str(route)]['collapse']
+           for c in collapse:
+               if collapse[c] in "False":
+                  context['collapse'][c] = "in"
         return context
 
     def getHiddenAreas(self,context,route,flow):
         context['hidden'] = {}
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-           json_obj = json.load(json_data_file)
-           if json_obj[str(route)]:
-               if json_obj[str(route)]['hidden']:
-                  context["hidden"] = json_obj[str(route)]['hidden']
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+           if json_obj[str(route)]['hidden']:
+              context["hidden"] = json_obj[str(route)]['hidden']
         return context
     def getFields(self,context,route,flow):
         context['fields'] = {}
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-           json_obj = json.load(json_data_file)
-           if json_obj[str(route)]:
-               if "fields" in json_obj[str(route)]:
-                  context["fields"] = json_obj[str(route)]['fields']
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+           if "fields" in json_obj[str(route)]:
+              context["fields"] = json_obj[str(route)]['fields']
         return context
     def getRequired(self,context,route,flow):
         context['required'] = {}
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-            json_obj = json.load(json_data_file)
-            if json_obj[str(route)]:
-                if "required" in json_obj[str(route)]:
-                    context["required"] = json_obj[str(route)]['required']
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+           if "required" in json_obj[str(route)]:
+              context["required"] = json_obj[str(route)]['required']
         return context
 
     def getNextRoute(self,action,route,flow):
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
-            json_obj = json.load(json_data_file)
-            if json_obj[str(route)]:
-                if json_obj[str(route)]['actions']:
-                    for a in json_obj[str(route)]['actions']:
-                        if a["routegroup"]:
-                            if a["routegroup"] == action:
-                               return a["route"]
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+           if json_obj[str(route)]['actions']:
+              for a in json_obj[str(route)]['actions']:
+                  if a["routegroup"]:
+                     if a["routegroup"] == action:
+                        return a["route"]
 
+    def getNextRouteObj(self,action,route,flow):
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+            if json_obj[str(route)]['actions']:
+               for a in json_obj[str(route)]['actions']:
+                   if a["routegroup"]:
+                       if a["routegroup"] == action:
+                          return a
 
+    def getAllRouteActions(self,route,flow):
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+            if json_obj[str(route)]['actions']:
+               return json_obj[str(route)]['actions']
+ 
+    def checkAssignedAction(self,action,context):
+        assign_action = False
+        if action == "admin":
+           if context["may_assign_processor"] == "True":
+                assign_action = True
+        elif action == "assess":
+            if context["may_assign_assessor"] == "True":
+                assign_action = True
+        elif action == "referral":
+            if context["may_refer"] == "True":
+                assign_action = True
+        elif action == "manager":
+            if context["may_submit_approval"] == "True":
+                assign_action = True
 
-
-
+        return assign_action
