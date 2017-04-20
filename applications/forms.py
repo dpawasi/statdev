@@ -413,6 +413,7 @@ class AssignProcessorForm(ModelForm):
         processor = Group.objects.get(name='Processor')
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[processor])
         self.fields['assignee'].required = True
+        self.fields['title'].required = False 
         # Disable all form fields.
         for k, v in self.fields.items():
             self.fields[k].disabled = True
@@ -486,6 +487,39 @@ class AssignApproverForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application to a manager for approval/issue:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
+class AssignEmergencyForm(ModelForm):
+    """A form for assigning an emergency works to a user with the Emergency group.
+    """
+    class Meta:
+        model = Application
+        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignEmergencyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+        emergency = Group.objects.get(name='Emergency')
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[emergency])
+        self.fields['assignee'].required = True
+        self.fields['title'].required = False 
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
             'app_type', 'title', 'description', 'submit_date', 'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),

@@ -21,6 +21,7 @@
                     <ul>
                         {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
                         {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
+                        {% if may_assign_emergency %}<li><a href="{% url 'application_assign' object.pk 'assign_emergency' %}">Assign to an admin officer</a></li>{% endif %}
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
                         <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
                         {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
