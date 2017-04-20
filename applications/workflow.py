@@ -41,6 +41,10 @@ class Flow():
             context["may_issue"] = "False"
         if "may_generate_pdf" not in context:
             context["may_generate_pdf"] = "False"
+        if "may_assign_director" not in context:
+            context["may_assign_director"] = "False"
+        if "may_assign_exec" not in context:
+            context["may_assign_exec"] = "False"
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
@@ -63,7 +67,9 @@ class Flow():
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
         referee = Group.objects.get(name='Referee')
- 
+        director = Group.objects.get(name='Director')
+        executive = Group.objects.get(name='Executive')
+
         if processor in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Processor',flow)
         if assessor in request.user.groups.all():
@@ -72,6 +78,10 @@ class Flow():
             context = self.getGroupAccess(context,route,'Approver',flow)
         if referee in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Referee',flow)
+        if director in request.user.groups.all():
+            context = self.getGroupAccess(context,route,'Director',flow)
+        if executive in request.user.groups.all():
+            context = self.getGroupAccess(context,route,'Executive',flow)
 
         return context
     def getCollapse(self,context,route,flow):
@@ -143,6 +153,12 @@ class Flow():
                 assign_action = True
         elif action == "manager":
             if context["may_submit_approval"] == "True":
+                assign_action = True
+        elif action == "director": 
+            if context["may_assign_director"] == "True":
+                assign_action = True
+        elif action == "exec":
+            if context["may_assign_exec"] == "True":
                 assign_action = True
 
         return assign_action
