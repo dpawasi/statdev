@@ -92,7 +92,8 @@ class Application(models.Model):
         (10,'approved',('Approved')),
         (11 ,'expird', ('Expired')),
         (12 ,'with_director',('With Director')),
-        (13 ,'with_exec', ('With Executive'))
+        (13 ,'with_exec', ('With Executive')),
+        (14 ,'completed', ('Completed'))
 
     )
     APP_LOCATION_CHOICES = Choices(
