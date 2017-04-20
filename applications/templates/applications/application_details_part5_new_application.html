@@ -27,21 +27,33 @@
 
                             {% if workflow_actions %}
 
-
                             {% for action in workflow_actions %}
                             <!-- Lodge -->
                             {% if action.routegroup == "lodge" %} 
                             {% if may_lodge == "True" %}<li><a href="{% url 'application_lodge' object.pk %}">{{ action.title }}</a></li>{% endif %}
                             {% endif %}
                             <!-- End Lodge -->
+
                             <!-- Admin Officer/Processor -->
                             {% if action.routegroup == "admin" %}
                                 {% if may_assign_processor == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'admin' %}">{{ action.title }}</a></li>{% endif %}
                             {% endif %}
-
                             <!-- End Admin Officer/Processor -->
 
-                            {{ action.route }}
+                            <!-- Manager -->
+                            {% if action.routegroup == "manager" %}
+                                {% if may_submit_approval == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'manager' %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
+                            <!-- End Manager -->
+
+							<!-- Director -->
+                            {% if action.routegroup == "director" %}
+                                {% if may_assign_director == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'director' %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
+                            <!-- End Director -->
+                            {% if action.routegroup == "exec" %}
+                                {% if may_assign_exec == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'exec' %}">{{ action.title }}</a></li>{% endif %}
+                            {% endif %}
 
                             <!-- Assessor -->
                             {% if action.routegroup == "assess" %}
@@ -56,11 +68,10 @@
 
                             <!-- Referrals -->
 
-
+                            {{ action.route }}<BR>
                             {% endfor %}
 
                             {% else %}
-
 
                             {% if may_update == "True" %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
                             {% if may_lodge == "True" %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}

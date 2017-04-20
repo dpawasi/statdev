@@ -71,6 +71,7 @@ class ApplicationList(ListView):
         # Rule: admin officers may self-assign applications.
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             context['may_assign_processor'] = True
+
         return context
 
 
@@ -132,16 +133,16 @@ class ApplicationDetail(DetailView):
 
 #           print routeflow['title']
  #           context['routetitle'] = routeflow['title']
-            
+            context = flow.getAllGroupAccess(self.request,context,app.routeid,'part5') 
             context = flow.getCollapse(context,app.routeid,'part5')
-            if processor in self.request.user.groups.all():
-                context = flow.getGroupAccess(context,app.routeid,'Processor','part5')
-            if assessor in self.request.user.groups.all():
-                context = flow.getGroupAccess(context,app.routeid,'Assessor','part5')
-            if approver in self.request.user.groups.all():
-                context = flow.getGroupAccess(context,app.routeid,'Approver','part5')
-            if referee in self.request.user.groups.all():
-                context = flow.getGroupAccess(context,app.routeid,'Referee','part5')
+#            if processor in self.request.user.groups.all():
+#                context = flow.getGroupAccess(context,app.routeid,'Processor','part5')
+#            if assessor in self.request.user.groups.all():
+#                context = flow.getGroupAccess(context,app.routeid,'Assessor','part5')
+#            if approver in self.request.user.groups.all():
+#                context = flow.getGroupAccess(context,app.routeid,'Approver','part5')
+#            if referee in self.request.user.groups.all():
+#                context = flow.getGroupAccess(context,app.routeid,'Referee','part5')
 
             context = flow.getHiddenAreas(context,app.routeid,'part5')
             context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
@@ -974,6 +975,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         DefaultGroups['assess'] = 'Assessor'
         DefaultGroups['manager'] = 'Approver'
         DefaultGroups['director'] = 'Director'
+        DefaultGroups['exec'] = 'Executive'
 
         action = self.kwargs['action']
 
