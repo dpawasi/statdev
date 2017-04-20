@@ -27,7 +27,7 @@ class ApplicationTest(TestCase):
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
         referee = Group.objects.get(name='Referee')
-        emergency = Groups.objects.get(name='Emergency')
+        emergency = Group.objects.get(name='Emergency')
         self.user1.groups.add(processor)
         self.user1.groups.add(assessor)
         self.user1.groups.add(approver)
