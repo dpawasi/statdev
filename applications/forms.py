@@ -432,7 +432,6 @@ class AssignProcessorForm(ModelForm):
         processor = Group.objects.get(name='Processor')
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[processor])
         self.fields['assignee'].required = True
-        self.fields['title'].required = False 
         # Disable all form fields.
         for k, v in self.fields.items():
             self.fields[k].disabled = True
@@ -531,7 +530,6 @@ class AssignEmergencyForm(ModelForm):
         emergency = Group.objects.get(name='Emergency')
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[emergency])
         self.fields['assignee'].required = True
-        self.fields['title'].required = False 
         # Disable all form fields.
         for k, v in self.fields.items():
             self.fields[k].disabled = True
