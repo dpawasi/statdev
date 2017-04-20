@@ -196,7 +196,7 @@
 
         },
         { 
-            "title": "Submit to Manager",
+            "title": "Assign to Manager",
             "route": "5",
             "routegroup": "manager",
             "state": "5"
@@ -374,7 +374,7 @@
         },
         "actions": [
             {
-                "title": "Reject Back to Manager",
+                "title": "Reject to Manager",
                 "route": "5",
                 "routegroup": "manager",
                 "state":"5"
@@ -383,14 +383,14 @@
             {
                 "title": "Approve to Exec Officer",
                 "route": "7",
-                "routegroup": "manager",
+                "routegroup": "exec",
                 "state": "13"
 
             }
 
         ],
         "groupaccess": {
-            "Processor": {
+            "Director": {
                 "may_update": "False",
                 "may_lodge":"False",
                 "may_refer":"False",
@@ -399,6 +399,7 @@
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
+                "may_assign_exec": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
@@ -445,24 +446,20 @@
             "stakeholdercommunication": "True",
             "referrals": "False",
             "assessments_draft_report": "False"
-
         },
         "actions": [
             {
-                "title": "Send Back to Assessor",
+                "title": "Reject to Assessor",
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4"
-
-
             },
             {
                 "title": "Approve to Director",
                 "route": "6",
-                "routegroup": "manager",
+                "routegroup": "director",
                 "state": "12"
             }
-
         ],
         "groupaccess": {
             "Approver": {
@@ -474,11 +471,1243 @@
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
+                "may_assign_director": "True",
                 "may_assign_assessor": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
             }
+        },
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+        "fields": {
 
+        }
+    },
+        "7": {
+        "title": "Executive Officer",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Post to Swan River Trust",
+                "route": "8",
+                "routegroup": "admin",
+                "state": "2"
+
+            }
+        ],
+        "groupaccess": {
+            "Executive": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "8": {
+        "title": "Admin Officer - Swan River",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Assign to Assessor (Swan River)",
+                "route": "9",
+                "routegroup": "assess",
+                "state": "4"
+
+            }
+        ],
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "9": {
+        "title": "Assessor (Swan River)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Submit to Manager (Swan River)",
+                "route": "10",
+                "routegroup": "manager",
+                "state": "5"
+
+            }
+        ],
+        "groupaccess": {
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "10": {
+        "title": "Manager (Swan River)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Approve To Director (Swan River)",
+                "route": "11",
+                "routegroup": "director",
+                "state": "12"
+            },
+			{
+                "title": "Reject To Assessor (Swan River)",
+                "route": "9",
+                "routegroup": "assess",
+                "state": "5"
+            }	
+        ],
+        "groupaccess": {
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "True",
+				"may_assign_director": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "11": {
+        "title": "Director (Swan River)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+			{
+                "title": "Approve To Executive (DG Draft)",
+                "route": "12",
+                "routegroup": "exec",
+                "state": "13"
+            },
+            {
+                "title": "Reject To Manager (Swan River)",
+                "route": "10",
+                "routegroup": "manager",
+                "state": "5"
+            }
+
+        ],
+        "groupaccess": {
+            "Director": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+                "may_assign_assessor": "False",
+				"may_assign_exec": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "12": {
+        "title": "Executive Officer (DG Draft)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Post to DG",
+                "route": "13",
+                "routegroup": "admin",
+                "state": "2"
+
+            }
+        ],
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "13": {
+        "title": "Admin Officer - Pending Director - General Draft",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Assign to Assessor (Public)",
+                "route": "14",
+                "routegroup": "assess",
+                "state": "4"
+
+            }
+        ],
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "14": {
+        "title": "Assessor (Public)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Approve to Manager (Public)",
+                "route": "15",
+                "routegroup": "manager",
+                "state": "5"
+
+            },
+			{
+                "title": "Reject to Executive (DG Draft)",
+                "route": "12",
+                "routegroup": "exec",
+                "state": "13"
+
+            }	
+        ],
+        "groupaccess": {
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+                "may_assign_assessor": "False",
+				"may_assign_exec": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "15": {
+        "title": "Manager (Public)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Reject to Assessor (Public)",
+                "route": "14",
+                "routegroup": "assess",
+                "state": "4"
+
+            },
+			{
+                "title": "Approve to Director (Public)",
+                "route": "16",
+                "routegroup": "director",
+                "state": "12"
+
+            }
+			
+        ],
+        "groupaccess": {
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+				"may_assign_director": "True",
+                "may_assign_assessor": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "16": {
+        "title": "Director (Public)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Approve to Executive",
+                "route": "17",
+                "routegroup": "exec",
+                "state": "13"
+
+            },
+			{
+                "title": "Reject to Manager",
+                "route": "15",
+                "routegroup": "manager",
+                "state": "5"
+
+            }
+        ],
+        "groupaccess": {
+            "Director": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+				"may_assign_exec": "True",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+        "fields": {
+
+        }
+    },
+    "17": {
+        "title": "Executive Officer (DG Final)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Post Determination to DG",
+                "route": "18",
+                "routegroup": "admin",
+                "state": "2"
+
+            }
+        ],
+        "groupaccess": {
+            "Executive": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "18": {
+        "title": "Admin Officer (DG Final)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Assign to Assessor (Determination)",
+                "route": "19",
+                "routegroup": "assess",
+                "state": "4"
+
+            }
+        ],
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+        "fields": {
+
+        }
+    },
+    "19": {
+        "title": "Assessor Officer (Determination)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Assign to Admin Officer (Changes Required)",
+                "route": "18",
+                "routegroup": "admin",
+                "state": "2"
+            },
+			{
+                "title": "Assign to Manager (Determination)",
+                "route": "20",
+                "routegroup": "manager",
+                "state": "5"
+            }
+        ],
+        "groupaccess": {
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "20": {
+        "title": "Manager (Determination)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Reject to Assessor (Determination)",
+                "route": "19",
+                "routegroup": "assess",
+                "state": "4"
+
+            },
+			{
+                "title": "Approve to Director (Determination)",
+                "route": "21",
+                "routegroup": "director",
+                "state": "12"
+
+            },
+			{
+                "title": "Approve to Exec Officer (Determination)",
+                "route": "22",
+                "routegroup": "exec",
+                "state": "13"
+
+            }
+        ],
+        "groupaccess": {
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "True",
+				"may_assign_director": "True",
+				"may_assign_exec": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "21": {
+        "title": "Director (Determination)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Reject to Manager (Determination)",
+                "route": "20",
+                "routegroup": "manager",
+                "state": "5"
+
+            },
+			{
+                "title": "Approve to Exec Officer (Determination)",
+                "route": "22",
+                "routegroup": "exec",
+                "state": "13"
+
+            }
+        ],
+        "groupaccess": {
+            "Director": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "True",
+				"may_assign_exec": "True",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "22": {
+        "title": "Executive Officer (Determination)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Post to DG / Minister",
+                "route": "23",
+                "routegroup": "admin",
+                "state": "2"
+
+            }
+        ],
+        "groupaccess": {
+            "Executive": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "23": {
+        "title": "Admin Officer (Finalisation)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Completed (Close Application)",
+                "route": "24",
+                "routegroup": "admin",
+                "state": "14"
+
+            }
+        ],
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            },
+            "Assessor":{
+            }
+        },
+
+        "collapse": {
+            "applicant": "True",
+            "title": "True",
+            "proposed_activities": "True",
+            "certificate_commerical_acts_and_activities": "True",
+            "river_reserve_lease_section_29": "True",
+            "river_reserve_lease_section_32": "True",
+            "details_of_proposed_development": "True",
+            "landowner_consent":"True",
+            "publication": "True",
+            "referrals": "False",
+            "deed": "True",
+            "conditions": "False",
+            "assessments": "False"
+        },
+
+        "fields": {
+
+        }
+    },
+    "24": {
+        "title": "Completed",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "False",
+            "assessments": "False",
+            "stakeholdercommunication": "True",
+            "referrals": "False",
+            "assessments_draft_report": "False"
+
+        },
+        "actions": [
+        ],
+        "groupaccess": {
         },
         "collapse": {
             "applicant": "True",
@@ -500,5 +1729,14 @@
 
         }
     }
+
+
+
+
+	
+
+
+
+
 
 }

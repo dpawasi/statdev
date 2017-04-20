@@ -53,9 +53,15 @@
     <div class="container-fluid">
         <hr>
         <div class="row">
-            <div class="col-xs-12 text-muted">
+            <div class="col-xs-9 text-muted">
                 <small>v{{ project_version }} &copy; Department of Parks and Wildlife</small>
             </div>
+            <div class="col-xs-3 text-muted text-right">
+                {% if object.routeid %}
+                <small> Form Step: {{ object.routeid }} </small>
+                {% endif %}
+            </div>
+
         </div>
     </div>
 </div>
