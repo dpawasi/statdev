@@ -35,7 +35,6 @@ class ApplicationTest(TestCase):
         self.user1.groups.add(emergency)
         self.user2.groups.add(processor)
         self.user2.groups.add(assessor)
-        self.user1.groups.add(director)
         self.user2.groups.add(approver)
         self.user2.groups.add(emergency)
         self.superuser = mixer.blend(User, email=random_dpaw_email, is_superuser=True, is_staff=True)
