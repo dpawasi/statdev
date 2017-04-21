@@ -137,10 +137,9 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
+                "may_send_for_referral": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
-            },
-            "Assessor": {
             }
         },
         "collapse": {
@@ -153,7 +152,7 @@
             "details_of_proposed_development": "False",
             "landowner_consent":"False",
             "publication": "True",
-            "referrals": "True",
+            "referrals": "False",
             "deed": "False"
         },
         "fields": {
@@ -188,18 +187,20 @@
             "assessments_determination_and_breifing_note":"True"
 
         },
-        "actions": [{
-            "title": "Assign to Admin Officer",
-            "route": "2",
-            "routegroup": "admin",
-            "state": "2"
-
-        },
-        { 
+        "actions": [
+         	{
             "title": "Assign to Manager",
             "route": "5",
             "routegroup": "manager",
             "state": "5"
+
+        },   
+            
+          {
+            "title": "Assign to Admin Officer",
+            "route": "2",
+            "routegroup": "admin",
+            "state": "2"
 
         }
         ],
@@ -373,21 +374,21 @@
 
         },
         "actions": [
+			{
+                "title": "Approve to Exec Officer",
+                "route": "7",
+                "routegroup": "exec",
+                "state": "13"
+
+            },
+
             {
                 "title": "Reject to Manager",
                 "route": "5",
                 "routegroup": "manager",
                 "state":"5"
 
-            },
-            {
-                "title": "Approve to Exec Officer",
-                "route": "7",
-                "routegroup": "exec",
-                "state": "13"
-
             }
-
         ],
         "groupaccess": {
             "Director": {
@@ -448,17 +449,17 @@
             "assessments_draft_report": "False"
         },
         "actions": [
+			{
+                "title": "Approve to Director",
+                "route": "6",
+                "routegroup": "director",
+                "state": "12"
+            },
             {
                 "title": "Reject to Assessor",
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4"
-            },
-            {
-                "title": "Approve to Director",
-                "route": "6",
-                "routegroup": "director",
-                "state": "12"
             }
         ],
         "groupaccess": {
@@ -870,7 +871,7 @@
             }
         ],
         "groupaccess": {
-            "Processor": {
+            "Executive": {
                 "may_update": "False",
                 "may_lodge":"False",
                 "may_refer":"False",

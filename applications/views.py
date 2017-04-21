@@ -334,7 +334,7 @@ class ApplicationDetail(DetailView):
         approver = Group.objects.get(name='Approver')
         referee = Group.objects.get(name='Referee')
         emergency = Group.objects.get(name='Emergency')
-
+    
 
         if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
