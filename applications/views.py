@@ -28,7 +28,7 @@ class HomePage(LoginRequiredMixin, TemplateView):
                 assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
         if Application.objects.filter(applicant=self.request.user).exists():
             context['applications_submitted'] = Application.objects.filter(
-                applicant=self.request.user).exclude(assignee=self.request.user)
+                    applicant=self.request.user).exclude(assignee=self.request.user)
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(
                 referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
@@ -231,7 +231,7 @@ class ApplicationDetail(DetailView):
                     fileitem['path'] = doc.upload
                     fileitem['path_short'] = SafeText(doc.upload.name)[19:]
                     rowitem['documents_short'].append(fileitem)
-                    pub_feed_obj.append(rowitem)
+                pub_feed_obj.append(rowitem)
 
             context['publication_feedback'] = pub_feed_obj
             
