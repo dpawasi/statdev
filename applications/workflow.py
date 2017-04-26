@@ -57,7 +57,7 @@ class Flow():
             context["may_update_publication_feedback_draft"] = "False"
         if "may_publish_feedback_draft" not in context:
             context["may_publish_feedback_draft"] = "False"
-    	if "may_update_publication_feedback_final" not in context:
+        if "may_update_publication_feedback_final" not in context:
             context["may_update_publication_feedback_final"] = "False"    
         if "may_publish_feedback_final" not in context:
             context["may_publish_feedback_final"] = "False"
