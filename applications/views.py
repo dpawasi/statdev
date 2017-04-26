@@ -63,9 +63,6 @@ class ApplicationList(ListView):
             query = get_query(
                 query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
             qs = qs.filter(query).distinct()
-
-            print qs
-
         return qs
 
     def get_context_data(self, **kwargs):
@@ -77,8 +74,6 @@ class ApplicationList(ListView):
             applications = Application.objects.all()
 
         usergroups = self.request.user.groups.all()
-
-    #    print applications
         context['app_list'] = [] 
         for app in applications:
             row = {}
