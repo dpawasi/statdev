@@ -399,7 +399,6 @@ class AssignPersonForm(ModelForm):
         self.helper.form_id = 'id_form_assign_person_application'
         self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
-        print self.initial['assigngroup']  
         assigngroup = Group.objects.get(name=self.initial['assigngroup'])
         self.fields['assignee'].queryset = User.objects.filter(groups__in=[assigngroup])
         self.fields['assignee'].required = True
