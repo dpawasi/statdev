@@ -347,7 +347,7 @@ class ConditionCreateForm(ModelForm):
 class ConditionUpdateForm(ModelForm):
     class Meta:
         model = Condition
-        fields = ['condition']
+        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
 
     def __init__(self, *args, **kwargs):
         super(ConditionUpdateForm, self).__init__(*args, **kwargs)
@@ -363,6 +363,9 @@ class ConditionActionForm(ConditionUpdateForm):
     def __init__(self, *args, **kwargs):
         super(ConditionActionForm, self).__init__(*args, **kwargs)
         self.fields['condition'].disabled = True
+        self.fields['due_date'].disabled = True
+        self.fields['recur_pattern'] = True
+        self.fields['recur_freq'] = True
 
 class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
