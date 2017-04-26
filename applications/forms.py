@@ -333,7 +333,7 @@ class ReferralRecallForm(Form):
 class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition
-        fields = ['condition']
+        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
 
     def __init__(self, *args, **kwargs):
         super(ConditionCreateForm, self).__init__(*args, **kwargs)

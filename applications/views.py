@@ -120,8 +120,6 @@ class ApplicationDetail(DetailView):
             if app.routeid is None:
                 app.routeid = 1
 
-            
-
             processor = Group.objects.get(name='Processor')
             assessor = Group.objects.get(name='Assessor')
             approver = Group.objects.get(name='Approver')
@@ -246,9 +244,6 @@ class ApplicationDetail(DetailView):
                    fileitem['path'] = doc.upload.name
                    new_documents_to_publish[pub_doc.original_document_id] = fileitem
            
-
-
-
             #print app.river_lease_scan_of_application
             # Should contain a list of all documents TODO need to append rest of docs.
             # beginning of orginal document list.   List need for publiblication of part 5 in the even and alternative documents needs to be published instead or of orignal.
@@ -342,13 +337,13 @@ class ApplicationDetail(DetailView):
             # Rule: if the application is an Emergency Works and status is 'draft'
             #   conditions can be added
             if app.app_type == app.APP_TYPE_CHOICES.emergency:
-                if app.assignee == self.request.user or self.request.user.is_superuser:
+                if app.assignee == self.request.user:
                     context['may_update'] = True
                     context['may_issue'] = True
                     context['may_create_condition'] = True
                     context['may_update_condition'] = True
                     context['may_assign_emergency'] = True
-                elif emergency in self.request.user.groups.all(): 
+                elif emergency in self.request.user.groups.all() or self.request.user.is_superuser: 
                     context['may_assign_emergency'] = True
             elif app.applicant == self.request.user or self.request.user.is_superuser:
                 context['may_update'] = True
@@ -1910,6 +1905,11 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
                 messages.error(
                     self.request, 'You can not change conditions when the application has been issued')
                 return HttpResponseRedirect(condition.application.get_absolute_url())
+            elif condition.application.assignee != self.request.user:
+                messages.error(
+                    self.request, 'You can not change conditions when the application is not assigned to you')
+                return HttpResponseRedirect(condition.application.get_absolute_url())
+
             else:
                 return super(ConditionUpdate, self).get(request, *args, **kwargs)
         elif condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
