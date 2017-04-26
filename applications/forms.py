@@ -383,6 +383,42 @@ class ApplicationAssignNextAction(ModelForm):
         self.helper.add_input(Submit('assign', 'Assign', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+
+class AssignPersonForm(ModelForm):
+    """A form for assigning a processor (admin officer) to an application.
+    """
+
+    class Meta:
+        model = Application
+#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignPersonForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+        assigngroup = Group.objects.get(name=self.initial['assigngroup'])
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[assigngroup])
+        self.fields['assignee'].required = True
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        #self.initial["fieldstatus"]:
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
+            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
 class AssignCustomerForm(ModelForm):
     """A form for assigning an application back to the customer.
     """

@@ -16,6 +16,7 @@ from .models import Application, Referral, Condition, Compliance, Vessel, Locati
 from django.utils.safestring import SafeText
 from datetime import datetime, date
 from applications.workflow import Flow 
+from django.db.models import Q
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -50,6 +51,7 @@ class ApplicationList(ListView):
 
     def get_queryset(self):
         qs = super(ApplicationList, self).get_queryset()
+
         # Did we pass in a search string? If so, filter the queryset and return
         # it.
         if 'q' in self.request.GET and self.request.GET['q']:
@@ -65,6 +67,23 @@ class ApplicationList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationList, self).get_context_data(**kwargs)
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            applications = Application.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str)| Q(organisation__name__icontains=query_str)| Q(assignee__email__icontains=query_str))
+        else: 
+            applications = Application.objects.all()
+
+        usergroups = self.request.user.groups.all()
+        context['app_list'] = [] 
+        for app in applications:
+            row = {}
+            row['may_assign_to_person'] = 'False'
+            row['app'] = app
+            if app.group is not None:
+                if app.group in usergroups:
+                    row['may_assign_to_person'] = 'True'
+            context['app_list'].append(row)
+            
         # TODO: any restrictions on who can create new applications?
         context['may_create'] = True
         processor = Group.objects.get(name='Processor')
@@ -120,12 +139,11 @@ class ApplicationDetail(DetailView):
             if app.routeid is None:
                 app.routeid = 1
 
-            
-
             processor = Group.objects.get(name='Processor')
             assessor = Group.objects.get(name='Assessor')
             approver = Group.objects.get(name='Approver')
             referee = Group.objects.get(name='Referee')
+
             flow = Flow()
             flow.get('part5')
 #            workflow = flow.get('part5')
@@ -843,16 +861,18 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """Override form_valid to set the submit_date and status of the new application.
         """
         app = self.get_object()
-        # print "APP"
-        # print app.app_type
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             if app.routeid is None:
                 app.routeid = 1
             flow = Flow()
             flow.get('part5')
+            DefaultGroups = flow.groupList()
             nextroute = flow.getNextRoute('lodge',app.routeid,"part5")
-            app.routeid = nextroute 
+            app.routeid = nextroute
+            groupassignment = Group.objects.get(name=DefaultGroups['grouplink']['admin'])
+            app.group = groupassignment
+
 
         app.state = app.APP_STATE_CHOICES.with_admin
         self.object.submit_date = date.today()
@@ -974,17 +994,18 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         app = self.get_object()
 
-        DefaultGroups = {}
-        DefaultGroups['admin'] = 'Processor'
-        DefaultGroups['assess'] = 'Assessor'
-        DefaultGroups['manager'] = 'Approver'
-        DefaultGroups['director'] = 'Director'
-        DefaultGroups['exec'] = 'Executive'
+#        DefaultGroups = {}
+#        DefaultGroups['admin'] = 'Processor'
+ #       DefaultGroups['assess'] = 'Assessor'
+#        DefaultGroups['manager'] = 'Approver'
+#        DefaultGroups['director'] = 'Director'
+#        DefaultGroups['exec'] = 'Executive'
 
         action = self.kwargs['action']
 
         flow = Flow()
         flow.get('part5')
+        DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
         # nextroute = flow.getNextRoute(action,app.routeid,"part5")
@@ -1008,13 +1029,57 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         app = self.get_object()
         action = self.kwargs['action']
         flow = Flow()
+        DefaultGroups = flow.groupList()
         flow.get('part5')
+        groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
+
         route = flow.getNextRouteObj(action,app.routeid,"part5")
         self.object.routeid = route["route"]
         self.object.state = route["state"]
+        self.object.group = groupassignment 
         self.object.assignee = None
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
+    """A view to allow an application to be assigned to an internal user or back to the customer.
+    The ``action`` kwarg is used to define the new state of the application.
+    """
+    model = Application
+
+    def get(self, request, *args, **kwargs):
+        app = self.get_object()
+        return super(ApplicationAssignPerson, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        # Return the specified form class
+        return apps_forms.AssignPersonForm
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationAssignPerson, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        app = self.object
+        
+        # Record an action on the application:
+        action = Action(
+            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+            action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
+        action.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_initial(self):
+        initial = super(ApplicationAssignPerson, self).get_initial()
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        initial['assigngroup'] = app.group
+        return initial
+
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
