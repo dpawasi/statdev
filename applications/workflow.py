@@ -47,6 +47,20 @@ class Flow():
             context["may_assign_exec"] = "False"
         if "may_send_for_referral" not in context:
             context["may_send_for_referral" ] = "False"
+        if "may_update_publication_newspaper" not in context:
+            context["may_update_publication_newspaper" ] = "False"
+        if "may_update_publication_website" not in context:
+            context["may_update_publication_website" ] = "False"
+        if "may_publish_website" not in context:
+            context["may_publish_website" ] = "False"
+        if "may_update_publication_feedback_draft" not in context:
+            context["may_update_publication_feedback_draft"] = "False"
+        if "may_publish_feedback_draft" not in context:
+            context["may_publish_feedback_draft"] = "False"
+        if "may_update_publication_feedback_final" not in context:
+            context["may_update_publication_feedback_final"] = "False"    
+        if "may_publish_feedback_final" not in context:
+            context["may_publish_feedback_final"] = "False"
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
@@ -110,6 +124,7 @@ class Flow():
            if "fields" in json_obj[str(route)]:
               context["fields"] = json_obj[str(route)]['fields']
         return context
+
     def getRequired(self,context,route,flow):
         context['required'] = {}
         json_obj = self.json_obj

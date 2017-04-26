@@ -418,6 +418,7 @@ class AssignCustomerForm(ModelForm):
 class AssignProcessorForm(ModelForm):
     """A form for assigning a processor (admin officer) to an application.
     """
+
     class Meta:
         model = Application
 #        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']

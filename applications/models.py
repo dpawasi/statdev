@@ -8,6 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
 from accounts.models import Organisation
 from datetime import datetime
+from django.contrib.auth.models import Group
 
 @python_2_unicode_compatible
 class Document(models.Model):
@@ -162,6 +163,7 @@ class Application(models.Model):
     publish_final_report = models.DateField(null=True, blank=True)
     routeid = models.IntegerField(null=True, blank=True, default=1) 
     assessment_start_date = models.DateField(null=True, blank=True)
+    group = models.ForeignKey(Group, null=True, blank=True, related_name='application_group_assignment')
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
