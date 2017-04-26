@@ -62,8 +62,6 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
-
-
             }
 
         },
@@ -101,7 +99,7 @@
             "river_reserve_lease_section_32": "False",
             "landowner_consent": "False",
             "deed": "False",
-            "publication": "True",
+            "publication": "False",
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
@@ -109,7 +107,6 @@
 
         },
         "actions": [
-
             {
                 "title": "Assign to Assessor",
                 "route": "3",
@@ -139,7 +136,15 @@
                 "may_assign_assessor": "True",
                 "may_send_for_referral": "True",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_send_for_referral": "True",
+                "may_update_publication_newspaper": "False",
+                "may_update_publication_website": "False",
+                "may_publish_website": "False",
+                "may_update_publication_feedback_draft" : "False",
+                "may_publish_feedback_draft": "False",
+                "may_update_publication_feedback_final": "False",
+                "may_publish_feedback_final": "False"
             }
         },
         "collapse": {
@@ -151,7 +156,7 @@
             "river_reserve_lease_section_32": "False",
             "details_of_proposed_development": "False",
             "landowner_consent":"False",
-            "publication": "True",
+            "publication": "False",
             "referrals": "False",
             "deed": "False"
         },
@@ -1730,14 +1735,4 @@
 
         }
     }
-
-
-
-
-	
-
-
-
-
-
 }

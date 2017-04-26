@@ -538,7 +538,7 @@
                                 {% else %}
                                 <p>None</p>
                                 {% endif %}
-                                {% if may_update %}
+                                {% if may_update_publication_newspaper == "True" %}
                                 <a href="{% url 'application_add_newspaperpublication' object.pk %}" class="btn btn-primary" role="button">
                                     Add News Publication 
                                 </a>
@@ -560,9 +560,11 @@
                                         Published {% if object.publish_documents %} on the {{ object.publish_documents }} {% endif %}
                                     </a>
                                     {% else %}
-                                    <a href="{% url 'application_publish_documents' object.pk 'documents' %}" class="btn btn-primary" role="button">
-                                        Publish
-                                    </a>
+                                        {% if may_publish_website == "True" %}
+                                        <a href="{% url 'application_publish_documents' object.pk 'documents' %}" class="btn btn-primary" role="button">
+                                            Publish
+                                        </a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </div>
@@ -572,7 +574,9 @@
                                     <tr>
                                         <th class="col-sm-5 col-md-5 col-lg-5">Orignal Document</th>
                                         <th class="col-sm-6 col-md-6 col-lg-6">To be published document</th>
+                                        {% if may_update_publication_website == "True" %}
                                         <th class="col-sm-1 col-md-1 col-lg-1">Action</th>
+                                        {% endif %}
                                     </tr>
                                     {% for origdoc in original_document_list %}
                                     <tr>
@@ -587,11 +591,13 @@
                                         <td>
                                             <A HREF='/media/{{ origdoc.publish_doc }}'>{{ origdoc.publish_doc_short }}</A>
                                         </td>
+                                        {% if may_update_publication_website == "True" %}
                                         <td>
                                             <a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
                                                 Attach / Change
                                             </a>
                                         </td>
+                                        {% endif %}
                                     </tr>
 
                                     {% endfor %}
