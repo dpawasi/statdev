@@ -61,6 +61,8 @@ class Flow():
             context["may_update_publication_feedback_final"] = "False"    
         if "may_publish_feedback_final" not in context:
             context["may_publish_feedback_final"] = "False"
+        if "may_recall_resend" not in context:
+            context["may_recall_resend"] = "False"
 
         json_obj = self.json_obj
         if json_obj[str(route)]:

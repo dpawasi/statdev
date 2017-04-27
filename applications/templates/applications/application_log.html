@@ -81,13 +81,13 @@
 
 				{% if may_update == "True" %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
 				{% if may_create_condition == "True" %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
-				{% if may_refer == "True" %}<li><a href="{% url 'application_refer' object.pk %}">Add Referrals</a></li>{% endif %}
+				{% if may_refer == "True" %}<li><a href="{% url 'application_refer' object.pk %}">Add Referral</a></li>{% endif %}
 				{% if may_generate_pdf == "True" %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
 
 			{% else %}
 				{% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
 	            {% if may_create_condition  %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
-    	        {% if may_refer  %}<li><a href="{% url 'application_refer' object.pk %}">Add Referrals</a></li>{% endif %}
+    	        {% if may_refer  %}<li><a href="{% url 'application_refer' object.pk %}">Add Referral</a></li>{% endif %}
         	    {% if may_generate_pdf  %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
 
 			{% endif %}
