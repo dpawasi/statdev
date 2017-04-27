@@ -179,3 +179,18 @@ class Flow():
                 assign_action = True
 
         return assign_action
+
+    def groupList(self):
+
+        DefaultGroups = {'grouplink': {}, 'group': {}}
+        DefaultGroups['grouplink']['admin'] = 'Processor'
+        DefaultGroups['grouplink']['assess'] = 'Assessor'
+        DefaultGroups['grouplink']['manager'] = 'Approver'
+        DefaultGroups['grouplink']['director'] = 'Director'
+        DefaultGroups['grouplink']['exec'] = 'Executive'
+
+        # create reverse mapping groups
+        for g in DefaultGroups['grouplink']:
+            val = DefaultGroups['grouplink'][g]
+            DefaultGroups['group'][val] = g
+        return DefaultGroups
