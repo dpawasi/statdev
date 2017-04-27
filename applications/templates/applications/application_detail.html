@@ -10,70 +10,9 @@
         <br />
     </div>
 <!-- Action panel start -->
+
     <div class="row">
-        <div class="col-sm-4 col-md-3 col-lg-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Actions</h3>
-                </div>
-                <div class="panel-body">
-                    <ul>
-                        {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
-                        {% if may_lodge %}<li><a href="{% url 'application_lodge' object.pk %}">Lodge for assessment</a></li>{% endif %}
-                        {% if may_refer %}<li><a href="{% url 'application_refer' object.pk %}">Refer for conditions/feedback</a></li>{% endif %}
-                        {% if may_assign_customer %}<li><a href="{% url 'application_assign' object.pk 'customer' %}">Assign back to the customer</a></li>{% endif %}
-                        {% if may_assign_processor %}<li><a href="{% url 'application_assign' object.pk 'process' %}">Assign to an admin officer</a></li>{% endif %}
-                        {% if may_assign_assessor %}<li><a href="{% url 'application_assign' object.pk 'assess' %}">Assign to an assessor</a></li>{% endif %}
-                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
-                        {% if may_submit_approval %}<li><a href="{% url 'application_assign' object.pk 'approve' %}">Send for approval (assessment completed)</a></li>{% endif %}
-                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
-                        {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
-                        <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
-                        {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
-                    </ul>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Submission</h3>
-                </div>
-                <div class="panel-body">
-                    <h4>Submitted by:</h4>
-                    <p>
-                        {% if object.applicant.first_name %}{{ object.applicant.first_name }} {{ object.applicant.last_name }}
-                        {% else %}{{ object.applicant.email }}
-                        {% endif %}
-                    </p>
-                    {% if object.organisation %}
-                    <h4>On behalf of:</h4>
-                    <p>{{ object.organisation.name }}</p>
-                    {% endif %}
-                    {% if object.state != object.APP_STATE_CHOICES.draft %}
-                    <h4>Lodged on:</h4>
-                    <p>{{ object.submit_date|date:"d-M-Y" }}</p>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Workflow</h3>
-                </div>
-                <div class="panel-body">
-                    <h4>Status:</h4>
-                    <p>{{ object.get_state_display }}</p>
-                    <h4>Assigned to:</h4>
-                    {% if object.assignee %}
-                        <p>
-                        {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
-                        {% else %}{{ object.assignee.email }}
-                        {% endif %}
-                        </p>
-                    {% else %}
-                        <p>--</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+        {% include "applications/application_side_menu.html" %}
 
 <!-- Main panel start -->
         <div class="col-sm-8 col-md-9 col-lg-10">

@@ -85,7 +85,7 @@ class Flow():
         referee = Group.objects.get(name='Referee')
         director = Group.objects.get(name='Director')
         executive = Group.objects.get(name='Executive')
-
+       
         if processor in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Processor',flow)
         if assessor in request.user.groups.all():
@@ -188,7 +188,8 @@ class Flow():
         DefaultGroups['grouplink']['manager'] = 'Approver'
         DefaultGroups['grouplink']['director'] = 'Director'
         DefaultGroups['grouplink']['exec'] = 'Executive'
-
+        DefaultGroups['grouplink']['referral'] = 'Referee'
+        
         # create reverse mapping groups
         for g in DefaultGroups['grouplink']:
             val = DefaultGroups['grouplink'][g]
