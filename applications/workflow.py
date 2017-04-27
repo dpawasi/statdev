@@ -61,6 +61,8 @@ class Flow():
             context["may_update_publication_feedback_final"] = "False"    
         if "may_publish_feedback_final" not in context:
             context["may_publish_feedback_final"] = "False"
+        if "may_recall_resend" not in context:
+            context["may_recall_resend"] = "False"
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
@@ -85,7 +87,7 @@ class Flow():
         referee = Group.objects.get(name='Referee')
         director = Group.objects.get(name='Director')
         executive = Group.objects.get(name='Executive')
-
+       
         if processor in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Processor',flow)
         if assessor in request.user.groups.all():
@@ -188,7 +190,8 @@ class Flow():
         DefaultGroups['grouplink']['manager'] = 'Approver'
         DefaultGroups['grouplink']['director'] = 'Director'
         DefaultGroups['grouplink']['exec'] = 'Executive'
-
+        DefaultGroups['grouplink']['referral'] = 'Referee'
+        
         # create reverse mapping groups
         for g in DefaultGroups['grouplink']:
             val = DefaultGroups['grouplink'][g]
