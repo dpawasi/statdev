@@ -12,7 +12,7 @@ from accounts.utils import get_query
 from actions.models import Action
 from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
+from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback, Communication
 from django.utils.safestring import SafeText
 from datetime import datetime, date
 from applications.workflow import Flow 
@@ -1023,19 +1023,37 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        forms_data = form.cleaned_data
         app = self.get_object()
         action = self.kwargs['action']
+
+        # Upload New Files
+        doc = None
+        if self.request.FILES.get('document'):  # Uploaded new file.
+            doc = Document()
+            doc.upload = forms_data['document']
+            doc.name = forms_data['document'].name
+            doc.save()
+           
         flow = Flow()
         DefaultGroups = flow.groupList()
         flow.get('part5')
         groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
-
         route = flow.getNextRouteObj(action,app.routeid,"part5")
         self.object.routeid = route["route"]
         self.object.state = route["state"]
         self.object.group = groupassignment 
         self.object.assignee = None
         self.object.save()
+        
+        comms =  Communication()
+        comms.application = app
+        comms.details = forms_data['details']
+        comms.state = route["state"]
+        comms.save()
+        if doc:
+            comms.documents.add(doc)
+
         return HttpResponseRedirect(self.get_success_url())
 
 

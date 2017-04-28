@@ -144,7 +144,8 @@
                 "may_update_publication_feedback_draft" : "False",
                 "may_publish_feedback_draft": "False",
                 "may_update_publication_feedback_final": "False",
-                "may_publish_feedback_final": "False"
+                "may_publish_feedback_final": "False",
+                "may_recall_resend": "True"
             }
         },
         "collapse": {
