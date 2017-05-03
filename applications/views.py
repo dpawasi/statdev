@@ -140,7 +140,6 @@ class ApplicationDetail(DetailView):
         usergroups = self.request.user.groups.all()
         context['may_assign_to_person'] = 'False'
 
-        #print 'sdsd'
         if app.group is not None:
            if app.group in usergroups:
                context['may_assign_to_person'] = 'True'
@@ -151,7 +150,6 @@ class ApplicationDetail(DetailView):
 
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
-            #print "Y"
             emergency = Application_Emergency()
             context = emergency.get(app,self,context)
    
@@ -671,9 +669,6 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         else: 
             workflowtype = ''
 
-
-        print workflowtype
-
         if app.routeid is None:
             app.routeid = 1
         request = self.request
@@ -946,7 +941,6 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationAssignPerson, self).get_initial()
         app = self.get_object()
-        print app.routeid
         if app.routeid is None:
             app.routeid = 1
         initial['assigngroup'] = app.group
