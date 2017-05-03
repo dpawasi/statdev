@@ -17,7 +17,7 @@ from django.utils.safestring import SafeText
 from datetime import datetime, date
 from applications.workflow import Flow 
 from django.db.models import Q
-from applications.views_sub import Application_Part5 
+from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence 
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -140,95 +140,109 @@ class ApplicationDetail(DetailView):
         usergroups = self.request.user.groups.all()
         context['may_assign_to_person'] = 'False'
 
+        #print 'sdsd'
         if app.group is not None:
            if app.group in usergroups:
                context['may_assign_to_person'] = 'True'
-
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
             context = part5.get(app,self,context)
-            return context
 
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
+            #print "Y"
+            emergency = Application_Emergency()
+            context = emergency.get(app,self,context)
+   
+        elif app.app_type == app.APP_TYPE_CHOICES.permit:
+            permit = Application_Permit()
+            context = permit.get(app,self,context)
+        elif app.app_type == app.APP_TYPE_CHOICES.licence:
+            licence = Application_Licence()
+            context = licence.get(app,self,context)
 
-            if app.organisation:
-                context['address'] = app.organisation.postal_address
-            elif app.applicant:
-                context['address'] = app.applicant.emailuserprofile.postal_address
+#        print 'sfasdas'
+#        print app.app_type
+        #elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
+        #    self.template_name = 'applications/application_detail_emergency.html'
+        #    
+        #    if app.organisation:
+        #        context['address'] = app.organisation.postal_address
+        #    elif app.applicant:
+        #        context['address'] = app.applicant.emailuserprofile.postal_address
 
-        processor = Group.objects.get(name='Processor')
-        assessor = Group.objects.get(name='Assessor')
-        approver = Group.objects.get(name='Approver')
-        referee = Group.objects.get(name='Referee')
-        emergency = Group.objects.get(name='Emergency')
+#        processor = Group.objects.get(name='Processor')
+#        assessor = Group.objects.get(name='Assessor')
+#        approver = Group.objects.get(name='Approver')
+#        referee = Group.objects.get(name='Referee')
+#        emergency = Group.objects.get(name='Emergency')
     
 
-        if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
+#        if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
             # Rule: if the application status is 'draft', it can be lodged.
             # Rule: if the application is an Emergency Works and status is 'draft'
             #   conditions can be added
-            if app.app_type == app.APP_TYPE_CHOICES.emergency:
-                if app.assignee == self.request.user:
-                    context['may_update'] = True
-                    context['may_issue'] = True
-                    context['may_create_condition'] = True
-                    context['may_update_condition'] = True
-                    context['may_assign_emergency'] = True
-                elif emergency in self.request.user.groups.all() or self.request.user.is_superuser: 
-                    context['may_assign_emergency'] = True
-            elif app.applicant == self.request.user or self.request.user.is_superuser:
-                context['may_update'] = True
-                context['may_lodge'] = True
-        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with admin', it can be sent
-            # back to the customer.
-            if app.state == app.APP_STATE_CHOICES.with_admin:
-                context['may_assign_customer'] = True
+#            if app.app_type == app.APP_TYPE_CHOICES.emergency:
+#                if app.assignee == self.request.user:
+#                    context['may_update'] = True
+#                    context['may_issue'] = True
+#                    context['may_create_condition'] = True
+#                    context['may_update_condition'] = True
+#                    context['may_assign_emergency'] = True
+#                elif emergency in self.request.user.groups.all() or self.request.user.is_superuser: 
+#                    context['may_assign_emergency'] = True
+#            elif app.applicant == self.request.user or self.request.user.is_superuser:
+#                context['may_update'] = True
+#                context['may_lodge'] = True
+#        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+#            # Rule: if the application status is 'with admin', it can be sent
+#            # back to the customer.
+#            if app.state == app.APP_STATE_CHOICES.with_admin:
+#                context['may_assign_customer'] = True
             # Rule: if the application status is 'with admin' or 'with referee', it can
             # be referred, have conditions added, and referrals can be
             # recalled/resent.
-            if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
-                context['may_refer'] = True
-                context['may_create_condition'] = True
-                context['may_recall_resend'] = True
-                context['may_assign_processor'] = True
-                # Rule: if there are no "outstanding" referrals, it can be
-                # assigned to an assessor.
-                if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
-                    context['may_assign_assessor'] = True
-        if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with assessor', it can have conditions added
-            # or updated, and can be sent for approval.
-            if app.state == app.APP_STATE_CHOICES.with_assessor:
-                context['may_create_condition'] = True
-                context['may_update_condition'] = True
-                context['may_accept_condition'] = True
-                context['may_submit_approval'] = True
-        if approver in self.request.user.groups.all() or self.request.user.is_superuser:
-            # Rule: if the application status is 'with manager', it can be issued or
-            # assigned back to an assessor.
-            if app.state == app.APP_STATE_CHOICES.with_manager:
-                context['may_assign_assessor'] = True
-                context['may_issue'] = True
-        if referee in self.request.user.groups.all():
-            # Rule: if the application has a current referral to the request
-            # user, they can create and update conditions.
-            if Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
-                context['may_create_condition'] = True
-                context['may_update_condition'] = True
-        if app.state == app.APP_STATE_CHOICES.issued:
-            context['may_generate_pdf'] = True
-        if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
-            # Rule: only the delegate of the organisation (or submitter) can
-            # request compliance.
-            if app.organisation:
-                if self.request.user.emailuserprofile in app.organisation.delegates.all():
-                    context['may_request_compliance'] = True
-            elif self.request.user == app.applicant:
-                context['may_request_compliance'] = True
+#            if app.state in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+#                context['may_refer'] = True
+#                context['may_create_condition'] = True
+#                context['may_recall_resend'] = True
+#                context['may_assign_processor'] = True
+#                # Rule: if there are no "outstanding" referrals, it can be
+#                # assigned to an assessor.
+#                if not Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
+#                    context['may_assign_assessor'] = True
+#        if assessor in self.request.user.groups.all() or self.request.user.is_superuser:
+#            # Rule: if the application status is 'with assessor', it can have conditions added
+#            # or updated, and can be sent for approval.
+#            if app.state == app.APP_STATE_CHOICES.with_assessor:
+#                context['may_create_condition'] = True
+#                context['may_update_condition'] = True
+#                context['may_accept_condition'] = True
+#                context['may_submit_approval'] = True
+##        if approver in self.request.user.groups.all() or self.request.user.is_superuser:
+#            # Rule: if the application status is 'with manager', it can be issued or
+#            # assigned back to an assessor.
+#            if app.state == app.APP_STATE_CHOICES.with_manager:
+#                context['may_assign_assessor'] = True
+#                context['may_issue'] = True
+##        if referee in self.request.user.groups.all():
+#            # Rule: if the application has a current referral to the request
+#            # user, they can create and update conditions.
+#            if Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
+#               context['may_create_condition'] = True
+#                context['may_update_condition'] = True
+#        if app.state == app.APP_STATE_CHOICES.issued:
+#            context['may_generate_pdf'] = True
+#        if app.state == app.APP_STATE_CHOICES.issued and app.condition_set.exists():
+#            # Rule: only the delegate of the organisation (or submitter) can
+#            # request compliance.
+#            if app.organisation:
+#                if self.request.user.emailuserprofile in app.organisation.delegates.all():
+#                    context['may_request_compliance'] = True
+#            elif self.request.user == app.applicant:
+#                context['may_request_compliance'] = True
         return context
 
 
@@ -280,26 +294,27 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
        
         # Rule: if the application status is 'draft', it can be updated.
         context = {}
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
+#        if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
 
-            processor = Group.objects.get(name='Processor')
-            assessor = Group.objects.get(name='Assessor')
-            approver = Group.objects.get(name='Approver')
-            referee = Group.objects.get(name='Referee')
+  #      processor = Group.objects.get(name='Processor')
+  #          assessor = Group.objects.get(name='Assessor')
+  #          approver = Group.objects.get(name='Approver')
+  #          referee = Group.objects.get(name='Referee')
 
-            flow = Flow()
-            flow.get('part5')
-            context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
 
-            if context['may_update'] != "True":
-                messages.error(self.request, 'This application cannot be updated!')
-                return HttpResponseRedirect(app.get_absolute_url())
-        else: 
-            if app.state != app.APP_STATE_CHOICES.draft and app.state != app.APP_STATE_CHOICES.new:
-                messages.error(self.request, 'This application cannot be updated!')
-                return HttpResponseRedirect(app.get_absolute_url())
+        if context['may_update'] != "True":
+            messages.error(self.request, 'This application cannot be updated!')
+            return HttpResponseRedirect(app.get_absolute_url())
+ #       else: 
+ #           if app.state != app.APP_STATE_CHOICES.draft and app.state != app.APP_STATE_CHOICES.new:
+ #               messages.error(self.request, 'This application cannot be updated!')
+ #               return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationUpdate, self).get(request, *args, **kwargs)
 
@@ -643,24 +658,39 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # Rule: application state must be 'draft'.
         app = self.get_object()
         flowcontext = {}
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-               app.routeid = 1
-            request = self.request
-            flow = Flow()
-            flow.get('part5')
-            flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
-            if flowcontext['may_lodge'] == "True": 
-                donothing = ""
-            else:
-                messages.error(self.request, 'This application cannot be lodged!')
-                return HttpResponseRedirect(app.get_absolute_url())
 
+        workflowtype = ''
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+           workflowtype = 'part5'
+        elif app.app_type == app.APP_TYPE_CHOICES.emergency:
+            workflowtype = 'emergency'
+        elif app.app_type == app.APP_TYPE_CHOICES.permit:
+            workflowtype = 'permit'
+        elif app.app_type == app.APP_TYPE_CHOICES.licence:
+            workflowtype = 'licence'
+        else: 
+            workflowtype = ''
+
+
+        print workflowtype
+
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+        flow = Flow()
+        flow.get(workflowtype)
+        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext['may_lodge'] == "True": 
+            donothing = ""
         else:
-            if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(self.request, 'This application cannot be lodged!')
+            return HttpResponseRedirect(app.get_absolute_url())
+
+  #      else:
+   #         if app.state != app.APP_STATE_CHOICES.draft:
                 # TODO: better/explicit error response.
-                messages.error(self.request, 'This application cannot be lodged!')
-                return HttpResponseRedirect(app.get_absolute_url())
+    #            messages.error(self.request, 'This application cannot be lodged!')
+     #           return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationLodge, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -673,16 +703,16 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """
         app = self.get_object()
 
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
-            flow = Flow()
-            flow.get('part5')
-            DefaultGroups = flow.groupList()
-            nextroute = flow.getNextRoute('lodge',app.routeid,"part5")
-            app.routeid = nextroute
-            groupassignment = Group.objects.get(name=DefaultGroups['grouplink']['admin'])
-            app.group = groupassignment
+        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
+        flow = Flow()
+        flow.get('part5')
+        DefaultGroups = flow.groupList()
+        nextroute = flow.getNextRoute('lodge',app.routeid,"part5")
+        app.routeid = nextroute
+        groupassignment = Group.objects.get(name=DefaultGroups['grouplink']['admin'])
+        app.group = groupassignment
 
 
         app.state = app.APP_STATE_CHOICES.with_admin
@@ -817,12 +847,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(app.get_absolute_url())
 
         action = self.kwargs['action']
-       
+      
         flow = Flow()
-        flow.get('part5')
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
         # nextroute = flow.getNextRoute(action,app.routeid,"part5")
         assign_action = flow.checkAssignedAction(action,flowcontext)
         if assign_action != True:
