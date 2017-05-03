@@ -136,6 +136,14 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
+
+        usergroups = self.request.user.groups.all()
+        context['may_assign_to_person'] = 'False'
+
+        if app.group is not None:
+           if app.group in usergroups:
+               context['may_assign_to_person'] = 'True'
+
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
@@ -804,8 +812,12 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 #        DefaultGroups['director'] = 'Director'
 #        DefaultGroups['exec'] = 'Executive'
 
-        action = self.kwargs['action']
+        if app.assignee is None: 
+            messages.error(self.request, 'Please Allocate an Assigned Person First')
+            return HttpResponseRedirect(app.get_absolute_url())
 
+        action = self.kwargs['action']
+       
         flow = Flow()
         flow.get('part5')
         DefaultGroups = flow.groupList()
@@ -814,8 +826,12 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         # nextroute = flow.getNextRoute(action,app.routeid,"part5")
         assign_action = flow.checkAssignedAction(action,flowcontext)
         if assign_action != True:
-            messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups[action])
-            return HttpResponseRedirect(app.get_absolute_url())
+            if action in DefaultGroups['grouplink']:
+                messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups['grouplink'][action])
+                return HttpResponseRedirect(app.get_absolute_url())
+            else:
+                messages.error(self.request, 'This application cannot be reassign, Unknown Error') 
+                return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
@@ -826,6 +842,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationAssignNextAction, self).post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_list')
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -859,7 +878,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms.save()
         if doc:
             comms.documents.add(doc)
-
+     
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -883,7 +902,7 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         return super(ApplicationAssignPerson, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        self.object = form.save(commit=True)
         app = self.object
         
         # Record an action on the application:
@@ -896,6 +915,7 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationAssignPerson, self).get_initial()
         app = self.get_object()
+        print app.routeid
         if app.routeid is None:
             app.routeid = 1
         initial['assigngroup'] = app.group
