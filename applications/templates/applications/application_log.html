@@ -6,10 +6,10 @@
 		<h5>Communications</h5>
 		<p><a href="#">Show</a> | <a href="#">Add Entry</a></p>
 		<hr />
+        {% if object.assignee %}
 		<h5>Actions</h5>
 		{# TODO: hide the Actions dropdown when no actions can be performed #}
 		<ul>
-
 			{% if workflow_actions %}
 
 			{% for action in workflow_actions %}
@@ -57,7 +57,6 @@
 
 			<!-- Referrals -->
 
-			{{ action.route }}<BR>
 			{% endfor %}
 
 			{% else %}
@@ -78,8 +77,8 @@
 		<h5>Form Options</h5>
 		<ul>
 			{% if workflow_actions %} 
-
-				{% if may_update == "True" %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
+ 
+            {% if may_update == "True" %}<li><a href="{% url 'application_update' object.pk %}">{% if formcomponent.update.title %}{{ formcomponent.update.title }}{% else %} Update application{% endif %}</a></li>{% endif %}
 				{% if may_create_condition == "True" %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
 				{% if may_refer == "True" %}<li><a href="{% url 'application_refer' object.pk %}">Add Referral</a></li>{% endif %}
 				{% if may_generate_pdf == "True" %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
@@ -89,9 +88,16 @@
 	            {% if may_create_condition  %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
     	        {% if may_refer  %}<li><a href="{% url 'application_refer' object.pk %}">Add Referral</a></li>{% endif %}
         	    {% if may_generate_pdf  %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
-
 			{% endif %}
 		</ul>
+        {% else %}
+        
+        <ul>
+            {% if may_assign_to_person == "True" %}
+               <li><a href="{% url 'application_assign_person' object.pk %}">Assign Person</a></li>
+            {% endif %}
+        {% endif %}
+        </ul>
 	</div>
 </div>
 

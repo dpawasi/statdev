@@ -17,6 +17,7 @@ class Flow():
               return json_obj[str(routeid)]
         return None
     def getGroupAccess(self,context,route,group,flow): 
+        # Form Actions
         if "may_update" not in context:
             context["may_update"] = "False"
         if "may_lodge" not in context:
@@ -63,6 +64,12 @@ class Flow():
             context["may_publish_feedback_final"] = "False"
         if "may_recall_resend" not in context:
             context["may_recall_resend"] = "False"
+
+        # Form Components
+        if "form_component_update" not in context:
+            context["form_component_update_title"] = "Update Application"
+
+
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
@@ -134,6 +141,18 @@ class Flow():
            if "required" in json_obj[str(route)]:
               context["required"] = json_obj[str(route)]['required']
         return context
+    def getFormComponent(self,route,flow):
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+            if "formcomponent" in json_obj[str(route)]:
+                if "update" not in json_obj[str(route)]['formcomponent']:
+                    json_obj[str(route)] = {'formcomponent': {"update": {"title":  "Update Application"}}}
+            else:
+                donothing = ""
+                json_obj[str(route)] = {'formcomponent': {"update": {"title":  "Update Application"}}}
+
+            return json_obj[str(route)]['formcomponent']
+
 
     def getNextRoute(self,action,route,flow):
         json_obj = self.json_obj

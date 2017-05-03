@@ -17,7 +17,7 @@ class Application_Part5():
         context = flow.getCollapse(context,app.routeid,'part5')
         context = flow.getHiddenAreas(context,app.routeid,'part5')
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
-		
+        context['formcomponent'] = flow.getFormComponent(app.routeid,'part5')
         try:
               LocObj = Location.objects.get(application_id=self_view.object.id)
               context['certificate_of_title_volume'] = LocObj.title_volume

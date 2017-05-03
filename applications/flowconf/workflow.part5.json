@@ -123,6 +123,13 @@
             } 
 
         ],
+        "formcomponent": {
+            
+                "update": {
+                    "title": "Make Application Changes"
+                }
+            
+        },
         "groupaccess": {
             "Processor": {
                 "may_update": "True",
@@ -194,22 +201,29 @@
 
         },
         "actions": [
-         	{
-            "title": "Assign to Manager",
-            "route": "5",
-            "routegroup": "manager",
-            "state": "5"
+            {
+                "title": "Assign to Manager",
+                "route": "5",
+                "routegroup": "manager",
+                "state": "5"
 
-        },   
-            
-          {
-            "title": "Assign to Admin Officer",
-            "route": "2",
-            "routegroup": "admin",
-            "state": "2"
+            },   
 
-        }
+            {
+                "title": "Assign to Admin Officer",
+                "route": "2",
+                "routegroup": "admin",
+                "state": "2"
+
+            }
         ],
+
+        "formcomponent": {
+                "update": {
+                    "title": "Attach Draft Report and Start Date"
+                }
+            
+        },
         "groupaccess": {
             "Processor": {
                 "may_update": "True",
@@ -304,8 +318,6 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "False"
-
-
         },
         "actions": [
             {
@@ -380,7 +392,7 @@
 
         },
         "actions": [
-			{
+            {
                 "title": "Approve to Exec Officer",
                 "route": "7",
                 "routegroup": "exec",
@@ -455,7 +467,7 @@
             "assessments_draft_report": "False"
         },
         "actions": [
-			{
+            {
                 "title": "Approve to Director",
                 "route": "6",
                 "routegroup": "director",
@@ -503,7 +515,7 @@
 
         }
     },
-        "7": {
+    "7": {
         "title": "Executive Officer",
         "hidden": {
             "applicant": "False",
@@ -727,7 +739,7 @@
                 "routegroup": "director",
                 "state": "12"
             },
-			{
+            {
                 "title": "Reject To Assessor (Swan River)",
                 "route": "9",
                 "routegroup": "assess",
@@ -745,7 +757,7 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
-				"may_assign_director": "True",
+                "may_assign_director": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
             },
@@ -794,7 +806,7 @@
 
         },
         "actions": [
-			{
+            {
                 "title": "Approve To Executive (DG Draft)",
                 "route": "12",
                 "routegroup": "exec",
@@ -819,7 +831,7 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
-				"may_assign_exec": "True",
+                "may_assign_exec": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
             },
@@ -1009,7 +1021,7 @@
                 "state": "5"
 
             },
-			{
+            {
                 "title": "Reject to Executive (DG Draft)",
                 "route": "12",
                 "routegroup": "exec",
@@ -1028,7 +1040,7 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
-				"may_assign_exec": "False",
+                "may_assign_exec": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
             }
@@ -1082,14 +1094,14 @@
                 "state": "4"
 
             },
-			{
+            {
                 "title": "Approve to Director (Public)",
                 "route": "16",
                 "routegroup": "director",
                 "state": "12"
 
             }
-			
+
         ],
         "groupaccess": {
             "Approver": {
@@ -1101,7 +1113,7 @@
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
-				"may_assign_director": "True",
+                "may_assign_director": "True",
                 "may_assign_assessor": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
@@ -1158,7 +1170,7 @@
                 "state": "13"
 
             },
-			{
+            {
                 "title": "Reject to Manager",
                 "route": "15",
                 "routegroup": "manager",
@@ -1176,7 +1188,7 @@
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
-				"may_assign_exec": "True",
+                "may_assign_exec": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
@@ -1362,7 +1374,7 @@
                 "routegroup": "admin",
                 "state": "2"
             },
-			{
+            {
                 "title": "Assign to Manager (Determination)",
                 "route": "20",
                 "routegroup": "manager",
@@ -1432,14 +1444,14 @@
                 "state": "4"
 
             },
-			{
+            {
                 "title": "Approve to Director (Determination)",
                 "route": "21",
                 "routegroup": "director",
                 "state": "12"
 
             },
-			{
+            {
                 "title": "Approve to Exec Officer (Determination)",
                 "route": "22",
                 "routegroup": "exec",
@@ -1458,8 +1470,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
-				"may_assign_director": "True",
-				"may_assign_exec": "True",
+                "may_assign_director": "True",
+                "may_assign_exec": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
             },
@@ -1515,7 +1527,7 @@
                 "state": "5"
 
             },
-			{
+            {
                 "title": "Approve to Exec Officer (Determination)",
                 "route": "22",
                 "routegroup": "exec",
@@ -1533,7 +1545,7 @@
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
-				"may_assign_exec": "True",
+                "may_assign_exec": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
