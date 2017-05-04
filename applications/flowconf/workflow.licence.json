@@ -125,7 +125,7 @@
         "groupaccess": {
             "Processor": {
                 "may_update": "True",
-                "may_lodge":"True",
+                "may_lodge":"False",
                 "may_refer":"False",
                 "may_assign":"False",
                 "may_assign_customer": "False",
@@ -138,8 +138,8 @@
 
             },
             "Assessor": {
-                "may_update": "True",
-                "may_lodge":"True",
+                "may_update": "False",
+                "may_lodge":"False",
                 "may_refer":"False",
                 "may_assign":"False",
                 "may_assign_customer": "False",
@@ -151,8 +151,8 @@
 
             },
             "Approver": {
-                "may_update": "True",
-                "may_lodge":"True",
+                "may_update": "False",
+                "may_lodge":"False",
                 "may_refer":"False",
                 "may_assign":"False",
                 "may_assign_customer": "False",

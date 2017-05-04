@@ -23,6 +23,10 @@ class ApplicationTest(TestCase):
         self.user2 = mixer.blend(User, email=random_dpaw_email, is_superuser=False, is_staff=True)
         self.user2.set_password('pass')
         self.user2.save()
+        self.user3 = mixer.blend(User, email=random_dpaw_email, is_superuser=False, is_staff=True)
+        self.user3.set_password('pass')
+        self.user3.save()
+
         Group.objects.create(name='Emergency')
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
@@ -37,6 +41,7 @@ class ApplicationTest(TestCase):
         self.user2.groups.add(assessor)
         self.user2.groups.add(approver)
         self.user2.groups.add(emergency)
+
         self.superuser = mixer.blend(User, email=random_dpaw_email, is_superuser=True, is_staff=True)
         self.superuser.set_password('pass')
         self.superuser.save()
@@ -47,12 +52,16 @@ class ApplicationTest(TestCase):
         self.referee.set_password('pass')
         self.referee.save()
         self.referee.groups.add(referee)
+        self.app_type = "licence"
         # Log in user1, by default.
         self.client.login(email=self.user1.email, password='pass')
         # Generate test fixtures.
         self.app1 = mixer.blend(
             Application, app_type=Application.APP_TYPE_CHOICES.licence,
-            state=Application.APP_STATE_CHOICES.draft, assignee=self.user1)
+            state=Application.APP_STATE_CHOICES.draft, assignee=self.user1,routeid=1)
+        self.app2 = mixer.blend(
+            Application, app_type=Application.APP_TYPE_CHOICES.licence,
+            state=Application.APP_STATE_CHOICES.draft, assignee=self.user3,routeid=2)
         self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
 
     def test_get_absolute_url(self):
@@ -107,6 +116,8 @@ class ApplicationTest(TestCase):
 
     def test_update_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.routeid = 2
+        self.app1.assignee = None
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
         resp = self.client.get(url)
@@ -124,6 +135,7 @@ class ApplicationTest(TestCase):
 
     def test_lodge_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.draft
+        self.app1.routeid = 1
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.get(url)
@@ -131,6 +143,7 @@ class ApplicationTest(TestCase):
 
     def test_lodge_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.routeid = 2
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.get(url)

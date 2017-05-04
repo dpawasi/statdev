@@ -305,6 +305,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        if app.assignee is None:
+            context['may_update'] = "False"
+
 
         if context['may_update'] != "True":
             messages.error(self.request, 'This application cannot be updated!')
@@ -645,10 +648,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         context = super(ApplicationLodge, self).get_context_data(**kwargs)
         app = self.get_object()
 
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
-            self.template_name = 'applications/application_lodge_part5.html'
+        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+           app.routeid = 1
+           self.template_name = 'applications/application_lodge_part5.html'
         return context
 
     def get(self, request, *args, **kwargs):
@@ -659,7 +662,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
 
         workflowtype = ''
         if app.app_type == app.APP_TYPE_CHOICES.part5:
-           workflowtype = 'part5'
+            workflowtype = 'part5'
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             workflowtype = 'emergency'
         elif app.app_type == app.APP_TYPE_CHOICES.permit:
@@ -673,8 +676,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
             app.routeid = 1
         request = self.request
         flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
+
         if flowcontext['may_lodge'] == "True": 
             donothing = ""
         else:
@@ -702,9 +707,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         if app.routeid is None:
             app.routeid = 1
         flow = Flow()
-        flow.get('part5')
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
         DefaultGroups = flow.groupList()
-        nextroute = flow.getNextRoute('lodge',app.routeid,"part5")
+        nextroute = flow.getNextRoute('lodge',app.routeid,workflowtype)
         app.routeid = nextroute
         groupassignment = Group.objects.get(name=DefaultGroups['grouplink']['admin'])
         app.group = groupassignment
