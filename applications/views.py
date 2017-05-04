@@ -137,12 +137,15 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
 
+        # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
         usergroups = self.request.user.groups.all()
-        context['may_assign_to_person'] = 'False'
-
-        if app.group is not None:
-           if app.group in usergroups:
-               context['may_assign_to_person'] = 'True'
+        if app.routeid > 1:
+            context['may_assign_to_person'] = 'True'
+        else: 
+            context['may_assign_to_person'] = 'False'
+        #if app.group is not None:
+        #   if app.group in usergroups:
+        #       context['may_assign_to_person'] = 'True'
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
@@ -159,6 +162,17 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             licence = Application_Licence()
             context = licence.get(app,self,context)
+
+
+        # may_update has extra business rules
+        if app.routeid > 1:
+            if app.assignee is None:
+                context['may_update'] = "False"
+                del context['workflow_actions']	
+            if context['may_update'] == "True":
+                if app.assignee != self.request.user:
+                    context['may_update'] = "False"
+                    del context['workflow_actions']
 
 #        print 'sfasdas'
 #        print app.app_type
@@ -305,9 +319,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
-        if app.assignee is None:
-            context['may_update'] = "False"
 
+        if app.routeid > 1:
+            if app.assignee is None:
+                context['may_update'] = "False"
+       
+            if context['may_update'] == "True":
+                if app.assignee != self.request.user: 
+                    context['may_update'] = "False"
 
         if context['may_update'] != "True":
             messages.error(self.request, 'This application cannot be updated!')
@@ -922,6 +941,9 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+        if app.group is None:
+            messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssignPerson, self).get(request, *args, **kwargs)
 
     def get_form_class(self):

@@ -2,20 +2,9 @@
     "1": {
         "title": "Form Lodgement",
         "hidden": {
-            "applicant": "False",
-            "title": "False",
-            "certificate_commerical_acts_and_activities": "False",
-            "proposed_activities": "False",
-            "details_of_proposed_development": "False",
-            "river_reserve_lease_section_29": "False",
-            "river_reserve_lease_section_32": "False",
-            "landowner_consent": "False",
-            "deed": "False",
-            "publication": "True",
-            "conditions": "True",
-            "assessments": "True",
-            "stakeholdercommunication": "True",
-            "referrals": "True"
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
         },
         "actions": [
             {
@@ -24,10 +13,10 @@
                 "routegroup":"lodge"
             }
         ],
-		"formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Processor": {
@@ -71,26 +60,83 @@
 
         },
         "collapse": {
-            "applicant": "False",
-            "title": "False",
-            "proposed_activities": "False",
-            "certificate_commerical_acts_and_activities": "False",
-            "river_reserve_lease_section_29": "False",
-            "river_reserve_lease_section_32": "False",
-            "details_of_proposed_development": "False",
-            "publication": "True",
-            "referrals": "True",
-            "deed": "False",
-            "landowner_consent": "False"
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
         },
         "fields": {
-            "location": "hide",
-            "document_draft": "hide",
-            "document_final": "hide",
-            "document_determination": "hide",
-            "document_completion": "hide",
-            "assessment_start_date": "hide"
+        }
+    },
+    "2": {
+        "title": "License Submitted",
+        "hidden": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Assign to Assessor",
+                "route": "3",
+                "routegroup":"assess"
+            }
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "True",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_assessor": "True"
+
+            },
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+
+        },
+        "collapse": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False" 
+        },
+        "fields": {
         }
     }
+
 }
 

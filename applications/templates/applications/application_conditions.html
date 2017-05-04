@@ -1,0 +1,53 @@
+
+
+<div class="panel panel-default">
+	<div class="panel-heading" role="tab" id="conditions_heading">
+		<h3 class="panel-title">
+			<a role="button" data-toggle="collapse" href="#conditions_collapse" aria-expanded="false" aria-controls="conditions_collapse">
+				<span class="glyphicon glyphicon-plus"></span>
+				Conditions
+			</a>
+		</h3>
+	</div>
+	<div class="panel-collapse collapse {{ collapse.conditions }}" id="conditions_collapse" role="tabpanel" aria-labelledby="conditions_heading">
+		<div class="panel-body">
+			{% if object.condition_set.exists %}
+			<table class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th>Number</th>
+						<th>Condition</th>
+						<th>Source</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for cond in object.condition_set.all %}
+					<tr>
+						<td>{{ cond.pk }}</td>
+						<td>{{ cond.condition }}</td>
+						<td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
+						<td>{{ cond.get_status_display }}</td>
+						<td>
+							{% if may_update_condition == "True" %}
+							{% if may_accept_condition and cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
+							<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
+							<a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>
+							{% else %}
+							{% if cond.status == cond.CONDITION_STATUS_CHOICES.applied %}
+							<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk %}">Update</a>
+							<a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_delete' cond.pk %}">Delete</a>
+							{% endif %}
+							{% endif %}
+							{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+			</table>
+			{% else %}
+			<p>None</p>
+			{% endif %}
+		</div>
+	</div>
+</div>
