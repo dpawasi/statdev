@@ -137,6 +137,7 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
 
+        # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
         usergroups = self.request.user.groups.all()
         context['may_assign_to_person'] = 'False'
 
@@ -159,6 +160,16 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             licence = Application_Licence()
             context = licence.get(app,self,context)
+
+
+        # may_update has extra business rules
+        if app.routeid > 1:
+            if app.assignee is None:
+                context['may_update'] = "False"
+            if context['may_update'] == "True":
+                if app.assignee != self.request.user:
+                    context['may_update'] = "False"
+
 
 #        print 'sfasdas'
 #        print app.app_type
@@ -305,9 +316,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
-        if app.assignee is None:
-            context['may_update'] = "False"
 
+        if app.routeid > 1:
+            if app.assignee is None:
+                context['may_update'] = "False"
+       
+            if context['may_update'] == "True":
+                if app.assignee != self.request.user: 
+                    context['may_update'] = "False"
 
         if context['may_update'] != "True":
             messages.error(self.request, 'This application cannot be updated!')

@@ -72,8 +72,9 @@
         </div>
         <!-- remove all above to beginning of this tag if everything been moved -->
 
-
-<!-- Main panel start -->
+    
+        <!-- Main panel start -->
+        {% if hidden.holder == "False" %}
         <div class="col-sm-8 col-md-9 col-lg-10">
             <!-- Holder panel -->
             <div class="panel panel-default">
@@ -83,7 +84,7 @@
                         <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse in" id="holder_collapse">
+                <div class="panel-collapse collapse {{ collapse.holder }}" id="holder_collapse">
                     <div class="panel-body">
                         <div class="col-sm-8 col-md-6 col-lg-4">
                             <table class="table table-borderless">
@@ -106,8 +107,10 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Address details panel -->
+            {% if hidden.address == "False" %}
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-target="#address_collapse">
                     <h3 class="panel-title">
@@ -115,7 +118,7 @@
                         <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse in" id="address_collapse">
+                <div class="panel-collapse collapse {{ collapse.address }}" id="address_collapse">
                     <div class="panel-body">
                         <div class="col-sm-4 col-md-3 col-lg-3">
                             <table class="table table-borderless">
@@ -146,8 +149,10 @@
                     </div>
                 </div>
             </div>
-
+            {% endif %}
             <!-- Emergency works panel -->
+
+            {% if hidden.emergencyworks == "False" %}
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-target="#emergency_collapse">
                     <h3 class="panel-title">
@@ -155,7 +160,7 @@
                         <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse in" id="emergency_collapse">
+                <div class="panel-collapse collapse {{ collapse.emergencyworks }}" id="emergency_collapse">
                     <div class="panel-body">
                         <div class="col-sm-8 col-md-6 col-lg-3">
                             <table class="table table-borderless">
@@ -176,6 +181,8 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+
 
             <!-- Conditions panel -->
             <div class="panel panel-default">
