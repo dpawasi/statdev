@@ -1,0 +1,96 @@
+{
+    "1": {
+        "title": "Form Lodgement",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "True",
+            "conditions": "True",
+            "assessments": "True",
+            "stakeholdercommunication": "True",
+            "referrals": "True"
+        },
+        "actions": [
+            {
+                "title": "Lodge Application",
+                "route": "2",
+                "routegroup":"lodge"
+            }
+        ],
+		"formcomponent": {
+                "update": {
+                    "title": "Make Application Changes"
+                }
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Assessor": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Approver": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+
+        },
+        "collapse": {
+            "applicant": "False",
+            "title": "False",
+            "proposed_activities": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "details_of_proposed_development": "False",
+            "publication": "True",
+            "referrals": "True",
+            "deed": "False",
+            "landowner_consent": "False"
+        },
+        "fields": {
+            "location": "hide",
+            "document_draft": "hide",
+            "document_final": "hide",
+            "document_determination": "hide",
+            "document_completion": "hide",
+            "assessment_start_date": "hide"
+        }
+    }
+}
+

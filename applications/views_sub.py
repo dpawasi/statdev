@@ -17,7 +17,7 @@ class Application_Part5():
         context = flow.getCollapse(context,app.routeid,'part5')
         context = flow.getHiddenAreas(context,app.routeid,'part5')
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
-		
+        context['formcomponent'] = flow.getFormComponent(app.routeid,'part5')
         try:
               LocObj = Location.objects.get(application_id=self_view.object.id)
               context['certificate_of_title_volume'] = LocObj.title_volume
@@ -182,4 +182,67 @@ class Application_Part5():
                 context['proposed_development_plans_list'].append(fileitem)
 
         return context
+
+
+class Application_Emergency():
+
+    def get(self,app,self_view,context):
+        request = self_view.request
+        workflowtype = "emergency"
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        flow = Flow()
+        flow.get(workflowtype)
+        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getCollapse(context,app.routeid,workflowtype)
+        context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+
+        if app.organisation:
+           context['address'] = app.organisation.postal_address
+        elif app.applicant:
+           context['address'] = app.applicant.emailuserprofile.postal_address
+
+        return context
+
+class Application_Permit():
+    def get(self,app,self_view,context):
+        request = self_view.request
+        workflowtype = "permit"
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        flow = Flow()
+        flow.get(workflowtype)
+        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getCollapse(context,app.routeid,workflowtype)
+        context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+
+        return context
+        
+class Application_Licence():
+    def get(self,app,self_view,context):
+        request = self_view.request
+        workflowtype = "licence"
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        flow = Flow()
+        flow.get(workflowtype)
+        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getCollapse(context,app.routeid,workflowtype)
+        context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        return context
+
+
+
 

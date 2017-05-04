@@ -1019,7 +1019,13 @@
                         </div>
                         {% endif %}
 
+                        {% if may_update == "True" %}
+                                <a class="btn btn-primary" role="button" href="{% url 'application_update' object.pk %}">{% if formcomponent.update.title %}{{ formcomponent.update.title }}{% else %} Update application{% endif %}</a>
+                        {% endif %}
+
                     </div>
+        
+            
 
                 </div>		
 

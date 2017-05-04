@@ -17,6 +17,7 @@ class Flow():
               return json_obj[str(routeid)]
         return None
     def getGroupAccess(self,context,route,group,flow): 
+        # Form Actions
         if "may_update" not in context:
             context["may_update"] = "False"
         if "may_lodge" not in context:
@@ -63,6 +64,15 @@ class Flow():
             context["may_publish_feedback_final"] = "False"
         if "may_recall_resend" not in context:
             context["may_recall_resend"] = "False"
+        if "may_assign_emergency" not in context:
+            context["may_assign_emergency"] = "False"
+
+
+        # Form Components
+        if "form_component_update" not in context:
+            context["form_component_update_title"] = "Update Application"
+
+
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
@@ -81,13 +91,30 @@ class Flow():
         return context
 
     def getAllGroupAccess(self,request,context,route,flow):
-        processor = Group.objects.get(name='Processor')
-        assessor = Group.objects.get(name='Assessor')
-        approver = Group.objects.get(name='Approver')
-        referee = Group.objects.get(name='Referee')
-        director = Group.objects.get(name='Director')
-        executive = Group.objects.get(name='Executive')
-       
+        emergency = None
+        processor = None
+        assessor = None
+        approver = None
+        referee = None
+        director = None
+        executive = None
+
+        if Group.objects.filter(name='Processor').exists():
+            processor = Group.objects.get(name='Processor')
+        if Group.objects.filter(name='Assessor').exists():
+            assessor = Group.objects.get(name='Assessor')
+        if Group.objects.filter(name='Approver').exists():
+            approver = Group.objects.get(name='Approver')
+        if Group.objects.filter(name='Referee').exists():
+            referee = Group.objects.get(name='Referee')
+        if Group.objects.filter(name='Director').exists():
+            director = Group.objects.get(name='Director')
+        if Group.objects.filter(name='Executive').exists():
+            executive = Group.objects.get(name='Executive')
+        if Group.objects.filter(name='Emergency').exists():
+            emergency = Group.objects.get(name='Emergency')
+      
+
         if processor in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Processor',flow)
         if assessor in request.user.groups.all():
@@ -100,6 +127,8 @@ class Flow():
             context = self.getGroupAccess(context,route,'Director',flow)
         if executive in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Executive',flow)
+        if emergency in request.user.groups.all():
+            context = self.getGroupAccess(context,route,'Emergency',flow)
 
         return context
     def getCollapse(self,context,route,flow):
@@ -134,6 +163,18 @@ class Flow():
            if "required" in json_obj[str(route)]:
               context["required"] = json_obj[str(route)]['required']
         return context
+    def getFormComponent(self,route,flow):
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+            if "formcomponent" in json_obj[str(route)]:
+                if "update" not in json_obj[str(route)]['formcomponent']:
+                    json_obj[str(route)] = {'formcomponent': {"update": {"title":  "Update Application"}}}
+            else:
+                donothing = ""
+                json_obj[str(route)] = {'formcomponent': {"update": {"title":  "Update Application"}}}
+
+            return json_obj[str(route)]['formcomponent']
+
 
     def getNextRoute(self,action,route,flow):
         json_obj = self.json_obj
@@ -191,9 +232,24 @@ class Flow():
         DefaultGroups['grouplink']['director'] = 'Director'
         DefaultGroups['grouplink']['exec'] = 'Executive'
         DefaultGroups['grouplink']['referral'] = 'Referee'
-        
+        DefaultGroups['grouplink']['emergency'] = 'Emergency'
+
         # create reverse mapping groups
         for g in DefaultGroups['grouplink']:
             val = DefaultGroups['grouplink'][g]
             DefaultGroups['group'][val] = g
         return DefaultGroups
+
+    def getWorkFlowTypeFromApp(self,app):
+        workflowtype = ''
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+           workflowtype = 'part5'
+        elif app.app_type == app.APP_TYPE_CHOICES.emergency:
+            workflowtype = 'emergency'
+        elif app.app_type == app.APP_TYPE_CHOICES.permit:
+            workflowtype = 'permit'
+        elif app.app_type == app.APP_TYPE_CHOICES.licence:
+            workflowtype = 'licence'
+        else:
+            workflowtype = ''
+        return workflowtype
