@@ -397,6 +397,8 @@
             {% include "applications/application_referrals.html" %}
 
             <!-- Conditions panel -->
+            {% include "applications/application_conditions.html" %}
+
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Conditions</h3>
@@ -421,7 +423,7 @@
                                 <td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
                                 <td>{{ cond.get_status_display }}</td>
                                 <td>
-                                    {% if may_update_condition %}
+                                    {% if may_update_condition == "True" %}
                                         {% if may_accept_condition and cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
                                         <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
                                         <a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>

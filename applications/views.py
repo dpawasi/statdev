@@ -139,11 +139,11 @@ class ApplicationDetail(DetailView):
 
         # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
         usergroups = self.request.user.groups.all()
-        context['may_assign_to_person'] = 'False'
-
-        if app.group is not None:
-           if app.group in usergroups:
-               context['may_assign_to_person'] = 'True'
+        context['may_assign_to_person'] = 'True'
+       
+        #if app.group is not None:
+        #   if app.group in usergroups:
+        #       context['may_assign_to_person'] = 'True'
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
@@ -166,11 +166,13 @@ class ApplicationDetail(DetailView):
         if app.routeid > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
+                del context['workflow_actions']	
             if context['may_update'] == "True":
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
+                    del context['workflow_actions']
 
-
+        print context['may_assign_to_person'] 
 #        print 'sfasdas'
 #        print app.app_type
         #elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
