@@ -139,8 +139,10 @@ class ApplicationDetail(DetailView):
 
         # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
         usergroups = self.request.user.groups.all()
-        context['may_assign_to_person'] = 'True'
-       
+        if app.routeid > 1:
+            context['may_assign_to_person'] = 'True'
+        else: 
+            context['may_assign_to_person'] = 'False'
         #if app.group is not None:
         #   if app.group in usergroups:
         #       context['may_assign_to_person'] = 'True'
@@ -940,6 +942,9 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+        if app.group is None:
+            messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationAssignPerson, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
