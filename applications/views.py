@@ -950,7 +950,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
         flow.get(workflowtype)
-        print action
+      
         if action == "creator":
             groupassignment = None
             assignee = app.submitted_by
