@@ -93,7 +93,7 @@
                     <td></td>
                     <td>
                     {% if app_obj.may_assign_to_person == "True" %}
-                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign_person' app_obj.app.pk %}">Assign</a>
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign_person' app_obj.app.pk %}">{% if app_obj.app.assignee == None %}Assign{% else %}Re Assign {% endif %}</a>
                     {% endif %}
                     </td>
                 </tr>

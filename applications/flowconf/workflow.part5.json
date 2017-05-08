@@ -494,6 +494,9 @@
                 "may_assign_assessor": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
+            },
+            "Assessor": {
+                    "may_assign":"False"
             }
         },
         "collapse": {
