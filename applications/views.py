@@ -201,8 +201,8 @@ class ApplicationDetail(DetailView):
                     context['may_update'] = "False"
                     del context['workflow_actions']
 
-        print context['may_assign_to_person']
-        print context['may_update']
+        #print context['may_assign_to_person']
+#        print context['may_update']
 #        print 'sfasdas'
 #        print app.app_type
         #elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
