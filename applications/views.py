@@ -26,25 +26,46 @@ class HomePage(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
         if Application.objects.filter(assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined]).exists():
-            context['applications_wip'] = Application.objects.filter(
+            applications_wip = Application.objects.filter(
                 assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
+            context['applications_wip'] = self.create_applist(applications_wip)
+			#context['applications_wip']
         if Application.objects.filter(applicant=self.request.user).exists():
-            context['applications_submitted'] = Application.objects.filter(
+            applications_submitted = Application.objects.filter(
                     applicant=self.request.user).exclude(assignee=self.request.user)
+            context['applications_submitted'] = self.create_applist(applications_submitted)
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(
                 referee=self.request.user, status=Referral.REFERRAL_STATUS_CHOICES.referred)
+
         # TODO: any restrictions on who can create new applications?
         context['may_create'] = True
         # Processor users only: show unassigned applications.
         processor = Group.objects.get(name='Processor')
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             if Application.objects.filter(assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin).exists():
-                context['applications_unassigned'] = Application.objects.filter(
+                applications_unassigned = Application.objects.filter(
                     assignee__isnull=True, state=Application.APP_STATE_CHOICES.with_admin)
+                context['applications_unassigned'] = self.create_applist(applications_unassigned)
             # Rule: admin officers may self-assign applications.
             context['may_assign_processor'] = True
         return context
+
+    def create_applist(self,applications):
+        usergroups = self.request.user.groups.all()
+        app_list = []
+        for app in applications:
+            row = {}
+            row['may_assign_to_person'] = 'False'
+            row['app'] = app
+            if app.group in usergroups:
+               if app.group is not None:
+                    row['may_assign_to_person'] = 'True'
+            app_list.append(row)
+        return app_list
+
+
+
 
 
 class ApplicationList(ListView):
@@ -136,21 +157,26 @@ class ApplicationDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
+        context['may_update'] = "False"
 
         # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
-        usergroups = self.request.user.groups.all()
-        if app.routeid > 1:
-            context['may_assign_to_person'] = 'True'
-        else: 
-            context['may_assign_to_person'] = 'False'
+#        usergroups = self.request.user.groups.all()
+        
+#        if app.routeid > 1:
+#            context['may_assign_to_person'] = 'True'
+#        else: 
+#        context['may_assign_to_person'] = 'False'
+
         #if app.group is not None:
-        #   if app.group in usergroups:
-        #       context['may_assign_to_person'] = 'True'
+        context['may_assign_to_person'] = 'False'
+        usergroups = self.request.user.groups.all()
+        if app.group in usergroups:
+            if app.routeid > 1:
+                context['may_assign_to_person'] = 'True'
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
             context = part5.get(app,self,context)
-
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
@@ -163,6 +189,7 @@ class ApplicationDetail(DetailView):
             licence = Application_Licence()
             context = licence.get(app,self,context)
 
+#        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
 
         # may_update has extra business rules
         if app.routeid > 1:
@@ -174,6 +201,8 @@ class ApplicationDetail(DetailView):
                     context['may_update'] = "False"
                     del context['workflow_actions']
 
+        #print context['may_assign_to_person']
+#        print context['may_update']
 #        print 'sfasdas'
 #        print app.app_type
         #elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
@@ -857,7 +886,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
 #        DefaultGroups = {}
 #        DefaultGroups['admin'] = 'Processor'
- #       DefaultGroups['assess'] = 'Assessor'
+#        DefaultGroups['assess'] = 'Assessor'
 #        DefaultGroups['manager'] = 'Approver'
 #        DefaultGroups['director'] = 'Director'
 #        DefaultGroups['exec'] = 'Executive'
@@ -874,15 +903,21 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
-        # nextroute = flow.getNextRoute(action,app.routeid,"part5")
-        assign_action = flow.checkAssignedAction(action,flowcontext)
-        if assign_action != True:
-            if action in DefaultGroups['grouplink']:
-                messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups['grouplink'][action])
+
+        if action is "creator":
+            if flowcontext['may_assign_to_creator'] != "True":
+                messages.error(self.request, 'This application cannot be reassign, Unknown Error')
                 return HttpResponseRedirect(app.get_absolute_url())
-            else:
-                messages.error(self.request, 'This application cannot be reassign, Unknown Error') 
-                return HttpResponseRedirect(app.get_absolute_url())
+        else:
+            # nextroute = flow.getNextRoute(action,app.routeid,"part5")
+            assign_action = flow.checkAssignedAction(action,flowcontext)
+            if assign_action != True:
+                if action in DefaultGroups['grouplink']:
+                    messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups['grouplink'][action])
+                    return HttpResponseRedirect(app.get_absolute_url())
+                else:
+                    messages.error(self.request, 'This application cannot be reassign, Unknown Error') 
+                    return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
@@ -912,14 +947,27 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             doc.save()
            
         flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
-        flow.get('part5')
-        groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
-        route = flow.getNextRouteObj(action,app.routeid,"part5")
+        flow.get(workflowtype)
+      
+        if action == "creator":
+            groupassignment = None
+            assignee = app.submitted_by
+            donothing= 'yes'
+        else:
+            assignee = None
+            groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
+
+        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+        if route["route"] is None:
+           messages.error(self.request, 'Error In Assigning Next Route, No routes Found')
+           return HttpResponseRedirect(app.get_absolute_url())
+
         self.object.routeid = route["route"]
         self.object.state = route["state"]
-        self.object.group = groupassignment 
-        self.object.assignee = None
+        self.object.group = groupassignment
+        self.object.assignee = assignee
         self.object.save()
         
         comms =  Communication()

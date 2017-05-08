@@ -51,10 +51,15 @@
             {% endif %}
 
             {% if action.routegroup == "emergency" %}
-                {% if may_assign_emergency %}<li><a href="{% url 'application_nextaction' object.pk 'emergency' %}">Assign to an admin officer</a></li>{% endif %}
+            {% if may_assign_emergency %}<li><a href="{% url 'application_nextaction' object.pk 'emergency' %}">{% if action.title %}{{ action.title }}{% else %}Assign to an admin officer{% endif %}</a></li>{% endif %}
+            {% endif %}
+            <!-- Referrals -->
+            <!-- Assign to Form Creator -->
+            {% if action.routegroup == "creator" %}
+            {% if may_assign_to_creator %}<li><a href="{% url 'application_nextaction' object.pk 'creator' %}">{{ action.title }}</a></li>{% endif %}
             {% endif %}
 
-            <!-- Referrals -->
+            <!-- Assign to Form Creator -->
 
         {% endfor %}
 
