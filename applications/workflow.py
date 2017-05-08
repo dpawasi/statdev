@@ -66,13 +66,12 @@ class Flow():
             context["may_recall_resend"] = "False"
         if "may_assign_emergency" not in context:
             context["may_assign_emergency"] = "False"
-
+        if "may_assign_to_creator" not in context:       
+            context["may_assign_to_creator"] = "False"
 
         # Form Components
         if "form_component_update" not in context:
             context["form_component_update_title"] = "Update Application"
-
-
 
         json_obj = self.json_obj
         if json_obj[str(route)]:
@@ -219,6 +218,9 @@ class Flow():
                 assign_action = True
         elif action == "exec":
             if context["may_assign_exec"] == "True":
+                assign_action = True
+        elif action == "creator": 
+            if context["may_assign_to_creator"] == "True":
                 assign_action = True
 
         return assign_action

@@ -886,7 +886,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
 #        DefaultGroups = {}
 #        DefaultGroups['admin'] = 'Processor'
- #       DefaultGroups['assess'] = 'Assessor'
+#        DefaultGroups['assess'] = 'Assessor'
 #        DefaultGroups['manager'] = 'Approver'
 #        DefaultGroups['director'] = 'Director'
 #        DefaultGroups['exec'] = 'Executive'
@@ -903,15 +903,21 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
-        # nextroute = flow.getNextRoute(action,app.routeid,"part5")
-        assign_action = flow.checkAssignedAction(action,flowcontext)
-        if assign_action != True:
-            if action in DefaultGroups['grouplink']:
-                messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups['grouplink'][action])
+
+        if action is "creator":
+            if flowcontext['may_assign_to_creator'] != "True":
+                messages.error(self.request, 'This application cannot be reassign, Unknown Error')
                 return HttpResponseRedirect(app.get_absolute_url())
-            else:
-                messages.error(self.request, 'This application cannot be reassign, Unknown Error') 
-                return HttpResponseRedirect(app.get_absolute_url())
+        else:
+            # nextroute = flow.getNextRoute(action,app.routeid,"part5")
+            assign_action = flow.checkAssignedAction(action,flowcontext)
+            if assign_action != True:
+                if action in DefaultGroups['grouplink']:
+                    messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups['grouplink'][action])
+                    return HttpResponseRedirect(app.get_absolute_url())
+                else:
+                    messages.error(self.request, 'This application cannot be reassign, Unknown Error') 
+                    return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
@@ -941,18 +947,27 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             doc.save()
            
         flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
-        flow.get('part5')
-        groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
-        route = flow.getNextRouteObj(action,app.routeid,"part5")
+        flow.get(workflowtype)
+        print action
+        if action == "creator":
+            groupassignment = None
+            assignee = app.submitted_by
+            donothing= 'yes'
+        else:
+            assignee = None
+            groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
+
+        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
         if route["route"] is None:
            messages.error(self.request, 'Error In Assigning Next Route, No routes Found')
            return HttpResponseRedirect(app.get_absolute_url())
 
         self.object.routeid = route["route"]
         self.object.state = route["state"]
-        self.object.group = groupassignment 
-        self.object.assignee = None
+        self.object.group = groupassignment
+        self.object.assignee = assignee
         self.object.save()
         
         comms =  Communication()
