@@ -144,6 +144,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             self.object.applicant = self.request.user
         self.object.assignee = self.request.user
         self.object.submitted_by = self.request.user
+        self.object.assignee = self.request.user
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.new
         self.object.save()
@@ -168,6 +169,10 @@ class ApplicationDetail(DetailView):
 #        context['may_assign_to_person'] = 'False'
 
         #if app.group is not None:
+        
+        if app.assignee is not None:
+            context['application_assignee_id'] = app.assignee.id
+
         context['may_assign_to_person'] = 'False'
         usergroups = self.request.user.groups.all()
         if app.group in usergroups:
@@ -332,9 +337,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
-       
+
         # Rule: if the application status is 'draft', it can be updated.
         context = {}
+        
+        context['application_assignee_id'] = app.assignee.id
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
@@ -347,7 +354,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
 
         if app.routeid > 1:
             if app.assignee is None:
@@ -377,7 +384,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             request = self.request
             flow = Flow()
             flow.get('part5')
-            context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
+            context = flow.getAccessRights(request,context,app.routeid,'part5')
         return context
 
     def get_form_class(self):
@@ -707,6 +714,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # Rule: application state must be 'draft'.
         app = self.get_object()
         flowcontext = {}
+        flowcontext['application_assignee_id'] = app.assignee.id
 
         workflowtype = ''
         if app.app_type == app.APP_TYPE_CHOICES.part5:
@@ -726,8 +734,8 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
-
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+      
         if flowcontext['may_lodge'] == "True": 
             donothing = ""
         else:
@@ -809,7 +817,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
 
             flow = Flow()
             flow.get('part5')
-            flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+            flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
 
             if flowcontext['may_refer'] != "True":
                 messages.error(self.request, 'This application cannot be updated!')
@@ -902,7 +910,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
 
         if action is "creator":
             if flowcontext['may_assign_to_creator'] != "True":
@@ -1045,7 +1053,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 flow.get('part5')
                 flowcontext = {}
-                flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+                flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
                 if flowcontext["may_assign_assessor"] != "True":
                     messages.error(self.request, 'This application cannot be assigned to an assessor!')
                     return HttpResponseRedirect(app.get_absolute_url())
@@ -1059,7 +1067,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 flow.get('part5')
                 flowcontext = {}
-                flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+                flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
                 
                 if flowcontext["may_submit_approval"] != "True":
                     messages.error(self.request, 'This application cannot be assigned to an assessor!')

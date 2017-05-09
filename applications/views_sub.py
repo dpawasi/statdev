@@ -13,7 +13,7 @@ class Application_Part5():
 
         flow = Flow()
         flow.get('part5')
-        context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
+        context = flow.getAccessRights(request,context,app.routeid,'part5')
         context = flow.getCollapse(context,app.routeid,'part5')
         context = flow.getHiddenAreas(context,app.routeid,'part5')
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
@@ -195,7 +195,7 @@ class Application_Emergency():
 
         flow = Flow()
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         context = flow.getCollapse(context,app.routeid,workflowtype)
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
@@ -218,7 +218,7 @@ class Application_Permit():
 
         flow = Flow()
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         context = flow.getCollapse(context,app.routeid,workflowtype)
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
@@ -236,7 +236,7 @@ class Application_Licence():
 
         flow = Flow()
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         context = flow.getCollapse(context,app.routeid,workflowtype)
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
