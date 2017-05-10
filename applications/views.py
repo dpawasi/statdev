@@ -342,8 +342,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         # Rule: if the application status is 'draft', it can be updated.
         context = {}
-        
-        context['application_assignee_id'] = app.assignee.id
+        if app.assignee: 
+            context['application_assignee_id'] = app.assignee.id
+        else: 
+            context['application_assignee_id'] = None
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
