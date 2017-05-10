@@ -175,7 +175,7 @@ class ApplicationDetail(DetailView):
 
         context['may_assign_to_person'] = 'False'
         usergroups = self.request.user.groups.all()
-        print app.group
+        #print app.group
         if app.group in usergroups:
             if app.routeid > 1:
                 context['may_assign_to_person'] = 'True'
@@ -207,7 +207,7 @@ class ApplicationDetail(DetailView):
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
                     del context['workflow_actions']
-        print context['may_assign_to_person']
+#        print context['may_assign_to_person']
         #print context['may_assign_to_person']
 #        print context['may_update']
 #        print 'sfasdas'
