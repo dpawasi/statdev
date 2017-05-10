@@ -69,6 +69,8 @@ class Flow():
             context["may_assign_emergency"] = "False"
         if "may_assign_to_creator" not in context:       
             context["may_assign_to_creator"] = "False"
+        if "may_referral_delete" not in context:
+            context["may_referral_delete"] = "False"
 
         # Form Components
         if "form_component_update" not in context:

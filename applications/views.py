@@ -175,9 +175,11 @@ class ApplicationDetail(DetailView):
 
         context['may_assign_to_person'] = 'False'
         usergroups = self.request.user.groups.all()
+        print app.group
         if app.group in usergroups:
             if app.routeid > 1:
                 context['may_assign_to_person'] = 'True'
+        
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
@@ -205,7 +207,7 @@ class ApplicationDetail(DetailView):
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
                     del context['workflow_actions']
-
+        print context['may_assign_to_person']
         #print context['may_assign_to_person']
 #        print context['may_update']
 #        print 'sfasdas'
@@ -703,10 +705,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         context = super(ApplicationLodge, self).get_context_data(**kwargs)
         app = self.get_object()
 
-        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            self.template_name = 'applications/application_lodge_part5.html'
         if app.routeid is None:
            app.routeid = 1
-           self.template_name = 'applications/application_lodge_part5.html'
         return context
 
     def get(self, request, *args, **kwargs):
@@ -872,8 +874,8 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         self.object.sent_date = date.today()
         self.object.save()
         # Set the application status to 'with referee'.
-        app.state = app.APP_STATE_CHOICES.with_referee
-        app.save()
+#        app.state = app.APP_STATE_CHOICES.with_referee
+#        app.save()
         # TODO: the process of sending the application to the referee.
         # Generate a 'refer' action on the application:
         action = Action(
@@ -963,6 +965,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             groupassignment = None
             assignee = app.submitted_by
             donothing= 'yes'
+        elif action == 'referral':
+            groupassignment = None
+            assignee = None
         else:
             assignee = None
             groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
@@ -1324,6 +1329,69 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
             action='Referral to {} recalled'.format(ref.referee))
         action.save()
         return HttpResponseRedirect(ref.application.get_absolute_url())
+
+class ReferralRemind(LoginRequiredMixin, UpdateView):
+    model = Referral
+    form_class = apps_forms.ReferralRemindForm
+    template_name = 'applications/referral_remind.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+            messages.error(self.request, 'This referral is already completed!')
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralRemind, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralRemind, self).get_context_data(**kwargs)
+        context['referral'] = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralRemind, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        ref = self.get_object()
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} reminded'.format(ref.referee))
+        action.save()
+        return HttpResponseRedirect(ref.application.get_absolute_url())
+
+class ReferralDelete(LoginRequiredMixin, UpdateView):
+    model = Referral
+    form_class = apps_forms.ReferralDeleteForm
+    template_name = 'applications/referral_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+            messages.error(self.request, 'This referral is already completed!')
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralDelete, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralDelete, self).get_context_data(**kwargs)
+        context['referral'] = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralDelete, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        ref = self.get_object()
+        ref.delete()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} delete'.format(ref.referee))
+        action.save()
+        return HttpResponseRedirect(ref.application.get_absolute_url())
+
 
 
 class ComplianceList(ListView):
