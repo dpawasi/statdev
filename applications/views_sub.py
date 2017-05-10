@@ -7,13 +7,13 @@ class Application_Part5():
 
     def get(self,app,self_view,context):
         request = self_view.request
-
+      
         if app.routeid is None:
             app.routeid = 1
 
         flow = Flow()
         flow.get('part5')
-        context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
+        context = flow.getAccessRights(request,context,app.routeid,'part5')
         context = flow.getCollapse(context,app.routeid,'part5')
         context = flow.getHiddenAreas(context,app.routeid,'part5')
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
@@ -44,7 +44,7 @@ class Application_Part5():
         if self_view.object.deed:
             context['deed_short'] = SafeText(self_view.object.deed.upload.name)[19:]
 
-
+     
         context['land_owner_consent_list'] = []
         landoc = app.land_owner_consent.all()
         for doc in landoc:
@@ -104,7 +104,7 @@ class Application_Part5():
             pub_feed_obj.append(rowitem)
 
         context['publication_feedback'] = pub_feed_obj
-
+      
         new_documents_to_publish = {}
         pub_web = PublicationWebsite.objects.filter(application_id=self_view.object.id)
         for pub_doc in pub_web:
@@ -115,71 +115,70 @@ class Application_Part5():
                 fileitem['path'] = doc.upload.name
                 new_documents_to_publish[pub_doc.original_document_id] = fileitem
 
-            orignaldoclist = []
-            if self.object.river_lease_scan_of_application:
-                fileitem = {}
-                fileitem['fileid'] = self.object.river_lease_scan_of_application.id
-                fileitem['path'] = self.object.river_lease_scan_of_application.upload.name
-                fileitem['path_short'] = SafeText(self.object.river_lease_scan_of_application.upload.name)[19:]
-                fileitem['group_name'] = "River Lease Scan of Application"
-                if self.object.river_lease_scan_of_application.id in new_documents_to_publish:
-                    fileitem['publish_doc'] = new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path']
-                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.river_lease_scan_of_application.id]['path'])[19:]
-                orignaldoclist.append(fileitem)
+        orignaldoclist = []
+        if self_view.object.river_lease_scan_of_application:
+            fileitem = {}
+            fileitem['fileid'] = self_view.object.river_lease_scan_of_application.id
+            fileitem['path'] = self_view.object.river_lease_scan_of_application.upload.name
+            fileitem['path_short'] = SafeText(self_view.object.river_lease_scan_of_application.upload.name)[19:]
+            fileitem['group_name'] = "River Lease Scan of Application"
+            if self_view.object.river_lease_scan_of_application.id in new_documents_to_publish:
+                fileitem['publish_doc'] = new_documents_to_publish[self_view.object.river_lease_scan_of_application.id]['path']
+                fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self_view.object.river_lease_scan_of_application.id]['path'])[19:]
+            orignaldoclist.append(fileitem)
 
-            if self.object.deed:
-                fileitem = {}
-                fileitem['fileid'] = self.object.deed.id
-                fileitem['path'] = self.object.deed.upload.name
-                fileitem['path_short'] = SafeText(self.object.deed.upload.name)[19:]
-                fileitem['group_name'] = "Deed"
-                if self.object.deed.id in new_documents_to_publish:
-                    fileitem['publish_doc'] = new_documents_to_publish[self.object.deed.id]['path']
-                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self.object.deed.id]['path'])[19:]
-                orignaldoclist.append(fileitem)
+        if self_view.object.deed:
+             fileitem = {}
+             fileitem['fileid'] = self_view.object.deed.id
+             fileitem['path'] = self_view.object.deed.upload.name
+             fileitem['path_short'] = SafeText(self_view.object.deed.upload.name)[19:]
+             fileitem['group_name'] = "Deed"
+             if self_view.object.deed.id in new_documents_to_publish:
+                 fileitem['publish_doc'] = new_documents_to_publish[self_view.object.deed.id]['path']
+                 fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self_view.object.deed.id]['path'])[19:]
+             orignaldoclist.append(fileitem)
 
+        landoc = app.land_owner_consent.all()
+        for doc in landoc:
+            fileitem = {}
+            fileitem['fileid'] = doc.id
+            fileitem['path'] = doc.upload.name
+            fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            fileitem['group_name'] = "Land Owner Consent"
+            if doc.id in new_documents_to_publish:
+                fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
+                fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
+            else:
+                fileitem['publish_doc'] = ""
+                fileitem['publish_doc_short'] = ""
 
-            landoc = app.land_owner_consent.all()
-            for doc in landoc:
-                fileitem = {}
-                fileitem['fileid'] = doc.id
-                fileitem['path'] = doc.upload.name
-                fileitem['path_short'] = SafeText(doc.upload.name)[19:]
-                fileitem['group_name'] = "Land Owner Consent"
-                if doc.id in new_documents_to_publish:
-                    fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
-                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
-                else:
-                   fileitem['publish_doc'] = ""
-                   fileitem['publish_doc_short'] = ""
+            orignaldoclist.append(fileitem)
 
-                orignaldoclist.append(fileitem)
+        doclist = app.proposed_development_plans.all()
+        for doc in doclist:
+            fileitem = {}
+            fileitem['fileid'] = doc.id
+            fileitem['path'] = doc.upload.name
+            fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            fileitem['group_name'] = "Proposed Development Plans"
 
-            doclist = app.proposed_development_plans.all()
-            for doc in doclist:
-                fileitem = {}
-                fileitem['fileid'] = doc.id
-                fileitem['path'] = doc.upload.name
-                fileitem['path_short'] = SafeText(doc.upload.name)[19:]
-                fileitem['group_name'] = "Proposed Development Plans"
+            if doc.id in new_documents_to_publish:
+                fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
+                fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
+            else:
+                fileitem['publish_doc'] = ""
+                fileitem['publish_doc_short'] = ""
+            orignaldoclist.append(fileitem)
+        context['original_document_list'] = orignaldoclist
 
-                if doc.id in new_documents_to_publish:
-                    fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
-                    fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
-                else:
-                   fileitem['publish_doc'] = ""
-                   fileitem['publish_doc_short'] = ""
-                orignaldoclist.append(fileitem)
-            context['original_document_list'] = orignaldoclist
-
-            doclist = app.proposed_development_plans.all()
-            context['proposed_development_plans_list'] = []
-            for doc in doclist:
-                fileitem = {}
-                fileitem['fileid'] = doc.id
-                fileitem['path'] = doc.upload.name
-                fileitem['path_short'] = SafeText(doc.upload.name)[19:]
-                context['proposed_development_plans_list'].append(fileitem)
+        doclist = app.proposed_development_plans.all()
+        context['proposed_development_plans_list'] = []
+        for doc in doclist:
+            fileitem = {}
+            fileitem['fileid'] = doc.id
+            fileitem['path'] = doc.upload.name
+            fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            context['proposed_development_plans_list'].append(fileitem)
 
         return context
 
@@ -195,7 +194,7 @@ class Application_Emergency():
 
         flow = Flow()
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         context = flow.getCollapse(context,app.routeid,workflowtype)
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
@@ -218,7 +217,7 @@ class Application_Permit():
 
         flow = Flow()
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         context = flow.getCollapse(context,app.routeid,workflowtype)
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
@@ -236,13 +235,17 @@ class Application_Licence():
 
         flow = Flow()
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         context = flow.getCollapse(context,app.routeid,workflowtype)
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
         context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
         return context
 
+
+class Referrals_Next_Action_Check():
+    def get(self,app,self_view,context):
+        donothing = ""
 
 
 

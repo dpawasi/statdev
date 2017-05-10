@@ -56,9 +56,8 @@
             <!-- Referrals -->
             <!-- Assign to Form Creator -->
             {% if action.routegroup == "creator" %}
-            {% if may_assign_to_creator %}<li><a href="{% url 'application_nextaction' object.pk 'creator' %}">{{ action.title }}</a></li>{% endif %}
+                {% if may_assign_to_creator == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'creator' %}">{{ action.title }}</a></li>{% endif %}
             {% endif %}
-
             <!-- Assign to Form Creator -->
 
         {% endfor %}
@@ -73,8 +72,7 @@
                 {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
                 {% if may_request_compliance %}<li><a href="{% url 'compliance_create' object.pk %}">Request compliance</a></li>{% endif %}
                 {% if may_assign_emergency %}<li><a href="{% url 'application_assign' object.pk 'assign_emergency' %}">Assign to an admin officer</a></li>{% endif %}
-
-            <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
+                <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
             {% endif %}
         {% endif %}
 

@@ -36,10 +36,14 @@
 							<a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
 							{% endif %}
 							{% if may_recall_resend %}
-                            {% if may_recall_resend != "False" %}
-							{% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
-							<a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_recall' ref.pk %}">Recall</a>
-							{% endif %}
+                             {% if may_recall_resend == "True" %}
+			    				{% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
+				    			<a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_recall' ref.pk %}">Recall</a>
+                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_remind' ref.pk %}">Remind</a>
+						     {% endif %}
+                            {% endif %}
+                            {% if may_referral_delete == "True" %}
+                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_delete' ref.pk %}">Delete</a>
                             {% endif %}
 							{% comment %}
 							{% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}

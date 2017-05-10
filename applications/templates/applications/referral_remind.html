@@ -1,0 +1,12 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content_inner %}
+
+<h1>Remind referral</h1>
+<p>Please confirm you wish to remind {{ referral }}:</p>
+
+{% crispy form %}
+
+<P>TODO NOTE: Still require email intergration to send email reminder </p>
+{% endblock %}

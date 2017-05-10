@@ -144,6 +144,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             self.object.applicant = self.request.user
         self.object.assignee = self.request.user
         self.object.submitted_by = self.request.user
+        self.object.assignee = self.request.user
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.new
         self.object.save()
@@ -168,11 +169,17 @@ class ApplicationDetail(DetailView):
 #        context['may_assign_to_person'] = 'False'
 
         #if app.group is not None:
+        
+        if app.assignee is not None:
+            context['application_assignee_id'] = app.assignee.id
+
         context['may_assign_to_person'] = 'False'
         usergroups = self.request.user.groups.all()
+        #print app.group
         if app.group in usergroups:
             if app.routeid > 1:
                 context['may_assign_to_person'] = 'True'
+        
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
@@ -200,7 +207,7 @@ class ApplicationDetail(DetailView):
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
                     del context['workflow_actions']
-
+#        print context['may_assign_to_person']
         #print context['may_assign_to_person']
 #        print context['may_update']
 #        print 'sfasdas'
@@ -332,9 +339,13 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
-       
+
         # Rule: if the application status is 'draft', it can be updated.
         context = {}
+        if app.assignee: 
+            context['application_assignee_id'] = app.assignee.id
+        else: 
+            context['application_assignee_id'] = None
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
@@ -347,7 +358,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
 
         if app.routeid > 1:
             if app.assignee is None:
@@ -377,7 +388,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             request = self.request
             flow = Flow()
             flow.get('part5')
-            context = flow.getAllGroupAccess(request,context,app.routeid,'part5')
+            context = flow.getAccessRights(request,context,app.routeid,'part5')
         return context
 
     def get_form_class(self):
@@ -696,10 +707,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         context = super(ApplicationLodge, self).get_context_data(**kwargs)
         app = self.get_object()
 
-        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            self.template_name = 'applications/application_lodge_part5.html'
         if app.routeid is None:
            app.routeid = 1
-           self.template_name = 'applications/application_lodge_part5.html'
         return context
 
     def get(self, request, *args, **kwargs):
@@ -707,6 +718,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # Rule: application state must be 'draft'.
         app = self.get_object()
         flowcontext = {}
+        flowcontext['application_assignee_id'] = app.assignee.id
 
         workflowtype = ''
         if app.app_type == app.APP_TYPE_CHOICES.part5:
@@ -726,8 +738,8 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
-
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+      
         if flowcontext['may_lodge'] == "True": 
             donothing = ""
         else:
@@ -809,7 +821,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
 
             flow = Flow()
             flow.get('part5')
-            flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+            flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
 
             if flowcontext['may_refer'] != "True":
                 messages.error(self.request, 'This application cannot be updated!')
@@ -864,8 +876,8 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         self.object.sent_date = date.today()
         self.object.save()
         # Set the application status to 'with referee'.
-        app.state = app.APP_STATE_CHOICES.with_referee
-        app.save()
+#        app.state = app.APP_STATE_CHOICES.with_referee
+#        app.save()
         # TODO: the process of sending the application to the referee.
         # Generate a 'refer' action on the application:
         action = Action(
@@ -902,7 +914,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
 
         if action is "creator":
             if flowcontext['may_assign_to_creator'] != "True":
@@ -955,6 +967,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             groupassignment = None
             assignee = app.submitted_by
             donothing= 'yes'
+        elif action == 'referral':
+            groupassignment = None
+            assignee = None
         else:
             assignee = None
             groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
@@ -1045,7 +1060,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 flow.get('part5')
                 flowcontext = {}
-                flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+                flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
                 if flowcontext["may_assign_assessor"] != "True":
                     messages.error(self.request, 'This application cannot be assigned to an assessor!')
                     return HttpResponseRedirect(app.get_absolute_url())
@@ -1059,7 +1074,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 flow.get('part5')
                 flowcontext = {}
-                flowcontext = flow.getAllGroupAccess(request,flowcontext,app.routeid,'part5')
+                flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
                 
                 if flowcontext["may_submit_approval"] != "True":
                     messages.error(self.request, 'This application cannot be assigned to an assessor!')
@@ -1316,6 +1331,69 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
             action='Referral to {} recalled'.format(ref.referee))
         action.save()
         return HttpResponseRedirect(ref.application.get_absolute_url())
+
+class ReferralRemind(LoginRequiredMixin, UpdateView):
+    model = Referral
+    form_class = apps_forms.ReferralRemindForm
+    template_name = 'applications/referral_remind.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+            messages.error(self.request, 'This referral is already completed!')
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralRemind, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralRemind, self).get_context_data(**kwargs)
+        context['referral'] = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralRemind, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        ref = self.get_object()
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} reminded'.format(ref.referee))
+        action.save()
+        return HttpResponseRedirect(ref.application.get_absolute_url())
+
+class ReferralDelete(LoginRequiredMixin, UpdateView):
+    model = Referral
+    form_class = apps_forms.ReferralDeleteForm
+    template_name = 'applications/referral_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+            messages.error(self.request, 'This referral is already completed!')
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralDelete, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralDelete, self).get_context_data(**kwargs)
+        context['referral'] = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralDelete, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        ref = self.get_object()
+        ref.delete()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} delete'.format(ref.referee))
+        action.save()
+        return HttpResponseRedirect(ref.application.get_absolute_url())
+
 
 
 class ComplianceList(ListView):

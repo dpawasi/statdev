@@ -24,9 +24,8 @@
                 "routegroup":"lodge"
             }
         ],
-        "groupaccess": {
-            "Processor": {
-                "may_update": "True",
+        "assigntoaccess": {
+				"may_update": "True",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -37,32 +36,21 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_assign_to_creator": "False"
-
-            },
-            "Assessor": {
+        },
+        "groupaccess": {
+            "Processor": {
                 "may_update": "True",
                 "may_lodge":"True",
                 "may_refer":"False",
-                "may_assign":"False",
+                "may_assign":"True",
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
 
-            },
-            "Approver": {
-                "may_update": "True",
-                "may_lodge":"True",
-                "may_refer":"False",
-                "may_assign":"False",
-                "may_assign_customer": "False",
-                "may_assign_processor": "False",
-                "may_create_condition":"False",
-                "may_submit_approval": "False",
-                "may_issue": "False",
-                "may_generate_pdf": "False"
             }
 
         },
@@ -123,7 +111,6 @@
 
             },
             {
-
                 "title": "Assign to Form Creator",
                 "route": "1",
                 "routegroup": "creator",
@@ -160,8 +147,9 @@
                 "may_publish_feedback_draft": "False",
                 "may_update_publication_feedback_final": "False",
                 "may_publish_feedback_final": "False",
-                "may_recall_resend": "True",
-                "may_assign_to_creator": "True"
+                "may_recall_resend": "False",
+                "may_assign_to_creator": "True",
+                "may_referral_delete": "True"
             }
         },
         "collapse": {
