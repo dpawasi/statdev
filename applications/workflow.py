@@ -71,6 +71,8 @@ class Flow():
             context["may_assign_to_creator"] = "False"
         if "may_referral_delete" not in context:
             context["may_referral_delete"] = "False"
+        if "may_referral_resend" not in context:
+            context["may_referral_resend"] = "False"
 
         # Form Components
         if "form_component_update" not in context:
@@ -225,6 +227,7 @@ class Flow():
                    if a["routegroup"]:
                        if a["routegroup"] == action:
                           return a
+        return None
 
     def getAllRouteActions(self,route,flow):
         json_obj = self.json_obj

@@ -17,7 +17,7 @@ from django.utils.safestring import SafeText
 from datetime import datetime, date
 from applications.workflow import Flow 
 from django.db.models import Q
-from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence 
+from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check 
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -815,30 +815,33 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         app = Application.objects.get(pk=self.kwargs['pk'])
 
         flowcontext = {}
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
+      #  if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
 
-            flow = Flow()
-            flow.get('part5')
-            flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
 
-            if flowcontext['may_refer'] != "True":
-                messages.error(self.request, 'This application cannot be updated!')
+        if flowcontext['may_refer'] != "True":
+                messages.error(self.request, 'Can not modify referrals on this application!')
                 return HttpResponseRedirect(app.get_absolute_url())
 
-        else:
-            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
-               # TODO: better/explicit error response.
-                messages.error(
-                    self.request, 'This application cannot be referred!')
-                return HttpResponseRedirect(app.get_absolute_url())
+
+#        else:
+#            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
+#               # TODO: better/explicit error response.
+#                messages.error(
+#                    self.request, 'This application cannot be referred!')
+#                return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationRefer, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         """Override to redirect to the referral's parent application detail view.
         """
-        return reverse('application_detail', args=(self.object.application.pk,))
+        messages.success(self.request, 'Referral has been added! ')
+        return reverse('application_refer', args=(self.object.application.pk,))
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationRefer, self).get_context_data(**kwargs)
@@ -931,6 +934,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                     messages.error(self.request, 'This application cannot be reassign, Unknown Error') 
                     return HttpResponseRedirect(app.get_absolute_url())
 
+        if action == 'referral':
+            app_refs = Referral.objects.filter(application=app).count()
+            if app_refs == 0:
+                messages.error(self.request, 'Unable to complete action as you have no referrals! ')
+                return HttpResponseRedirect(app.get_absolute_url())
+
+
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
@@ -975,9 +985,12 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
 
         route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+        if route is None:
+            messages.error(self.request, 'Error In Assigning Next Route, No routes Found')
+            return HttpResponseRedirect(app.get_absolute_url())
         if route["route"] is None:
-           messages.error(self.request, 'Error In Assigning Next Route, No routes Found')
-           return HttpResponseRedirect(app.get_absolute_url())
+            messages.error(self.request, 'Error In Assigning Next Route, No routes Found')
+            return HttpResponseRedirect(app.get_absolute_url())
 
         self.object.routeid = route["route"]
         self.object.state = route["state"]
@@ -1251,7 +1264,8 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
         # Rule: can't mark a referral completed more than once.
-        if referral.response_date:
+#        if referral.response_date:
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
         # Rule: only the referee (or a superuser) can mark a referral
@@ -1285,15 +1299,20 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         action.save()
         # If there are no further outstanding referrals, then set the
         # application status to "with admin".
-        if not Referral.objects.filter(
-                application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
-            app.state = Application.APP_STATE_CHOICES.with_admin
-            app.save()
+#        if not Referral.objects.filter(
+#                application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
+#            app.state = Application.APP_STATE_CHOICES.with_admin
+#            app.save()
+        refnextaction = Referrals_Next_Action_Check()
+        refactionresp = refnextaction.get(app)
+        if refactionresp == True:
+            refnextaction.go_next_action(app)
             # Record an action.
             action = Action(
                 content_object=app,
                 action='No outstanding referrals, application status set to "{}"'.format(app.get_state_display()))
             action.save()
+
         return HttpResponseRedirect(app.get_absolute_url())
 
 
@@ -1330,6 +1349,55 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
             content_object=ref.application, user=self.request.user,
             action='Referral to {} recalled'.format(ref.referee))
         action.save()
+
+        #  check to see if there is any uncompleted/unrecalled referrals
+        #  If no more pending referrals than more to next step in workflow
+        refnextaction = Referrals_Next_Action_Check()
+        refactionresp = refnextaction.get(ref.application)
+
+        if refactionresp == True:
+            refnextaction.go_next_action(ref.application)
+            action = Action(
+              content_object=ref.application, user=self.request.user,
+              action='All Referrals Completed, Progress to next Workflow Action {} '.format(ref.referee))
+            action.save()
+            
+        return HttpResponseRedirect(ref.application.get_absolute_url())
+
+class ReferralResend(LoginRequiredMixin, UpdateView):
+    model = Referral
+    form_class = apps_forms.ReferralResendForm
+    template_name = 'applications/referral_resend.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        # Rule: can't recall a referral that is any other status than
+        # 'referred'.
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.recalled & referral.status != Referral.REFERRAL_STATUS_CHOICES.responded:
+            messages.error(self.request, 'This referral is already completed!'+ str(referral.status)+str(Referral.REFERRAL_STATUS_CHOICES.responded))
+            return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(ReferralResend, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralResend, self).get_context_data(**kwargs)
+        context['referral'] = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(ReferralResend, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        ref = self.get_object()
+        ref.status = Referral.REFERRAL_STATUS_CHOICES.referred
+        ref.save()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Referral to {} resend '.format(ref.referee))
+        action.save()
+
         return HttpResponseRedirect(ref.application.get_absolute_url())
 
 class ReferralRemind(LoginRequiredMixin, UpdateView):
