@@ -100,7 +100,9 @@
                 "title": "Assign to Assessor",
                 "route": "3",
                 "routegroup": "assess",
-                "state": "4"
+                "state": "4",
+                "required": ["title","deed","cost"]
+
 
             },
             {
@@ -109,19 +111,22 @@
                 "routegroup": "referral",
                 "state": "3"
 
+
             },
             {
                 "title": "Assign to Form Creator",
                 "route": "1",
                 "routegroup": "creator",
-                "state": "3"
+                "state": "3",
+                "required": []
             } 
 
         ],
         "formcomponent": {
            
                 "update": {
-                    "title": "Make Application Changes"
+                    "title": "Make Application Changes",
+                    "required": ["title","deed"]
                 }
             
         },
@@ -173,7 +178,11 @@
             "document_completion": "hide",
             "assessment_start_date": "hide"
 
-        }
+        },
+        "required": [
+            "title",
+            "deed"
+        ]
     }, 
     "3": {
         "title": "Assessor",

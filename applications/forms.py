@@ -407,11 +407,11 @@ class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
-    document = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+    documents = FileField(required=False, max_length=128, widget=ClearableFileInput) 
 
     class Meta:
         model = Application
-        fields = ['id']
+        fields = ['id','details','documents']
     def __init__(self, *args, **kwargs):
         super(ApplicationAssignNextAction, self).__init__(*args, **kwargs)
 
@@ -423,7 +423,7 @@ class ApplicationAssignNextAction(ModelForm):
 		
         self.helper.layout = Layout(
             HTML('<p>Application Next Action</p>'),
-            'details','docments',
+            'details','documents',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -434,7 +434,7 @@ class ApplicationAssignNextAction(ModelForm):
 
 #        self.fields['title'].disabled = True 
 #        self.helper.add_input(Submit('assign', 'Assign', css_class='btn-lg'))
- #       self.helper.add_input(Submit('cancel', 'Cancel'))
+#        self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class AssignPersonForm(ModelForm):
     """A form for assigning an application to people with a specific group.

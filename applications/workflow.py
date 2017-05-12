@@ -288,6 +288,10 @@ class Flow():
             workflowtype = 'permit'
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             workflowtype = 'licence'
+        elif app.app_type == app.APP_TYPE_CHOICES.part5cr:
+            workflowtype = 'part5cr'
+        elif app.app_type == app.APP_TYPE_CHOICES.part5amend:    
+            workflowtype = 'part5amend'
         else:
             workflowtype = ''
         return workflowtype

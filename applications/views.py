@@ -382,13 +382,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
         app = self.get_object()
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
-            request = self.request
-            flow = Flow()
-            flow.get('part5')
-            context = flow.getAccessRights(request,context,app.routeid,'part5')
+        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         return context
 
     def get_form_class(self):
@@ -400,26 +401,33 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             return apps_forms.ApplicationPart5Form
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
             return apps_forms.ApplicationEmergencyForm
+        else:
+           # Add default forms.py and use json workflow to filter and hide fields
+           return apps_forms.ApplicationPart5Form 
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
         app = self.get_object()
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
-            request = self.request
-            flow = Flow()
-            flow.get('part5')
-            flowcontent = {}
-            flowcontent = flow.getFields(flowcontent,app.routeid,'part5')
-            initial['fieldstatus'] = []
-           
-            if "fields" in flowcontent:
-                initial['fieldstatus'] = flowcontent['fields']
-            initial['fieldrequired'] = []
-            flowcontent = flow.getRequired(flowcontent,app.routeid,'part5')
-            if "required" in flowcontent:
-                initial['fieldrequired'] = flowcontent['required']
+#        if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        flowcontent = {}
+        flowcontent = flow.getFields(flowcontent,app.routeid,workflowtype)
+        flowcontent['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        initial['fieldstatus'] = []
+          
+        if "fields" in flowcontent:
+            initial['fieldstatus'] = flowcontent['fields']
+        initial['fieldrequired'] = []
+        flowcontent = flow.getRequired(flowcontent,app.routeid,workflowtype)
+        if "formcomponent" in flowcontent:
+            if "update" in flowcontent['formcomponent']:
+                if "required" in flowcontent['formcomponent']['update']:
+                    initial['fieldrequired'] = flowcontent['formcomponent']['update']['required']
 
 #       flow = Flow()
         #workflow = flow.get()
@@ -905,7 +913,10 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 #        DefaultGroups['manager'] = 'Approver'
 #        DefaultGroups['director'] = 'Director'
 #        DefaultGroups['exec'] = 'Executive'
-
+#        appt = "app_type1"
+#        print hasattr(app, appt)
+#        print getattr(app, appt)
+#        print app.routeid 
         if app.assignee is None: 
             messages.error(self.request, 'Please Allocate an Assigned Person First')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -918,7 +929,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
-
+        flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
+        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+        
         if action is "creator":
             if flowcontext['may_assign_to_creator'] != "True":
                 messages.error(self.request, 'This application cannot be reassign, Unknown Error')
@@ -940,6 +953,17 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                 messages.error(self.request, 'Unable to complete action as you have no referrals! ')
                 return HttpResponseRedirect(app.get_absolute_url())
 
+        if "required" in route:
+            for fielditem in route["required"]:
+                if hasattr(app, fielditem):
+                    if getattr(app, fielditem) is None:
+                        messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                        return HttpResponseRedirect(app.get_absolute_url())
+                    appattr = getattr(app, fielditem)
+                    if  isinstance(appattr, unicode) or isinstance(appattr, str): 
+                       if len(appattr) == 0:
+                           messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                           return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
