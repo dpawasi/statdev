@@ -21,7 +21,8 @@
             {
                 "title": "Lodge Application",
                 "route": "2",
-                "routegroup":"lodge"
+                "routegroup":"lodge",
+                "state": "3"
             }
         ],
 		"formcomponent": {
@@ -111,11 +112,17 @@
             "referrals": "True"
         },
         "actions": [
-            {
+            
+				{
                 "title": "Assign to Assessor",
                 "route": "3",
-                "routegroup":"assess"
+                "routegroup": "assess",
+                "state": "4"
+
             }
+
+
+            
         ],
         "formcomponent": {
                 "update": {
@@ -126,7 +133,7 @@
             "Processor": {
                 "may_update": "True",
                 "may_lodge":"False",
-                "may_refer":"False",
+                "may_refer":"True",
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",

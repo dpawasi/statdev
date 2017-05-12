@@ -53,6 +53,7 @@ class ApplicationTest(TestCase):
         self.referee.save()
         self.referee.groups.add(referee)
         self.app_type = "licence"
+     
         # Log in user1, by default.
         self.client.login(email=self.user1.email, password='pass')
         # Generate test fixtures.
@@ -156,12 +157,14 @@ class ApplicationTest(TestCase):
 
     def test_refer_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.routeid = 2
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
     def test_refer_application_get_redirect(self):
+        self.app1.routeid = 2
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
@@ -171,10 +174,13 @@ class ApplicationTest(TestCase):
         self.user1.groups.add(referee)  # Make user1 a referee.
         count = Referral.objects.count()
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.routeid = 2
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.post(url, {'referee': self.user1.pk, 'period': 21})
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, self.app1.get_absolute_url()+'refer/')
+        #self.assertRedirects(resp, self.app1.get_success_url())
+        self.assertEquals(resp.status_code, 302)
         # Test that a new object has been created.
         self.assertTrue(Referral.objects.count() > count)
         new_ref = Referral.objects.get(referee=self.user1.pk)
@@ -374,6 +380,9 @@ class ApplicationTest(TestCase):
     def test_referral_complete_post(self):
         self.client.logout()
         self.client.login(email=self.referee.email, password='pass')
+        self.app1.routeid = 2
+        self.app1.assignee = None
+
         url = reverse('referral_complete', args=(self.ref1.pk,))
         resp = self.client.post(url, {'feedback': 'foo'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
