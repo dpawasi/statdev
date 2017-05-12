@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 from applications.workflow import Flow
-from .models import Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
+from .models import Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application
 from django.utils.safestring import SafeText
+from django.contrib.auth.models import Group
 
 class Application_Part5():
 
@@ -244,8 +245,47 @@ class Application_Licence():
 
 
 class Referrals_Next_Action_Check():
-    def get(self,app,self_view,context):
-        donothing = ""
+
+    def get(self,app):
+        app_refs = Referral.objects.filter(application=app)
+#       print app_refs
+        referralscompleted = True
+        for ref in app_refs:
+            if ref.status == Referral.REFERRAL_STATUS_CHOICES.referred:
+                referralscompleted = False
+            
+        return referralscompleted
+
+    def go_next_action(self,app):
+        app = Application.objects.get(id=app.id)
+        app.status = ''
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        DefaultGroups = flow.groupList()
+        flow.get(workflowtype)
+        assignee = None
+        routes = flow.getAllRouteActions(app.routeid,workflowtype)
+        action = routes[0]['routegroup']
+        if action in DefaultGroups['grouplink']:
+            groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
+        else:
+            groupassignment = None
+        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+
+        if "route"in route:
+            app.routeid = route["route"]
+        else: 
+            app.routeid = None
+
+        if "state" in route:
+            app.state = route["state"]
+        else:
+            app.state = None
+
+        app.group = groupassignment
+        app.assignee = assignee
+        app.save()
+ 
 
 
 

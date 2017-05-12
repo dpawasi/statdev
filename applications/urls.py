@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/webpublish/(?P<publish_type>\w+)/', views.WebPublish.as_view(), name='application_publish_documents'),
     url(r'^referrals/(?P<pk>\d+)/complete/$', views.ReferralComplete.as_view(), name='referral_complete'),
     url(r'^referrals/(?P<pk>\d+)/recall/$', views.ReferralRecall.as_view(), name='referral_recall'),
+    url(r'^referrals/(?P<pk>\d+)/resend/$', views.ReferralResend.as_view(), name='referral_resend'),
     url(r'^referrals/(?P<pk>\d+)/remind/$', views.ReferralRemind.as_view(), name='referral_remind'),
     url(r'^referrals/(?P<pk>\d+)/delete/$', views.ReferralDelete.as_view(), name='referral_delete'),
     url(r'^condition/(?P<pk>\d+)/update/$', views.ConditionUpdate.as_view(), name='condition_update'),

@@ -317,13 +317,13 @@
             "referrals": "False"
         },
         "actions": [
-            {
-                "title": "Assign to Admin Officer",
-                "route": "2",
-                "routegroup": "admin",
-                "state": "2"
-            }
+			{
+                "title": "Assign to Assessor",
+                "route": "3",
+                "routegroup": "assess",
+                "state": "4"
 
+            }
         ],
         "groupaccess": {
             "Processor": {
@@ -337,7 +337,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_recall_resend": "True"
+                "may_recall_resend": "True",
+                "may_referral_resend": "True"
             },
             "Assessor": {
                 "may_update": "False",

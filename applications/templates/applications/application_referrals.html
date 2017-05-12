@@ -31,27 +31,29 @@
 						<td>{{ ref.get_status_display }}</td>
 						<td>{{ ref.feedback }}</td>
 						<td>
-							{% if ref.referee == user and not ref.response_date %}
-							<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
-							<a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
+							{% if ref.referee == user and ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
+    							<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_create' ref.application.pk %}">Create a condition</a>
+							    <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_complete' ref.pk %}">Complete with feedback</a>
 							{% endif %}
 							{% if may_recall_resend %}
                              {% if may_recall_resend == "True" %}
 			    				{% if ref.status == ref.REFERRAL_STATUS_CHOICES.referred %}
 				    			<a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_recall' ref.pk %}">Recall</a>
                                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_remind' ref.pk %}">Remind</a>
-						     {% endif %}
+						        {% endif %}
+                             {% endif %}
                             {% endif %}
                             {% if may_referral_delete == "True" %}
                                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_delete' ref.pk %}">Delete</a>
                             {% endif %}
-							{% comment %}
-							{% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled %}
-							{# TODO: Referral resend function #}
-							<a class="btn btn-primary btn-sm" role="button" href="#">Resend</a>
-							{% endif %}
-							{% endcomment %}
-							{% endif %}
+{% comment %}{% endcomment %}
+                           
+                            {% if may_referral_resend == "True" %} 
+  							   {% if ref.status == ref.REFERRAL_STATUS_CHOICES.recalled or ref.status == ref.REFERRAL_STATUS_CHOICES.responded %}
+  							     {# TODO: Referral resend function #}
+                                 <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_resend' ref.pk %}">Resend</a>
+ 							   {% endif %}
+                           {% endif %}
 						</td>
 					</tr>
 					{% endfor %}
@@ -60,7 +62,7 @@
 			{% else %}
 			<p>None</p>
 			{% endif %}
-            
+           
 			{% if may_refer == "True" %}
 			<a href="{% url 'application_refer' object.pk %}" class="btn btn-primary" role="button">
 				Add Referral
