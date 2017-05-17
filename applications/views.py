@@ -197,7 +197,6 @@ class ApplicationDetail(DetailView):
             context = licence.get(app,self,context)
 
 #        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
-
         # may_update has extra business rules
         if app.routeid > 1:
             if app.assignee is None:
@@ -854,6 +853,12 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationRefer, self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        context['application_referrals'] = Referral.objects.filter(application=self.kwargs['pk'])
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(self.request,context,app.routeid,workflowtype)
         return context
 
     def get_initial(self):
@@ -1000,7 +1005,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         if action == "creator":
             groupassignment = None
             assignee = app.submitted_by
-            donothing= 'yes'
         elif action == 'referral':
             groupassignment = None
             assignee = None
@@ -1029,7 +1033,14 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms.save()
         if doc:
             comms.documents.add(doc)
-     
+    
+        # Record an action on the application:
+        action = Action(
+        content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
+            action='Next Step Application Assigned to group ({}) with action title ({}) and route id ({}) '.format(groupassignment,route['title'],self.object.routeid))
+        action.save()
+
+
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -1470,6 +1481,8 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
         context = super(ReferralDelete, self).get_context_data(**kwargs)
         context['referral'] = self.get_object()
         return context
+    def get_success_url(self,application_id):
+        return reverse('application_refer', args=(application_id,))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -1478,13 +1491,14 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         ref = self.get_object()
+        application_id = ref.application.id
         ref.delete()
         # Record an action on the referral's application:
         action = Action(
             content_object=ref.application, user=self.request.user,
             action='Referral to {} delete'.format(ref.referee))
         action.save()
-        return HttpResponseRedirect(ref.application.get_absolute_url())
+        return HttpResponseRedirect(self.get_success_url(application_id))
 
 
 
@@ -1632,7 +1646,16 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+
+
+#       if flowcontext.state != app.APP_STATE_CHOICES.draft:
+        if flowcontext["may_update_publication_newspaper"] != "True":
             messages.error(
                 self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
@@ -1683,7 +1706,18 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
 		#app = self.get_object().application_set.first()
-        app = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        app = Application.objects.get(pk=PubNew.application.id)
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext["may_update_publication_newspaper"] != "True":
+            messages.error(
+                self.request, "Can't update newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
         # Rule: can only change a vessel if the parent application is status
         # 'draft'.
 		#if app.state != Application.APP_STATE_CHOICES.draft:
@@ -1749,6 +1783,20 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         modelobject = self.get_object()
+
+        PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        app = Application.objects.get(pk=PubNew.application.id)
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext["may_update_publication_newspaper"] != "True":
+            messages.error(
+                self.request, "Can't delete newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+
         # Rule: can only delete a condition if the parent application is status
         # 'with referral' or 'with assessor'.
 #        if modelobject.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
@@ -1786,9 +1834,15 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext["may_update_publication_website"] != "True":
             messages.error(
-                self.request, "Can't add new Website publication to this application")
+                self.request, "Can't update ebsite publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
 

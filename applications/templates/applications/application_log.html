@@ -60,6 +60,7 @@
             {% endif %}
             <!-- Assign to Form Creator -->
 
+
         {% endfor %}
 
         {% else %}
@@ -95,6 +96,11 @@
                 {% if may_generate_pdf  %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
             {% endif %}
         {% endif %}
+
+        <!-- Action log -->
+        {% if may_view_action_log == "True" %}<li><a href="{% url 'application_actions' object.pk %}">Action Log</a></li>{% endif %}
+        <!-- Action log end -->
+
         </ul>
 
         <ul>

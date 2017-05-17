@@ -92,7 +92,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "False"
+            "referrals": "False",
+            "publication_feedback_final": "True"
 
         },
         "actions": [
@@ -145,16 +146,18 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_send_for_referral": "True",
-                "may_update_publication_newspaper": "False",
-                "may_update_publication_website": "False",
-                "may_publish_website": "False",
-                "may_update_publication_feedback_draft" : "False",
+                "may_update_publication_newspaper": "True",
+                "may_update_publication_website": "True",
+                "may_publish_website": "True",
+                "may_update_publication_feedback_draft" : "True",
                 "may_publish_feedback_draft": "False",
                 "may_update_publication_feedback_final": "False",
                 "may_publish_feedback_final": "False",
                 "may_recall_resend": "False",
                 "may_assign_to_creator": "True",
-                "may_referral_delete": "True"
+                "may_referral_delete": "True",
+                "may_view_action_log": "True"
+                
             }
         },
         "collapse": {
@@ -200,7 +203,7 @@
             "conditions": "False",
             "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True",
+            "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_draft_report_after_public_consultation":"True",
             "assessments_determination_and_breifing_note":"True"
@@ -208,15 +211,15 @@
         },
         "actions": [
             {
-                "title": "Assign to Manager",
+                "title": "Approve to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
-                "state": "5"
+                "state": "5",
+                "required": ["asessment_start_date","document_draft"]
 
             },   
-
             {
-                "title": "Assign to Admin Officer",
+                "title": "Reject to Admin Officer/s",
                 "route": "2",
                 "routegroup": "admin",
                 "state": "2"
@@ -228,7 +231,6 @@
                 "update": {
                     "title": "Attach Draft Report and Start Date"
                 }
-            
         },
         "groupaccess": {
             "Processor": {
@@ -239,11 +241,13 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "True",
-                "may_create_condition":"True",
+                "may_create_condition":"False",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_view_action_log": "True"
+
             },
             "Assessor": {
                 "may_update": "True",
@@ -257,7 +261,9 @@
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_update_condition": "True",
+                "may_accept_condition": "True"
             }
         },
         "collapse": {
@@ -347,7 +353,8 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_recall_resend": "True",
-                "may_referral_resend": "True"
+                "may_referral_resend": "True",
+                "may_view_action_log": "True"
             },
             "Assessor": {
                 "may_update": "False",
@@ -431,6 +438,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+            "Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -504,6 +514,9 @@
             },
             "Assessor": {
                     "may_assign":"False"
+            },
+            "Processor": {
+                "may_view_action_log": "True"
             }
         },
         "collapse": {
@@ -569,6 +582,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+            "Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -633,8 +649,10 @@
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_view_action_log": "True"
             }
+
         },
 
         "collapse": {
@@ -699,7 +717,10 @@
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
-            }
+            },
+            "Processor": {
+             "may_view_action_log": "True"
+           }
         },
 
         "collapse": {
@@ -772,7 +793,10 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
-            }
+            },
+            "Processor": {
+                 "may_view_action_log": "True"
+           }
         },
 
         "collapse": {
@@ -846,6 +870,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+            "Processor": {
+               "may_view_action_log": "True"
             }
         },
 
@@ -913,7 +940,10 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
-            }
+            },
+            "Processor": {
+               "may_view_action_log": "True"
+           }
         },
 
         "collapse": {
@@ -977,7 +1007,8 @@
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_view_action_log": "True"
             },
             "Assessor":{
             }
@@ -1053,6 +1084,9 @@
                 "may_assign_exec": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1129,6 +1163,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1204,6 +1241,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
         "collapse": {
@@ -1269,6 +1309,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1333,7 +1376,8 @@
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_view_action_log": "True"
             },
             "Assessor":{
             }
@@ -1404,6 +1448,9 @@
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
         "collapse": {
@@ -1486,6 +1533,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1559,6 +1609,9 @@
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1624,6 +1677,9 @@
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1691,6 +1747,9 @@
                 "may_generate_pdf": "False"
             },
             "Assessor":{
+            },
+			"Processor": {
+                "may_view_action_log": "True"
             }
         },
 
@@ -1737,6 +1796,9 @@
         "actions": [
         ],
         "groupaccess": {
+			"Processor": {
+                "may_view_action_log": "True"
+            }
         },
         "collapse": {
             "applicant": "True",

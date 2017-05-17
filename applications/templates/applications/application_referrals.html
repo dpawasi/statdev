@@ -43,9 +43,6 @@
 						        {% endif %}
                              {% endif %}
                             {% endif %}
-                            {% if may_referral_delete == "True" %}
-                                <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_delete' ref.pk %}">Delete</a>
-                            {% endif %}
 {% comment %}{% endcomment %}
                            
                             {% if may_referral_resend == "True" %} 
@@ -65,7 +62,7 @@
            
 			{% if may_refer == "True" %}
 			<a href="{% url 'application_refer' object.pk %}" class="btn btn-primary" role="button">
-				Add Referral
+				Add / Delete Referrals
 			</a>
 			{% endif %}
 		</div>
