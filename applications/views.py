@@ -203,17 +203,23 @@ class ApplicationDetail(DetailView):
             licence = Application_Licence()
             context = licence.get(app,self,context)
 
-#        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
+        # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
         if app.routeid > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
                 del context['workflow_actions']	
+                context['workflow_actions'] = []
             if context['may_update'] == "True":
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
                     del context['workflow_actions']
-#        print context['may_assign_to_person']
+                    context['workflow_actions'] = []
+            if app.assignee != self.request.user:
+                del context['workflow_actions']
+                context['workflow_actions'] = []
+
+        #        print context['may_assign_to_person']
         #print context['may_assign_to_person']
 #        print context['may_update']
 #        print 'sfasdas'
@@ -1053,8 +1059,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             emailcontext['person'] = assignee
             sendHtmlEmail([assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
 
-        return HttpResponseRedirect(self.get_success_url())
-
         # Record an action on the application:
         action = Action(
         content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
@@ -1095,7 +1099,8 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         emailcontext = {'person': app.assignee }
         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
-        sendHtmlEmail([app.assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+        if self.request.user != app.assignee:
+            sendHtmlEmail([app.assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
 
         # Record an action on the application:
         action = Action(
