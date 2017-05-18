@@ -1059,8 +1059,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             emailcontext['person'] = assignee
             sendHtmlEmail([assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
 
-        return HttpResponseRedirect(self.get_success_url())
-
         # Record an action on the application:
         action = Action(
         content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
