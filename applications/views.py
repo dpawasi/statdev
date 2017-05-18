@@ -1093,7 +1093,6 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
         flow.get(workflowtype)
-        print app.assignee.email
         emailcontext = {'person': app.assignee }
         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
         sendHtmlEmail([app.assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
