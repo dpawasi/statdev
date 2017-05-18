@@ -18,6 +18,7 @@ from datetime import datetime, date
 from applications.workflow import Flow 
 from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check 
+from email import sendHtmlEmail,emailGroup
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -159,7 +160,9 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
         context['may_update'] = "False"
-
+#        print app.app_type
+#        print Application.APP_TYPE_CHOICES[app.app_type]
+#        print dict(Application.APP_TYPE_CHOICES).get('3')
         # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
 #        usergroups = self.request.user.groups.all()
         
@@ -169,7 +172,11 @@ class ApplicationDetail(DetailView):
 #        context['may_assign_to_person'] = 'False'
 
         #if app.group is not None:
-        
+        emailcontext = {'user':'Jason'}
+
+        #sendHtmlEmail(['jason.moore@dpaw.wa.gov.au'],'HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None)
+        #emailGroup('HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None,'Processor')
+
         if app.assignee is not None:
             context['application_assignee_id'] = app.assignee.id
 
@@ -1001,7 +1008,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
         flow.get(workflowtype)
-      
+
         if action == "creator":
             groupassignment = None
             assignee = app.submitted_by
@@ -1033,14 +1040,26 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms.save()
         if doc:
             comms.documents.add(doc)
-    
+
+        emailcontext = {}
+        emailcontext['app'] = self.object
+
+        if action != "creator" and action != 'referral':
+            emailcontext['groupname'] = DefaultGroups['grouplink'][action]
+            emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+            emailGroup('Application Assignment to Group '+DefaultGroups['grouplink'][action],emailcontext,'application-assigned-to-group.html' ,None,None,None,DefaultGroups['grouplink'][action])
+        elif action == "creator": 
+            emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+            emailcontext['person'] = assignee
+            sendHtmlEmail([assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+
+        return HttpResponseRedirect(self.get_success_url())
+
         # Record an action on the application:
         action = Action(
         content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
             action='Next Step Application Assigned to group ({}) with action title ({}) and route id ({}) '.format(groupassignment,route['title'],self.object.routeid))
         action.save()
-
-
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -1069,7 +1088,16 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=True)
         app = self.object
-        
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        DefaultGroups = flow.groupList()
+        flow.get(workflowtype)
+        print app.assignee.email
+        emailcontext = {'person': app.assignee }
+        emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+        sendHtmlEmail([app.assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,

@@ -222,7 +222,8 @@
                 "title": "Reject to Admin Officer/s",
                 "route": "2",
                 "routegroup": "admin",
-                "state": "2"
+                "state": "2",
+                "required": []
 
             }
         ],
