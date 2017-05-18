@@ -18,7 +18,7 @@ from datetime import datetime, date
 from applications.workflow import Flow 
 from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check 
-from email import sendHtmlEmail,emailGroup
+from applications.email import sendHtmlEmail,emailGroup
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
