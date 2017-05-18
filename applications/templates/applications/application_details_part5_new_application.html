@@ -382,7 +382,6 @@
                                 <label>Application published in newspaper </label>
                             </div>
                             <div class="panel-body">
-                                {% if publication_newspaper %}
                                 <table class="table table-bordered table-striped">
                                     <tr>
                                         <th class="col-sm-3 col-md-3 col-lg-3">Date</th>
@@ -390,6 +389,7 @@
                                         <th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
                                         <th class="col-sm-3 col-md-3 col-lg-3">Action</th>
                                     </tr>
+                                    {% if publication_newspaper %}
                                     {% for newspub in publication_newspaper_list %}
                                     <tr>
                                         <td>{{ newspub.date }}</td>
@@ -401,21 +401,21 @@
                                             <div class="col-sm-12"><A href='/media/{{ doc.path }}'>{{ doc.path_short }}</a></div>
                                             {% endfor %}
                                             {% endif %}	
-
                                             <td>
+                                                {% if may_update_publication_newspaper == "True" %}
                                                 <a href="{% url 'newspaperpublication_update' newspub.pk %}" class="btn btn-primary" role="button">
                                                     Edit	
                                                 </a>
                                                 <a href="{% url 'newspaperpublication_delete' newspub.pk %}" class="btn btn-primary" role="button">
                                                     Delete
                                                 </a>
+                                                {% endif %}
                                             </td>
                                     </tr>
                                     {% endfor %}
+                                    {% endif %}
+
                                 </table>
-                                {% else %}
-                                <p>None</p>
-                                {% endif %}
                                 {% if may_update_publication_newspaper == "True" %}
                                 <a href="{% url 'application_add_newspaperpublication' object.pk %}" class="btn btn-primary" role="button">
                                     Add News Publication 
@@ -447,7 +447,6 @@
                                 </td>
                             </div>
                             <div class="panel-body">
-                                {% if original_document_list %}
                                 <table class="table table-bordered table-striped">
                                     <tr>
                                         <th class="col-sm-5 col-md-5 col-lg-5">Orignal Document</th>
@@ -456,6 +455,7 @@
                                         <th class="col-sm-1 col-md-1 col-lg-1">Action</th>
                                         {% endif %}
                                     </tr>
+                                    {% if original_document_list %}
                                     {% for origdoc in original_document_list %}
                                     <tr>
                                         <td>
@@ -500,11 +500,9 @@
                                         </td>
                                     </tr>
                                     {% endfor %}
+                                    {% endif %}
                                     <!-- end  of loop -->
                                 </table>
-                                {% else %}
-                                <p>None</p>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -537,13 +535,15 @@
                                             </div>
                                             {% endfor %}
                                         </td>
-                                        <td> 
+                                        <td>
+                                            {% if may_update_publication_feedback_draft == "True" %} 
                                             <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Change
                                             </a>
                                             <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Delete 
                                             </a>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endif %}
@@ -552,7 +552,7 @@
                                 {% else %}
                                 <p>None</p>
                                 {% endif %}
-                                {% if may_update %}
+                                {% if may_update_publication_feedback_draft == "True" %}
                                 <a href="{% url 'application_add_feedbackpublication_draft' object.pk 'draft' %}" class="btn btn-primary" role="button">
                                     Add Feedback
                                 </a>
@@ -566,8 +566,12 @@
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of draft report</label>
                             </div>
-                            <div class="col-lg-4">    
+                            <div class="col-lg-4"> 
+                                {% if object.document_final.upload.name %}
                                 <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
+                                {% else %}
+                                No Attachment
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12">
@@ -580,17 +584,19 @@
                                     <a href="javascript:void();" class="btn btn-primary" role="button">
                                         Published on the {{ object.publish_draft_report }}
                                     </a>
-                                    {% else %} 
+                                    {% else %}
+                                    {% if may_update_publication_feedback_final == "True" %}
                                     <a href="{% url 'application_publish_documents' object.pk 'draft' %}" class="btn btn-primary" role="button">
                                         Publish 
                                     </a>
+                                    {% endif %}
                                     {% endif %}
                                 </td>
 
                             </div>
                         </div>
                     </div>
-
+                    {% if hidden.publication_feedback_final == "False" %}
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-12">
@@ -619,12 +625,14 @@
                                             {% endfor %}
                                         </td>
                                         <td>
+                                            {% if may_update_publication_feedback_final == "True" %}
                                             <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Change
                                             </a>
                                             <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Delete
                                             </a>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endif %}
@@ -633,7 +641,7 @@
                                 {% else %}
                                 <p>None</p>
                                 {% endif %}
-                                {% if may_update %}
+                                {% if may_update_publication_feedback_final == "True" %}
                                 <a href="{% url 'application_add_feedbackpublication_final' object.pk 'final' %}" class="btn btn-primary" role="button">
                                     Add Feedback
                                 </a>
@@ -645,7 +653,6 @@
                         </div>
                     </div>
 
-
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-4">
@@ -653,7 +660,11 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="col-lg-4">
+                                    {% if object.document_final %}
                                     <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
+                                    {% else %}
+                                        No Attachment
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -668,15 +679,19 @@
                                         Published on the {{ object.publish_final_report }}
                                     </a>
                                     {% else %}
+                                    {% if may_update_publication_feedback_final == "True" %}
                                     <a href="{% url 'application_publish_documents' object.pk 'final' %}" class="btn btn-primary" role="button">
                                         Publish
                                     </a>
+                                    {% endif %}
                                     {% endif %}
                                 </td>
                             </div>
 
                         </div>
                     </div>
+                     {% endif %}
+
                 </div>
             </div>
             {% endif %}

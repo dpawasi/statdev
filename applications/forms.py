@@ -393,25 +393,50 @@ class ConditionUpdateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 
-class ConditionActionForm(ConditionUpdateForm):
-    """A extension of ConditionUpdateForm with the condition field disabled.
-    """
+class ConditionActionForm(ModelForm):
+    class Meta:
+        model = Condition
+        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
+
     def __init__(self, *args, **kwargs):
         super(ConditionActionForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_condition_action'
         self.fields['condition'].disabled = True
         self.fields['due_date'].disabled = True
-        self.fields['recur_pattern'] = True
-        self.fields['recur_freq'] = True
+        self.helper.add_input(Submit('update', 'Update', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+
+class OldConditionActionForm(ConditionUpdateForm):
+    """A extension of ConditionUpdateForm with the condition field disabled.
+    """
+    # broken for some reason end up copying ConditionUpdateForm and adjusting.  kept getting bool error on this one.
+    class Meta:
+        model = Condition
+        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
+
+    def __init__(self, *args, **kwargs):
+        super(OldConditionActionForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_condition_action'
+        self.fields['condition'].disabled = True
+        self.fields['due_date'].disabled = True
+ #       self.fields['recur_pattern'] = True
+#        self.fields['recur_freq'] = True
+        self.helper.add_input(Submit('update', 'Update', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
-    document = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+    documents = FileField(required=False, max_length=128, widget=ClearableFileInput) 
 
     class Meta:
         model = Application
-        fields = ['id']
+        fields = ['id','details','documents']
     def __init__(self, *args, **kwargs):
         super(ApplicationAssignNextAction, self).__init__(*args, **kwargs)
 
@@ -423,7 +448,7 @@ class ApplicationAssignNextAction(ModelForm):
 		
         self.helper.layout = Layout(
             HTML('<p>Application Next Action</p>'),
-            'details','docments',
+            'details','documents',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -434,7 +459,7 @@ class ApplicationAssignNextAction(ModelForm):
 
 #        self.fields['title'].disabled = True 
 #        self.helper.add_input(Submit('assign', 'Assign', css_class='btn-lg'))
- #       self.helper.add_input(Submit('cancel', 'Cancel'))
+#        self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class AssignPersonForm(ModelForm):
     """A form for assigning an application to people with a specific group.

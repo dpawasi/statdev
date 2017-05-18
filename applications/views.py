@@ -18,6 +18,7 @@ from datetime import datetime, date
 from applications.workflow import Flow 
 from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check 
+from applications.email import sendHtmlEmail,emailGroup
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -159,7 +160,9 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
         context['may_update'] = "False"
-
+#        print app.app_type
+#        print Application.APP_TYPE_CHOICES[app.app_type]
+#        print dict(Application.APP_TYPE_CHOICES).get('3')
         # May Assign to Person,  Business rules are restricted to the people in the group who can reassign amoung each other only within the same group.
 #        usergroups = self.request.user.groups.all()
         
@@ -169,7 +172,11 @@ class ApplicationDetail(DetailView):
 #        context['may_assign_to_person'] = 'False'
 
         #if app.group is not None:
-        
+        emailcontext = {'user':'Jason'}
+
+        #sendHtmlEmail(['jason.moore@dpaw.wa.gov.au'],'HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None)
+        #emailGroup('HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None,'Processor')
+
         if app.assignee is not None:
             context['application_assignee_id'] = app.assignee.id
 
@@ -197,7 +204,6 @@ class ApplicationDetail(DetailView):
             context = licence.get(app,self,context)
 
 #        context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
-
         # may_update has extra business rules
         if app.routeid > 1:
             if app.assignee is None:
@@ -382,13 +388,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
         app = self.get_object()
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
-            request = self.request
-            flow = Flow()
-            flow.get('part5')
-            context = flow.getAccessRights(request,context,app.routeid,'part5')
+        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
         return context
 
     def get_form_class(self):
@@ -400,26 +407,33 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             return apps_forms.ApplicationPart5Form
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
             return apps_forms.ApplicationEmergencyForm
+        else:
+           # Add default forms.py and use json workflow to filter and hide fields
+           return apps_forms.ApplicationPart5Form 
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
         app = self.get_object()
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            if app.routeid is None:
-                app.routeid = 1
-            request = self.request
-            flow = Flow()
-            flow.get('part5')
-            flowcontent = {}
-            flowcontent = flow.getFields(flowcontent,app.routeid,'part5')
-            initial['fieldstatus'] = []
-           
-            if "fields" in flowcontent:
-                initial['fieldstatus'] = flowcontent['fields']
-            initial['fieldrequired'] = []
-            flowcontent = flow.getRequired(flowcontent,app.routeid,'part5')
-            if "required" in flowcontent:
-                initial['fieldrequired'] = flowcontent['required']
+#        if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        flowcontent = {}
+        flowcontent = flow.getFields(flowcontent,app.routeid,workflowtype)
+        flowcontent['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        initial['fieldstatus'] = []
+          
+        if "fields" in flowcontent:
+            initial['fieldstatus'] = flowcontent['fields']
+        initial['fieldrequired'] = []
+        flowcontent = flow.getRequired(flowcontent,app.routeid,workflowtype)
+        if "formcomponent" in flowcontent:
+            if "update" in flowcontent['formcomponent']:
+                if "required" in flowcontent['formcomponent']['update']:
+                    initial['fieldrequired'] = flowcontent['formcomponent']['update']['required']
 
 #       flow = Flow()
         #workflow = flow.get()
@@ -846,6 +860,12 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationRefer, self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        context['application_referrals'] = Referral.objects.filter(application=self.kwargs['pk'])
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(self.request,context,app.routeid,workflowtype)
         return context
 
     def get_initial(self):
@@ -905,7 +925,10 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 #        DefaultGroups['manager'] = 'Approver'
 #        DefaultGroups['director'] = 'Director'
 #        DefaultGroups['exec'] = 'Executive'
-
+#        appt = "app_type1"
+#        print hasattr(app, appt)
+#        print getattr(app, appt)
+#        print app.routeid 
         if app.assignee is None: 
             messages.error(self.request, 'Please Allocate an Assigned Person First')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -918,7 +941,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
-
+        flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
+        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+        
         if action is "creator":
             if flowcontext['may_assign_to_creator'] != "True":
                 messages.error(self.request, 'This application cannot be reassign, Unknown Error')
@@ -940,6 +965,17 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                 messages.error(self.request, 'Unable to complete action as you have no referrals! ')
                 return HttpResponseRedirect(app.get_absolute_url())
 
+        if "required" in route:
+            for fielditem in route["required"]:
+                if hasattr(app, fielditem):
+                    if getattr(app, fielditem) is None:
+                        messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                        return HttpResponseRedirect(app.get_absolute_url())
+                    appattr = getattr(app, fielditem)
+                    if  isinstance(appattr, unicode) or isinstance(appattr, str): 
+                       if len(appattr) == 0:
+                           messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                           return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
@@ -972,11 +1008,10 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
         flow.get(workflowtype)
-      
+
         if action == "creator":
             groupassignment = None
             assignee = app.submitted_by
-            donothing= 'yes'
         elif action == 'referral':
             groupassignment = None
             assignee = None
@@ -1005,7 +1040,26 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms.save()
         if doc:
             comms.documents.add(doc)
-     
+
+        emailcontext = {}
+        emailcontext['app'] = self.object
+
+        if action != "creator" and action != 'referral':
+            emailcontext['groupname'] = DefaultGroups['grouplink'][action]
+            emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+            emailGroup('Application Assignment to Group '+DefaultGroups['grouplink'][action],emailcontext,'application-assigned-to-group.html' ,None,None,None,DefaultGroups['grouplink'][action])
+        elif action == "creator": 
+            emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+            emailcontext['person'] = assignee
+            sendHtmlEmail([assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+        # Record an action on the application:
+        action = Action(
+        content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
+            action='Next Step Application Assigned to group ({}) with action title ({}) and route id ({}) '.format(groupassignment,route['title'],self.object.routeid))
+        action.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -1034,7 +1088,15 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=True)
         app = self.object
-        
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        DefaultGroups = flow.groupList()
+        flow.get(workflowtype)
+        emailcontext = {'person': app.assignee }
+        emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+        sendHtmlEmail([app.assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
@@ -1446,6 +1508,8 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
         context = super(ReferralDelete, self).get_context_data(**kwargs)
         context['referral'] = self.get_object()
         return context
+    def get_success_url(self,application_id):
+        return reverse('application_refer', args=(application_id,))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -1454,13 +1518,14 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         ref = self.get_object()
+        application_id = ref.application.id
         ref.delete()
         # Record an action on the referral's application:
         action = Action(
             content_object=ref.application, user=self.request.user,
             action='Referral to {} delete'.format(ref.referee))
         action.save()
-        return HttpResponseRedirect(ref.application.get_absolute_url())
+        return HttpResponseRedirect(self.get_success_url(application_id))
 
 
 
@@ -1608,7 +1673,16 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+
+
+#       if flowcontext.state != app.APP_STATE_CHOICES.draft:
+        if flowcontext["may_update_publication_newspaper"] != "True":
             messages.error(
                 self.request, "Can't add new newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
@@ -1659,7 +1733,18 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
 		#app = self.get_object().application_set.first()
-        app = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        app = Application.objects.get(pk=PubNew.application.id)
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext["may_update_publication_newspaper"] != "True":
+            messages.error(
+                self.request, "Can't update newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
         # Rule: can only change a vessel if the parent application is status
         # 'draft'.
 		#if app.state != Application.APP_STATE_CHOICES.draft:
@@ -1725,6 +1810,20 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         modelobject = self.get_object()
+
+        PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        app = Application.objects.get(pk=PubNew.application.id)
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext["may_update_publication_newspaper"] != "True":
+            messages.error(
+                self.request, "Can't delete newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+
         # Rule: can only delete a condition if the parent application is status
         # 'with referral' or 'with assessor'.
 #        if modelobject.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
@@ -1762,9 +1861,15 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        if flowcontext["may_update_publication_website"] != "True":
             messages.error(
-                self.request, "Can't add new Website publication to this application")
+                self.request, "Can't update ebsite publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
 

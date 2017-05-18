@@ -11,4 +11,36 @@
 <p>Please provide any required feedback related to this application (in addition to already-proposed conditions):</p>
 {% crispy form %}
 
+<div class="col-sm-12 col-md-12 col-lg-12">
+<div class="panel-body">
+            <table class="table table-striped table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Sent date</th>
+                        <th>Period (days)</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for refer_obj in application_referrals %}
+                    <tr>
+                        <td>{{ refer_obj.referee }}</td>
+                        <td>{{ refer_obj.sent_date|date:"d-M-Y" }}</td>
+                        <td>{{ refer_obj.period }}</td>
+                        <td>{{ refer_obj.get_status_display }}</td>
+                        <td>{{ refer_obj.details }}</td>
+                        <td>
+                        {% if may_referral_delete == "True" %}
+                              <a class="btn btn-primary btn-sm" role="button" href="{% url 'referral_delete' refer_obj.pk %}">Delete</a>
+                        {% endif %}
+                        </td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+</div>
+</div>
 {% endblock %}

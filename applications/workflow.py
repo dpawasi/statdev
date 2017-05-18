@@ -73,6 +73,14 @@ class Flow():
             context["may_referral_delete"] = "False"
         if "may_referral_resend" not in context:
             context["may_referral_resend"] = "False"
+        if "may_update_condition" not in context:
+            context["may_update_condition"] = "False"
+        if "may_accept_condition" not in context:
+            context["may_accept_condition"] = "False"
+        if "may_update_publication_feedback_final" not in context:
+            context["may_update_publication_feedback_final"] = "False"
+        if "may_view_action_log" not in context:
+            context["may_view_action_log"] = "False"
 
         # Form Components
         if "form_component_update" not in context:
@@ -288,6 +296,10 @@ class Flow():
             workflowtype = 'permit'
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             workflowtype = 'licence'
+        elif app.app_type == app.APP_TYPE_CHOICES.part5cr:
+            workflowtype = 'part5cr'
+        elif app.app_type == app.APP_TYPE_CHOICES.part5amend:    
+            workflowtype = 'part5amend'
         else:
             workflowtype = ''
         return workflowtype

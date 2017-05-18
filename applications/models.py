@@ -77,8 +77,10 @@ class Application(models.Model):
     APP_TYPE_CHOICES = Choices(
         (1, 'permit', ('Permit')),
         (2, 'licence', ('Licence/permit')),
-        (3, 'part5', ('Part 5')),
+        (3, 'part5', ('Part 5 - New Application')),
         (4, 'emergency', ('Emergency works')),
+        (5, 'part5cr', ('Part 5 - Ammendment Request')),
+        (6, 'part5amend', ('Part 5 - Amendment Application'))
     )
     APP_STATE_CHOICES = Choices(
         (1, 'draft', ('Draft')),
@@ -95,7 +97,6 @@ class Application(models.Model):
         (12 ,'with_director',('With Director')),
         (13 ,'with_exec', ('With Executive')),
         (14 ,'completed', ('Completed'))
-
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),

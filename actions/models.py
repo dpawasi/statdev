@@ -21,6 +21,7 @@ class Action(models.Model):
         (5, 'decline', ('Decline')),
         (6, 'publish', ('Publish')),
         (7, 'lodge', ('Lodge')),
+        (8, 'action', ('Next Step'))
         # TODO: Compliance request
         # TODO: Request/add/remove delegate
     )
