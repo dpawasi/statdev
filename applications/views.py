@@ -1574,7 +1574,6 @@ class ReferralRemind(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         ref = self.get_object()
-        print ref.referee.email
         emailcontext = {}
         emailcontext['person'] = ref.referee
         emailcontext['application_id'] = ref.application.id
