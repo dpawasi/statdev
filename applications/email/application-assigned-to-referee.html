@@ -1,0 +1,15 @@
+<p>Dear {{ person.first_name }}</p>
+
+
+<p>A '{{ application_name }}' application has been assign to you for feedback.   You can view the application by logging in <A HREF='{{ default_url }}{% url 'application_detail' application_id %}'>here</A></p>
+
+<p>Direct Link : {{ default_url }}{% url 'application_detail' application_id %}</p>
+<p>
+Kind Regards<BR>
+Department of Parks and Wildlife<BR>
+Bob Parks
+
+</p>
+
+
+

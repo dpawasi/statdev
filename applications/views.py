@@ -18,7 +18,7 @@ from datetime import datetime, date
 from applications.workflow import Flow 
 from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check 
-from applications.email import sendHtmlEmail,emailGroup
+from applications.email import sendHtmlEmail,emailGroup,emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -32,6 +32,14 @@ class HomePage(LoginRequiredMixin, TemplateView):
                 assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
             context['applications_wip'] = self.create_applist(applications_wip)
 			#context['applications_wip']
+        if Application.objects.filter(assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined]).exists():
+            #            userGroups = self.request.user.groups.all() 
+            userGroups = []
+            for g in self.request.user.groups.all():
+                userGroups.append(g.name)
+            applications_groups = Application.objects.filter(group__name__in=userGroups).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
+            context['applications_groups'] = self.create_applist(applications_groups)
+
         if Application.objects.filter(applicant=self.request.user).exists():
             applications_submitted = Application.objects.filter(
                     applicant=self.request.user).exclude(assignee=self.request.user)
@@ -790,16 +798,6 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flowcontext['application_assignee_id'] = app.assignee.id
 
         workflowtype = ''
-        if app.app_type == app.APP_TYPE_CHOICES.part5:
-            workflowtype = 'part5'
-        elif app.app_type == app.APP_TYPE_CHOICES.emergency:
-            workflowtype = 'emergency'
-        elif app.app_type == app.APP_TYPE_CHOICES.permit:
-            workflowtype = 'permit'
-        elif app.app_type == app.APP_TYPE_CHOICES.licence:
-            workflowtype = 'licence'
-        else: 
-            workflowtype = ''
 
         if app.routeid is None:
             app.routeid = 1
@@ -808,8 +806,22 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
-      
+
         if flowcontext['may_lodge'] == "True": 
+            route = flow.getNextRouteObj('lodge',app.routeid,workflowtype)
+            flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
+            if "required" in route:
+                for fielditem in route["required"]:
+                    if hasattr(app, fielditem):
+                        if getattr(app, fielditem) is None:
+                            messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                            return HttpResponseRedirect(app.get_absolute_url())
+                        appattr = getattr(app, fielditem)
+                        if  isinstance(appattr, unicode) or isinstance(appattr, str):
+                            if len(appattr) == 0:
+                                messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                                return HttpResponseRedirect(app.get_absolute_url())
+
             donothing = ""
         else:
             messages.error(self.request, 'This application cannot be lodged!')
@@ -831,16 +843,34 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """Override form_valid to set the submit_date and status of the new application.
         """
         app = self.get_object()
-
+        flowcontext = {}
         #if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
+
         DefaultGroups = flow.groupList()
         nextroute = flow.getNextRoute('lodge',app.routeid,workflowtype)
+        route = flow.getNextRouteObj('lodge',app.routeid,workflowtype)
         app.routeid = nextroute
+        flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
+        if "required" in route:
+            for fielditem in route["required"]:
+                if hasattr(app, fielditem):
+                    if getattr(app, fielditem) is None:
+                        messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                        return HttpResponseRedirect(app.get_absolute_url())
+                    appattr = getattr(app, fielditem)
+                    if  isinstance(appattr, unicode) or isinstance(appattr, str):
+                       if len(appattr) == 0:
+                           messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                           return HttpResponseRedirect(app.get_absolute_url())
+
+
+
+
         groupassignment = Group.objects.get(name=DefaultGroups['grouplink']['admin'])
         app.group = groupassignment
 
@@ -1019,7 +1049,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             if app_refs == 0:
                 messages.error(self.request, 'Unable to complete action as you have no referrals! ')
                 return HttpResponseRedirect(app.get_absolute_url())
-
         if "required" in route:
             for fielditem in route["required"]:
                 if hasattr(app, fielditem):
@@ -1107,6 +1136,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailcontext['person'] = assignee
             sendHtmlEmail([assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+        elif action == "referral":
+            emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+            emailApplicationReferrals(app.id,'Application for Feedback ',emailcontext,'application-assigned-to-referee.html' ,None,None,None)
 
         # Record an action on the application:
         action = Action(
@@ -1524,6 +1556,7 @@ class ReferralRemind(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
+      
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
@@ -1541,6 +1574,14 @@ class ReferralRemind(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         ref = self.get_object()
+        print ref.referee.email
+        emailcontext = {}
+        emailcontext['person'] = ref.referee
+        emailcontext['application_id'] = ref.application.id
+        emailcontext['application_name'] = Application.APP_TYPE_CHOICES[ref.application.app_type] 
+
+        sendHtmlEmail([ref.referee.email],'Application for Feedback Reminder',emailcontext,'application-assigned-to-referee.html',None,None,None)
+
         action = Action(
             content_object=ref.application, user=self.request.user,
             action='Referral to {} reminded'.format(ref.referee))

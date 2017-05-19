@@ -98,6 +98,51 @@
 </div>
 {% endif %}
 
+{% if applications_groups %}
+<div class="row">
+    <div class="col-xs-12">
+        <h1>Applications assigned to my groups (in progress):</h1>
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th>Lodgement no.</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Applicant</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Lodged on</th>
+                    <th>Assignee</th>
+                    <th>Payment status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app_obj in applications_groups %}
+                <tr>
+                    <td><a href="{% url 'application_detail' app_obj.app.pk %}">{{ app_obj.app.pk }}</a></td>
+                    <td>{{ app_obj.app.get_app_type_display }}</td>
+                    <td>{{ app_obj.app.title }}</td>
+                    <td>{{ app_obj.app.applicant.get_full_name }}</td>
+                    <td>{{ app_obj.app.organisation }}</td>
+                    <td>{{ app_obj.app.get_state_display }}</td>
+                    <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
+                    <td>{{ app_obj.app.assignee.get_full_name }}</td>
+                    <td></td>
+                    <td>
+                    {% if app_obj.may_assign_to_person == "True" %}
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign_person' app_obj.app.pk %}">{% if app_obj.app.assignee == None %}Assign{% else %}Re Assign {% endif %}</a>
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+
 {% if applications_submitted %}
 <div class="row">
     <div class="col-xs-12">
