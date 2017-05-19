@@ -1,0 +1,14 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content_inner %}
+<a href="{% url 'application_detail' application.pk %}" class="btn btn-primary" role="button">
+    Back to Application
+</a>
+
+
+<h1>Referral of application {{ application.pk }}</h1>
+<p>Please provide any required feedback related to this application (in addition to already-proposed conditions):</p>
+{% crispy form %}
+
+{% endblock %}

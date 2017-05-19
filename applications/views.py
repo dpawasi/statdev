@@ -11,7 +11,7 @@ import pdfkit
 from accounts.utils import get_query
 from actions.models import Action
 from applications import forms as apps_forms
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from .models import Application, Referral, Condition, Compliance, Vessel, Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback, Communication
 from django.utils.safestring import SafeText
 from datetime import datetime, date
@@ -19,6 +19,7 @@ from applications.workflow import Flow
 from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check 
 from applications.email import sendHtmlEmail,emailGroup
+from applications.validationchecks import Attachment_Extension_Check
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -549,7 +550,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         # if 'land_owner_consent-clear_multifileid' in forms_data:
         # Check for clear checkbox (remove files)
-        # 'Clear' was checked.
+        # Clear' was checked.
         if 'cert_survey-clear' in form.data and self.object.cert_survey:
             self.object.cert_survey = None
         if 'river_lease_scan_of_application-clear' in form.data:
@@ -569,6 +570,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.cert_survey
             else:
                 doc = Document()
+
+            if Attachment_Extension_Check('single',forms_data['cert_public_liability_insurance'],None) is False:
+                raise ValidationError('Certficate Survey contains and unallowed attachment extension.')
+
             doc.upload = forms_data['cert_survey']
             doc.name = forms_data['cert_survey'].name
             doc.save()
@@ -578,6 +583,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.cert_public_liability_insurance
             else:
                 doc = Document()
+
+            if Attachment_Extension_Check('single',forms_data['cert_public_liability_insurance'],None) is False:
+                raise ValidationError('Certficate of Public Liability Insurance contains and unallowed attachment extension.')
+
             doc.upload = forms_data['cert_public_liability_insurance']
             doc.name = forms_data['cert_public_liability_insurance'].name
             doc.save()
@@ -587,6 +596,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.risk_mgmt_plan
             else:
                 doc = Document()
+
+            if Attachment_Extension_Check('single',forms_data['risk_mgmt_plan'],None) is False:
+                raise ValidationError('Risk Management Plan contains and unallowed attachment extension.')
+
             doc.upload = forms_data['risk_mgmt_plan']
             doc.name = forms_data['risk_mgmt_plan'].name
             doc.save()
@@ -596,34 +609,47 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.safety_mgmt_procedures
             else:
                 doc = Document()
+            if Attachment_Extension_Check('single',forms_data['safety_mgmt_procedures'],None) is False:
+                raise ValidationError('Safety Procedures contains and unallowed attachment extension.')
+
             doc.upload = forms_data['safety_mgmt_procedures']
             doc.name = forms_data['safety_mgmt_procedures'].name
             doc.save()
             self.object.safety_mgmt_procedures = doc
-        if self.request.FILES.get('deed'):
-            if self.object.deed:
-                doc = self.object.deed
-            else:
-                doc = Document()
-            doc.upload = forms_data['deed']
-            doc.name = forms_data['deed'].name
-            doc.save()
-            self.object.deed = doc
-        if self.request.FILES.get('river_lease_scan_of_application'):
-            if self.object.river_lease_scan_of_application:
-                doc = self.object.river_lease_scan_of_application
-            else:
-                doc = Document()
-                doc.upload = forms_data['river_lease_scan_of_application']
-                doc.name = forms_data['river_lease_scan_of_application'].name
-                doc.save()
-                self.object.river_lease_scan_of_application = doc
+        #if self.request.FILES.get('deed'):
+        #    if self.object.deed:
+        #        doc = self.object.deed
+        #    else:
+        #        doc = Document()
+#
+#            if Attachment_Extension_Check('single',forms_data['deed'],None) is False:
+ #               raise ValidationError('Deed contains and unallowed attachment extension.')
+#
+ #           doc.upload = forms_data['deed']
+  #          doc.name = forms_data['deed'].name
+   #         doc.save()
+    #        self.object.deed = doc
+#        if self.request.FILES.get('river_lease_scan_of_application'):
+#            if self.object.river_lease_scan_of_application:
+#                doc = self.object.river_lease_scan_of_application
+#            else:
+#                doc = Document()
+#            if Attachment_Extension_Check('single',forms_data['river_lease_scan_of_application'],None) is False:
+#                raise ValidationError('River Lease contains an unallowed attachment extension.')
+#
+#            doc.upload = forms_data['river_lease_scan_of_application']
+#            doc.name = forms_data['river_lease_scan_of_application'].name
+#            doc.save()
+#            self.object.river_lease_scan_of_application = doc
         if self.request.FILES.get('brochures_itineries_adverts'):
             # Remove existing documents.
             for d in self.object.brochures_itineries_adverts.all():
                 self.object.brochures_itineries_adverts.remove(d)
             # Add new uploads.
-            for f in forms_data['brochures_itineries_adverts']:
+            if Attachment_Extension_Check('multi',self.request.FILES.getlist('brochures_itineries_adverts'),None) is False:
+                raise ValidationError('Brochures Itineries contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('brochures_itineries_adverts'):
                 doc = Document()
                 doc.upload = f
                 doc.name = f.name
@@ -634,6 +660,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             # for d in self.object.land_owner_consent.all():
             #    self.object.land_owner_consent.remove(d)
             # Add new uploads.
+            if Attachment_Extension_Check('multi',self.request.FILES.getlist('land_owner_consent'),None) is False:
+                raise ValidationError('Land Owner Consent contains and unallowed attachment extension.')
 
             for f in self.request.FILES.getlist('land_owner_consent'):
                 doc = Document()
@@ -643,6 +671,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 self.object.land_owner_consent.add(doc)
 
         if self.request.FILES.get('proposed_development_plans'):
+            if Attachment_Extension_Check('multi',self.request.FILES.getlist('proposed_development_plans'),None) is False:
+                raise ValidationError('Proposed Development Plans contains and unallowed attachment extension.')
+
             for f in self.request.FILES.getlist('proposed_development_plans'):
                 doc = Document()
                 doc.upload = f
@@ -655,34 +686,52 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_draft = None
 
         if self.request.FILES.get('document_draft'):
+            if Attachment_Extension_Check('single',forms_data['document_draft'],None) is False:
+                raise ValidationError('Draft contains and unallowed attachment extension.')
+
             new_doc = Document()
             new_doc.upload = self.request.FILES['document_draft']
             new_doc.save()
             self.object.document_draft = new_doc
 
         if self.request.FILES.get('document_final'):
+            if Attachment_Extension_Check('single',forms_data['document_final'],None) is False:
+                raise ValidationError('Final contains and unallowed attachment extension.')
+
             new_doc = Document()
             new_doc.upload = self.request.FILES['document_final']
             new_doc.save()
             self.object.document_final = new_doc
 
         if self.request.FILES.get('deed'):
+            if Attachment_Extension_Check('single',forms_data['deed'],None) is False:
+                raise ValidationError('Deed contains and unallowed attachment extension.')
+
             new_doc = Document()
             new_doc.upload = self.request.FILES['deed']
             new_doc.save()
             self.object.deed = new_doc
         if self.request.FILES.get('river_lease_scan_of_application'):
+            if Attachment_Extension_Check('single',forms_data['river_lease_scan_of_application'],None) is False:
+                raise ValidationError('River Lease Scan of Application contains and unallowed attachment extension.')
+
             new_doc = Document()
             new_doc.upload = self.request.FILES['river_lease_scan_of_application']
             new_doc.save()
             self.object.river_lease_scan_of_application = new_doc
         if self.request.FILES.get('document_determination'):
+            if Attachment_Extension_Check('single',forms_data['document_determination'],None) is False:
+                raise ValidationError('Determination contains and unallowed attachment extension.')
+
             new_doc = Document()
             new_doc.upload = self.request.FILES['document_determination']
             new_doc.save()
             self.object.document_determination = new_doc
 
         if self.request.FILES.get('document_completion'):
+            if Attachment_Extension_Check('single',forms_data['document_completion'],None) is False:
+                raise ValidationError('Completion Docuemnt contains and unallowed attachment extension.')
+
             new_doc = Document()
             new_doc.upload = self.request.FILES['document_completion']
             new_doc.save()
@@ -1345,6 +1394,7 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ReferralComplete, self).get_context_data(**kwargs)
+        self.template_name = 'applications/referral_complete_form.html'
         context['application'] = self.get_object().application
         return context
 
