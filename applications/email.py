@@ -5,6 +5,7 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from accounts.models import EmailUser
+from applications.models import Referral
 from confy import env
 
 """
@@ -25,9 +26,10 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
 
     email_delivery = env('EMAIL_DELIVERY', 'off')
     override_email = env('OVERRIDE_EMAIL', None)
+    context['default_url'] = env('DEFAULT_URL', '')
 
     if email_delivery != 'on':
-        print ("EMAIL DELIVERY IS OFF NO EMAIL SENT")
+        print ("EMAIL DELIVERY IS OFF NO EMAIL SENT -- applications/email.py ")
         return False
 
     if template is None:
@@ -67,3 +69,15 @@ def emailGroup(subject,context,template,cc,bcc,from_email,group):
     for person in UsersInGroup:
         context['person'] = person
         sendHtmlEmail([person.email],subject,context,template,cc,bcc,from_email)
+
+
+def emailApplicationReferrals(application_id,subject,context,template,cc,bcc,from_email):
+  
+    context['default_url'] = env('DEFAULT_URL', '')
+    ApplicationReferrals = Referral.objects.filter(application=application_id)
+    for Referee in ApplicationReferrals:
+        context['person'] = Referee.referee
+        context['application_id'] = application_id
+        sendHtmlEmail([Referee.referee.email],subject,context,template,cc,bcc,from_email)
+
+

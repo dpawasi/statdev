@@ -3,6 +3,7 @@ from applications.workflow import Flow
 from .models import Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application
 from django.utils.safestring import SafeText
 from django.contrib.auth.models import Group
+from applications.validationchecks import Attachment_Extension_Check
 
 class Application_Part5():
 
