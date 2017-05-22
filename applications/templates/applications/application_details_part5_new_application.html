@@ -567,7 +567,7 @@
                             </div>
                             <div class="col-lg-12">
                                 <div class="col-lg-3">
-                                    Current Version of Report
+                                    <label>Current Version of Report</label>
                                 </div>
                                 <div class="col-lg-9">
                                     {% if object.document_draft %}
@@ -575,44 +575,51 @@
                                     {% else %}
                                     No Attachment
                                     {% endif %}
-
                                 </div>
                             </div>
+                            <div class="col-lg-12">
 
-                        
+                           	    <div class="col-lg-3">
+                                    <label>Swan River Trust Board Feedback</label>
+                                </div>
+                                <div class="col-lg-9">
+                                    {% if object.swan_river_trust_board_feedback %}
+                                    <A HREF='/media/{{ object.swan_river_trust_board_feedback.upload }}'>Feedback.PDF</A>
+                                    {% else %}
+                                    No Attachment
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-12"> 
 
-                        <div class="col-lg-12">
-                            <div class="col-lg-3">
-                                <label> Start Date</label>
+                                <div class="col-lg-3">
+                                    <label> Start Date</label>
+                                </div>
+                                <div class="col-lg-9">
+                                    {{ object.assessment_start_date }}
+                                </div>
                             </div>
-                            <div class="col-lg-9">
-                                {{ object.assessment_start_date }}
-                            </div>
-                        </div>
-
-                        {% if hidden.swanriverpostaladdress == "False" %}
-                        <div class="col-lg-12">
-                            <div class="col-lg-3">
-                                <label>To be posted to:</Label>
-
-                            </div>
-                            <div class="col-lg-9">
-                                <strong>
-                                Swan River Trust Board, attn Peter Secretary <BR>
-                                PO Box 3344<br>
-                                Perth WA 6000<br>
-                                </strong>
-                            </div>
-                        </div>   
+                            {% if hidden.swanriverpostaladdress == "False" %}
+                            <div class="col-lg-12">
+                                <div class="col-lg-3">
+                                       <label>To be posted to:</Label>
+                                </div>
+                                <div class="col-lg-9">
+                                    <strong>
+                                    Swan River Trust Board, attn Peter Secretary <BR>
+                                    PO Box 3344<br>
+                                    Perth WA 6000<br>
+                                    </strong>
+                                </div>
+                             </div>
+                             {% endif %}
             
-                        {% endif %}
-
+                        <div class="col-lg-12">
                         {% if may_update_assessment_draft == "True" %}
                         <a href="{% url 'application_update' object.pk %}" class="btn btn-primary" role="button">
                             Update
                         </a>
                         {% endif %}
-
 
 
                         {% endif %}
@@ -668,12 +675,12 @@
                         {% endif %}
 
                     </div>
-        
+         
             
             </div>
                 </div>		
 
-
+            </div>
             </div>
             {% endif %}	
 
