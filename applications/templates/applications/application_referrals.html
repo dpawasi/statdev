@@ -59,12 +59,14 @@
 			{% else %}
 			<p>None</p>
 			{% endif %}
-           
+          
+            {% if workflow_actions %} 
 			{% if may_refer == "True" %}
 			<a href="{% url 'application_refer' object.pk %}" class="btn btn-primary" role="button">
 				Add / Delete Referrals
 			</a>
 			{% endif %}
+            {% endif %}
 		</div>
 	</div>
 </div>
