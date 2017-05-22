@@ -481,7 +481,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         if app.deed:
             initial['deed'] = app.deed.upload
-
+        if app.swan_river_trust_board_feedback:
+            initial['swan_river_trust_board_feedback'] = app.swan_river_trust_board_feedback.upload
         if app.document_final:
             initial['document_final'] = app.document_final.upload
         if app.document_determination:
@@ -571,6 +572,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.safety_mgmt_procedures = None
         if 'deed-clear' in form.data and self.object.deed:
             self.object.deed = None
+        if 'swan_river_trust_board_feedback-clear' in form.data and self.object.swan_river_trust_board_feedback:
+            self.object.swan_river_trust_board_feedback = None
 
         # Upload New Files
         if self.request.FILES.get('cert_survey'):  # Uploaded new file.
@@ -710,6 +713,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.upload = self.request.FILES['document_final']
             new_doc.save()
             self.object.document_final = new_doc
+
+
+        if self.request.FILES.get('swan_river_trust_board_feedback'):
+            if Attachment_Extension_Check('single',forms_data['swan_river_trust_board_feedback'],None) is False:
+                raise ValidationError('Swan River Trust Board Feedback contains and unallowed attachment extension.')
+
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['swan_river_trust_board_feedback']
+            new_doc.save()
+            self.object.swan_river_trust_board_feedback = new_doc
 
         if self.request.FILES.get('deed'):
             if Attachment_Extension_Check('single',forms_data['deed'],None) is False:

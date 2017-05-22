@@ -227,6 +227,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
         model = Application

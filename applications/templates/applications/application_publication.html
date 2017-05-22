@@ -202,13 +202,14 @@
 
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of draft report</label>
+                            <div class="col-lg-4">  
+                                <label>Signed copy (signed by DG) of draft report</label>
                             </div>
                             <div class="col-lg-4">
                                 {% if object.document_final.upload.name %}
                                 <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
                                 {% else %}
-                                No Attachment
+                                <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
                                 {% endif %}
                             </div>
                         </div>
