@@ -126,12 +126,10 @@
 
         ],
         "formcomponent": {
-           
                 "update": {
                     "title": "Make Application Changes",
                     "required": ["title","deed"]
                 }
-            
         },
         "groupaccess": {
             "Processor": {
@@ -159,7 +157,6 @@
                 "may_assign_to_creator": "True",
                 "may_referral_delete": "True",
                 "may_view_action_log": "True"
-                
             }
         },
         "collapse": {
@@ -181,7 +178,8 @@
             "document_final": "hide",
             "document_determination": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "assessment_start_date": "hide",
+            "document_draft" : "hide"
 
         },
         "required": [
