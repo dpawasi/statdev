@@ -206,8 +206,8 @@
                                 <label>Signed copy (signed by DG) of draft report</label>
                             </div>
                             <div class="col-lg-4">
-                                {% if object.document_final.upload.name %}
-                                <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
+                                {% if object.document_draft_signed.upload.name %}
+                                <A HREF='/media/{{ object.document_draft_signed.upload.name }}'>Signed Document.pdf</A>
                                 {% else %}
                                 <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
                                 {% endif %}
@@ -224,7 +224,7 @@
                                         Published on the {{ object.publish_draft_report }}
                                     </a>
                                     {% else %}
-                                    {% if may_update_publication_feedback_final == "True" %}
+                                    {% if may_publish_publication_feedback_draft == "True" %}
                                     <a href="{% url 'application_publish_documents' object.pk 'draft' %}" class="btn btn-primary" role="button">
                                         Publish
                                     </a>

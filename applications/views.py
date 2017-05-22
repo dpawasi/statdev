@@ -476,6 +476,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_new_draft:
             initial['document_new_draft'] = app.document_new_draft.upload
+        if app.document_draft_signed:
+            initial['document_draft_signed'] = app.document_draft_signed.upload
 
         if app.document_draft:
             initial['document_draft'] = app.document_draft.upload
@@ -703,10 +705,12 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             #application = Application.objects.get(id=self.object.id)
             self.object.document_new_draft = None
 
+        if self.request.POST.get('document_draft_signed-clear'):
+            self.object.document_draft_signed = None
+
         if self.request.FILES.get('document_draft'):
             if Attachment_Extension_Check('single',forms_data['document_draft'],None) is False:
                 raise ValidationError('Draft contains and unallowed attachment extension.')
-
             new_doc = Document()
             new_doc.upload = self.request.FILES['document_draft']
             new_doc.save()
@@ -719,6 +723,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.upload = self.request.FILES['document_new_draft']
             new_doc.save()
             self.object.document_new_draft = new_doc
+
+        if self.request.FILES.get('document_draft_signed'):
+            if Attachment_Extension_Check('single',forms_data['document_draft_signed'],None) is False:
+                raise ValidationError('New Draft contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_draft_signed']
+            new_doc.save()
+            self.object.document_draft_signed = new_doc
 
         if self.request.FILES.get('document_final'):
             if Attachment_Extension_Check('single',forms_data['document_final'],None) is False:
