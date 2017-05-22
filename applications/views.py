@@ -474,6 +474,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial['proposed_development_plans'] = multifilelist
 
         #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
+        if app.document_new_draft:
+            initial['document_new_draft'] = app.document_new_draft.upload
+
         if app.document_draft:
             initial['document_draft'] = app.document_draft.upload
 #        if app.proposed_development_plans:
@@ -691,10 +694,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.proposed_development_plans.add(doc)
         if self.request.POST.get('document_draft-clear'):
-            application = Application.objects.get(id=self.object.id)
+            #application = Application.objects.get(id=self.object.id)
             #document = Document.objects.get(pk=application.document_draft.id)
             #document.delete() // protect error occurs
             self.object.document_draft = None
+
+        if self.request.POST.get('document_new_draft-clear'):
+            #application = Application.objects.get(id=self.object.id)
+            self.object.document_new_draft = None
 
         if self.request.FILES.get('document_draft'):
             if Attachment_Extension_Check('single',forms_data['document_draft'],None) is False:
@@ -705,6 +712,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.document_draft = new_doc
 
+        if self.request.FILES.get('document_new_draft'):
+            if Attachment_Extension_Check('single',forms_data['document_new_draft'],None) is False:
+                raise ValidationError('New Draft contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_new_draft']
+            new_doc.save()
+            self.object.document_new_draft = new_doc
+
         if self.request.FILES.get('document_final'):
             if Attachment_Extension_Check('single',forms_data['document_final'],None) is False:
                 raise ValidationError('Final contains and unallowed attachment extension.')
@@ -713,7 +728,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.upload = self.request.FILES['document_final']
             new_doc.save()
             self.object.document_final = new_doc
-
 
         if self.request.FILES.get('swan_river_trust_board_feedback'):
             if Attachment_Extension_Check('single',forms_data['swan_river_trust_board_feedback'],None) is False:
