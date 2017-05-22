@@ -165,6 +165,8 @@ class Application(models.Model):
     routeid = models.IntegerField(null=True, blank=True, default=1) 
     assessment_start_date = models.DateField(null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True, related_name='application_group_assignment')
+    swan_river_trust_board_feedback = models.ForeignKey(Document, null=True, blank=True, related_name='document_swan_river_board_feedback')
+    
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(

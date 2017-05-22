@@ -366,335 +366,9 @@
             {% endif %}
 
             {% if hidden.publication == "False" %}
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="publication_heading">
-                    <h3 class="panel-title">
-                        <a role="button" data-toggle="collapse" href="#publication_collapse" aria-expanded="false" aria-controls="publication_collapse">
-                            <span class="glyphicon glyphicon-plus"></span>
-                            Publication 
-                        </a>
-                    </h3>
-                </div>
-                <div class="panel-collapse collapse {{ collapse.publication }}" id="publication_collapse" role="tabpanel" aria-labelledby="publication_heading">
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-12">
-                                <label>Application published in newspaper </label>
-                            </div>
-                            <div class="panel-body">
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Date</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Newspaper</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Action</th>
-                                    </tr>
-                                    {% if publication_newspaper %}
-                                    {% for newspub in publication_newspaper_list %}
-                                    <tr>
-                                        <td>{{ newspub.date }}</td>
-                                        <td>{{ newspub.newspaper }}</td>
-                                        <td>
-                                            {% if newspub.documents_short == None %}
-                                            {% else %}
-                                            {% for doc in newspub.documents_short %}
-                                            <div class="col-sm-12"><A href='/media/{{ doc.path }}'>{{ doc.path_short }}</a></div>
-                                            {% endfor %}
-                                            {% endif %}	
-                                            <td>
-                                                {% if may_update_publication_newspaper == "True" %}
-                                                <a href="{% url 'newspaperpublication_update' newspub.pk %}" class="btn btn-primary" role="button">
-                                                    Edit	
-                                                </a>
-                                                <a href="{% url 'newspaperpublication_delete' newspub.pk %}" class="btn btn-primary" role="button">
-                                                    Delete
-                                                </a>
-                                                {% endif %}
-                                            </td>
-                                    </tr>
-                                    {% endfor %}
-                                    {% endif %}
-
-                                </table>
-                                {% if may_update_publication_newspaper == "True" %}
-                                <a href="{% url 'application_add_newspaperpublication' object.pk %}" class="btn btn-primary" role="button">
-                                    Add News Publication 
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-10">
-                                <label>Application published on Department's website </label>
-                            </div>
-                            <div class="col-lg-2 align-right text-right">
-                                <td>
-                                    {% if object.publish_documents %}
-                                    <a href="javascript:void();" class="btn btn-primary" role="button">
-
-                                        Published {% if object.publish_documents %} on the {{ object.publish_documents }} {% endif %}
-                                    </a>
-                                    {% else %}
-                                        {% if may_publish_website == "True" %}
-                                        <a href="{% url 'application_publish_documents' object.pk 'documents' %}" class="btn btn-primary" role="button">
-                                            Publish
-                                        </a>
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
-                            </div>
-                            <div class="panel-body">
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th class="col-sm-5 col-md-5 col-lg-5">Orignal Document</th>
-                                        <th class="col-sm-6 col-md-6 col-lg-6">To be published document</th>
-                                        {% if may_update_publication_website == "True" %}
-                                        <th class="col-sm-1 col-md-1 col-lg-1">Action</th>
-                                        {% endif %}
-                                    </tr>
-                                    {% if original_document_list %}
-                                    {% for origdoc in original_document_list %}
-                                    <tr>
-                                        <td>
-                                            <div class='col-sm-12 col-md-12 col-lg-12'>
-                                                <h6 class='text-muted'>{{ origdoc.group_name }}</h6>
-                                            </div>
-                                            <div class='col-sm-12 col-md-12 col-lg-12'>
-                                                <A HREF='/media/{{ origdoc.path }}'>{{ origdoc.path_short }}</A>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <A HREF='/media/{{ origdoc.publish_doc }}'>{{ origdoc.publish_doc_short }}</A>
-                                        </td>
-                                        {% if may_update_publication_website == "True" %}
-                                        <td>
-                                            <a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
-                                                Attach / Change
-                                            </a>
-                                        </td>
-                                        {% endif %}
-                                    </tr>
-
-                                    {% endfor %}
-                                    <!-- to remove once above loop contains all original documents -->
-                                    {% for webpub in publication_website.aall %}
-                                    <tr>
-                                        <td>
-                                            {% if webpub.original_document == None %}
-                                            {% else %}
-                                            {% for doc in webpub.original_document.all %}
-                                            {{ doc.upload }}
-                                            {% endfor %}
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if webpub.published_document == None %}
-                                            {% else %}
-                                            {% for doc in webpub.published_document.all %}
-                                            {{ doc.upload }}
-                                            {% endfor %}
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                    {% endif %}
-                                    <!-- end  of loop -->
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-12">
-                                <label>Received Feedback (Draft)</label>
-                            </div>
-
-                            <div class="panel-body">
-                                {% if publication_feedback %}
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Documents</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
-
-                                    </tr>
-                                    {% for feedpub in publication_feedback %}
-                                    {% if feedpub.status == 'draft' %}
-                                    <tr>
-                                        <td>{{ feedpub.name }}</td>
-                                        <td>{{ feedpub.comments }}</td>
-                                        <td>
-                                            {% for doc in feedpub.documents_short %}
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
-                                            </div>
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% if may_update_publication_feedback_draft == "True" %} 
-                                            <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Change
-                                            </a>
-                                            <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Delete 
-                                            </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                </table>
-                                {% else %}
-                                <p>None</p>
-                                {% endif %}
-                                {% if may_update_publication_feedback_draft == "True" %}
-                                <a href="{% url 'application_add_feedbackpublication_draft' object.pk 'draft' %}" class="btn btn-primary" role="button">
-                                    Add Feedback
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-4">                                                                                                                                                                                                                          <label>Signed copy (signed by DG) of draft report</label>
-                            </div>
-                            <div class="col-lg-4"> 
-                                {% if object.document_final.upload.name %}
-                                <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
-                                {% else %}
-                                No Attachment
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-10">
-                                Publish signed report on website
-                            </div>
-                            <div class="col-lg-2 align-right text-right">
-                                <td>
-                                    {% if object.publish_draft_report %}
-                                    <a href="javascript:void();" class="btn btn-primary" role="button">
-                                        Published on the {{ object.publish_draft_report }}
-                                    </a>
-                                    {% else %}
-                                    {% if may_update_publication_feedback_final == "True" %}
-                                    <a href="{% url 'application_publish_documents' object.pk 'draft' %}" class="btn btn-primary" role="button">
-                                        Publish 
-                                    </a>
-                                    {% endif %}
-                                    {% endif %}
-                                </td>
-
-                            </div>
-                        </div>
-                    </div>
-                    {% if hidden.publication_feedback_final == "False" %}
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-12">
-                                <label>Received Feedback (Final)</label>
-                            </div>
-                            <div class="panel-body">
-                                {% if publication_feedback %}
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Documents</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
-
-                                    </tr>
-                                    {% for feedpub in publication_feedback %}
-                                    {% if feedpub.status == 'final' %}
-                                    <tr>
-                                        <td>{{ feedpub.name }}</td>
-                                        <td>{{ feedpub.comments }}</td>
-                                        <td>
-                                            {% for doc in feedpub.documents_short %}
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
-                                            </div>
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% if may_update_publication_feedback_final == "True" %}
-                                            <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Change
-                                            </a>
-                                            <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Delete
-                                            </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                </table>
-                                {% else %}
-                                <p>None</p>
-                                {% endif %}
-                                {% if may_update_publication_feedback_final == "True" %}
-                                <a href="{% url 'application_add_feedbackpublication_final' object.pk 'final' %}" class="btn btn-primary" role="button">
-                                    Add Feedback
-                                </a>
-                                {% endif %}
-
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-4">
-                                <label>Signed copy (signed by DG) of final report</label>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="col-lg-4">
-                                    {% if object.document_final %}
-                                    <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
-                                    {% else %}
-                                        No Attachment
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-10">
-                                Publish signed report on website
-                            </div>
-                            <div class="col-lg-2 align-right text-right">
-                                <td>
-                                    {% if object.publish_final_report %}
-                                    <a href="javascript:void();" class="btn btn-primary" role="button">
-                                        Published on the {{ object.publish_final_report }}
-                                    </a>
-                                    {% else %}
-                                    {% if may_update_publication_feedback_final == "True" %}
-                                    <a href="{% url 'application_publish_documents' object.pk 'final' %}" class="btn btn-primary" role="button">
-                                        Publish
-                                    </a>
-                                    {% endif %}
-                                    {% endif %}
-                                </td>
-                            </div>
-
-                        </div>
-                    </div>
-                     {% endif %}
-
-                </div>
-            </div>
+                {% include "applications/application_publication.html" %}
             {% endif %}
+
             {% if hidden.stakeholdercommunication == "False" %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="stakeholder_communication_heading">
@@ -892,10 +566,10 @@
                                 <label><u>Draft Report</u></label>
                             </div>
                             <div class="col-lg-12">
-                                <div class="col-lg-6">
+                                <div class="col-lg-3">
                                     Current Version of Report
                                 </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-9">
                                     {% if object.document_draft %}
                                     <A HREF='/media/{{ object.document_draft.upload }}'>Assessment Report.PDF</A>
                                     {% else %}
@@ -905,16 +579,33 @@
                                 </div>
                             </div>
 
-                        </div>
+                        
 
                         <div class="col-lg-12">
-                            <div class="col-lg-6">
+                            <div class="col-lg-3">
                                 <label> Start Date</label>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-9">
                                 {{ object.assessment_start_date }}
                             </div>
                         </div>
+
+                        {% if hidden.swanriverpostaladdress == "False" %}
+                        <div class="col-lg-12">
+                            <div class="col-lg-3">
+                                <label>To be posted to:</Label>
+
+                            </div>
+                            <div class="col-lg-9">
+                                <strong>
+                                Swan River Trust Board, attn Peter Secretary <BR>
+                                PO Box 3344<br>
+                                Perth WA 6000<br>
+                                </strong>
+                            </div>
+                        </div>   
+            
+                        {% endif %}
 
                         {% if may_update_assessment_draft == "True" %}
                         <a href="{% url 'application_update' object.pk %}" class="btn btn-primary" role="button">
@@ -979,7 +670,7 @@
                     </div>
         
             
-
+            </div>
                 </div>		
 
 

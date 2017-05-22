@@ -279,7 +279,7 @@
             "details_of_proposed_development": "True",
             "landowner_consent":"True",
             "publication": "True",
-            "referrals": "False",
+            "referrals": "True",
             "deed": "True",
             "conditions": "False",
             "assessments": "False"
@@ -558,7 +558,8 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "swanriverpostaladdress": "False"
 
         },
         "actions": [
