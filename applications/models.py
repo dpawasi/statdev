@@ -160,6 +160,7 @@ class Application(models.Model):
     document_new_draft_v3 = models.ForeignKey(Document, null=True, blank=True, related_name='document_newdraftv3')
     document_draft_signed = models.ForeignKey(Document, null=True, blank=True, related_name='document_draft_signed')
     document_final = models.ForeignKey(Document, null=True, blank=True, related_name='document_final')
+    document_final_signed = models.ForeignKey(Document, null=True, blank=True, related_name='document_final_signed')
     document_determination = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination')
     document_completion = models.ForeignKey(Document, null=True, blank=True, related_name='document_completion')
     publish_documents = models.DateField(null=True, blank=True)

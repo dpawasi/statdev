@@ -201,7 +201,7 @@
 
 
                     <div class="panel-body">
-                        {% if may_publish_publication_feedback_draft == "True" %}
+                        {% if hidden.publish_publication_feedback_draft == "False" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-4">  
                                 <label>Signed copy (signed by DG) of draft report</label>
@@ -210,7 +210,11 @@
                                 {% if object.document_draft_signed.upload.name %}
                                 <A HREF='/media/{{ object.document_draft_signed.upload.name }}'>Signed Document.pdf</A>
                                 {% else %}
+                                {% if hidden.may_publish_publication_feedback_draft == "True" %}
                                 <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
+                                {% else %}
+                                No Attachment
+                                {% endif %}
                                 {% endif %}
                             </div>
                         </div>
@@ -236,6 +240,7 @@
                         </div>
                         {% endif %}
                     </div>
+
                     {% if hidden.publication_feedback_final == "False" %}
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
@@ -249,7 +254,6 @@
                                         <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
                                         <th class="col-sm-3 col-md-3 col-lg-3">Documents</th>
                                         <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
-
                                     </tr>
                                     {% if publication_feedback %}
                                     {% for feedpub in publication_feedback %}
@@ -294,7 +298,7 @@
                     </div>
 
                     <div class="panel-body">
-                        {% if may_publish_publication_feedback_final == "True" %}
+                        {% if hidden.publication_feedback_final == "False" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-4">
                                 <label>Signed copy (signed by DG) of final report</label>
@@ -303,8 +307,13 @@
                                 <div class="col-lg-4">
                                     {% if object.document_final %}
                                     <A HREF='/media/{{ object.document_final.upload.name }}'>Signed Document.pdf</A>
+                                    
                                     {% else %}
-                                        No Attachment
+                                        {% if may_publish_publication_feedback_final == "True" %}
+                                            <A HREF="{% url 'application_update' object.pk %}">Attach File</A> 
+                                        {% else %}
+                                            No Attachment
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
