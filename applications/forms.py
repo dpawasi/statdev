@@ -225,6 +225,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_draft_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_final_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
@@ -232,6 +233,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
     document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
+
 
     class Meta:
         model = Application

@@ -484,7 +484,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['document_draft_signed'] = app.document_draft_signed.upload
         if app.document_draft:
             initial['document_draft'] = app.document_draft.upload
-
+        if app.document_final_signed:
+            initial['document_final_signed'] = app.document_final_signed.upload
 #        if app.proposed_development_plans:
 #           initial['proposed_development_plans'] = app.proposed_development_plans.upload
 
@@ -587,7 +588,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_new_draft_v3 = None
         if 'document_memo-clear' in form.data and self.object.document_memo:
             self.object.document_memo = None
-
+        if 'document_final_signed-clear' in form.data and self.object.document_final_signed:
+            self.object.document_final_signed = None
 
         # Upload New Files
         if self.request.FILES.get('cert_survey'):  # Uploaded new file.
@@ -765,6 +767,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.upload = self.request.FILES['document_final']
             new_doc.save()
             self.object.document_final = new_doc
+
+        if self.request.FILES.get('document_final_signed'):
+            if Attachment_Extension_Check('single',forms_data['document_final_signed'],None) is False:
+                raise ValidationError('Final Signed contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_final_signed']
+            new_doc.save()
+            self.object.document_final_signed = new_doc
 
         if self.request.FILES.get('swan_river_trust_board_feedback'):
             if Attachment_Extension_Check('single',forms_data['swan_river_trust_board_feedback'],None) is False:
