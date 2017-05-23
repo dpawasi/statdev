@@ -75,7 +75,10 @@
             "document_final": "hide",
             "document_determination": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "assessment_start_date": "hide",
+            "document_new_draft": "hide",
+            "document_draft_signed" : "hide",
+            "swan_river_trust_board_feedback": "hide"
         }
     },
     "2": {
@@ -180,7 +183,8 @@
             "document_completion": "hide",
             "assessment_start_date": "hide",
             "document_draft" : "hide",
-            "document_new_draft": "hide"
+            "document_new_draft": "hide",
+            "document_draft_signed" : "hide"
 
         },
         "required": [
@@ -209,6 +213,7 @@
             "assessments_draft_report_after_public_consultation":"True",
             "assessments_determination_and_breifing_note":"True",
             "may_create_condition": "True"
+
         },
         "actions": [
             {
@@ -309,7 +314,9 @@
             "river_lease_scan_of_application":"hide",
             "deed":"hide",
             "document_determination":"hide",
-            "document_new_draft": "hide"
+            "document_new_draft": "hide",
+            "document_draft_signed" : "hide",
+            "swan_river_trust_board_feedback": "hide"
         },
         "required": [
             "assessment_start_date",
@@ -410,7 +417,7 @@
         },
         "actions": [
             {
-                "title": "Approve to Exec Officer",
+                "title": "Approve to Exec Officer (Swan River)",
                 "route": "7",
                 "routegroup": "exec",
                 "state": "13"
@@ -439,6 +446,7 @@
                 "may_assign_assessor": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
+
             },
             "Assessor":{
             },
@@ -542,7 +550,7 @@
         }
     },
     "7": {
-        "title": "Executive Officer",
+        "title": "Executive Officer (Swan River)",
         "hidden": {
             "applicant": "False",
             "title": "False",
@@ -644,7 +652,6 @@
             }
         ],
 		"formcomponent": {
-
                 "update": {
                     "title": "Attach Board Feedback",
                     "required": ["swan_river_trust_board_feedback"]
@@ -712,7 +719,8 @@
             "document_determination":"hide",
 			"assessment_start_date": "hide",
 			"document_draft": "hide",
-            "document_new_draft": "hide"
+            "document_new_draft": "hide",
+            "document_draft_signed": "hide"
 
         },
         "required": [
@@ -747,7 +755,6 @@
                 "route": "10",
                 "routegroup": "manager",
                 "state": "5"
-
             }
         ],
         "groupaccess": {
@@ -813,6 +820,7 @@
             "document_determination":"hide",
             "assessment_start_date": "hide",
             "document_draft": "hide",
+            "document_draft_signed": "hide",
             "swan_river_trust_board_feedback": "hide"
         }
     },
@@ -1064,7 +1072,8 @@
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
-            "assessments_new_draft": "False"
+            "assessments_new_draft": "False",
+            "publication_feedback_final" : "False"
             
         },
         "actions": [
@@ -1072,10 +1081,18 @@
                 "title": "Assign to Assessor (Public)",
                 "route": "14",
                 "routegroup": "assess",
-                "state": "4"
+                "state": "4",
+                "required": ["document_draft_signed","publish_draft_report"]
 
             }
         ],
+        "formcomponent": {
+             "update": {
+                "title": "Attached Signed Draft",
+                "required": ["document_draft_signed"]
+            }
+
+        },
         "groupaccess": {
             "Processor": {
                 "may_update": "True",
@@ -1089,7 +1106,9 @@
                 "may_assign_assessor": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_view_action_log": "True"
+                "may_view_action_log": "True",
+                "may_publish_publication_feedback_draft": "True",
+                "may_update_publication_feedback_final" : "True"
             },
             "Assessor":{
             }
@@ -1141,7 +1160,8 @@
             "assessment_start_date" : "hide",
             "document_new_draft" : "hide",
             "swan_river_trust_board_feedback" : "hide"
-        }
+        },
+        "required": ["document_draft_signed"]
     },
     "14": {
         "title": "Assessor (Public)",
@@ -1192,7 +1212,7 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
-                "may_assign_exec": "False",
+                "may_assign_exec": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_publish_publication_feedback_draft": "True"
