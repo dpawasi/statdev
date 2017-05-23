@@ -179,7 +179,8 @@
             "document_determination": "hide",
             "document_completion": "hide",
             "assessment_start_date": "hide",
-            "document_draft" : "hide"
+            "document_draft" : "hide",
+            "document_new_draft": "hide"
 
         },
         "required": [
@@ -307,7 +308,8 @@
             "document_completion":"hide",
             "river_lease_scan_of_application":"hide",
             "deed":"hide",
-            "document_determination":"hide"
+            "document_determination":"hide",
+            "document_new_draft": "hide"
         },
         "required": [
             "assessment_start_date",
@@ -627,7 +629,8 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False"
 
         },
         "actions": [
@@ -708,7 +711,8 @@
             "deed":"hide",
             "document_determination":"hide",
 			"assessment_start_date": "hide",
-			"document_draft": "hide"
+			"document_draft": "hide",
+            "document_new_draft": "hide"
 
         },
         "required": [
@@ -732,7 +736,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -746,7 +752,7 @@
         ],
         "groupaccess": {
             "Assessor": {
-                "may_update": "False",
+                "may_update": "True",
                 "may_lodge":"False",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -780,7 +786,34 @@
         },
 
         "fields": {
-
+         	"title": "hide",
+            "description": "hide",
+            "cost": "hide",
+            "project_no": "hide",
+            "river_lease_require_river_lease":"hide",
+            "river_lease_reserve_licence": "hide",
+            "river_lease_application_number":"hide",
+            "proposed_development_description":"hide",
+            "proposed_development_current_use_of_land":"hide",
+            "certificate_of_title_volume":"hide",
+            "folio":"hide",
+            "diagram_plan_deposit_number":"hide",
+            "location":"hide",
+            "reserve_number":"hide",
+            "street_number_and_name":"hide",
+            "town_suburb":"hide",
+            "lot":"hide",
+            "nearest_road_intersection":"hide",
+            "land_owner_consent":"hide",
+            "proposed_development_plans":"hide",
+            "document_final":"hide",
+            "document_completion":"hide",
+            "river_lease_scan_of_application":"hide",
+            "deed":"hide",
+            "document_determination":"hide",
+            "assessment_start_date": "hide",
+            "document_draft": "hide",
+            "swan_river_trust_board_feedback": "hide"
         }
     },
     "10": {
@@ -800,8 +833,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
-
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
         },
         "actions": [
             {
@@ -876,7 +910,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -930,6 +966,7 @@
             "deed": "True",
             "conditions": "False",
             "assessments": "False"
+
         },
 
         "fields": {
@@ -953,7 +990,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1023,8 +1062,10 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
-
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
+            
         },
         "actions": [
             {
@@ -1071,7 +1112,35 @@
         },
 
         "fields": {
-
+  			"title": "hide",
+            "description": "hide",
+            "cost": "hide",
+            "project_no": "hide",
+            "river_lease_require_river_lease":"hide",
+            "river_lease_reserve_licence": "hide",
+            "river_lease_application_number":"hide",
+            "proposed_development_description":"hide",
+            "proposed_development_current_use_of_land":"hide",
+            "certificate_of_title_volume":"hide",
+            "folio":"hide",
+            "diagram_plan_deposit_number":"hide",
+            "location":"hide",
+            "reserve_number":"hide",
+            "street_number_and_name":"hide",
+            "town_suburb":"hide",
+            "lot":"hide",
+            "nearest_road_intersection":"hide",
+            "land_owner_consent":"hide",
+            "proposed_development_plans":"hide",
+            "document_final":"hide",
+            "document_completion":"hide",
+            "river_lease_scan_of_application":"hide",
+            "deed":"hide",
+            "document_determination":"hide",
+            "document_draft": "hide",
+            "assessment_start_date" : "hide",
+            "document_new_draft" : "hide",
+            "swan_river_trust_board_feedback" : "hide"
         }
     },
     "14": {
@@ -1091,7 +1160,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1123,7 +1194,10 @@
                 "may_assign_assessor": "False",
                 "may_assign_exec": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_publish_publication_feedback_draft": "True"
+                
+
             },
 			"Processor": {
                 "may_view_action_log": "True"
@@ -1139,16 +1213,19 @@
             "river_reserve_lease_section_32": "True",
             "details_of_proposed_development": "True",
             "landowner_consent":"True",
-            "publication": "True",
-            "referrals": "False",
+            "publication": "False",
+            "referrals": "True",
             "deed": "True",
-            "conditions": "False",
-            "assessments": "False"
+            "conditions": "True",
+            "assessments": "True"
         },
 
         "fields": {
 
-        }
+        },
+        "required": [
+          "document_draft_signed"
+        ]
     },
     "15": {
         "title": "Manager (Public)",
@@ -1167,7 +1244,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1246,7 +1325,10 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
+            
 
         },
         "actions": [
@@ -1322,7 +1404,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1364,11 +1448,11 @@
             "river_reserve_lease_section_32": "True",
             "details_of_proposed_development": "True",
             "landowner_consent":"True",
-            "publication": "True",
-            "referrals": "False",
+            "publication": "False",
+            "referrals": "True",
             "deed": "True",
-            "conditions": "False",
-            "assessments": "False"
+            "conditions": "True",
+            "assessments": "True"
         },
 
         "fields": {
@@ -1392,7 +1476,11 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False",
+            "publication_feedback_final" : "False"
+            
 
         },
         "actions": [
@@ -1458,7 +1546,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1530,7 +1620,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1616,7 +1708,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1692,7 +1786,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [
@@ -1760,7 +1856,8 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False"
 
         },
         "actions": [
@@ -1830,7 +1927,9 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False"
+            "assessments_draft_report": "False",
+            "assessments_swan_river_trust_board_feedback": "False",
+            "assessments_new_draft": "False"
 
         },
         "actions": [

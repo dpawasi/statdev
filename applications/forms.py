@@ -223,6 +223,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
     document_new_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    document_draft_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
