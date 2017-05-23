@@ -201,6 +201,7 @@
 
 
                     <div class="panel-body">
+                        {% if may_publish_publication_feedback_draft == "True" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-4">  
                                 <label>Signed copy (signed by DG) of draft report</label>
@@ -224,16 +225,16 @@
                                         Published on the {{ object.publish_draft_report }}
                                     </a>
                                     {% else %}
-                                    {% if may_publish_publication_feedback_draft == "True" %}
+                                    {% if object.document_draft_signed.upload.name %}
                                     <a href="{% url 'application_publish_documents' object.pk 'draft' %}" class="btn btn-primary" role="button">
                                         Publish
                                     </a>
                                     {% endif %}
                                     {% endif %}
                                 </td>
-
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                     {% if hidden.publication_feedback_final == "False" %}
                     <div class="panel-body">
@@ -293,6 +294,7 @@
                     </div>
 
                     <div class="panel-body">
+                        {% if may_publish_publication_feedback_final == "True" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-4">
                                 <label>Signed copy (signed by DG) of final report</label>
@@ -318,7 +320,7 @@
                                         Published on the {{ object.publish_final_report }}
                                     </a>
                                     {% else %}
-                                    {% if may_update_publication_feedback_final == "True" %}
+                                    {% if object.document_final_signed.upload.name %}
                                     <a href="{% url 'application_publish_documents' object.pk 'final' %}" class="btn btn-primary" role="button">
                                         Publish
                                     </a>
@@ -326,8 +328,8 @@
                                     {% endif %}
                                 </td>
                             </div>
-
                         </div>
+                        {% endif %}
                    </div>
                      {% endif %}
 
