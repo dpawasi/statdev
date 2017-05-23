@@ -233,7 +233,8 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
     document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
-
+    document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
+    document_breifing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Breifing Note')
 
     class Meta:
         model = Application

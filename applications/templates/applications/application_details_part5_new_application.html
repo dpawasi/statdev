@@ -691,7 +691,12 @@
                                     Determination
                                 </div>
                                 <div class="col-lg-9">
-                                    <A HREF='{% url 'application_update' object.pk %}'>Attach document</A>
+                                    {% if object.document_determination %}
+                                       <A HREF='/media/{{ object.document_determination.upload }}'>Determination.PDF</A>
+                                    {% else %}
+                                        <A HREF="{% url 'application_update' object.pk %}">{% if may_update == "True" %}Attach File{% else %}No Attachment{% endif %}</A>
+                                    {% endif %}
+ 
                                 </div>
 
                             </div>
@@ -700,7 +705,11 @@
                                     Briefing Note 
                                 </div>
                                 <div class="col-lg-9">
-                                    <A HREF='{% url 'application_update' object.pk %}'>Attach document</A>
+									{% if object.document_breifing_note %}
+                                       <A HREF='/media/{{ object.document_breifing_note.upload }}'>Breifing.PDF</A>
+                                    {% else %}
+                                        <A HREF="{% url 'application_update' object.pk %}">{% if may_update == "True" %}Attach File{% else %}No Attachment{% endif %}</A>
+                                    {% endif %}
                                 </div>
 
                             </div>

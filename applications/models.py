@@ -172,7 +172,6 @@ class Application(models.Model):
     group = models.ForeignKey(Group, null=True, blank=True, related_name='application_group_assignment')
     swan_river_trust_board_feedback = models.ForeignKey(Document, null=True, blank=True, related_name='document_swan_river_board_feedback')
     document_memo = models.ForeignKey(Document, null=True, blank=True, related_name='document_memo')
-    document_determination = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination')
     document_breifing_note = models.ForeignKey(Document, null=True, blank=True, related_name='document_breifing_note')
     document_determination_approved = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination_approved')
 
