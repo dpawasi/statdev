@@ -10,6 +10,7 @@ from accounts.models import Organisation
 from datetime import datetime
 from django.contrib.auth.models import Group
 
+
 @python_2_unicode_compatible
 class Document(models.Model):
     """This model represents a document or record that needs to be saved for
@@ -92,11 +93,11 @@ class Application(models.Model):
         (7, 'issued_with_admin', ('Issued (with admin)')),
         (8, 'declined', ('Declined')),
         (9, 'new', ('New')),
-        (10,'approved',('Approved')),
-        (11 ,'expird', ('Expired')),
-        (12 ,'with_director',('With Director')),
-        (13 ,'with_exec', ('With Executive')),
-        (14 ,'completed', ('Completed'))
+        (10, 'approved', ('Approved')),
+        (11, 'expird', ('Expired')),
+        (12, 'with_director', ('With Director')),
+        (13, 'with_exec', ('With Executive')),
+        (14, 'completed', ('Completed'))
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
@@ -164,11 +165,10 @@ class Application(models.Model):
     publish_documents = models.DateField(null=True, blank=True)
     publish_draft_report = models.DateField(null=True, blank=True)
     publish_final_report = models.DateField(null=True, blank=True)
-    routeid = models.IntegerField(null=True, blank=True, default=1) 
+    routeid = models.IntegerField(null=True, blank=True, default=1)
     assessment_start_date = models.DateField(null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True, related_name='application_group_assignment')
     swan_river_trust_board_feedback = models.ForeignKey(Document, null=True, blank=True, related_name='document_swan_river_board_feedback')
-    
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -351,14 +351,10 @@ class Compliance(models.Model):
 
 
 class Communication(models.Model):
-      """This model represents the communication model 
-      """
-      application = models.ForeignKey(Application, on_delete=models.PROTECT)
-      details = models.TextField(blank=True, null=True)
-      documents = models.ManyToManyField(Document, blank=True, related_name='communication_docs')
-      state = models.IntegerField() # move to foreign key once APP_STATE_CHOICES becomes a model 
-      created = models.DateTimeField(("Date"), default=datetime.now())
-
-
-
-
+    """This model represents the communication model
+    """
+    application = models.ForeignKey(Application, on_delete=models.PROTECT)
+    details = models.TextField(blank=True, null=True)
+    documents = models.ManyToManyField(Document, blank=True, related_name='communication_docs')
+    state = models.IntegerField()  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(("Date"), default=datetime.now())
