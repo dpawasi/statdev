@@ -476,11 +476,15 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_new_draft:
             initial['document_new_draft'] = app.document_new_draft.upload
+        if app.document_memo:
+            initial['document_memo'] = app.document_memo.upload
+        if app.document_new_draft_v3:
+            initial['document_new_draft_v3'] = app.document_new_draft_v3.upload
         if app.document_draft_signed:
             initial['document_draft_signed'] = app.document_draft_signed.upload
-
         if app.document_draft:
             initial['document_draft'] = app.document_draft.upload
+
 #        if app.proposed_development_plans:
 #           initial['proposed_development_plans'] = app.proposed_development_plans.upload
 
@@ -579,6 +583,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.deed = None
         if 'swan_river_trust_board_feedback-clear' in form.data and self.object.swan_river_trust_board_feedback:
             self.object.swan_river_trust_board_feedback = None
+        if 'document_new_draft_v3-clear' in form.data and self.object.document_new_draft_v3:
+            self.object.document_new_draft_v3 = None
+        if 'document_memo-clear' in form.data and self.object.document_memo:
+            self.object.document_memo = None
+
 
         # Upload New Files
         if self.request.FILES.get('cert_survey'):  # Uploaded new file.
@@ -723,6 +732,22 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.upload = self.request.FILES['document_new_draft']
             new_doc.save()
             self.object.document_new_draft = new_doc
+
+        if self.request.FILES.get('document_new_draft_v3'):
+            if Attachment_Extension_Check('single',forms_data['document_new_draft_v3'],None) is False:
+                raise ValidationError('Draft V3 contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_new_draft_v3']
+            new_doc.save()
+            self.object.document_new_draft_v3 = new_doc
+
+        if self.request.FILES.get('document_memo'):
+            if Attachment_Extension_Check('single',forms_data['document_memo'],None) is False:
+                raise ValidationError('Memo contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_memo']
+            new_doc.save()
+            self.object.document_memo = new_doc
 
         if self.request.FILES.get('document_draft_signed'):
             if Attachment_Extension_Check('single',forms_data['document_draft_signed'],None) is False:

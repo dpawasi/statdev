@@ -230,6 +230,8 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
     swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
+    document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
 
     class Meta:
         model = Application

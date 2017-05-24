@@ -158,8 +158,10 @@ class Application(models.Model):
     proposed_development_description = models.TextField(null=True, blank=True)
     document_draft = models.ForeignKey(Document, null=True, blank=True, related_name='document_draft')
     document_new_draft = models.ForeignKey(Document, null=True, blank=True, related_name='document_newdraft')
+    document_new_draft_v3 = models.ForeignKey(Document, null=True, blank=True, related_name='document_newdraftv3')
     document_draft_signed = models.ForeignKey(Document, null=True, blank=True, related_name='document_draft_signed')
     document_final = models.ForeignKey(Document, null=True, blank=True, related_name='document_final')
+    document_final_signed = models.ForeignKey(Document, null=True, blank=True, related_name='document_final_signed')
     document_determination = models.ForeignKey(Document, null=True, blank=True, related_name='document_determination')
     document_completion = models.ForeignKey(Document, null=True, blank=True, related_name='document_completion')
     publish_documents = models.DateField(null=True, blank=True)
@@ -169,6 +171,7 @@ class Application(models.Model):
     assessment_start_date = models.DateField(null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True, related_name='application_group_assignment')
     swan_river_trust_board_feedback = models.ForeignKey(Document, null=True, blank=True, related_name='document_swan_river_board_feedback')
+    document_memo = models.ForeignKey(Document, null=True, blank=True, related_name='document_memo')
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
