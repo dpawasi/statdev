@@ -488,6 +488,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['document_final_signed'] = app.document_final_signed.upload
         if app.document_breifing_note:
             initial['document_breifing_note'] = app.document_breifing_note.upload
+        
+        if app.document_determination_approved:
+            initial['document_determination_approved'] =  app.document_determination_approved.upload
 
 #        if app.proposed_development_plans:
 #           initial['proposed_development_plans'] = app.proposed_development_plans.upload
@@ -724,6 +727,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if self.request.POST.get('document_draft_signed-clear'):
             self.object.document_draft_signed = None
 
+        if self.request.POST.get('document_determination_approved-clear'):
+            self.object.document_determination_approved = None
+
         if self.request.FILES.get('document_draft'):
             if Attachment_Extension_Check('single',forms_data['document_draft'],None) is False:
                 raise ValidationError('Draft contains and unallowed attachment extension.')
@@ -814,6 +820,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.upload = self.request.FILES['document_determination']
             new_doc.save()
             self.object.document_determination = new_doc
+
+        if self.request.FILES.get('document_determination_approved'):
+            if Attachment_Extension_Check('single',forms_data['document_determination_approved'],None) is False:
+                raise ValidationError('Determination contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.upload = self.request.FILES['document_determination_approved']
+            new_doc.save()
+            self.object.document_determination_approved = new_doc
 
         if self.request.FILES.get('document_breifing_note'):
             if Attachment_Extension_Check('single',forms_data['document_breifing_note'],None) is False:
@@ -1849,7 +1863,7 @@ class WebPublish(LoginRequiredMixin, UpdateView):
         elif publish_type in 'final':
             self.object.publish_final_report = current_date
         elif publish_type in 'determination':
-            initial['publish_determination_report'] = current_date
+            self.object.publish_determination_report = current_date
 
         return super(WebPublish, self).form_valid(form)
 

@@ -81,7 +81,9 @@
             "swan_river_trust_board_feedback": "hide",
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
-            "document_memo" : "hide"
+            "document_memo" : "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" : "hide"
 
         }
     },
@@ -111,7 +113,7 @@
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4",
-                "required": ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents"]
+                "required": ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
 
 
             },
@@ -119,7 +121,8 @@
                 "title": "Send to Referrals",
                 "route": "4",
                 "routegroup": "referral",
-                "state": "3"
+                "state": "3",
+                "required" : ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
 
 
             },
@@ -191,7 +194,8 @@
             "document_draft_signed" : "hide",
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
-            "document_memo" : "hide"
+            "document_memo" : "hide",
+            "document_determination_approved" : "hide"
         },
         "required": [
             "title",
@@ -325,7 +329,9 @@
             "swan_river_trust_board_feedback": "hide",
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
-            "document_memo" : "hide"
+            "document_memo" : "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" :"hide"
 
         },
         "required": [
@@ -649,7 +655,6 @@
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False"
-
         },
         "actions": [
             {
@@ -732,9 +737,10 @@
             "document_new_draft": "hide",
             "document_draft_signed": "hide",
             "document_final_signed": "hide",
-                        "document_new_draft_v3" : "hide",
-                                    "document_memo" : "hide"
-
+            "document_new_draft_v3" : "hide",
+            "document_memo" : "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" :"hide"
 
         },
         "required": [
@@ -838,7 +844,9 @@
             "swan_river_trust_board_feedback": "hide",
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
-            "document_memo" : "hide"
+            "document_memo" : "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" :"hide"
 
         }
     },
@@ -1094,7 +1102,6 @@
             "publication_feedback_final" : "False",
             "publish_publication_feedback_draft" : "False",
             "publish_publication_feedback_final" : "True"
-            
         },
         "actions": [
             {
@@ -1128,7 +1135,8 @@
                 "may_generate_pdf": "False",
                 "may_view_action_log": "True",
                 "may_publish_publication_feedback_draft": "True",
-                "may_update_publication_feedback_draft": "True"
+                "may_update_publication_feedback_draft": "False",
+                "may_update_publication_feedback_final": "True"
             },
             "Assessor":{
             }
@@ -1182,8 +1190,9 @@
             "swan_river_trust_board_feedback" : "hide",
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
-             "document_memo" : "hide"
-
+            "document_memo" : "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" :"hide"
         },
         "required": ["document_draft_signed"]
     },
@@ -1292,7 +1301,9 @@
             "document_new_draft" : "hide",
             "swan_river_trust_board_feedback" : "hide",
 			"document_draft_signed": "hide",
-            "document_final_signed": "hide"
+            "document_final_signed": "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" :"hide"
         },
         "required": ["document_memo"]
 
@@ -1649,7 +1660,9 @@
             "swan_river_trust_board_feedback" : "hide",
             "document_draft_signed": "hide",
 			"document_new_draft_v3": "hide",
-			"document_memo": "hide"
+			"document_memo": "hide",
+            "document_breifing_note" : "hide",
+            "document_determination_approved" :"hide"
         }
     },
     "19": {
@@ -1761,7 +1774,8 @@
             "document_draft_signed": "hide",
             "document_new_draft_v3": "hide",
             "document_memo": "hide",
-            "document_final_signed": "hide"
+            "document_final_signed": "hide",
+            "document_determination_approved" :"hide"
         }
     },
     "20": {
@@ -1781,10 +1795,15 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False",
+			"assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
-            "assessments_new_draft": "False"
-
+            "assessments_new_draft": "False",
+            "publication_feedback_final" : "False",
+            "publish_publication_feedback_draft": "False",
+            "publication_feedback_final" :"False",
+            "publication_feedback_determination": "True",
+            "assessments_draft_report_after_public_consultation": "False",
+            "assessments_determination_and_breifing_note": "False"
         },
         "actions": [
             {
@@ -1853,8 +1872,8 @@
         }
     },
     "21": {
-        "title": "Director (Determination)",
-        "hidden": {
+        "title" : "Director (Determination)",
+        "hidden" : {
             "applicant": "False",
             "title": "False",
             "certificate_commerical_acts_and_activities": "False",
@@ -1869,10 +1888,15 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False",
+			"assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
-            "assessments_new_draft": "False"
-
+            "assessments_new_draft": "False",
+            "publication_feedback_final" : "False",
+            "publish_publication_feedback_draft": "False",
+            "publication_feedback_final" :"False",
+            "publication_feedback_determination": "True",
+            "assessments_draft_report_after_public_consultation": "False",
+            "assessments_determination_and_breifing_note": "False"
         },
         "actions": [
             {
@@ -1880,14 +1904,12 @@
                 "route": "20",
                 "routegroup": "manager",
                 "state": "5"
-
             },
             {
                 "title": "Approve to Exec Officer (Determination)",
                 "route": "22",
                 "routegroup": "exec",
                 "state": "13"
-
             }
         ],
         "groupaccess": {
@@ -1947,10 +1969,15 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False",
+			"assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
-            "assessments_new_draft": "False"
-
+            "assessments_new_draft": "False",
+            "publication_feedback_final" : "False",
+            "publish_publication_feedback_draft": "False",
+            "publication_feedback_final" :"False",
+            "publication_feedback_determination": "True",
+            "assessments_draft_report_after_public_consultation": "False",
+            "assessments_determination_and_breifing_note": "False"
         },
         "actions": [
             {
@@ -2025,21 +2052,25 @@
             "publication_feedback_final" :"False",
             "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_breifing_note": "False"
-
+            "assessments_determination_and_breifing_note": "False",
+			"publish_publication_feedback_determination": "False",
+			"publication_feedback_determination" : "False",
+            "publish_publication_feedback_determination" :"False",
+            "publication_feedback_final" : "False",
+            "publish_publication_feedback_final" : "False"
         },
         "actions": [
             {
                 "title": "Completed (Close Application)",
                 "route": "24",
                 "routegroup": "admin",
-                "state": "14"
-
+                "state": "14",
+                "required" : ["document_determination_approved","publish_determination_report"]
             }
         ],
         "groupaccess": {
             "Processor": {
-                "may_update": "False",
+                "may_update": "True",
                 "may_lodge":"False",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -2049,12 +2080,11 @@
                 "may_submit_approval": "False",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_publish_publication_feedback_determination": "True",
+                "may_view_action_log": "True"
             },
             "Assessor":{
-            },
-			"Processor": {
-                "may_view_action_log": "True"
             }
         },
 
@@ -2067,11 +2097,11 @@
             "river_reserve_lease_section_32": "True",
             "details_of_proposed_development": "True",
             "landowner_consent":"True",
-            "publication": "True",
-            "referrals": "False",
+            "publication": "False",
+            "referrals": "True",
             "deed": "True",
-            "conditions": "False",
-            "assessments": "False"
+            "conditions": "True",
+            "assessments": "True"
         },
         "fields": {
             "title": "hide",
@@ -2105,7 +2135,10 @@
             "document_draft_signed": "hide",
             "document_new_draft_v3": "hide",
             "document_memo": "hide",
-            "document_final_signed": "hide"
+            "document_final_signed": "hide",
+            "document_breifing_note": "hide",
+            "document_determination" : "hide"
+
         }
 
 
@@ -2113,7 +2146,7 @@
     },
     "24": {
         "title": "Completed",
-        "hidden": {
+		"hidden": {
             "applicant": "False",
             "title": "False",
             "certificate_commerical_acts_and_activities": "False",
@@ -2130,8 +2163,18 @@
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
-            "assessments_new_draft": "False"
-
+            "assessments_new_draft": "False",
+            "publication_feedback_final" : "False",
+            "publish_publication_feedback_draft": "False",
+            "publication_feedback_final" :"False",
+            "publication_feedback_determination": "True",
+            "assessments_draft_report_after_public_consultation": "False",
+            "assessments_determination_and_breifing_note": "False",
+            "publish_publication_feedback_determination": "False",
+            "publication_feedback_determination" : "False",
+            "publish_publication_feedback_determination" :"False",
+            "publication_feedback_final" : "False",
+            "publish_publication_feedback_final" : "False"
         },
         "actions": [
         ],

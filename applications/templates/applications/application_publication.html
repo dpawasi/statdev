@@ -66,6 +66,7 @@
                             <div class="col-lg-10">
                                 <label>Application published on Department's website </label>
                             </div>
+                            
                             <div class="col-lg-2 align-right text-right">
                                 <td>
                                     {% if object.publish_documents %}
@@ -107,13 +108,17 @@
                                         <td>
                                             <A HREF='/media/{{ origdoc.publish_doc }}'>{{ origdoc.publish_doc_short }}</A>
                                         </td>
-                                        {% if may_update_publication_website == "True" %}
                                         <td>
+                                        {% if workflow_actions %}
+                                        {% if may_update_publication_website == "True" %}
+                                        
                                             <a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
                                                 Attach / Change
                                             </a>
-                                        </td>
+                                       
                                         {% endif %}
+                                        {% endif %}
+                                        </td>
                                     </tr>
 
                                     {% endfor %}
@@ -407,8 +412,8 @@
                             </div>
                             <div class="col-lg-9">
                                 <div class="col-lg-12">
-                                    {% if object.document_final_signed %}
-                                    <A HREF='/media/{{ object.document_final_signed.upload.name }}'>Signed Document.pdf</A>
+                                    {% if object.document_determination_approved %}
+                                    <A HREF='/media/{{ object.document_determination_approved.upload.name }}'>Signed Document.pdf</A>
                                     {% else %}
                                         {% if may_publish_publication_feedback_determination == "True" %}
                                             <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
@@ -425,13 +430,13 @@
                             </div>
                             <div class="col-lg-2 align-right text-right">
                                 <td>
-                                    {% if object.publish_final_report %}
+                                    {% if object.publish_determination_report %}
                                     <a href="javascript:void();" class="btn btn-primary" role="button">
-                                        Published on the {{ object.publish_final_report }}
+                                        Published on the {{ object.publish_determination_report }}
                                     </a>
                                     {% else %}
-                                    {% if object.document_final_signed.upload.name %}
-                                    <a href="{% url 'application_publish_documents' object.pk 'final' %}" class="btn btn-primary" role="button">
+                                    {% if object.document_determination_approved.upload.name %}
+                                    <a href="{% url 'application_publish_documents' object.pk 'determination' %}" class="btn btn-primary" role="button">
                                         Publish
                                     </a>
                                     {% endif %}
@@ -447,4 +452,3 @@
 
                 </div>
             </div>
-

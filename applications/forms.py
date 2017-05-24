@@ -49,7 +49,7 @@ class ApplicationWebPublishForm(ModelForm):
 
     class Meta:
         model = Application
-        fields = ['publish_documents', 'publish_draft_report','publish_final_report']
+        fields = ['publish_documents', 'publish_draft_report','publish_final_report','publish_determination_report']
 
     def __init__(self, *args, **kwargs):
         # User must be passed in as a kwarg.
@@ -63,24 +63,32 @@ class ApplicationWebPublishForm(ModelForm):
         if kwargs['initial']['publish_type'] in 'documents':
             del self.fields['publish_draft_report']
             del self.fields['publish_final_report']
+            del self.fields['publish_determination_report']
             self.fields['publish_documents'].label = "Published Date"
             self.fields['publish_documents'].widget.attrs['disabled'] = True
         elif kwargs['initial']['publish_type'] in 'draft':
             del self.fields['publish_final_report']
             del self.fields['publish_documents']
+            del self.fields['publish_determination_report']
             self.fields['publish_draft_report'].label = "Published Date"
             self.fields['publish_draft_report'].widget.attrs['disabled'] = True
         elif kwargs['initial']['publish_type'] in 'final':
             del self.fields['publish_draft_report']
             del self.fields['publish_documents']
+            del self.fields['publish_determination_report']
             self.fields['publish_final_report'].label = "Published Date"
             self.fields['publish_final_report'].widget.attrs['disabled'] = True
-
+        elif kwargs['initial']['publish_type'] in 'determination':
+            del self.fields['publish_draft_report']
+            del self.fields['publish_documents']
+            del self.fields['publish_final_report']
+            self.fields['publish_determination_report'].label = "Published Date"
+            self.fields['publish_determination_report'].widget.attrs['disabled'] = True
         else:
-
             del self.fields['publish_draft_report']
             del self.fields['publish_final_report']
             del self.fields['publish_documents']
+            del self.fields['publish_determination_report']
 
         self.helper.add_input(Submit('save', 'Publish to Website', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
@@ -235,6 +243,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
     document_breifing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Breifing Note')
+    document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
 
     class Meta:
         model = Application
