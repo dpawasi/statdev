@@ -2,48 +2,142 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.signals import user_logged_in
+from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
+from django.db.models.signals import post_delete, pre_save, post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from model_utils import Choices
+from django_countries.fields import CountryField
+import os
 
 
 @python_2_unicode_compatible
 class Address(models.Model):
     """This model represents an Australian address (physical or mailing).
+    It is a near-duplicate of the ledger Address model.
     """
-    AU_STATE_CHOICES = Choices(
-        (1, 'act', ('ACT')),
-        (2, 'nsw', ('NSW')),
-        (3, 'nt', ('NT')),
-        (4, 'qld', ('QLD')),
-        (5, 'sa', ('SA')),
-        (6, 'tas', ('TAS')),
-        (7, 'vic', ('VIC')),
-        (8, 'wa', ('WA')),
+    STATE_CHOICES = (
+        ('ACT', 'ACT'),
+        ('NSW', 'NSW'),
+        ('NT', 'NT'),
+        ('QLD', 'QLD'),
+        ('SA', 'SA'),
+        ('TAS', 'TAS'),
+        ('VIC', 'VIC'),
+        ('WA', 'WA')
     )
+
+    # Addresses consist of 1+ lines, only the first of which is required.
     line1 = models.CharField('Line 1', max_length=255)
-    line2 = models.CharField('Line 2', max_length=255, blank=True, null=True)
-    locality = models.CharField('Suburb / Town', max_length=255, blank=True, null=True)
-    state = models.IntegerField(choices=AU_STATE_CHOICES, default=AU_STATE_CHOICES.wa, blank=True, null=True)
-    postcode = models.CharField(max_length=4, blank=True, null=True)
+    line2 = models.CharField('Line 2', max_length=255, blank=True)
+    line3 = models.CharField('Line 3', max_length=255, blank=True)
+    locality = models.CharField('Suburb / Town', max_length=255)
+    state = models.CharField(max_length=255, choices=STATE_CHOICES, default='WA', blank=True)
+    country = CountryField(default='AU')
+    postcode = models.CharField(max_length=10)
+    # A field only used for searching addresses.
+    search_text = models.TextField(editable=False)
+
+    def __str__(self):
+        return self.summary
 
     class Meta:
         verbose_name_plural = 'addresses'
 
-    def __str__(self):
-        return self.summary()
+    def clean(self):
+        # Strip all whitespace.
+        for field in ['line1', 'line2', 'line3', 'locality', 'state']:
+            if self.__dict__[field]:
+                self.__dict__[field] = self.__dict__[field].strip()
 
+    def save(self, *args, **kwargs):
+        self._update_search_text()
+        super(Address, self).save(*args, **kwargs)
+
+    def _update_search_text(self):
+        search_fields = filter(
+            bool, [self.line1, self.line2, self.line3, self.locality,
+                   self.state, str(self.country.name), self.postcode])
+        self.search_text = ' '.join(search_fields)
+
+    @property
     def summary(self):
         """Returns a single string summary of the address, separating fields using commas.
         """
-        return ', '.join(self.active_address_fields())
+        return u', '.join(self.active_address_fields())
 
     def active_address_fields(self):
-        """Return non-empty components of the address.
+        """Return the non-empty components of the address.
         """
-        fields = [self.line1, self.line2, self.locality, self.get_state_display(), self.postcode]
-        return [str(f).strip() for f in fields if f]
+        fields = [self.line1, self.line2, self.line3,
+                  self.locality, self.state, self.country, self.postcode]
+        fields = [str(f).strip() for f in fields if f]
+        return fields
+
+    def join_fields(self, fields, separator=u', '):
+        """Join a sequence of fields using the specified separator.
+        """
+        field_values = []
+        for field in fields:
+            value = getattr(self, field)
+            field_values.append(value)
+        return separator.join(filter(bool, field_values))
+
+
+@python_2_unicode_compatible
+class Document(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+    description = models.TextField(blank=True)
+    file = models.FileField(upload_to='%Y/%m/%d')
+    uploaded_date = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def path(self):
+        return self.file.path
+
+    @property
+    def filename(self):
+        return os.path.basename(self.path)
+
+    def __str__(self):
+        return self.name or self.filename
+
+
+class DocumentListener(object):
+    """Event listener for Document model.
+    """
+    @staticmethod
+    @receiver(post_delete, sender=Document)
+    def _post_delete(sender, instance, **kwargs):
+        # Pass false so FileField doesn't save the model.
+        try:
+            instance.file.delete(False)
+        except:
+            #  if deleting file is failed, ignore.
+            pass
+
+    @staticmethod
+    @receiver(pre_save, sender=Document)
+    def _pre_save(sender, instance, **kwargs):
+        if instance.pk:
+            original_instance = Document.objects.get(pk=instance.pk)
+            setattr(instance, "_original_instance", original_instance)
+        elif hasattr(instance, "_original_instance"):
+            delattr(instance, "_original_instance")
+
+    @staticmethod
+    @receiver(post_save, sender=Document)
+    def _post_save(sender, instance, **kwargs):
+        original_instance = getattr(instance, "_original_instance") if hasattr(instance, "_original_instance") else None
+        if original_instance and original_instance.file and instance.file != original_instance.file:
+            # file changed, delete the original file
+            try:
+                original_instance.file.delete(False)
+            except:
+                # if deleting file is failed, ignore.
+                pass
+            delattr(instance, "_original_instance")
 
 
 class EmailUserManager(BaseUserManager):
@@ -77,8 +171,8 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     Password and email are required. Other fields are optional.
     """
     email = models.EmailField(unique=True, blank=False)
-    first_name = models.CharField(max_length=128, blank=True, null=True)
-    last_name = models.CharField(max_length=128, blank=True, null=True)
+    first_name = models.CharField(max_length=128, blank=False, verbose_name='Given name(s)')
+    last_name = models.CharField(max_length=128, blank=False)
     is_staff = models.BooleanField(
         default=False,
         help_text='Designates whether the user can log into the admin site.',
@@ -90,6 +184,40 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(default=timezone.now)
 
+    TITLE_CHOICES = (
+        ('Mr', 'Mr'),
+        ('Miss', 'Miss'),
+        ('Mrs', 'Mrs'),
+        ('Ms', 'Ms'),
+        ('Dr', 'Dr')
+    )
+    title = models.CharField(max_length=100, choices=TITLE_CHOICES, null=True, blank=True,
+                             verbose_name='title', help_text='')
+    dob = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=False,
+                           verbose_name="date of birth", help_text='')
+    phone_number = models.CharField(max_length=50, null=True, blank=True,
+                                    verbose_name="phone number", help_text='')
+    mobile_number = models.CharField(max_length=50, null=True, blank=True,
+                                     verbose_name="mobile number", help_text='')
+    fax_number = models.CharField(max_length=50, null=True, blank=True,
+                                  verbose_name="fax number", help_text='')
+
+    residential_address = models.ForeignKey(Address, null=True, blank=False, related_name='+')
+    postal_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
+    billing_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
+
+    identification = models.ForeignKey(Document, null=True, blank=True, on_delete=models.SET_NULL, related_name='identification_document')
+
+    senior_card = models.ForeignKey(Document, null=True, blank=True, on_delete=models.SET_NULL, related_name='senior_card')
+
+    character_flagged = models.BooleanField(default=False)
+
+    character_comments = models.TextField(blank=True)
+
+    documents = models.ManyToManyField(Document)
+
+    extra_data = JSONField(default=dict)
+
     objects = EmailUserManager()
     USERNAME_FIELD = 'email'
 
@@ -99,6 +227,10 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.get_full_name()
+
+    def clean(self):
+        super(EmailUser, self).clean()
+        self.email = self.email.lower() if self.email else self.email
 
     def get_short_name(self):
         if self.first_name:
@@ -112,47 +244,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
 
 @python_2_unicode_compatible
-class EmailUserProfile(models.Model):
-    """This model represents a 1-to-1 profile for an EmailUser object,
-    containing additional information about a user.
-    """
-    emailuser = models.OneToOneField(EmailUser, editable=False)
-    dob = models.DateField(null=True, blank=True, verbose_name='date of birth')
-    # TODO: business logic related to identification file upload/changes.
-    identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
-    id_verified = models.DateField(null=True, blank=True, verbose_name='ID verified')
-    home_phone = models.CharField(max_length=50, null=True, blank=True)
-    work_phone = models.CharField(max_length=50, null=True, blank=True)
-    mobile = models.CharField(max_length=50, null=True, blank=True)
-    postal_address = models.ForeignKey(Address, related_name='user_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
-    billing_address = models.ForeignKey(Address, related_name='user_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
-
-    class Meta:
-        verbose_name = 'user profile'
-        verbose_name_plural = 'user profiles'
-
-    def __str__(self):
-        return '{}'.format(self.emailuser.email)
-
-    def get_absolute_url(self):
-        return reverse('user_profile')
-
-    def identification_supplied(self):
-        """Return True or False, depending if identification has been uploaded.
-        """
-        if self.identification:
-            return True
-        return False
-
-
-def get_user_profile(**kwargs):
-    EmailUserProfile.objects.get_or_create(emailuser=kwargs['user'])
-
-# Use user_logged_in signal to ensure that user profile exists
-user_logged_in.connect(get_user_profile)
-
-
-@python_2_unicode_compatible
 class Organisation(models.Model):
     """This model represents the details of a company or other organisation.
     Management of these objects will be delegated to 0+ EmailUsers.
@@ -160,11 +251,11 @@ class Organisation(models.Model):
     name = models.CharField(max_length=128, unique=True)
     abn = models.CharField(max_length=50, null=True, blank=True, verbose_name='ABN')
     # TODO: business logic related to identification file upload/changes.
-    identification = models.FileField(upload_to='uploads/%Y/%m/%d', null=True, blank=True)
+    identification = models.ForeignKey(Document, null=True, blank=True, on_delete=models.SET_NULL)
     postal_address = models.ForeignKey(Address, related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
     billing_address = models.ForeignKey(Address, related_name='org_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
     # TODO: business logic related to delegate changes.
-    delegates = models.ManyToManyField(EmailUserProfile, blank=True)
+    delegates = models.ManyToManyField(EmailUser, blank=True)
 
     def __str__(self):
         return self.name

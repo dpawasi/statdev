@@ -3,20 +3,7 @@ from django.contrib.admin import register, SimpleListFilter
 from reversion.admin import VersionAdmin
 
 from .forms import OrganisationAdminForm
-from .models import Address, EmailUser, EmailUserProfile, Organisation
-
-
-@register(Address)
-class AddressAdmin(VersionAdmin):
-    list_filter = ('state', )
-    search_fields = ('line1', 'line2', 'locality', 'postcode')
-
-
-@register(EmailUser)
-class EmailUserAdmin(VersionAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'is_superuser')
-    list_filter = ('is_staff', 'is_active', 'is_superuser')
-    search_fields = ('email', 'first_name', 'last_name')
+from .models import Address, EmailUser, Organisation
 
 
 class IdSuppliedListFilter(SimpleListFilter):
@@ -53,16 +40,18 @@ class IdVerifiedListFilter(SimpleListFilter):
             return queryset.filter(id_verified__isnull=True)
 
 
-@register(EmailUserProfile)
-class EmailUserProfileAdmin(VersionAdmin):
-    list_display = ('emailuser', 'dob', 'id_supplied', 'id_verified', 'home_phone', 'work_phone', 'mobile')
-    list_filter = (IdSuppliedListFilter, IdVerifiedListFilter)
-    search_fields = ('emailuser__email', 'emailuser__first_name', 'emailuser__last_name')
+@register(Address)
+class AddressAdmin(VersionAdmin):
+    list_filter = ('state', )
+    search_fields = ('line1', 'line2', 'locality', 'postcode')
 
-    def id_supplied(self, obj):
-        if obj.identification:
-            return True
-        return False
+
+@register(EmailUser)
+class EmailUserAdmin(VersionAdmin):
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'is_superuser')
+    list_filter = ('is_staff', 'is_active', 'is_superuser')
+    #list_filter = (IdSuppliedListFilter, IdVerifiedListFilter)
+    search_fields = ('email', 'first_name', 'last_name')
 
 
 @register(Organisation)

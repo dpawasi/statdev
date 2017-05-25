@@ -15,8 +15,8 @@ from itertools import chain
 import logging
 
 from actions.models import Action
-from .forms import EmailUserProfileForm, AddressForm, OrganisationForm, DelegateAccessForm, UnlinkDelegateForm
-from .models import EmailUser, EmailUserProfile, Address, Organisation
+from .forms import EmailUserForm, AddressForm, OrganisationForm, DelegateAccessForm, UnlinkDelegateForm
+from .models import EmailUser, Address, Organisation
 from .utils import get_query
 
 
@@ -29,7 +29,7 @@ def log_task_result(task):
 
 
 class UserProfile(LoginRequiredMixin, DetailView):
-    model = EmailUserProfile
+    model = EmailUser
     template_name = 'accounts/user_profile.html'
 
     def get_object(self, queryset=None):
@@ -43,44 +43,16 @@ class UserProfile(LoginRequiredMixin, DetailView):
         return context
 
 
-class UserProfileUpdate(LoginRequiredMixin, UpdateView):
-    form_class = EmailUserProfileForm
+class EmailUserUpdate(LoginRequiredMixin, UpdateView):
+    form_class = EmailUserForm
 
     def get_object(self, queryset=None):
         return self.request.user.emailuserprofile
 
-    def get_initial(self):
-        initial = super(UserProfileUpdate, self).get_initial()
-        user = self.get_object().emailuser
-        initial['first_name'] = user.first_name
-        initial['last_name'] = user.last_name
-        return initial
-
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(UserProfileUpdate, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        """Override to set first_name and last_name on the EmailUser object.
-        """
-        data = form.cleaned_data
-        self.obj = form.save(commit=False)
-        # If identification has been uploaded, then set the id_verified field to None.
-        if 'identification' in data and data['identification']:
-            self.obj.id_verified = None
-        self.obj.save()
-        user = self.obj.emailuser
-        name_changed = False
-        if 'first_name' in data and data['first_name']:
-            user.first_name = data['first_name']
-            name_changed = True
-        if 'last_name' in data and data['last_name']:
-            user.last_name = data['last_name']
-            name_changed = True
-        if name_changed:
-            user.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return super(EmailUserUpdate, self).post(request, *args, **kwargs)
 
 
 class UserAddressCreate(LoginRequiredMixin, CreateView):
