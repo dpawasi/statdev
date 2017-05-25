@@ -37,7 +37,7 @@ class ApplicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         # Limit the organisation queryset unless the user is a superuser.
         if not user.is_superuser:
-            self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
+            self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user])
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
@@ -462,7 +462,6 @@ class ApplicationAssignNextAction(ModelForm):
         self.helper.form_id = 'id_form_assigngroup_application'
         self.helper.attrs = {'novalidate': ''}
 
-
         self.helper.layout = Layout(
             HTML('<p>Application Next Action</p>'),
             'details','records',
@@ -471,12 +470,10 @@ class ApplicationAssignNextAction(ModelForm):
                 Submit('cancel', 'Cancel')
             )
         )
-
-
-
 #        self.fields['title'].disabled = True
 #        self.helper.add_input(Submit('assign', 'Assign', css_class='btn-lg'))
 #        self.helper.add_input(Submit('cancel', 'Cancel'))
+
 
 class AssignPersonForm(ModelForm):
     """A form for assigning an application to people with a specific group.
@@ -484,7 +481,7 @@ class AssignPersonForm(ModelForm):
 
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
@@ -505,7 +502,8 @@ class AssignPersonForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for processing:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -551,7 +549,7 @@ class AssignProcessorForm(ModelForm):
 
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
@@ -571,7 +569,8 @@ class AssignProcessorForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for processing:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -584,8 +583,9 @@ class AssignAssessorForm(ModelForm):
     """
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
+
     def __init__(self, *args, **kwargs):
         super(AssignAssessorForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
@@ -603,7 +603,8 @@ class AssignAssessorForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for assessment:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -616,7 +617,7 @@ class AssignApproverForm(ModelForm):
     """
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
@@ -637,7 +638,8 @@ class AssignApproverForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application to a manager for approval/issue:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')

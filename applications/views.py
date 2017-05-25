@@ -227,11 +227,6 @@ class ApplicationDetail(DetailView):
                 del context['workflow_actions']
                 context['workflow_actions'] = []
 
-        #        print context['may_assign_to_person']
-        #print context['may_assign_to_person']
-#        print context['may_update']
-#        print 'sfasdas'
-#        print app.app_type
         #elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
         #    self.template_name = 'applications/application_detail_emergency.html'
         #
@@ -245,7 +240,6 @@ class ApplicationDetail(DetailView):
 #        approver = Group.objects.get(name='Approver')
 #        referee = Group.objects.get(name='Referee')
 #        emergency = Group.objects.get(name='Emergency')
-
 
 #        if app.state in [app.APP_STATE_CHOICES.new, app.APP_STATE_CHOICES.draft]:
             # Rule: if the application status is 'draft', it can be updated.
