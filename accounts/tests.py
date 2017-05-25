@@ -19,9 +19,11 @@ class AccountTest(TestCase):
         self.user1.save()
         self.address1 = mixer.blend(Address)
 
-    def test_emailuserprofile_created_login(self):
-        self.client.login(email=self.user1.email, password='pass')
-        self.assertTrue(self.user1.emailuserprofile)
+    def test_address_save(self):
+        self.assertTrue(self.address1.search_text)
 
     def test_address_summary(self):
-        self.assertTrue(self.address1.summary())
+        self.assertTrue(self.address1.summary)
+
+    def test_address_active_fields(self):
+        self.assertTrue(self.address1.line1 in self.address1.active_address_fields())
