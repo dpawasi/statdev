@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-from django.contrib.auth.signals import user_logged_in
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.db.models.signals import post_delete, pre_save, post_save
@@ -170,9 +169,9 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     """Custom authentication model for the statdev project.
     Password and email are required. Other fields are optional.
     """
-    email = models.EmailField(unique=True, blank=False)
-    first_name = models.CharField(max_length=128, blank=False, verbose_name='Given name(s)')
-    last_name = models.CharField(max_length=128, blank=False)
+    email = models.EmailField(unique=True, null=False, blank=False)
+    first_name = models.CharField(max_length=128, null=True, blank=True, verbose_name='Given name(s)')
+    last_name = models.CharField(max_length=128, null=True, blank=True)
     is_staff = models.BooleanField(
         default=False,
         help_text='Designates whether the user can log into the admin site.',
@@ -182,7 +181,7 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         help_text='Designates whether this user should be treated as active.'
                   'Unselect this instead of deleting ledger.accounts.',
     )
-    date_joined = models.DateTimeField(default=timezone.now)
+    date_joined = models.DateTimeField(default=timezone.now, editable=False)
 
     TITLE_CHOICES = (
         ('Mr', 'Mr'),
@@ -191,33 +190,20 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         ('Ms', 'Ms'),
         ('Dr', 'Dr')
     )
-    title = models.CharField(max_length=100, choices=TITLE_CHOICES, null=True, blank=True,
-                             verbose_name='title', help_text='')
-    dob = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=False,
-                           verbose_name="date of birth", help_text='')
-    phone_number = models.CharField(max_length=50, null=True, blank=True,
-                                    verbose_name="phone number", help_text='')
-    mobile_number = models.CharField(max_length=50, null=True, blank=True,
-                                     verbose_name="mobile number", help_text='')
-    fax_number = models.CharField(max_length=50, null=True, blank=True,
-                                  verbose_name="fax number", help_text='')
-
-    residential_address = models.ForeignKey(Address, null=True, blank=False, related_name='+')
+    title = models.CharField(max_length=100, choices=TITLE_CHOICES, null=True, blank=True)
+    dob = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, verbose_name='date of birth')
+    phone_number = models.CharField(max_length=50, null=True, blank=True)
+    mobile_number = models.CharField(max_length=50, null=True, blank=True)
+    fax_number = models.CharField(max_length=50, null=True, blank=True)
+    residential_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
     postal_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
     billing_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
-
     identification = models.ForeignKey(Document, null=True, blank=True, on_delete=models.SET_NULL, related_name='identification_document')
-
     senior_card = models.ForeignKey(Document, null=True, blank=True, on_delete=models.SET_NULL, related_name='senior_card')
-
     character_flagged = models.BooleanField(default=False)
-
     character_comments = models.TextField(blank=True)
-
-    documents = models.ManyToManyField(Document)
-
-    extra_data = JSONField(default=dict)
-
+    documents = models.ManyToManyField(Document, blank=True)
+    extra_data = JSONField(null=True, blank=True)
     objects = EmailUserManager()
     USERNAME_FIELD = 'email'
 
