@@ -570,10 +570,14 @@
                                     <label>Current Version of Report</label>
                                 </div>
                                 <div class="col-lg-9">
+                                    {% if object.document_new_draft %}
+                                            <A HREF='/media/{{ object.document_new_draft.upload }}'>Assessment Report Version 2.PDF</A>
+                                    {% else %}
                                     {% if object.document_draft %}
                                     <A HREF='/media/{{ object.document_draft.upload }}'>Assessment Report.PDF</A>
                                     {% else %}
                                     No Attachment
+                                    {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -593,6 +597,9 @@
                             </div>
                             {% endif %}
                             {% if hidden.assessments_new_draft == "False" %}
+                            {% if object.document_new_draft %}
+
+                            {% else %}
                             <div class="col-lg-12">
 
                                 <div class="col-lg-3">
@@ -606,6 +613,7 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            {% endif %}
                             {% endif %} 
 
 
