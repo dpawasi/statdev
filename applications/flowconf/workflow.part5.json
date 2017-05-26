@@ -785,11 +785,14 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "True",
-                "may_create_condition":"False",
+                "may_create_condition":"True",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_update_condition": "True",
+                "may_accept_condition": "True"
+
             },
             "Processor": {
              "may_view_action_log": "True"
@@ -1094,7 +1097,7 @@
             "publication": "False",
             "conditions": "False",
             "assessments": "False",
-            "stakeholdercommunication": "True",
+            "stakeholdercommunication": "False",
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
@@ -1155,7 +1158,7 @@
             "referrals": "True",
             "deed": "True",
             "conditions": "True",
-            "assessments": "True"
+            "assessments": "False"
         },
 
         "fields": {
@@ -1225,14 +1228,15 @@
                 "route": "15",
                 "routegroup": "manager",
                 "state": "5",
-                "required":["document_memo"]
+                "required":["document_new_draft_v3","document_memo"]
 
             },
             {
                 "title": "Reject to Executive (DG Draft)",
                 "route": "12",
                 "routegroup": "exec",
-                "state": "13"
+                "state": "13",
+                "required":["document_new_draft_v3"]
             }	
         ],
         "groupaccess": {
@@ -1243,13 +1247,16 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
-                "may_create_condition":"False",
+                "may_create_condition":"True",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
                 "may_assign_exec": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_publish_publication_feedback_draft": "True"
+                "may_publish_publication_feedback_draft": "True",
+                "may_update_condition": "True",
+                "may_accept_condition": "True"
+
             },
 			"Processor": {
                 "may_view_action_log": "True"
@@ -1267,7 +1274,7 @@
             "publication": "False",
             "referrals": "True",
             "deed": "True",
-            "conditions": "True",
+            "conditions": "False",
             "assessments": "False"
         },
 		"fields": {
@@ -1566,7 +1573,7 @@
             "publication": "False",
             "conditions": "False",
             "assessments": "False",
-            "stakeholdercommunication": "True",
+            "stakeholdercommunication": "False",
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
@@ -1708,6 +1715,12 @@
                 "required":["document_breifing_note","document_determination"] 
             }
         ],
+        "formcomponent": {
+           "update": {
+              "title": "Attached Deterimination & Breifing Notes",
+              "required": []
+           }
+        },
         "groupaccess": {
             "Assessor": {
                 "may_update": "True",
@@ -1716,11 +1729,14 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "True",
-                "may_create_condition":"False",
+                "may_create_condition":"True",
                 "may_submit_approval": "True",
                 "may_assign_assessor": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_update_condition": "True",
+                "may_accept_condition": "True"
+
             },
 			"Processor": {
                 "may_view_action_log": "True"
@@ -1738,7 +1754,7 @@
             "publication": "False",
             "referrals": "True",
             "deed": "True",
-            "conditions": "True",
+            "conditions": "False",
             "assessments": "False"
         },
 
@@ -2042,7 +2058,7 @@
             "publication": "False",
             "conditions": "False",
             "assessments": "False",
-            "stakeholdercommunication": "True",
+            "stakeholdercommunication": "False",
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_swan_river_trust_board_feedback": "False",
@@ -2068,6 +2084,12 @@
                 "required" : ["document_determination_approved","publish_determination_report"]
             }
         ],
+		"formcomponent": {
+           "update": {
+              "title": "Attach Signed Deterimination",
+              "required": []
+           }
+        },
         "groupaccess": {
             "Processor": {
                 "may_update": "True",

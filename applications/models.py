@@ -362,7 +362,7 @@ class Communication(models.Model):
       details = models.TextField(blank=True, null=True)
       documents = models.ManyToManyField(Document, blank=True, related_name='communication_docs')
       state = models.IntegerField() # move to foreign key once APP_STATE_CHOICES becomes a model 
-      created = models.DateTimeField(("Date"), default=datetime.now())
+      created = models.DateTimeField(auto_now_add=True)
 
 
 
