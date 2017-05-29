@@ -38,6 +38,7 @@ class Flow():
         with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
             self.json_obj = json_obj
+
     def getAllRouteConf(self,flow,routeid):
         json_obj = self.json_obj
         if routeid:
@@ -209,6 +210,7 @@ class Flow():
             context = self.getGroupAccess(context,route,'Emergency')
 
         return context
+
     def getCollapse(self,context,route,flow):
         context['collapse'] = {} 
         json_obj = self.json_obj
@@ -242,6 +244,7 @@ class Flow():
            if "required" in json_obj[str(route)]:
               context["required"] = json_obj[str(route)]['required']
         return context
+
     def getFormComponent(self,route,flow):
         json_obj = self.json_obj
         if json_obj[str(route)]:
