@@ -213,8 +213,8 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     Password and email are required. Other fields are optional.
     """
     email = models.EmailField(unique=True, blank=False)
-    first_name = models.CharField(max_length=128, blank=False, verbose_name='Given name(s)')
-    last_name = models.CharField(max_length=128, blank=False)
+    first_name = models.CharField(max_length=128, blank=True, verbose_name='Given name(s)')
+    last_name = models.CharField(max_length=128, blank=True)
     is_staff = models.BooleanField(
         default=False,
         help_text='Designates whether the user can log into the admin site.',
@@ -233,18 +233,13 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         ('Ms', 'Ms'),
         ('Dr', 'Dr')
     )
-    title = models.CharField(max_length=100, choices=TITLE_CHOICES, null=True, blank=True,
-                             verbose_name='title', help_text='')
-    dob = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=False,
-                           verbose_name="date of birth", help_text='')
-    phone_number = models.CharField(max_length=50, null=True, blank=True,
-                                    verbose_name="phone number", help_text='')
-    mobile_number = models.CharField(max_length=50, null=True, blank=True,
-                                     verbose_name="mobile number", help_text='')
-    fax_number = models.CharField(max_length=50, null=True, blank=True,
-                                  verbose_name="fax number", help_text='')
-    organisation = models.CharField(max_length=300, null=True, blank=True,
-                                    verbose_name="organisation", help_text='organisation, institution or company')
+    title = models.CharField(max_length=100, choices=TITLE_CHOICES, null=True, blank=True)
+    dob = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, verbose_name="date of birth")
+    phone_number = models.CharField(max_length=50, null=True, blank=True)
+    mobile_number = models.CharField(max_length=50, null=True, blank=True)
+    fax_number = models.CharField(max_length=50, null=True, blank=True)
+    #organisation = models.CharField(max_length=300, null=True, blank=True,
+    #                                verbose_name="organisation", help_text='organisation, institution or company')
 
     residential_address = models.ForeignKey(Address, null=True, blank=False, related_name='+')
     postal_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
@@ -267,12 +262,12 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         if self.is_dummy_user:
-            if self.organisation:
-                return '{} {} ({})'.format(self.first_name, self.last_name, self.organisation)
+            #if self.organisation:
+            #    return '{} {} ({})'.format(self.first_name, self.last_name, self.organisation)
             return '{} {}'.format(self.first_name, self.last_name)
         else:
-            if self.organisation:
-                return '{} ({})'.format(self.email, self.organisation)
+            #if self.organisation:
+            #    return '{} ({})'.format(self.email, self.organisation)
             return '{}'.format(self.email)
 
     def clean(self):

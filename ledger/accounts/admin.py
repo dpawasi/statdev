@@ -4,13 +4,13 @@ from django.forms import modelform_factory
 
 from reversion.admin import VersionAdmin
 
-from ledger.accounts.models import EmailUser, Document, Address, Profile
+from ledger.accounts.models import EmailUser, Document, Address, Profile, Organisation
 from ledger.accounts.forms import ProfileAdminForm
 
 
 @admin.register(EmailUser)
 class EmailUserAdmin(UserAdmin):
-    change_list_template = "ledger/accounts/change_emailuser_list.html"
+    #change_list_template = "ledger/accounts/change_emailuser_list.html"
 
     add_fieldsets = (
         (None, {
@@ -87,3 +87,8 @@ class AddressAdmin(VersionAdmin):
 @admin.register(Profile)
 class ProfileAdmin(VersionAdmin):
     form = ProfileAdminForm
+
+
+@admin.register(Organisation)
+class OrganisationAdmin(VersionAdmin):
+    pass
