@@ -242,7 +242,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
     document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
-    document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Breifing Note')
+    document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
     document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
 
     class Meta:
