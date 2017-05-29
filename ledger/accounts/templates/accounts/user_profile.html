@@ -10,9 +10,8 @@
                 <tr><th>Given name(s)</th><td>{{ object.emailuser.first_name }}</td></tr>
                 <tr><th>Surname</th><td>{{ object.emailuser.last_name }}</td></tr>
                 <tr><th>Date of birth</th><td>{{ object.dob|date:"d-M-Y" }}</td></tr>
-                <tr><th>Home phone</th><td>{{ object.home_phone }}</td></tr>
-                <tr><th>Work phone</th><td>{{ object.work_phone}}</td></tr>
-                <tr><th>Mobile</th><td>{{ object.mobile }}</td></tr>
+                <tr><th>Phone</th><td>{{ object.phone_number }}</td></tr>
+                <tr><th>Mobile</th><td>{{ object.mobile_number }}</td></tr>
                 <tr><th>Identification</th><td>{% if object.identification_supplied %}Supplied{% else %}Not supplied{% endif %}</td></tr>
             </tbody>
         </table>

@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             name='Application',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('app_type', models.IntegerField(choices=[(1, 'Permit'), (2, 'Licence/permit'), (3, 'Part 5 - New Application'), (4, 'Emergency works'), (5, 'Part 5 - Ammendment Request'), (6, 'Part 5 - Amendment Application')])),
+                ('app_type', models.IntegerField(choices=[(1, 'Permit'), (2, 'Licence/permit'), (3, 'Part 5 - New Application'), (4, 'Emergency works'), (5, 'Part 5 - Amendment Request'), (6, 'Part 5 - Amendment Application')])),
                 ('state', models.IntegerField(choices=[(1, 'Draft'), (2, 'With Admin Officer'), (3, 'With Referrals'), (4, 'With Assessor'), (5, 'With Manager'), (6, 'Issued'), (7, 'Issued (with admin)'), (8, 'Declined'), (9, 'New'), (10, 'Approved'), (11, 'Expired'), (12, 'With Director'), (13, 'With Executive'), (14, 'Completed')], default=1, editable=False)),
                 ('title', models.CharField(max_length=256)),
                 ('description', models.TextField(blank=True, null=True)),

@@ -205,7 +205,7 @@ class Application_Emergency():
         if app.organisation:
            context['address'] = app.organisation.postal_address
         elif app.applicant:
-           context['address'] = app.applicant.emailuserprofile.postal_address
+           context['address'] = app.applicant.postal_address
 
         return context
 

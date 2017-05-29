@@ -80,7 +80,7 @@ class Application(models.Model):
         (2, 'licence', ('Licence/permit')),
         (3, 'part5', ('Part 5 - New Application')),
         (4, 'emergency', ('Emergency works')),
-        (5, 'part5cr', ('Part 5 - Ammendment Request')),
+        (5, 'part5cr', ('Part 5 - Amendment Request')),
         (6, 'part5amend', ('Part 5 - Amendment Application'))
     )
     APP_STATE_CHOICES = Choices(
