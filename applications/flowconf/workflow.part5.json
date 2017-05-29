@@ -224,8 +224,7 @@
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_draft_report_after_public_consultation":"True",
-            "assessments_determination_and_breifing_note":"True",
-
+            "assessments_determination_and_breifing_note":"True"
         },
         "actions": [
             {
