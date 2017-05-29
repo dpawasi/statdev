@@ -8,7 +8,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from extra_views import ModelFormSetView
 import pdfkit
-from accounts.utils import get_query
 from actions.models import Action
 from applications import forms as apps_forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -19,6 +18,8 @@ from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check
 from applications.email import sendHtmlEmail,emailGroup,emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
+from applications.utils import get_query
+
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -30,7 +31,6 @@ class HomePage(LoginRequiredMixin, TemplateView):
             applications_wip = Application.objects.filter(
                 assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
             context['applications_wip'] = self.create_applist(applications_wip)
-			#context['applications_wip']
         if Application.objects.filter(assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined]).exists():
             #            userGroups = self.request.user.groups.all()
             userGroups = []

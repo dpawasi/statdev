@@ -9,7 +9,7 @@ from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Tex
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
-from accounts.models import Organisation
+from ledger.accounts.models import Organisation
 from .models import Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback
 
 User = get_user_model()

@@ -33,7 +33,10 @@ INSTALLED_APPS = [
     'crispy_forms',
     'webtemplate_dpaw',
     'django_q',
-    'accounts',
+    'social_django',
+    'ledger.accounts',  #  Defines custom user model (duplicate from Ledger project).
+    'ledger.address',
+    #'accounts',
     'applications',
     'actions',
 ]
@@ -54,7 +57,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'statdev', 'templates'),
-            os.path.join(BASE_DIR, 'applications','email')
+            os.path.join(BASE_DIR, 'applications', 'email')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -201,3 +204,5 @@ Q_CLUSTER = {
     'bulk': 10,
     'orm': 'default',
 }
+
+OSCAR_REQUIRED_ADDRESS_FIELDS = []

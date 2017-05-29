@@ -6,9 +6,9 @@ from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
-from accounts.models import Organisation
-from datetime import datetime
 from django.contrib.auth.models import Group
+
+from ledger.accounts.models import Organisation
 
 
 @python_2_unicode_compatible
