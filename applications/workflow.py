@@ -226,6 +226,7 @@ class Flow():
            if json_obj[str(route)]['hidden']:
               context["hidden"] = json_obj[str(route)]['hidden']
         return context
+
     def getFields(self,context,route,flow):
         context['fields'] = {}
         json_obj = self.json_obj
