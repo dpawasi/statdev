@@ -5,6 +5,34 @@ __all__ = (
         "Flow"
 )
 
+"""
+
+Workflow.py utilise a .json file per each form flow linked to the app_type category on the application.   The json config contains a list of routes (also maybe called steps). 
+All routes start at route id 1 (step 1) within each route it contains a list of sub configs ,  title, hidden, actions, assigntoaccess, groupaccess, collapse, fields.
+
+1. When each form is loaded it will load the route config for the step the form is at.  The application contains a routeid to keep track of which routes the application is at.   
+
+2. The hidden and collapse can be linked to the template which allows you to hide and collapse different boxes on the form depending on the step the form is at. Requires the template to have if statements and {{ }} variables added to the css collapse class.
+
+3. groupaccess is a list of permissions applied to different actions with in the template.  These rights are applied depending on the groups linked to there user groups.  If a person is linked to many groups eg. Assessor and Proccessor and only one group has a rule set to True than by default it will set the overall access to True for that rule for that person.  groupaccess contains the group name in django and a list of permission rules which are set to "True" or "False"
+
+4. assigntoaccess is a list of permissions applied when the application is assigned to a person and only when that person is accessing the form. example would be when assigning back to form creator. 
+
+5. action is a list of routes the application can progress on to.  Actions can contain multiple actions each consisting of the action title, route,state and required.   Action is used to push the form onto the step in the workflow.  Where as form components allow changes to the form with out progressing the form onto the next person.
+
+    a) title = title of action which appears as the title under actions on the form
+    b) route = this is route number of the route which will be applied when clicking the action which will update the application routeid to. 
+    c) routegroup = we have many action groups with in statdev and this is use to link the type of action being clicked when the button is clicked so the correct route is updated on the application
+    d) required =  this is a list of fields on the Application model that are required to be completed before the action can continue onto the next step.
+
+6. formcomponent = only has one component at the moment which is the Update Application commponent which allows the ahref link to have different titles between each step.  eg attached signed document.  There are other components but are not configurable and are linked into permissions.
+
+7. fields = is linked to form componenet "Update Application" this allows input fields to be hidden on each step only showing fields not listed.
+
+8. required = under the main level and not under action --> required <-- different.   The requirement under the main level links to the formcomponent "Update Application" allows you to set fields to required to be completed so when the form update button is clicked and the field is not completed will cause and error asking for the fields to be completed.
+
+"""
+
 class Flow():
     def get(self,flow):
         with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
