@@ -23,7 +23,7 @@
                 "route": "2",
                 "routegroup":"lodge",
                 "required": ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans"]
-                
+
             }
         ],
         "assigntoaccess": {
@@ -82,7 +82,7 @@
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" : "hide"
 
         }
@@ -132,7 +132,7 @@
                 "routegroup": "creator",
                 "state": "3",
                 "required": []
-            } 
+            }
 
         ],
         "formcomponent": {
@@ -155,7 +155,6 @@
                 "may_send_for_referral": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_send_for_referral": "True",
                 "may_update_publication_newspaper": "True",
                 "may_update_publication_website": "True",
                 "may_publish_website": "True",
@@ -189,7 +188,6 @@
             "document_determination": "hide",
             "document_completion": "hide",
             "assessment_start_date": "hide",
-            "document_draft" : "hide",
             "document_new_draft": "hide",
             "document_draft_signed" : "hide",
             "document_final_signed": "hide",
@@ -198,13 +196,13 @@
             "document_determination_approved" : "hide",
             "swan_river_trust_board_feedback" : "hide",
             "document_breifing_note" : "hide"
-            
+
         },
         "required": [
             "title",
             "deed"
         ]
-    }, 
+    },
     "3": {
         "title": "Assessor",
         "hidden": {
@@ -224,7 +222,8 @@
             "referrals": "False",
             "assessments_draft_report": "False",
             "assessments_draft_report_after_public_consultation":"True",
-            "assessments_determination_and_breifing_note":"True"
+            "assessments_determination_and_briefing_note":"True",
+            "may_create_condition": "True"
         },
         "actions": [
             {
@@ -234,7 +233,7 @@
                 "state": "5",
                 "required": ["asessment_start_date","document_draft"]
 
-            },   
+            },
             {
                 "title": "Reject to Admin Officer/s",
                 "route": "2",
@@ -331,7 +330,7 @@
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
 
         },
@@ -740,7 +739,7 @@
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
 
         },
@@ -849,7 +848,7 @@
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
 
         }
@@ -887,7 +886,7 @@
                 "route": "9",
                 "routegroup": "assess",
                 "state": "5"
-            }	
+            }
         ],
         "groupaccess": {
             "Approver": {
@@ -1199,7 +1198,7 @@
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
         },
         "required": ["document_draft_signed"]
@@ -1242,7 +1241,7 @@
                 "routegroup": "exec",
                 "state": "13",
                 "required":["document_new_draft_v3"]
-            }	
+            }
         ],
         "groupaccess": {
             "Assessor": {
@@ -1314,7 +1313,7 @@
             "swan_river_trust_board_feedback" : "hide",
 			"document_draft_signed": "hide",
             "document_final_signed": "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
         },
         "required": ["document_memo"]
@@ -1671,7 +1670,7 @@
             "document_draft_signed": "hide",
 			"document_new_draft_v3": "hide",
 			"document_memo": "hide",
-            "document_breifing_note" : "hide",
+            "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
         }
     },
@@ -1699,7 +1698,7 @@
             "publish_publication_feedback_draft": "False",
             "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_breifing_note": "False"
+            "assessments_determination_and_briefing_note": "False"
 
         },
         "actions": [
@@ -1714,7 +1713,7 @@
                 "route": "20",
                 "routegroup": "manager",
                 "state": "5",
-                "required":["document_breifing_note","document_determination"] 
+                "required":["document_briefing_note","document_determination"]
             }
         ],
         "formcomponent": {
@@ -1820,7 +1819,7 @@
             "publish_publication_feedback_draft": "False",
             "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_breifing_note": "False"
+            "assessments_determination_and_briefing_note": "False"
         },
         "actions": [
             {
@@ -1912,7 +1911,7 @@
             "publish_publication_feedback_draft": "False",
             "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_breifing_note": "False"
+            "assessments_determination_and_briefing_note": "False"
         },
         "actions": [
             {
@@ -1991,8 +1990,8 @@
             "publication_feedback_final" : "False",
             "publish_publication_feedback_draft": "False",
             "publication_feedback_determination": "True",
-            "assessments_draft_report_after_public_consultation": "True",
-            "assessments_determination_and_breifing_note": "False",
+            "assessments_draft_report_after_public_consultation": "False",
+            "assessments_determination_and_briefing_note": "False",
             "finalreportdetermination":"False"
         },
         "actions": [
@@ -2065,10 +2064,10 @@
             "assessments_new_draft": "False",
             "publication_feedback_final" : "False",
             "publish_publication_feedback_draft": "False",
+            "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_breifing_note": "False",
+            "assessments_determination_and_briefing_note": "False",
 			"publish_publication_feedback_determination": "False",
-			"publication_feedback_determination" : "False",
             "publish_publication_feedback_final" : "False"
         },
         "actions": [
@@ -2154,7 +2153,7 @@
             "document_new_draft_v3": "hide",
             "document_memo": "hide",
             "document_final_signed": "hide",
-            "document_breifing_note": "hide",
+            "document_briefing_note": "hide",
             "document_determination" : "hide"
 
         }
@@ -2184,14 +2183,10 @@
             "assessments_new_draft": "False",
             "publication_feedback_final" : "False",
             "publish_publication_feedback_draft": "False",
-            "publication_feedback_final" :"False",
             "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_breifing_note": "False",
+            "assessments_determination_and_briefing_note": "False",
             "publish_publication_feedback_determination": "False",
-            "publication_feedback_determination" : "False",
-            "publish_publication_feedback_determination" :"False",
-            "publication_feedback_final" : "False",
             "publish_publication_feedback_final" : "False"
         },
         "actions": [

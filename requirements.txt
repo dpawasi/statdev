@@ -1,7 +1,10 @@
 Django==1.10.6
 git+https://github.com/parksandwildlife/dpaw-utils.git@0.3a16#egg=dpaw-utils
+git+https://github.com/django-oscar/django-oscar.git@17a1f6b#egg=django-oscar
+social-auth-app-django==1.0.1
 django-model-utils==2.6.1
 webtemplate-dpaw==0.4.7
+django-countries==3.4.1
 django-crispy-forms==1.6.1
 django-extra-views==0.9.0
 django-reversion==2.0.8
