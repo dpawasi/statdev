@@ -109,6 +109,14 @@
         },
         "actions": [
             {
+                "title": "Assign to Admin Officer - Wait 21 days",
+                "route": "2.1",
+                "routegroup": "admin",
+                "state": "2",
+                "required": []
+            },
+
+            {
                 "title": "Assign to Assessor",
                 "route": "3",
                 "routegroup": "assess",
@@ -134,6 +142,7 @@
                 "required": []
             }
 
+
         ],
         "formcomponent": {
                 "update": {
@@ -148,7 +157,7 @@
                 "may_refer":"True",
                 "may_assign":"True",
                 "may_assign_customer": "False",
-                "may_assign_processor": "False",
+                "may_assign_processor": "True",
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True",
@@ -202,6 +211,77 @@
             "title",
             "deed"
         ]
+    },
+	   "2.1": {
+        "title": "Admin Officer - Wait 21 Days",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "False",
+            "conditions": "True",
+            "assessments": "True",
+            "stakeholdercommunication": "False",
+            "referrals": "False",
+            "publication_feedback_final": "True"
+
+        },
+        "actions": [
+            {
+                "title": "Assign to Admin Officer",
+                "route": "2",
+                "routegroup": "admin",
+                "state": "2",
+                "required": []
+            }
+ 
+      ],
+      "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_assessor": "False",
+                "may_send_for_referral": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_update_publication_newspaper": "False",
+                "may_update_publication_website": "False",
+                "may_publish_website": "False",
+                "may_update_publication_feedback_draft" : "True",
+                "may_publish_feedback_draft": "False",
+                "may_update_publication_feedback_final": "False",
+                "may_publish_feedback_final": "False",
+                "may_recall_resend": "False",
+                "may_assign_to_creator": "True",
+                "may_referral_delete": "False",
+                "may_view_action_log": "False"
+            }
+        },
+        "collapse": {
+            "applicant": "False",
+            "title": "False",
+            "proposed_activities": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "details_of_proposed_development": "False",
+            "landowner_consent":"False",
+            "publication": "False",
+            "referrals": "False",
+            "deed": "False"
+        }
     },
     "3": {
         "title": "Assessor",
