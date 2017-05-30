@@ -9,8 +9,6 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0012_auto_20170530_0936'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('applications', '0002_delegate'),
     ]
 
