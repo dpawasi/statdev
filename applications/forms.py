@@ -10,7 +10,9 @@ from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
 from ledger.accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback
+from .models import (
+    Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
+    PublicationWebsite, PublicationFeedback, Delegate)
 
 User = get_user_model()
 
@@ -37,7 +39,8 @@ class ApplicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         # Limit the organisation queryset unless the user is a superuser.
         if not user.is_superuser:
-            self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user])
+            user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
+            self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
@@ -49,11 +52,9 @@ class ApplicationWebPublishForm(ModelForm):
 
     class Meta:
         model = Application
-        fields = ['publish_documents', 'publish_draft_report','publish_final_report','publish_determination_report']
+        fields = ['publish_documents', 'publish_draft_report', 'publish_final_report', 'publish_determination_report']
 
     def __init__(self, *args, **kwargs):
-        # User must be passed in as a kwarg.
-        #user = kwargs.pop('user')
         super(ApplicationWebPublishForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_web_publish_application'

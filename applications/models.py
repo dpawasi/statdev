@@ -364,3 +364,16 @@ class Communication(models.Model):
     records = models.ManyToManyField(Record, blank=True, related_name='communication_docs')
     state = models.IntegerField()  # move to foreign key once APP_STATE_CHOICES becomes a model
     created = models.DateTimeField(auto_now_add=True)
+
+
+@python_2_unicode_compatible
+class Delegate(models.Model):
+    """This model represents the delegation of authority for an EmailUser to
+    submit applications on behalf of an Organisation, within the Statutory
+    Development application.
+    """
+    email_user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, on_delete=models.PROTECT)
+    organisation = models.ForeignKey(Organisation, blank=False, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return '{}: {}'. format(self.email_user.email, self.organisation.name)

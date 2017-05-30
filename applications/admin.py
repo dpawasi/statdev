@@ -1,7 +1,7 @@
 from django.contrib.admin import register, ModelAdmin
 from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
-    Condition, Compliance)
+    Condition, Compliance, Delegate)
 
 
 @register(Record)
@@ -62,3 +62,8 @@ class ComplianceAdmin(ModelAdmin):
     filter_horizontal = ('records',)
     list_display = ('__str__', 'applicant', 'assignee', 'status', 'submit_date', 'approve_date')
     search_fields = ('applicant__email', 'assignee__email', 'compliance', 'comments')
+
+
+@register(Delegate)
+class DelegateAdmin(ModelAdmin):
+    pass
