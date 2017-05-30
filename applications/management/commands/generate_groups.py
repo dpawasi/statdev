@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Checks and (if required) creates required groups.'
 
     def handle(self, *args, **options):
-        groups = ['Processor', 'Assessor', 'Approver', 'Referee']
+        groups = ['Processor', 'Assessor', 'Approver', 'Referee','Executive','Director','Emergency']
         for group in groups:
             if not Group.objects.filter(name=group).exists():
                 new_group = Group.objects.create(name=group)
