@@ -1,8 +1,0 @@
-{% extends "base_statdev.html" %}
-{% load crispy_forms_tags %}
-
-{% block page_content_inner %}
-<h1>Unlink user from {{ organisation }}</h1>
-<p>Click "Unlink user" to confirm the unlinking of {{ delegate.get_full_name }} as a delegate of <strong>{{ organisation }}</strong>:</p>
-{% crispy form %}
-{% endblock %}

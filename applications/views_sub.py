@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from applications.workflow import Flow
-from .models import Location, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application
+from .models import Location, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application
 from django.utils.safestring import SafeText
 from django.contrib.auth.models import Group
 from applications.validationchecks import Attachment_Extension_Check
@@ -9,7 +9,7 @@ class Application_Part5():
 
     def get(self,app,self_view,context):
         request = self_view.request
-      
+
         if app.routeid is None:
             app.routeid = 1
 
@@ -18,7 +18,7 @@ class Application_Part5():
         context = flow.getAccessRights(request,context,app.routeid,'part5')
         context = flow.getCollapse(context,app.routeid,'part5')
         context = flow.getHiddenAreas(context,app.routeid,'part5')
-        context['workflow'] = flow.getAllRouteConf('part5',app.routeid) 
+        context['workflow'] = flow.getAllRouteConf('part5',app.routeid)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
         context['formcomponent'] = flow.getFormComponent(app.routeid,'part5')
         try:
@@ -47,7 +47,7 @@ class Application_Part5():
         if self_view.object.deed:
             context['deed_short'] = SafeText(self_view.object.deed.upload.name)[19:]
 
-     
+
         context['land_owner_consent_list'] = []
         landoc = app.land_owner_consent.all()
         for doc in landoc:
@@ -68,10 +68,10 @@ class Application_Part5():
             rowitem['date'] = pubrow.date
             rowitem['newspaper'] = pubrow.newspaper
             rowitem['application'] = pubrow.application
-            rowitem['documents'] = pubrow.documents
+            rowitem['records'] = pubrow.records
             rowitem['documents_short'] = []
-            documents = pubrow.documents.all()
-            for doc in documents:
+            records = pubrow.records.all()
+            for doc in records:
                 fileitem = {}
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload
@@ -93,12 +93,12 @@ class Application_Part5():
             rowitem['phone'] = pubrow.phone
             rowitem['email'] = pubrow.email
             rowitem['comments'] = pubrow.comments
-            rowitem['documents'] = pubrow.documents
+            rowitem['records'] = pubrow.records
             rowitem['documents_short'] = [] # needed so we can add documents to list
             rowitem['status'] = pubrow.status
             rowitem['application'] = pubrow.application
-            documents = pubrow.documents.all()
-            for doc in documents:
+            records = pubrow.records.all()
+            for doc in records:
                 fileitem = {}
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload
@@ -107,12 +107,12 @@ class Application_Part5():
             pub_feed_obj.append(rowitem)
 
         context['publication_feedback'] = pub_feed_obj
-      
+
         new_documents_to_publish = {}
         pub_web = PublicationWebsite.objects.filter(application_id=self_view.object.id)
         for pub_doc in pub_web:
             if pub_doc.published_document_id:
-                doc = Document.objects.get(id=pub_doc.published_document_id)
+                doc = Record.objects.get(id=pub_doc.published_document_id)
                 fileitem = {}
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload.name
@@ -206,7 +206,7 @@ class Application_Emergency():
         if app.organisation:
            context['address'] = app.organisation.postal_address
         elif app.applicant:
-           context['address'] = app.applicant.emailuserprofile.postal_address
+           context['address'] = app.applicant.postal_address
 
         return context
 
@@ -227,7 +227,7 @@ class Application_Permit():
         context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
 
         return context
-        
+
 class Application_Licence():
     def get(self,app,self_view,context):
         request = self_view.request
@@ -255,7 +255,7 @@ class Referrals_Next_Action_Check():
         for ref in app_refs:
             if ref.status == Referral.REFERRAL_STATUS_CHOICES.referred:
                 referralscompleted = False
-            
+
         return referralscompleted
 
     def go_next_action(self,app):
@@ -276,7 +276,7 @@ class Referrals_Next_Action_Check():
 
         if "route"in route:
             app.routeid = route["route"]
-        else: 
+        else:
             app.routeid = None
 
         if "state" in route:
@@ -287,7 +287,7 @@ class Referrals_Next_Action_Check():
         app.group = groupassignment
         app.assignee = assignee
         app.save()
- 
+
 
 
 

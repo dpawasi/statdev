@@ -1,8 +1,0 @@
-{% extends "base_statdev.html" %}
-{% load crispy_forms_tags %}
-
-{% block page_content_inner %}
-<h1>Confirm delegate access request</h1>
-<p>Click "Confirm" to confirm the request by <strong>{{ requester }}</strong> for delegate access to <strong>{{ organisation.name }}</strong>:</p>
-{% crispy form %}
-{% endblock %}

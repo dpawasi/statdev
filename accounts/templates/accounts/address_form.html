@@ -1,7 +1,0 @@
-{% extends "base_statdev.html" %}
-{% load crispy_forms_tags %}
-
-{% block page_content_inner %}
-<h1>{{ action }} {{ address_type }} address {% if principal %}({{ principal }}){% endif %}</h1>
-{% crispy form %}
-{% endblock %}

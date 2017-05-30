@@ -9,8 +9,10 @@ from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Tex
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
-from accounts.models import Organisation
-from .models import Application, Referral, Condition, Compliance, Vessel, Document, PublicationNewspaper, PublicationWebsite, PublicationFeedback
+from ledger.accounts.models import Organisation
+from .models import (
+    Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
+    PublicationWebsite, PublicationFeedback, Delegate)
 
 User = get_user_model()
 
@@ -37,7 +39,8 @@ class ApplicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         # Limit the organisation queryset unless the user is a superuser.
         if not user.is_superuser:
-            self.fields['organisation'].queryset = Organisation.objects.filter(delegates__in=[user.emailuserprofile])
+            user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
+            self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
         self.fields['organisation'].help_text = '''The company or organisation
             on whose behalf you are applying (leave blank if not applicable).'''
 
@@ -49,18 +52,16 @@ class ApplicationWebPublishForm(ModelForm):
 
     class Meta:
         model = Application
-        fields = ['publish_documents', 'publish_draft_report','publish_final_report','publish_determination_report']
+        fields = ['publish_documents', 'publish_draft_report', 'publish_final_report', 'publish_determination_report']
 
     def __init__(self, *args, **kwargs):
-        # User must be passed in as a kwarg.
-        #user = kwargs.pop('user')
         super(ApplicationWebPublishForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_web_publish_application'
         self.helper.attrs = {'novalidate': ''}
 
         # Delete publish fields not required for update.
-        if kwargs['initial']['publish_type'] in 'documents':
+        if kwargs['initial']['publish_type'] in 'records':
             del self.fields['publish_draft_report']
             del self.fields['publish_final_report']
             del self.fields['publish_determination_report']
@@ -192,7 +193,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         model = Application
         fields = [
             'title', 'description', 'proposed_commence', 'proposed_end',
-            'cost', 'project_no', 'related_permits', 'over_water', 'documents',
+            'cost', 'project_no', 'related_permits', 'over_water', 'records',
             'land_owner_consent', 'deed']
 
     def __init__(self, *args, **kwargs):
@@ -211,7 +212,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['project_no'].label = "Riverbank project number (if applicable)"
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
-        self.fields['documents'].label = "Attach more detailed descripton, maps or plans"
+        self.fields['records'].label = "Attach more detailed descripton, maps or plans"
         #self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 
@@ -242,7 +243,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
     document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
-    document_breifing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Breifing Note')
+    document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
     document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
 
     class Meta:
@@ -348,7 +349,7 @@ class ReferralRecallForm(Form):
 
 
 class ReferralRemindForm(Form):
-    """Form is to allow a referral to be reminded about the outstanding feedback 
+    """Form is to allow a referral to be reminded about the outstanding feedback
     """
     def __init__(self, *args, **kwargs):
         kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
@@ -449,34 +450,31 @@ class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
-    documents = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+    records = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
         model = Application
-        fields = ['id','details','documents']
+        fields = ['id','details','records']
     def __init__(self, *args, **kwargs):
         super(ApplicationAssignNextAction, self).__init__(*args, **kwargs)
 
         self.helper = BaseFormHelper(self)
-		
+
         self.helper.form_id = 'id_form_assigngroup_application'
         self.helper.attrs = {'novalidate': ''}
-		
-		
+
         self.helper.layout = Layout(
             HTML('<p>Application Next Action</p>'),
-            'details','documents',
+            'details','records',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
             )
         )
-
-
-
-#        self.fields['title'].disabled = True 
+#        self.fields['title'].disabled = True
 #        self.helper.add_input(Submit('assign', 'Assign', css_class='btn-lg'))
 #        self.helper.add_input(Submit('cancel', 'Cancel'))
+
 
 class AssignPersonForm(ModelForm):
     """A form for assigning an application to people with a specific group.
@@ -484,7 +482,7 @@ class AssignPersonForm(ModelForm):
 
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
@@ -505,7 +503,8 @@ class AssignPersonForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for processing:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -551,7 +550,7 @@ class AssignProcessorForm(ModelForm):
 
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
@@ -571,7 +570,8 @@ class AssignProcessorForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for processing:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -584,8 +584,9 @@ class AssignAssessorForm(ModelForm):
     """
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
+
     def __init__(self, *args, **kwargs):
         super(AssignAssessorForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
@@ -603,7 +604,8 @@ class AssignAssessorForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for assessment:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -616,7 +618,7 @@ class AssignApproverForm(ModelForm):
     """
     class Meta:
         model = Application
-#        fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
         fields = ['assignee']
 
     def __init__(self, *args, **kwargs):
@@ -637,7 +639,8 @@ class AssignApproverForm(ModelForm):
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application to a manager for approval/issue:</p>'),
-            'app_type', 'title', 'description', 'submit_date', 'assignee',
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -787,7 +790,7 @@ class VesselForm(ModelForm):
 
 class NewsPaperPublicationCreateForm(ModelForm):
 
-    documents = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
     class Meta:
         model = PublicationNewspaper
         fields = ['application','date','newspaper']
@@ -804,7 +807,7 @@ class NewsPaperPublicationCreateForm(ModelForm):
 
 class WebsitePublicationCreateForm(ModelForm):
 
-    original_document = FileField(required=False, max_length=128 , widget=ClearableFileInput(attrs={'multiple':'multiple'})) 
+    original_document = FileField(required=False, max_length=128 , widget=ClearableFileInput(attrs={'multiple':'multiple'}))
     published_document = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
 
     class Meta:
@@ -841,7 +844,7 @@ class WebsitePublicationForm(ModelForm):
 
 class FeedbackPublicationCreateForm(ModelForm):
 
-    documents = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    records = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
 
     class Meta:
         model = PublicationFeedback
@@ -857,13 +860,13 @@ class FeedbackPublicationCreateForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
-class DocumentCreateForm(ModelForm):
+class RecordCreateForm(ModelForm):
     class Meta:
-        model = Document
+        model = Record
         fields = ['upload', 'name', 'category', 'metadata']
 
     def __init__(self, *args, **kwargs):
-        super(DocumentCreateForm, self).__init__(*args, **kwargs)
+        super(RecordCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_create_document'
         self.helper.attrs = {'novalidate': ''}

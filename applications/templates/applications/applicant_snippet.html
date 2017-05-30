@@ -8,24 +8,25 @@
         </tr>
         <tr>
             <th>Date of birth</th>
-            <td>{{ applicant.emailuserprofile.dob }}</td>
+            <td>{{ applicant.dob }}</td>
         </tr>
     </table>
 </div>
 <div class="col-sm-8 col-md-9 col-lg-4">
     <h4>Address details:</h4>
     <table class="table table-borderless">
-        {% with applicant.emailuserprofile.postal_address as address %}
+        {% with applicant.postal_address as address %}
             <tr>
                 <th>Postal address</th>
-                <td>{{ address.line1 }}</td>
+                <td>{{ address.line1 }}
+                {% if address.line2 %}
+                <br>{{ address.line2 }}
+                {% endif %}
+                {% if address.line3 %}
+                <br>{{ address.line3 }}
+                {% endif %}
+                </td>
             </tr>
-            {% if address.line2 %}
-            <tr>
-                <th></th>
-                <td>{{ address.line2 }}</td>
-            </tr>
-            {% endif %}
             <tr>
                 <th>Town / Suburb</th>
                 <td>{{ address.locality }}</td>
@@ -45,16 +46,12 @@
     <h4>Contact details:</h4>
     <table class="table table-borderless">
         <tr>
-            <th>Phone (home)</th>
-            <td>{{ applicant.emailuserprofile.home_phone }}</td>
-        </tr>
-        <tr>
-            <th>Phone (work)</th>
-            <td>{{ applicant.emailuserprofile.work_phone }}</td>
+            <th>Phone</th>
+            <td>{{ applicant.phone_number }}</td>
         </tr>
         <tr>
             <th>Mobile</th>
-            <td>{{ applicant.emailuserprofile.mobile }}</td>
+            <td>{{ applicant.mobile_number }}</td>
         </tr>
         <tr>
             <th>Email</th>
