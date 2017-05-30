@@ -40,7 +40,7 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#title_collapse" aria-expanded="true" aria-controls="title_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Title 
+                            Title
                         </a>
                     </h3>
                 </div>
@@ -58,10 +58,10 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#proposed_activities_collapse" aria-expanded="false" aria-controls="proposed_activities_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Proposed Commercial Acts and Activites 
+                            Proposed Commercial Acts and Activites
                         </a>
                     </h3>
-                </div>	
+                </div>
                 <div class="panel-collapse collapse {{ collapse.proposed_activities }} " id="proposed_activities_collapse" role="tabpanel" aria-labelledby="proposed_activities_heading">
                     <div class="panel-body">
                         <p>{{ object.description }}</p>
@@ -97,7 +97,7 @@
                             <div class="col-lg-12">
                                 {{ folio }}
                             </div>
-                        </div>		
+                        </div>
                         <div class="col-sm-12 col-md-12 col-lg-4">
                             <div class="col-lg-12">
                                 <label>Diagram / Plan / Deposit Number</Label>
@@ -159,7 +159,7 @@
                         </div>
                     </div>
                 </div>
-            </div>	
+            </div>
             {% endif %}
 
             {% if hidden.river_reserve_lease_section_29 == "False" %}
@@ -176,7 +176,7 @@
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-12">
-                                If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note " River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted. 
+                                If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note " River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted.
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-12 col-lg-12">
@@ -230,7 +230,7 @@
                                 <label>Does the proposed development involve an activity in the River reserve that will require a River reserve licence?</Label>
                             </div>
                             <div class="col-lg-12">
-                                {% if object.river_lease_reserve_licence is True %} 
+                                {% if object.river_lease_reserve_licence is True %}
                                 Yes
                                 {% else %}
                                 No
@@ -259,7 +259,7 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#details_of_proposed_development_collapse" aria-expanded="false" aria-controls="details_of_proposed_development_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Details of Proposed Development 
+                            Details of Proposed Development
                         </a>
                     </h3>
                 </div>
@@ -314,7 +314,7 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#landowner_consent_collapse" aria-expanded="false" aria-controls="landowner_consent_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Landowner Consent 
+                            Landowner Consent
                         </a>
                     </h3>
                 </div>
@@ -346,7 +346,7 @@
                     <h3 class="panel-title">
                         <a role="button" data-toggle="collapse" href="#deed_collapse" aria-expanded="false" aria-controls="deed_collapse">
                             <span class="glyphicon glyphicon-plus"></span>
-                            Deed 
+                            Deed
                         </a>
                     </h3>
                 </div>
@@ -387,7 +387,7 @@
                             </div>
                             <div class="col-lg-12">
                                 <div class="col-lg-6">
-                                    <label>The letter to stakeholders</label> 
+                                    <label>The letter to stakeholders</label>
                                 </div>
                                 <div class="col-lg-6">
                                     Generated Letter.PDF
@@ -406,7 +406,7 @@
                                         fredauthorised@agent.com (Fred Authorised - Submitter)
                                     </div>
                                     <div class="col-lg-12">
-                                        example@a.com (Joe Talkback - Feedback) 
+                                        example@a.com (Joe Talkback - Feedback)
                                     </div>
                                     <div class="col-lg-12">
                                         info@perth.wa.gov.au (Perth City - Referral)
@@ -529,7 +529,7 @@
                                         <div class="col-lg-6">Swan River Trust board</div> <div class="col-lg-6"> <input type='checkbox' > Click here when done.</div>
                                     </div>
                                 </div>
-                            </div>	
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -558,7 +558,7 @@
                 </div>
                 <div class="panel-collapse collapse {{ collapse.assessments }}" id="assessment_collapse" role="tabpanel" aria-labelledby="assessment_heading">
                     <div class="panel-body">
-                        <div class="col-sm-12 col-md-12 col-lg-12"> 
+                        <div class="col-sm-12 col-md-12 col-lg-12">
                             {% if hidden.assessments_draft_report == "False" %}
                             <div class="col-lg-12">
                                 <label><u>Draft Report</u></label>
@@ -579,7 +579,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             {% if hidden.assessments_swan_river_trust_board_feedback == "False" %}
                             <div class="col-lg-12">
 
@@ -596,29 +596,27 @@
                             </div>
 
                             {% endif %}
-                            
+
                             {% if hidden.assessments_new_draft == "False" %}
-                            {% if object.document_new_draft %}
+                                {% if object.document_new_draft %}
+                                {% else %}
+                                <div class="col-lg-12">
 
-                            {% else %}
-                            <div class="col-lg-12">
-
-                                <div class="col-lg-3">
-                                    <label>Attach new version of Report</label>
+                                    <div class="col-lg-3">
+                                        <label>Attach new version of Report</label>
+                                    </div>
+                                    <div class="col-lg-9">
+                                        {% if object.document_new_draft %}
+                                        <A HREF='/media/{{ object.document_new_draft.upload }}'>Assessment Report Version 2.PDF</A>
+                                        {% else %}
+                                        <A HREF="{% url 'application_update' object.pk %}">{% if may_update == "True" %}Attach File{% else %}No Attachment{% endif %}</A>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div class="col-lg-9">
-                                    {% if object.document_new_draft %}
-                                    <A HREF='/media/{{ object.document_new_draft.upload }}'>Assessment Report Version 2.PDF</A>
-                                    {% else %}
-                                    <A HREF="{% url 'application_update' object.pk %}">{% if may_update == "True" %}Attach File{% else %}No Attachment{% endif %}</A> 
-                                    {% endif %}
-                                </div>
-                            </div>
+                                {% endif %}
                             {% endif %}
-                            {% endif %} 
 
-        
-                            <div class="col-lg-12"> 
+                            <div class="col-lg-12">
                                 <div class="col-lg-3">
                                     <label> Start Date</label>
                                 </div>
@@ -626,6 +624,7 @@
                                     {{ object.assessment_start_date }}
                                 </div>
                             </div>
+
                             {% if hidden.swanriverpostaladdress == "False" %}
                             <div class="col-lg-12">
                                 <div class="col-lg-3">
@@ -667,7 +666,8 @@
                                  <div class="col-lg-9">
                                      <strong style='{% if workflow.assessment_extra.color %}color: {{ workflow.assessment_extra.color }} {% endif %}' > {{ workflow.assessment_extra.description }} </strong>
                                  </div>
-                              </div> 
+                              </div>
+>>>>>>> upstream/master
                         <div class="col-lg-12">
                         {% if may_update_assessment_draft == "True" %}
                         <a href="{% url 'application_update' object.pk %}" class="btn btn-primary" role="button">
@@ -675,10 +675,10 @@
                         </a>
 
                         {% endif %}
-                        </div> 
+                        </div>
 
                         {% endif %}
-                        
+
                         </div>
                         {% if hidden.assessments_draft_report_after_public_consultation == "False" %}
                          <BR>
@@ -696,7 +696,7 @@
 
                             <div class="col-lg-12">
                                 <div class="col-lg-3">
-                                    Attach new version of draft report 
+                                    Attach new version of draft report
                                 </div>
                                 <div class="col-lg-9">
                                     {% if object.document_new_draft_v3 %}
@@ -721,14 +721,14 @@
                                  </div>
                             </div>
 
-                        </div>	
+                        </div>
                         {% endif %}
-                        
-                        {% if hidden.assessments_determination_and_breifing_note == "False" %}
-                        
+
+                        {% if hidden.assessments_determination_and_briefing_note == "False" %}
+
                         <div class="col-lg-12">
                             <div class="col-lg-12">
-                                <label><u>Determination and Breifing Note</u></label>
+                                <label><u>Determination and Briefing Note</u></label>
                             </div>
 							{% if hidden.finalreportdetermination == "False" %}
                              <div class="col-lg-12">
@@ -748,17 +748,17 @@
                                     {% else %}
                                         <A HREF="{% url 'application_update' object.pk %}">{% if may_update == "True" %}Attach File{% else %}No Attachment{% endif %}</A>
                                     {% endif %}
- 
+
                                 </div>
 
                             </div>
                             <div class="col-lg-12">
                                 <div class="col-lg-3">
-                                    Briefing Note 
+                                    Briefing Note
                                 </div>
                                 <div class="col-lg-9">
-									{% if object.document_breifing_note %}
-                                       <A HREF='/media/{{ object.document_breifing_note.upload }}'>Breifing.PDF</A>
+									{% if object.document_briefing_note %}
+                                       <A HREF='/media/{{ object.document_briefing_note.upload }}'>Briefing.PDF</A>
                                     {% else %}
                                         <A HREF="{% url 'application_update' object.pk %}">{% if may_update == "True" %}Attach File{% else %}No Attachment{% endif %}</A>
                                     {% endif %}
@@ -767,7 +767,7 @@
                             </div>
                             <div class="col-lg-12">
                                 <div class="col-lg-3">
-                                   	Final Report 
+                                   	Final Report
                                 </div>
                                 <div class="col-lg-9">
 									{% if object.document_final_signed %}
@@ -778,12 +778,12 @@
                                     {% endif %}
                                 </div>
 
-                            </div> 
+                            </div>
 
 
                         </div>
                         {% endif %}
-                        
+
                         {% if may_update == "True" %}
                         <div class="col-lg-12">
 
@@ -792,12 +792,9 @@
                         {% endif %}
 
                     </div>
-         
-            
-
+                </div>
             </div>
-            </div>
-            {% endif %}	
+            {% endif %}
 
 
         </div>

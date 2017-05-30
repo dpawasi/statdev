@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from mixer.backend.django import mixer
 
-from accounts.utils import random_dpaw_email
+from applications.utils import random_dpaw_email
 from .models import Application, Referral, Condition, Vessel
 
 User = get_user_model()
@@ -27,7 +27,8 @@ class ApplicationTest(TestCase):
         self.user3.set_password('pass')
         self.user3.save()
 
-        Group.objects.create(name='Emergency')
+        for i in ['Processor', 'Assessor', 'Approver', 'Referee', 'Emergency']:
+            Group.objects.create(name=i)
         processor = Group.objects.get(name='Processor')
         assessor = Group.objects.get(name='Assessor')
         approver = Group.objects.get(name='Approver')
@@ -53,7 +54,7 @@ class ApplicationTest(TestCase):
         self.referee.save()
         self.referee.groups.add(referee)
         self.app_type = "licence"
-     
+
         # Log in user1, by default.
         self.client.login(email=self.user1.email, password='pass')
         # Generate test fixtures.

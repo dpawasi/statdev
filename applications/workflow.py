@@ -7,21 +7,21 @@ __all__ = (
 
 """
 
-Workflow.py utilise a .json file per each form flow linked to the app_type category on the application.   The json config contains a list of routes (also maybe called steps). 
+Workflow.py utilise a .json file per each form flow linked to the app_type category on the application.   The json config contains a list of routes (also maybe called steps).
 All routes start at route id 1 (step 1) within each route it contains a list of sub configs ,  title, hidden, actions, assigntoaccess, groupaccess, collapse, fields.
 
-1. When each form is loaded it will load the route config for the step the form is at.  The application contains a routeid to keep track of which routes the application is at.   
+1. When each form is loaded it will load the route config for the step the form is at.  The application contains a routeid to keep track of which routes the application is at.
 
 2. The hidden and collapse can be linked to the template which allows you to hide and collapse different boxes on the form depending on the step the form is at. Requires the template to have if statements and {{ }} variables added to the css collapse class.
 
 3. groupaccess is a list of permissions applied to different actions with in the template.  These rights are applied depending on the groups linked to there user groups.  If a person is linked to many groups eg. Assessor and Proccessor and only one group has a rule set to True than by default it will set the overall access to True for that rule for that person.  groupaccess contains the group name in django and a list of permission rules which are set to "True" or "False"
 
-4. assigntoaccess is a list of permissions applied when the application is assigned to a person and only when that person is accessing the form. example would be when assigning back to form creator. 
+4. assigntoaccess is a list of permissions applied when the application is assigned to a person and only when that person is accessing the form. example would be when assigning back to form creator.
 
 5. action is a list of routes the application can progress on to.  Actions can contain multiple actions each consisting of the action title, route,state and required.   Action is used to push the form onto the step in the workflow.  Where as form components allow changes to the form with out progressing the form onto the next person.
 
     a) title = title of action which appears as the title under actions on the form
-    b) route = this is route number of the route which will be applied when clicking the action which will update the application routeid to. 
+    b) route = this is route number of the route which will be applied when clicking the action which will update the application routeid to.
     c) routegroup = we have many action groups with in statdev and this is use to link the type of action being clicked when the button is clicked so the correct route is updated on the application
     d) required =  this is a list of fields on the Application model that are required to be completed before the action can continue onto the next step.
 
@@ -46,7 +46,7 @@ class Flow():
               return json_obj[str(routeid)]
         return None
 
-    def setAccessDefaults(self,context): 
+    def setAccessDefaults(self,context):
         # Form Actions
         if "may_update" not in context:
             context["may_update"] = "False"
@@ -89,14 +89,14 @@ class Flow():
         if "may_publish_feedback_draft" not in context:
             context["may_publish_feedback_draft"] = "False"
         if "may_update_publication_feedback_final" not in context:
-            context["may_update_publication_feedback_final"] = "False"    
+            context["may_update_publication_feedback_final"] = "False"
         if "may_publish_feedback_final" not in context:
             context["may_publish_feedback_final"] = "False"
         if "may_recall_resend" not in context:
             context["may_recall_resend"] = "False"
         if "may_assign_emergency" not in context:
             context["may_assign_emergency"] = "False"
-        if "may_assign_to_creator" not in context:       
+        if "may_assign_to_creator" not in context:
             context["may_assign_to_creator"] = "False"
         if "may_referral_delete" not in context:
             context["may_referral_delete"] = "False"
@@ -130,7 +130,7 @@ class Flow():
     def getAccessRights(self,request,context,route,flow):
         context = self.setAccessDefaults(context)
         context = self.getAllGroupAccess(request,context,route)
-        if context['application_assignee_id'] == request.user.id: 
+        if context['application_assignee_id'] == request.user.id:
             context = self.getAssignToAccess(context,route)
         return context
 
@@ -162,7 +162,7 @@ class Flow():
                      if ga in context:
                         if context[ga]:
                            if context[ga] in 'True':
-                              donothing = ''            
+                              donothing = ''
                            else:
                               context[ga] = groupaccess[ga]
                         else:
@@ -192,7 +192,7 @@ class Flow():
             executive = Group.objects.get(name='Executive')
         if Group.objects.filter(name='Emergency').exists():
             emergency = Group.objects.get(name='Emergency')
-      
+
 
         if processor in request.user.groups.all():
             context = self.getGroupAccess(context,route,'Processor')
@@ -212,9 +212,9 @@ class Flow():
         return context
 
     def getCollapse(self,context,route,flow):
-        context['collapse'] = {} 
+        context['collapse'] = {}
         json_obj = self.json_obj
-        if "collapse" in json_obj[str(route)]: 
+        if "collapse" in json_obj[str(route)]:
            collapse = json_obj[str(route)]['collapse']
            for c in collapse:
                if collapse[c] in "False":
@@ -282,7 +282,7 @@ class Flow():
         if json_obj[str(route)]:
             if json_obj[str(route)]['actions']:
                return json_obj[str(route)]['actions']
- 
+
     def checkAssignedAction(self,action,context):
         assign_action = False
         if action == "admin":
@@ -297,13 +297,13 @@ class Flow():
         elif action == "manager":
             if context["may_submit_approval"] == "True":
                 assign_action = True
-        elif action == "director": 
+        elif action == "director":
             if context["may_assign_director"] == "True":
                 assign_action = True
         elif action == "exec":
             if context["may_assign_exec"] == "True":
                 assign_action = True
-        elif action == "creator": 
+        elif action == "creator":
             if context["may_assign_to_creator"] == "True":
                 assign_action = True
 
@@ -338,7 +338,7 @@ class Flow():
             workflowtype = 'licence'
         elif app.app_type == app.APP_TYPE_CHOICES.part5cr:
             workflowtype = 'part5cr'
-        elif app.app_type == app.APP_TYPE_CHOICES.part5amend:    
+        elif app.app_type == app.APP_TYPE_CHOICES.part5amend:
             workflowtype = 'part5amend'
         else:
             workflowtype = ''

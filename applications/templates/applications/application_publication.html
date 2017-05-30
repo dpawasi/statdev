@@ -66,7 +66,6 @@
                             <div class="col-lg-10">
                                 <label>Application published on Department's website </label>
                             </div>
-                            
                             <div class="col-lg-2 align-right text-right">
                                 <td>
                                     {% if object.publish_documents %}
@@ -111,11 +110,11 @@
                                         <td>
                                         {% if workflow_actions %}
                                         {% if may_update_publication_website == "True" %}
-                                        
+
                                             <a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
                                                 Attach / Change
                                             </a>
-                                       
+
                                         {% endif %}
                                         {% endif %}
                                         </td>
@@ -208,7 +207,7 @@
                     <div class="panel-body">
                         {% if hidden.publish_publication_feedback_draft == "False" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
-                            <div class="col-lg-4">  
+                            <div class="col-lg-4">
                                 <label>Signed copy (signed by DG) of draft report</label>
                             </div>
                             <div class="col-lg-4">
@@ -310,10 +309,10 @@
                                 <div class="col-lg-12">
                                     {% if object.document_final_signed %}
                                     <A HREF='/media/{{ object.document_final_signed.upload.name }}'>Signed Document.pdf</A>
-                                    
+
                                     {% else %}
                                         {% if may_publish_publication_feedback_final == "True" %}
-                                            <A HREF="{% url 'application_update' object.pk %}">Attach File</A> 
+                                            <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
                                         {% else %}
                                             No Attachment
                                         {% endif %}
@@ -345,7 +344,7 @@
                    </div>
                      {% endif %}
 
-                    
+
                   {% if hidden.publication_feedback_determination == "False" %}
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">

@@ -4,7 +4,7 @@ from django.template.loader import render_to_string, get_template
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from accounts.models import EmailUser
+from ledger.accounts.models import EmailUser
 from applications.models import Referral
 from confy import env
 
@@ -33,7 +33,7 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
         return False
 
     if template is None:
-        raise ValidationError('Invalid Template') 
+        raise ValidationError('Invalid Template')
     if to is None:
         raise ValidationError('Invalid Email')
     if subject is None:
@@ -42,15 +42,15 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
     if from_email is None:
         if settings.DEFAULT_FROM_EMAIL:
             from_email = settings.DEFAULT_FROM_EMAIL
-        else: 
+        else:
             from_email = 'jason.moore@dpaw.wa.gov.au'
 
     context['version'] = settings.APPLICATION_VERSION_NO
     # Custom Email Body Template
     context['body'] = get_template(template).render(Context(context))
-    # Main Email Template Style ( body template is populated in the center 
+    # Main Email Template Style ( body template is populated in the center
     main_template = get_template('email-dpaw-template.html').render(Context(context))
-    
+
     if override_email is not None:
         to = [override_email]
         if cc:
@@ -64,7 +64,7 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
     return True
 
 def emailGroup(subject,context,template,cc,bcc,from_email,group):
-   
+
     UsersInGroup = EmailUser.objects.filter(groups__name=group)
     for person in UsersInGroup:
         context['person'] = person
@@ -72,7 +72,7 @@ def emailGroup(subject,context,template,cc,bcc,from_email,group):
 
 
 def emailApplicationReferrals(application_id,subject,context,template,cc,bcc,from_email):
-  
+
     context['default_url'] = env('DEFAULT_URL', '')
     ApplicationReferrals = Referral.objects.filter(application=application_id)
     for Referee in ApplicationReferrals:
