@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from mixer.backend.django import mixer
 
-from accounts.utils import random_dpaw_email
+from applications.utils import random_dpaw_email
 from .models import Application, Referral, Condition, Vessel
 
 User = get_user_model()

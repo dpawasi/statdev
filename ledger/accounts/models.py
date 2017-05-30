@@ -241,7 +241,7 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     #organisation = models.CharField(max_length=300, null=True, blank=True,
     #                                verbose_name="organisation", help_text='organisation, institution or company')
 
-    residential_address = models.ForeignKey(Address, null=True, blank=False, related_name='+')
+    residential_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
     postal_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
     billing_address = models.ForeignKey(Address, null=True, blank=True, related_name='+')
 
