@@ -11,6 +11,7 @@ fixture_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../fixtur
 
 
 def load_fixture(apps, schema_editor):
+    print(fixture_dir)
     call_command('loaddata', os.path.join(fixture_dir, 'countries.json'))
 
 
