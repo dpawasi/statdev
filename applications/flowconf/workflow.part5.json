@@ -193,7 +193,10 @@
             "document_final_signed": "hide",
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
-            "document_determination_approved" : "hide"
+            "document_determination_approved" : "hide",
+            "swan_river_trust_board_feedback" : "hide",
+            "document_breifing_note" : "hide"
+
         },
         "required": [
             "title",
@@ -221,7 +224,6 @@
             "assessments_draft_report_after_public_consultation":"True",
             "assessments_determination_and_briefing_note":"True",
             "may_create_condition": "True"
-
         },
         "actions": [
             {
@@ -1075,7 +1077,11 @@
             "conditions": "False",
             "assessments": "False"
         },
+        "assessment_extra": { "label": "Post to Director General",
+                        "description": "Current Version of Report should be printed and sent to the director general",
+                        "color": "red"
 
+        },
         "fields": {
 
         }
@@ -1496,11 +1502,12 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "assessments_draft_report": "False",
+            "assessments_draft_report": "True",
             "assessments_swan_river_trust_board_feedback": "False",
             "assessments_new_draft": "False",
             "assessments_draft_report_after_public_consultation" : "False",
-            "publish_publication_feedback_draft": "False"
+            "publish_publication_feedback_draft": "False",
+            "reportandmemoprint": "False"
 
         },
         "actions": [
@@ -1542,11 +1549,11 @@
             "river_reserve_lease_section_32": "True",
             "details_of_proposed_development": "True",
             "landowner_consent":"True",
-            "publication": "False",
+            "publication": "True",
             "referrals": "True",
             "deed": "True",
             "conditions": "True",
-            "assessments": "True"
+            "assessments": "False"
         },
 
         "fields": {
@@ -1977,14 +1984,15 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "False",
-			"assessments_draft_report": "False",
+			"assessments_draft_report": "True",
             "assessments_swan_river_trust_board_feedback": "False",
             "assessments_new_draft": "False",
             "publication_feedback_final" : "False",
             "publish_publication_feedback_draft": "False",
             "publication_feedback_determination": "True",
             "assessments_draft_report_after_public_consultation": "False",
-            "assessments_determination_and_briefing_note": "False"
+            "assessments_determination_and_briefing_note": "False",
+            "finalreportdetermination":"False"
         },
         "actions": [
             {

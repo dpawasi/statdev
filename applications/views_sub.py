@@ -18,6 +18,7 @@ class Application_Part5():
         context = flow.getAccessRights(request,context,app.routeid,'part5')
         context = flow.getCollapse(context,app.routeid,'part5')
         context = flow.getHiddenAreas(context,app.routeid,'part5')
+        context['workflow'] = flow.getAllRouteConf('part5',app.routeid)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
         context['formcomponent'] = flow.getFormComponent(app.routeid,'part5')
         try:
