@@ -19,6 +19,7 @@ from applications.views_sub import Application_Part5, Application_Emergency, App
 from applications.email import sendHtmlEmail,emailGroup,emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
+from ledger.accounts.models import EmailUser
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -2586,3 +2587,35 @@ class RecordCreate(LoginRequiredMixin, CreateView):
 
 class RecordList(ListView):
     model = Record
+
+
+class UserAccount(LoginRequiredMixin, DetailView):
+    model = EmailUser
+    template_name = 'accounts/user_account.html'
+
+    def get_object(self, queryset=None):
+        """Override get_object to always return the request user.
+        """
+        return self.request.user
+
+
+class UserAccountUpdate(LoginRequiredMixin, UpdateView):
+    form_class = apps_forms.EmailUserForm
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(UserAccountUpdate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override to set first_name and last_name on the EmailUser object.
+        """
+        self.obj = form.save(commit=False)
+        # If identification has been uploaded, then set the id_verified field to None.
+        #if 'identification' in data and data['identification']:
+        #    self.obj.id_verified = None
+        self.obj.save()
+        return HttpResponseRedirect(reverse('user_account'))

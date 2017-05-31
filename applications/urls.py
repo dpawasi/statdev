@@ -42,4 +42,7 @@ urlpatterns = [
     url(r'^compliances/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^records/create/$', views.RecordCreate.as_view(), name='document_create'),
     url(r'^records/$', views.RecordList.as_view(), name='document_list'),
+    # URLs related to user account, address and organisation management.
+    url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
+    url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
 ]

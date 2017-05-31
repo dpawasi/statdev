@@ -20,7 +20,7 @@ class Command(BaseCommand):
         director = Group.objects.get(name='Director')
         executive = Group.objects.get(name='Executive')
         referee = Group.objects.get(name='Referee')
-        
+
         if not User.objects.filter(email="admin@dpaw.gov.wa.au").exists():
 
             self.user1 = mixer.blend(User, email="admin@dpaw.gov.wa.au", first_name="Admin", last_name="1", is_superuser=False, is_staff=False)
@@ -28,7 +28,7 @@ class Command(BaseCommand):
             self.user1.save()
             self.user1.groups.add(processor)
 
-        if not User.objects.filter(email="asessor@dpaw.gov.wa.au").exists(): 
+        if not User.objects.filter(email="asessor@dpaw.gov.wa.au").exists():
             self.user1 = mixer.blend(User, email="asessor@dpaw.gov.wa.au", first_name="Assessor", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
@@ -57,7 +57,6 @@ class Command(BaseCommand):
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(emergency)
-
 
         if not User.objects.filter(email="referee1@dpaw.gov.wa.au").exists():
             self.user1 = mixer.blend(User, email="referee1@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
@@ -95,5 +94,5 @@ class Command(BaseCommand):
             self.user1.save()
             self.user1.groups.add(referee)
 
-        print ("Test Account Creation Completed") 
+        print ("Test Account Creation Completed")
         return
