@@ -907,5 +907,24 @@ class AddressForm(ModelForm):
         super(AddressForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_address'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class OrganisationForm(ModelForm):
+
+    class Meta:
+        model = Organisation
+        fields = ['name', 'abn']
+
+    def __init__(self, *args, **kwargs):
+        super(OrganisationForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Company name'
+        #self.fields['identification'].label = 'Certificate of incorporation'
+        #self.fields['identification'].help_text = 'Electronic copy of current certificate (e.g. image/PDF)'
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_organisation'
+        self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

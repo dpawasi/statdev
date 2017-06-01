@@ -1,26 +1,29 @@
 from __future__ import unicode_literals
+from datetime import datetime, date
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from extra_views import ModelFormSetView
 import pdfkit
+
 from actions.models import Action
 from applications import forms as apps_forms
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from .models import Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback, Communication
-from datetime import datetime, date
+from applications.models import (
+    Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
+    PublicationWebsite, PublicationFeedback, Communication, Delegate)
 from applications.workflow import Flow
-from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
-from ledger.accounts.models import EmailUser, Address
+from ledger.accounts.models import EmailUser, Address, Organisation
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -2727,3 +2730,80 @@ class AddressDelete(LoginRequiredMixin, DeleteView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.success_url)
         return super(AddressDelete, self).post(request, *args, **kwargs)
+
+
+class OrganisationList(LoginRequiredMixin, ListView):
+    model = Organisation
+
+    def get_queryset(self):
+        qs = super(OrganisationList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by name and ABN fields.
+            query = get_query(query_str, ['name', 'abn'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+
+class OrganisationCreate(LoginRequiredMixin, CreateView):
+    """A view to create a new Organisation.
+    """
+    form_class = apps_forms.OrganisationForm
+    template_name = 'accounts/organisation_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationCreate, self).get_context_data(**kwargs)
+        context['action'] = 'Create'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('organisation_list'))
+        return super(OrganisationCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        # Assign the creating user as a delegate to the new organisation.
+        Delegate.objects.create(email_user=self.request.user, organisation=self.obj)
+        messages.success(self.request, 'New organisation created successfully!')
+        return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
+
+
+class OrganisationDetail(LoginRequiredMixin, DetailView):
+    model = Organisation
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationDetail, self).get_context_data(**kwargs)
+        org = self.get_object()
+        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+        return context
+
+
+class OrganisationUpdate(LoginRequiredMixin, UpdateView):
+    """A view to update an Organisation object.
+    """
+    model = Organisation
+    form_class = apps_forms.OrganisationForm
+
+    def get(self, request, *args, **kwargs):
+        # Rule: only a delegated user can update an organisation.
+        if not Delegate.objects.filter(email_user=request.user, organisation=self.get_object()).exists():
+            messages.warning(self.request, 'You are not authorised to update this organisation. Please request delegated authority if required.')
+            return HttpResponseRedirect(self.get_success_url())
+        return super(OrganisationUpdate, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationUpdate, self).get_context_data(**kwargs)
+        context['action'] = 'Update'
+        return context
+
+    def get_success_url(self):
+        return reverse('organisation_detail', args=(self.get_object().pk,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        return super(OrganisationUpdate, self).post(request, *args, **kwargs)

@@ -47,4 +47,8 @@ urlpatterns = [
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
     url(r'^account/address/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
+    url(r'^organisations/$', views.OrganisationList.as_view(), name='organisation_list'),
+    url(r'^organisations/create/$', views.OrganisationCreate.as_view(), name='organisation_create'),
+    url(r'^organisations/(?P<pk>\d+)/$', views.OrganisationDetail.as_view(), name='organisation_detail'),
+    url(r'^organisations/(?P<pk>\d+)/update/$', views.OrganisationUpdate.as_view(), name='organisation_update'),
 ]
