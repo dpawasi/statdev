@@ -372,7 +372,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
 
-        if app.routeid > 1:
+        if int(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
 
