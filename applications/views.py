@@ -212,7 +212,7 @@ class ApplicationDetail(DetailView):
 
         # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
-        if app.routeid > 1:
+        if int(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
                 del context['workflow_actions']
