@@ -37,7 +37,7 @@ class HomePage(LoginRequiredMixin, TemplateView):
         userGroups = []
         for g in self.request.user.groups.all():
              userGroups.append(g.name)
-             print userGroups
+             
         applications_groups = Application.objects.filter(group__name__in=userGroups).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
         context['applications_groups'] = self.create_applist(applications_groups)
 
