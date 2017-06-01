@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from extra_views import ModelFormSetView
 import pdfkit
 from actions.models import Action
@@ -16,10 +17,10 @@ from datetime import datetime, date
 from applications.workflow import Flow
 from django.db.models import Q
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check
-from applications.email import sendHtmlEmail,emailGroup,emailApplicationReferrals
+from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
-from ledger.accounts.models import EmailUser
+from ledger.accounts.models import EmailUser, Address
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -2619,3 +2620,110 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
         #    self.obj.id_verified = None
         self.obj.save()
         return HttpResponseRedirect(reverse('user_account'))
+
+
+class AddressCreate(LoginRequiredMixin, CreateView):
+    """A view to create a new address for an EmailUser.
+    """
+    form_class = apps_forms.AddressForm
+    template_name = 'accounts/address_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Rule: the ``type`` kwarg must be 'postal' or 'billing'
+        if self.kwargs['type'] not in ['postal', 'billing']:
+            messages.error(self.request, 'Invalid address type!')
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(AddressCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AddressCreate, self).get_context_data(**kwargs)
+        context['address_type'] = self.kwargs['type']
+        context['action'] = 'Create'
+        context['principal'] = self.request.user.email
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(AddressCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        u = self.request.user
+        self.obj = form.save(commit=False)
+        self.obj.user = u
+        self.obj.save()
+        # Attach the new address to the user's profile.
+        if self.kwargs['type'] == 'postal':
+            u.postal_address = self.obj
+        elif self.kwargs['type'] == 'billing':
+            u.billing_address = self.obj
+        u.save()
+        return HttpResponseRedirect(reverse('user_account'))
+
+
+class AddressUpdate(LoginRequiredMixin, UpdateView):
+    model = Address
+    form_class = apps_forms.AddressForm
+    success_url = reverse_lazy('user_account')
+
+    def get(self, request, *args, **kwargs):
+        address = self.get_object()
+        u = self.request.user
+        update_address = False
+        # Rule: only the address owner can change an address.
+        if u.postal_address == address or u.billing_address == address:
+            update_address = True
+        # Organisational addresses: find which org uses this address, and if
+        # the user is a delegate for that org then they can change it.
+        #org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
+        #for org in org_list:
+        #    if profile in org.delegates.all():
+        #        update_address = True
+        if update_address:
+            return super(AddressUpdate, self).get(request, *args, **kwargs)
+        else:
+            messages.error(self.request, 'You cannot update this address!')
+            return HttpResponseRedirect(self.success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super(AddressUpdate, self).get_context_data(**kwargs)
+        context['action'] = 'Update'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.success_url)
+        return super(AddressUpdate, self).post(request, *args, **kwargs)
+
+
+class AddressDelete(LoginRequiredMixin, DeleteView):
+    """A view to allow the deletion of an address. Not currently in use,
+    because the ledge Address model can cause the linked EmailUser object to
+    be deleted along with the Address object :/
+    """
+    model = Address
+    success_url = reverse_lazy('user_account')
+
+    def get(self, request, *args, **kwargs):
+        address = self.get_object()
+        u = self.request.user
+        delete_address = False
+        # Rule: only the address owner can delete an address.
+        if u.postal_address == address or u.billing_address == address:
+            delete_address = True
+        # Organisational addresses: find which org uses this address, and if
+        # the user is a delegate for that org then they can delete it.
+        #org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
+        #for org in org_list:
+        #    if profile in org.delegates.all():
+        #        delete_address = True
+        if delete_address:
+            return super(AddressDelete, self).get(request, *args, **kwargs)
+        else:
+            messages.error(self.request, 'You cannot delete this address!')
+            return HttpResponseRedirect(self.success_url)
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.success_url)
+        return super(AddressDelete, self).post(request, *args, **kwargs)

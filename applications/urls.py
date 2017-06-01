@@ -45,4 +45,6 @@ urlpatterns = [
     # URLs related to user account, address and organisation management.
     url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
+    url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
+    url(r'^account/address/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
 ]

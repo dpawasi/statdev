@@ -29,28 +29,22 @@
                         <th>Postal address</th>
                         <td>{{ object.postal_address }}</td>
                         <td>
-                        {% comment %}
                         {% if object.postal_address %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.postal_address.pk %}">Update</a>
-                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'address_delete' object.postal_address.pk %}">Delete</a>
                         {% else %}
-                            <a class="btn btn-primary btn-sm" role="button" href="{% url 'user_address_create' 'postal' %}">Create</a>
+                            <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_create' 'postal' %}">Create</a>
                         {% endif %}
-                        {% endcomment %}
                         </td>
                     </tr>
                     <tr>
                         <th>Billing address</th>
                         <td>{{ object.billing_address }}</td>
                         <td>
-                        {% comment %}
                         {% if object.billing_address %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.billing_address.pk %}">Update</a>
-                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'address_delete' object.billing_address.pk %}">Delete</a>
                         {% else %}
-                            <a class="btn btn-primary btn-sm" role="button" href="{% url 'user_address_create' 'billing' %}">Create</a>
+                            <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_create' 'billing' %}">Create</a>
                         {% endif %}
-                        {% endcomment %}
                         </td>
                     </tr>
                 </tbody>

@@ -9,7 +9,7 @@ from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Tex
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
-from ledger.accounts.models import EmailUser, Organisation
+from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
     PublicationWebsite, PublicationFeedback, Delegate)
@@ -895,3 +895,17 @@ class EmailUserForm(ModelForm):
                 Submit('cancel', 'Cancel')
             )
         )
+
+
+class AddressForm(ModelForm):
+
+    class Meta:
+        model = Address
+        fields = ['line1', 'line2', 'line3', 'locality', 'state', 'country', 'postcode']
+
+    def __init__(self, *args, **kwargs):
+        super(AddressForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_address'
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
