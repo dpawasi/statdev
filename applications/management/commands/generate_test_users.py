@@ -21,78 +21,102 @@ class Command(BaseCommand):
         executive = Group.objects.get(name='Executive')
         referee = Group.objects.get(name='Referee')
 
-        if not User.objects.filter(email="admin@dpaw.gov.wa.au").exists():
-
-            self.user1 = mixer.blend(User, email="admin@dpaw.gov.wa.au", first_name="Admin", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="admin@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="admin@dpaw.wa.gov.au", first_name="Admin", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(processor)
 
-        if not User.objects.filter(email="asessor@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="asessor@dpaw.gov.wa.au", first_name="Assessor", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="asessor@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="asessor@dpaw.wa.gov.au", first_name="Assessor", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(assessor)
 
-        if not User.objects.filter(email="manager@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="manager@dpaw.gov.wa.au", first_name="Manager", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="manager@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="manager@dpaw.wa.gov.au", first_name="Manager", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(approver)
 
-        if not User.objects.filter(email="director@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="director@dpaw.gov.wa.au", first_name="Manager", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="director@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="director@dpaw.wa.gov.au", first_name="Director", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(director)
 
-        if not User.objects.filter(email="exec@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="exec@dpaw.gov.wa.au", first_name="Manager", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="exec@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="exec@dpaw.wa.gov.au", first_name="Exec", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(executive)
 
-        if not User.objects.filter(email="emergency@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="emergency@dpaw.gov.wa.au", first_name="Emergency", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="emergency@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="emergency@dpaw.wa.gov.au", first_name="Emergency", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(emergency)
 
-        if not User.objects.filter(email="referee1@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="referee1@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="referee1@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="referee1@dpaw.wa.gov.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(referee)
 
-        if not User.objects.filter(email="referee2@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="referee2@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="referee2@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="referee2@dpaw.wa.gov.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(referee)
 
-        if not User.objects.filter(email="referee3@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="referee3@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="referee3@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="referee3@dpaw.wa.gov.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(referee)
 
-        if not User.objects.filter(email="referee4@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="referee4@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="referee4@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="referee4@dpaw.wa.gov.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(referee)
 
-        if not User.objects.filter(email="referee5@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="referee5@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="referee5@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="referee5@dpaw.wa.gov.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(referee)
 
-        if not User.objects.filter(email="referee6@dpaw.gov.wa.au").exists():
-            self.user1 = mixer.blend(User, email="referee6@dpaw.gov.wa.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
+        if not User.objects.filter(email="referee6@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="referee6@dpaw.wa.gov.au", first_name="Referee", last_name="1", is_superuser=False, is_staff=False)
             self.user1.set_password('pass')
             self.user1.save()
             self.user1.groups.add(referee)
+
+        if not User.objects.filter(email="customer1@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="customer1@dpaw.wa.gov.au", first_name="Customer", last_name="1", is_superuser=False, is_staff=False)
+            self.user1.set_password('pass')
+            self.user1.save()
+
+        if not User.objects.filter(email="customer2@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="customer2@dpaw.wa.gov.au", first_name="Customer", last_name="2", is_superuser=False, is_staff=False)
+            self.user1.set_password('pass')
+            self.user1.save()
+
+        if not User.objects.filter(email="customer3@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="customer3@dpaw.wa.gov.au", first_name="Customer", last_name="3", is_superuser=False, is_staff=False)
+            self.user1.set_password('pass')
+            self.user1.save()
+
+        if not User.objects.filter(email="customer4@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="customer4@dpaw.wa.gov.au", first_name="Customer", last_name="4", is_superuser=False, is_staff=False)
+            self.user1.set_password('pass')
+            self.user1.save()
+
+        if not User.objects.filter(email="customer5@dpaw.wa.gov.au").exists():
+            self.user1 = mixer.blend(User, email="customer5@dpaw.wa.gov.au", first_name="Customer", last_name="5", is_superuser=False, is_staff=False)
+            self.user1.set_password('pass')
+            self.user1.save()
 
         print ("Test Account Creation Completed")
         return

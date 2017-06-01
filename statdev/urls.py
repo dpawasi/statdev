@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^logout/$', logout, name='logout', kwargs={'template_name': 'logged_out.html'}),
     url(r'^accounts/', include('ledger.accounts.urls')),
     url(r'^', include('applications.urls')),
+    #url(r'^', include('approvals.urls'))
 ]
 
 if settings.DEBUG:
