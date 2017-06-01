@@ -191,7 +191,7 @@ class ApplicationDetail(DetailView):
         usergroups = self.request.user.groups.all()
         # print app.group
         if app.group in usergroups:
-            if app.routeid > 1:
+            if int(app.routeid) > 1:
                 context['may_assign_to_person'] = 'True'
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
