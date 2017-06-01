@@ -168,7 +168,7 @@ class Application(models.Model):
     publish_draft_report = models.DateField(null=True, blank=True)
     publish_final_report = models.DateField(null=True, blank=True)
     publish_determination_report = models.DateField(null=True, blank=True)
-    routeid = models.IntegerField(null=True, blank=True, default=1)
+    routeid = models.CharField(null=True, blank=True, default=1, max_length=4)
     assessment_start_date = models.DateField(null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True, related_name='application_group_assignment')
     swan_river_trust_board_feedback = models.ForeignKey(Record, null=True, blank=True, related_name='document_swan_river_board_feedback')
