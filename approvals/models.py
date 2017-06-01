@@ -6,7 +6,7 @@ from django.db import models
 from model_utils import Choices
 
 @python_2_unicode_compatible
-class Approvals(models.Model):
+class Approval(models.Model):
      """This model represents an approvals by a customer to P&W for a single
      permit, licence/permit, part 5, etc.
      """
@@ -29,6 +29,6 @@ class Approvals(models.Model):
 
      def __str__(self):
         if self.id:
-            return '{} ({})'.format(self.title, self.get_category_display())
+            return '{} ({})'.format(self.title, self.app_type)
         return self.name
 
