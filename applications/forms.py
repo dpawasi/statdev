@@ -9,7 +9,7 @@ from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Tex
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
-from ledger.accounts.models import Organisation
+from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
     PublicationWebsite, PublicationFeedback, Delegate)
@@ -842,6 +842,7 @@ class WebsitePublicationForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+
 class FeedbackPublicationCreateForm(ModelForm):
 
     records = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
@@ -860,6 +861,7 @@ class FeedbackPublicationCreateForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+
 class RecordCreateForm(ModelForm):
     class Meta:
         model = Record
@@ -871,4 +873,76 @@ class RecordCreateForm(ModelForm):
         self.helper.form_id = 'id_form_create_document'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class EmailUserForm(ModelForm):
+
+    class Meta:
+        model = EmailUser
+        fields = ['first_name', 'last_name', 'title', 'dob', 'phone_number', 'mobile_number', 'fax_number']
+
+    def __init__(self, *args, **kwargs):
+        super(EmailUserForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_emailuser_account_update'
+        self.helper.attrs = {'novalidate': ''}
+        # Define the form layout.
+        self.helper.layout = Layout(
+            'first_name', 'last_name', 'title', 'dob', 'phone_number', 'mobile_number', 'fax_number',
+            FormActions(
+                Submit('save', 'Save', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
+class AddressForm(ModelForm):
+
+    class Meta:
+        model = Address
+        fields = ['line1', 'line2', 'line3', 'locality', 'state', 'country', 'postcode']
+
+    def __init__(self, *args, **kwargs):
+        super(AddressForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_address'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class OrganisationForm(ModelForm):
+
+    class Meta:
+        model = Organisation
+        fields = ['name', 'abn']
+
+    def __init__(self, *args, **kwargs):
+        super(OrganisationForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Company name'
+        #self.fields['identification'].label = 'Certificate of incorporation'
+        #self.fields['identification'].help_text = 'Electronic copy of current certificate (e.g. image/PDF)'
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_organisation'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class DelegateAccessForm(Form):
+
+    def __init__(self, *args, **kwargs):
+        super(DelegateAccessForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.add_input(Submit('confirm', 'Confirm', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
+class UnlinkDelegateForm(Form):
+
+    def __init__(self, *args, **kwargs):
+        super(UnlinkDelegateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.add_input(Submit('unlink', 'Unlink user', css_class='btn-lg btn-danger'))
         self.helper.add_input(Submit('cancel', 'Cancel'))

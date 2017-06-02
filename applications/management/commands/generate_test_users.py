@@ -119,4 +119,5 @@ class Command(BaseCommand):
             self.user1.save()
 
         print ("Test Account Creation Completed")
+
         return
