@@ -1,0 +1,110 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<h1>Approvals</h1>
+<div class="row">
+    <form action="" method="get">
+        <div class="hidden-xs col-sm-1">
+            <label for="search_field">Search:</label>
+        </div>
+        <div class="col-xs-12 col-sm-8">
+            <input id="search_field" type="text" class="form-control" name="q" placeholder="Search..." value="{{ query_string }}">
+        </div>
+        {% if may_create %}
+        <div class="col-xs-12 col-sm-3">
+            <a class="btn btn-primary pull-right" role="button" href="{% url 'application_create' %}">Create a new application</a>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<br>
+<!-- Hidden in case we need to reactivate
+    <div class="row">
+    <div class="col-xs-12">
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th>Lodgement no.</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Applicant</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Lodged on</th>
+                    <th>Assignee</th>
+                    <th>Payment status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in object_list %}
+                <tr>
+                    <td><a href="{% url 'application_detail' obj.pk %}">{{ obj.pk }}</a></td>
+                    <td>{{ obj.get_app_type_display }}</td>
+                    <td>{{ obj.title }}</td>
+                    <td>{{ obj.applicant.get_full_name }}</td>
+                    <td>{{ obj.organisation }}</td>
+                    <td>{{ obj.get_state_display }}</td>
+                    <td>{{ obj.submit_date|date:"d-M-Y" }}</td>
+                    <td>{{ obj.assignee.get_full_name }}</td>
+                    <td></td>
+                    <td>
+                    {% if not obj.assignee and obj.state == obj.APP_STATE_CHOICES.with_admin and may_assign_processor %}
+                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign' obj.pk 'process' %}">Assign</a>
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+-->
+
+<div class="row">
+    <div class="col-xs-12">
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th>Lodgement no.</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Applicant</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Lodged on</th>
+                    <th>Assignee</th>
+                    <th>Payment status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app_obj in app_list %}
+                <tr>
+                    <td><a href="{% url 'application_detail' app_obj.app.pk %}">{{ app_obj.app.pk }}</a></td>
+                    <td>{{ app_obj.app.get_app_type_display }}</td>
+                    <td>{{ app_obj.app.title }}</td>
+                    <td>{{ app_obj.app.applicant.get_full_name }}</td>
+                    <td>{{ app_obj.app.organisation }}</td>
+                    <td>{{ app_obj.app.get_state_display }}</td>
+                    <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
+                    <td>{{ app_obj.app.assignee.get_full_name }}</td>
+                    <td></td>
+                    <td>
+                    {% if app_obj.may_assign_to_person == "True" %}
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign_person' app_obj.app.pk %}">{% if app_obj.app.assignee == None %}Assign{% else %}Re Assign {% endif %}</a>
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+
