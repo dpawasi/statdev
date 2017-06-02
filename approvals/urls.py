@@ -1,5 +1,6 @@
 from django.conf.urls import url
-from applications import views
+from approvals import views
 
-
-urlpatterns = []
+urlpatterns = [
+                  url(r'^approvals/$', views.ApprovalList.as_view(), name='approval_list')
+              ]
