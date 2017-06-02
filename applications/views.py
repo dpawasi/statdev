@@ -1,16 +1,22 @@
 from __future__ import unicode_literals
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from extra_views import ModelFormSetView
+from itertools import chain
 import pdfkit
 
 from actions.models import Action
@@ -2602,6 +2608,11 @@ class UserAccount(LoginRequiredMixin, DetailView):
         """
         return self.request.user
 
+    def get_context_data(self, **kwargs):
+        context = super(UserAccount, self).get_context_data(**kwargs)
+        context['organisations'] = [i.organisation for i in Delegate.objects.filter(email_user=self.request.user)]
+        return context
+
 
 class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.EmailUserForm
@@ -2671,18 +2682,14 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         address = self.get_object()
-        u = self.request.user
-        update_address = False
-        # Rule: only the address owner can change an address.
+        u = request.user
+        # User addresses: only the user can change an address.
         if u.postal_address == address or u.billing_address == address:
-            update_address = True
+            return super(AddressUpdate, self).get(request, *args, **kwargs)
         # Organisational addresses: find which org uses this address, and if
         # the user is a delegate for that org then they can change it.
-        #org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
-        #for org in org_list:
-        #    if profile in org.delegates.all():
-        #        update_address = True
-        if update_address:
+        org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
+        if Delegate.objects.filter(email_user=u, organisation__in=org_list).exists():
             return super(AddressUpdate, self).get(request, *args, **kwargs)
         else:
             messages.error(self.request, 'You cannot update this address!')
@@ -2691,6 +2698,15 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(AddressUpdate, self).get_context_data(**kwargs)
         context['action'] = 'Update'
+        address = self.get_object()
+        u = self.request.user
+        if u.postal_address == address:
+            context['action'] = 'Update postal'
+            context['principal'] = u.email
+        if u.billing_address == address:
+            context['action'] = 'Update billing'
+            context['principal'] = u.email
+        # TODO: include context for Organisation addresses.
         return context
 
     def post(self, request, *args, **kwargs):
@@ -2807,3 +2823,187 @@ class OrganisationUpdate(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_success_url())
         return super(OrganisationUpdate, self).post(request, *args, **kwargs)
+
+
+class OrganisationAddressCreate(AddressCreate):
+    """A view to create a new address for an Organisation.
+    """
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationAddressCreate, self).get_context_data(**kwargs)
+        org = Organisation.objects.get(pk=self.kwargs['pk'])
+        context['principal'] = org.name
+        return context
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        # Attach the new address to the organisation.
+        org = Organisation.objects.get(pk=self.kwargs['pk'])
+        if self.kwargs['type'] == 'postal':
+            org.postal_address = self.obj
+        elif self.kwargs['type'] == 'billing':
+            org.billing_address = self.obj
+        org.save()
+        return HttpResponseRedirect(reverse('organisation_detail', args=(org.pk,)))
+
+
+class RequestDelegateAccess(LoginRequiredMixin, FormView):
+    """A view to allow a user to request to be added to an organisation as a delegate.
+    This view sends an email to all current delegates, any of whom may confirm the request.
+    """
+    form_class = apps_forms.DelegateAccessForm
+    template_name = 'accounts/request_delegate_access.html'
+
+    def get_organisation(self):
+        return Organisation.objects.get(pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        # Rule: redirect if the user is already a delegate.
+        org = self.get_organisation()
+        if Delegate.objects.filter(email_user=request.user, organisation=org).exists():
+            messages.warning(self.request, 'You are already a delegate for this organisation!')
+            return HttpResponseRedirect(self.get_success_url())
+        return super(RequestDelegateAccess, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(RequestDelegateAccess, self).get_context_data(**kwargs)
+        context['organisation'] = self.get_organisation()
+        return context
+
+    def get_success_url(self):
+        return reverse('organisation_detail', args=(self.get_organisation().pk,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        # For each existing organisation delegate user, send an email that
+        # contains a unique URL to confirm the request. The URL consists of the
+        # requesting user PK (base 64-encoded) plus a unique token for that user.
+        org = self.get_organisation()
+        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
+        if not delegates.exists():
+            # In the event that an organisation has no delegates, the request
+            # will be sent to all users in the "Processor" group.
+            processor = Group.objects.get(name='Processor')
+            recipients = [i.email for i in EmailUser.objects.filter(groups__in=[processor])]
+        else:
+            recipients = [i.emailuser.email for i in delegates]
+        user = self.request.user
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        # Note that the token generator uses the requesting user object to generate a hash.
+        # This means that if the user object changes (e.g. they log out and in again),
+        # the hash will be invalid. Therefore, this request/response needs to occur
+        # fairly promptly to work.
+        token = default_token_generator.make_token(user)
+        url = reverse('confirm_delegate_access', args=(org.pk, uid, token))
+        url = request.build_absolute_uri(url)
+        subject = 'Delegate access request for {}'.format(org.name)
+        message = '''The following user has requested delegate access for {}: {}\n
+        Click here to confirm and grant this access request:\n{}'''.format(org.name, user, url)
+        html_message = '''<p>The following user has requested delegate access for {}: {}</p>
+        <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False, html_message=html_message)
+        # Send a request email to the recipients asynchronously.
+        # NOTE: the lines below should remain commented until (if) async tasking is implemented in prod.
+        #from django_q.tasks import async
+        #async(
+        #    'django.core.mail.send_mail', subject, message,
+        #    settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=True, html_message=html_message,
+        #    hook='log_task_result')
+        #messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
+        # Generate an action record:
+        action = Action(content_object=org, user=user, action='Requested delegate access')
+        action.save()
+        return super(RequestDelegateAccess, self).post(request, *args, **kwargs)
+
+
+class ConfirmDelegateAccess(LoginRequiredMixin, FormView):
+    form_class = apps_forms.DelegateAccessForm
+    template_name = 'accounts/confirm_delegate_access.html'
+
+    def get_organisation(self):
+        return Organisation.objects.get(pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be an existing delegate.
+        org = self.get_organisation()
+        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
+        if delegates.exists():
+            uid = urlsafe_base64_decode(self.kwargs['uid'])
+            user = EmailUser.objects.get(pk=uid)
+            token = default_token_generator.check_token(user, self.kwargs['token'])
+            if token:
+                return super(ConfirmDelegateAccess, self).get(request, *args, **kwargs)
+            else:
+                messages.warning(self.request, 'The request delegate token is no longer valid.')
+        else:
+            messages.warning(self.request, 'You are not authorised to confirm this request!')
+        return HttpResponseRedirect(reverse('user_account'))
+
+    def get_context_data(self, **kwargs):
+        context = super(ConfirmDelegateAccess, self).get_context_data(**kwargs)
+        context['organisation'] = self.get_organisation()
+        uid = urlsafe_base64_decode(self.kwargs['uid'])
+        context['requester'] = EmailUser.objects.get(pk=uid)
+        return context
+
+    def get_success_url(self):
+        return reverse('organisation_detail', args=(self.get_organisation().pk,))
+
+    def post(self, request, *args, **kwargs):
+        uid = urlsafe_base64_decode(self.kwargs['uid'])
+        req_user = EmailUser.objects.get(pk=uid)
+        token = default_token_generator.check_token(req_user, self.kwargs['token'])
+        # Change the requesting user state to expire the token.
+        req_user.last_login = req_user.last_login + timedelta(seconds=1)
+        req_user.save()
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        if token:
+            org = self.get_organisation()
+            Delegate.objects.create(email_user=req_user, organisation=org)
+            messages.success(self.request, '{} has been added as a delegate for {}.'.format(req_user, org.name))
+        else:
+            messages.warning(self.request, 'The request delegate token is no longer valid.')
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class UnlinkDelegate(LoginRequiredMixin, FormView):
+    form_class = apps_forms.UnlinkDelegateForm
+    template_name = 'accounts/confirm_unlink_delegate.html'
+
+    def get_organisation(self):
+        return Organisation.objects.get(pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        org = self.get_organisation()
+        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
+        if not delegates.exists():
+            messages.error(self.request, 'You are not authorised to unlink a delegated user for {}'.format(org.name))
+            return HttpResponseRedirect(self.get_success_url())
+        return super(UnlinkDelegate, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UnlinkDelegate, self).get_context_data(**kwargs)
+        context['delegate'] = EmailUser.objects.get(pk=self.kwargs['user_id'])
+        return context
+
+    def get_success_url(self):
+        return reverse('organisation_detail', args=(self.get_organisation().pk,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        return super(UnlinkDelegate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Unlink the specified user from the organisation.
+        org = self.get_organisation()
+        user = EmailUser.objects.get(pk=self.kwargs['user_id'])
+        Delegate.objects.delete(email_user=user, organisation=org)
+        messages.success(self.request, '{} has been removed as a delegate for {}.'.format(user, org.name))
+        # Generate an action record:
+        action = Action(content_object=org, user=self.request.user,
+            action='Unlinked delegate access for {}'.format(user.get_full_name()))
+        action.save()
+        return HttpResponseRedirect(self.get_success_url())

@@ -70,28 +70,22 @@
                         <th>Postal address</th>
                         <td>{{ org.postal_address }}</td>
                         <td>
-                        {% comment %}
                         {% if org.postal_address %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' org.postal_address.pk %}">Update</a>
-                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'address_delete' org.postal_address.pk %}">Delete</a>
                         {% else %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' org.pk 'postal' %}">Create</a>
                         {% endif %}
-                        {% endcomment %}
                         </td>
                     </tr>
                     <tr>
                         <th>Billing address</th>
                         <td>{{ org.billing_address }}</td>
                         <td>
-                        {% comment %}
                         {% if org.billing_address %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' org.billing_address.pk %}">Update</a>
-                            <a class="btn btn-danger btn-sm" role="button" href="{% url 'address_delete' org.billing_address.pk %}">Delete</a>
                         {% else %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' org.pk 'billing' %}">Create</a>
                         {% endif %}
-                        {% endcomment %}
                         </td>
                     </tr>
                 </tbody>

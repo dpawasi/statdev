@@ -21,13 +21,11 @@
                         <td>{{ object.postal_address }}</td>
                         {% if user_is_delegate %}
                         <td>
-                        {% comment %}
                         {% if object.postal_address %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.postal_address.pk %}">Update</a>
                         {% else %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' object.pk 'postal' %}">Create</a>
                         {% endif %}
-                        {% endcomment %}
                         </td>
                         {% endif %}
                     </tr>
@@ -36,13 +34,11 @@
                         <td>{{ object.billing_address }}</td>
                         {% if user_is_delegate %}
                         <td>
-                        {% comment %}
                         {% if object.billing_address %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.billing_address.pk %}">Update</a>
                         {% else %}
                             <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' object.pk 'billing' %}">Create</a>
                         {% endif %}
-                        {% endcomment %}
                         </td>
                         {% endif %}
                     </tr>
