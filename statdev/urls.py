@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^login/$', login, name='login', kwargs={'template_name': 'login.html'}),
     url(r'^logout/$', logout, name='logout', kwargs={'template_name': 'logged_out.html'}),
     url(r'^', include('applications.urls')),
+    #url(r'^', include('approvals.urls'))
 ]
 
 if settings.DEBUG:

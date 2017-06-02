@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     #'accounts',
     'applications',
     'actions',
+    'approvals',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

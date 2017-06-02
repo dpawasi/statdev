@@ -42,17 +42,19 @@ class HomePage(LoginRequiredMixin, TemplateView):
             applications_wip = Application.objects.filter(
                 assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
             context['applications_wip'] = self.create_applist(applications_wip)
-        if Application.objects.filter(assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined]).exists():
+        #if Application.objects.filter(assignee=self.request.user).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined]).exists():
             #            userGroups = self.request.user.groups.all()
-            userGroups = []
-            for g in self.request.user.groups.all():
-                userGroups.append(g.name)
-            applications_groups = Application.objects.filter(group__name__in=userGroups).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
-            context['applications_groups'] = self.create_applist(applications_groups)
+
+        userGroups = []
+        for g in self.request.user.groups.all():
+             userGroups.append(g.name)
+             
+        applications_groups = Application.objects.filter(group__name__in=userGroups).exclude(state__in=[Application.APP_STATE_CHOICES.issued, Application.APP_STATE_CHOICES.declined])
+        context['applications_groups'] = self.create_applist(applications_groups)
 
         if Application.objects.filter(applicant=self.request.user).exists():
             applications_submitted = Application.objects.filter(
-                    applicant=self.request.user).exclude(assignee=self.request.user)
+                applicant=self.request.user).exclude(assignee=self.request.user)
             context['applications_submitted'] = self.create_applist(applications_submitted)
         if Referral.objects.filter(referee=self.request.user).exists():
             context['referrals'] = Referral.objects.filter(
@@ -71,7 +73,7 @@ class HomePage(LoginRequiredMixin, TemplateView):
             context['may_assign_processor'] = True
         return context
 
-    def create_applist(self,applications):
+    def create_applist(self, applications):
         usergroups = self.request.user.groups.all()
         app_list = []
         for app in applications:
@@ -79,13 +81,10 @@ class HomePage(LoginRequiredMixin, TemplateView):
             row['may_assign_to_person'] = 'False'
             row['app'] = app
             if app.group in usergroups:
-               if app.group is not None:
+                if app.group is not None:
                     row['may_assign_to_person'] = 'True'
             app_list.append(row)
         return app_list
-
-
-
 
 
 class ApplicationList(ListView):
@@ -111,7 +110,7 @@ class ApplicationList(ListView):
         context = super(ApplicationList, self).get_context_data(**kwargs)
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
-            applications = Application.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str)| Q(organisation__name__icontains=query_str)| Q(assignee__email__icontains=query_str))
+            applications = Application.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str))
         else:
             applications = Application.objects.all()
 
@@ -190,8 +189,8 @@ class ApplicationDetail(DetailView):
 #        else:
 #        context['may_assign_to_person'] = 'False'
 
-        #if app.group is not None:
-        emailcontext = {'user':'Jason'}
+        # if app.group is not None:
+        emailcontext = {'user': 'Jason'}
 
         #sendHtmlEmail(['jason.moore@dpaw.wa.gov.au'],'HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None)
         #emailGroup('HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None,'Processor')
@@ -201,30 +200,30 @@ class ApplicationDetail(DetailView):
 
         context['may_assign_to_person'] = 'False'
         usergroups = self.request.user.groups.all()
-        #print app.group
+        # print app.group
         if app.group in usergroups:
-            if app.routeid > 1:
+            if int(app.routeid) > 1:
                 context['may_assign_to_person'] = 'True'
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
-            context = part5.get(app,self,context)
+            context = part5.get(app, self, context)
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
-            context = emergency.get(app,self,context)
+            context = emergency.get(app, self, context)
 
         elif app.app_type == app.APP_TYPE_CHOICES.permit:
             permit = Application_Permit()
-            context = permit.get(app,self,context)
+            context = permit.get(app, self, context)
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             licence = Application_Licence()
-            context = licence.get(app,self,context)
+            context = licence.get(app, self, context)
 
         # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
-        if app.routeid > 1:
+        if int(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
                 del context['workflow_actions']
@@ -237,8 +236,7 @@ class ApplicationDetail(DetailView):
             if app.assignee != self.request.user:
                 del context['workflow_actions']
                 context['workflow_actions'] = []
-
-        #elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
+        # elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
         #    self.template_name = 'applications/application_detail_emergency.html'
         #
         #    if app.organisation:
@@ -294,13 +292,13 @@ class ApplicationDetail(DetailView):
 #                context['may_update_condition'] = True
 #                context['may_accept_condition'] = True
 #                context['may_submit_approval'] = True
-##        if approver in self.request.user.groups.all() or self.request.user.is_superuser:
+# if approver in self.request.user.groups.all() or self.request.user.is_superuser:
 #            # Rule: if the application status is 'with manager', it can be issued or
 #            # assigned back to an assessor.
 #            if app.state == app.APP_STATE_CHOICES.with_manager:
 #                context['may_assign_assessor'] = True
 #                context['may_issue'] = True
-##        if referee in self.request.user.groups.all():
+# if referee in self.request.user.groups.all():
 #            # Rule: if the application has a current referral to the request
 #            # user, they can create and update conditions.
 #            if Referral.objects.filter(application=app, status=Referral.REFERRAL_STATUS_CHOICES.referred).exists():
@@ -383,9 +381,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
 
-        if app.routeid > 1:
+        if int(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
 
@@ -407,14 +405,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
         app = self.get_object()
-        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        # if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
         request = self.request
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         return context
 
     def get_form_class(self):
@@ -427,8 +425,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
             return apps_forms.ApplicationEmergencyForm
         else:
-           # Add default forms.py and use json workflow to filter and hide fields
-           return apps_forms.ApplicationPart5Form
+            # Add default forms.py and use json workflow to filter and hide fields
+            return apps_forms.ApplicationPart5Form
 
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
@@ -441,14 +439,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontent = {}
-        flowcontent = flow.getFields(flowcontent,app.routeid,workflowtype)
-        flowcontent['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        flowcontent = flow.getFields(flowcontent, app.routeid, workflowtype)
+        flowcontent['formcomponent'] = flow.getFormComponent(app.routeid, workflowtype)
         initial['fieldstatus'] = []
 
         if "fields" in flowcontent:
             initial['fieldstatus'] = flowcontent['fields']
         initial['fieldrequired'] = []
-        flowcontent = flow.getRequired(flowcontent,app.routeid,workflowtype)
+        flowcontent = flow.getRequired(flowcontent, app.routeid, workflowtype)
         if "formcomponent" in flowcontent:
             if "update" in flowcontent['formcomponent']:
                 if "required" in flowcontent['formcomponent']['update']:
@@ -494,7 +492,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['document_briefing_note'] = app.document_briefing_note.upload
 
         if app.document_determination_approved:
-            initial['document_determination_approved'] =  app.document_determination_approved.upload
+            initial['document_determination_approved'] = app.document_determination_approved.upload
 
 #        if app.proposed_development_plans:
 #           initial['proposed_development_plans'] = app.proposed_development_plans.upload
@@ -569,7 +567,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         land_owner_consent = application.land_owner_consent.all()
         for la_co in land_owner_consent:
-            if 'land_owner_consent-clear_multifileid-'+str(la_co.id) in form.data:
+            if 'land_owner_consent-clear_multifileid-' + str(la_co.id) in form.data:
                 application.land_owner_consent.remove(la_co)
 
         proposed_development_plans = application.proposed_development_plans.all()
@@ -610,7 +608,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             else:
                 doc = Record()
 
-            if Attachment_Extension_Check('single',forms_data['cert_public_liability_insurance'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['cert_public_liability_insurance'], None) is False:
                 raise ValidationError('Certficate Survey contains and unallowed attachment extension.')
 
             doc.upload = forms_data['cert_survey']
@@ -623,7 +621,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             else:
                 doc = Record()
 
-            if Attachment_Extension_Check('single',forms_data['cert_public_liability_insurance'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['cert_public_liability_insurance'], None) is False:
                 raise ValidationError('Certficate of Public Liability Insurance contains and unallowed attachment extension.')
 
             doc.upload = forms_data['cert_public_liability_insurance']
@@ -636,7 +634,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             else:
                 doc = Record()
 
-            if Attachment_Extension_Check('single',forms_data['risk_mgmt_plan'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['risk_mgmt_plan'], None) is False:
                 raise ValidationError('Risk Management Plan contains and unallowed attachment extension.')
 
             doc.upload = forms_data['risk_mgmt_plan']
@@ -648,14 +646,14 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.safety_mgmt_procedures
             else:
                 doc = Record()
-            if Attachment_Extension_Check('single',forms_data['safety_mgmt_procedures'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['safety_mgmt_procedures'], None) is False:
                 raise ValidationError('Safety Procedures contains and unallowed attachment extension.')
 
             doc.upload = forms_data['safety_mgmt_procedures']
             doc.name = forms_data['safety_mgmt_procedures'].name
             doc.save()
             self.object.safety_mgmt_procedures = doc
-        #if self.request.FILES.get('deed'):
+        # if self.request.FILES.get('deed'):
         #    if self.object.deed:
         #        doc = self.object.deed
         #    else:
@@ -685,7 +683,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             for d in self.object.brochures_itineries_adverts.all():
                 self.object.brochures_itineries_adverts.remove(d)
             # Add new uploads.
-            if Attachment_Extension_Check('multi',self.request.FILES.getlist('brochures_itineries_adverts'),None) is False:
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('brochures_itineries_adverts'), None) is False:
                 raise ValidationError('Brochures Itineries contains and unallowed attachment extension.')
 
             for f in self.request.FILES.getlist('brochures_itineries_adverts'):
@@ -699,7 +697,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             # for d in self.object.land_owner_consent.all():
             #    self.object.land_owner_consent.remove(d)
             # Add new uploads.
-            if Attachment_Extension_Check('multi',self.request.FILES.getlist('land_owner_consent'),None) is False:
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('land_owner_consent'), None) is False:
                 raise ValidationError('Land Owner Consent contains and unallowed attachment extension.')
 
             for f in self.request.FILES.getlist('land_owner_consent'):
@@ -710,7 +708,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 self.object.land_owner_consent.add(doc)
 
         if self.request.FILES.get('proposed_development_plans'):
-            if Attachment_Extension_Check('multi',self.request.FILES.getlist('proposed_development_plans'),None) is False:
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('proposed_development_plans'), None) is False:
                 raise ValidationError('Proposed Development Plans contains and unallowed attachment extension.')
 
             for f in self.request.FILES.getlist('proposed_development_plans'):
@@ -721,7 +719,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if self.request.POST.get('document_draft-clear'):
             #application = Application.objects.get(id=self.object.id)
             #document = Record.objects.get(pk=application.document_draft.id)
-            #document.delete() // protect error occurs
+            # document.delete() // protect error occurs
             self.object.document_draft = None
 
         if self.request.POST.get('document_new_draft-clear'):
@@ -735,7 +733,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_determination_approved = None
 
         if self.request.FILES.get('document_draft'):
-            if Attachment_Extension_Check('single',forms_data['document_draft'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_draft'], None) is False:
                 raise ValidationError('Draft contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_draft']
@@ -743,7 +741,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_draft = new_doc
 
         if self.request.FILES.get('document_new_draft'):
-            if Attachment_Extension_Check('single',forms_data['document_new_draft'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_new_draft'], None) is False:
                 raise ValidationError('New Draft contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_new_draft']
@@ -751,7 +749,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_new_draft = new_doc
 
         if self.request.FILES.get('document_new_draft_v3'):
-            if Attachment_Extension_Check('single',forms_data['document_new_draft_v3'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_new_draft_v3'], None) is False:
                 raise ValidationError('Draft V3 contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_new_draft_v3']
@@ -759,7 +757,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_new_draft_v3 = new_doc
 
         if self.request.FILES.get('document_memo'):
-            if Attachment_Extension_Check('single',forms_data['document_memo'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_memo'], None) is False:
                 raise ValidationError('Memo contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_memo']
@@ -767,7 +765,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_memo = new_doc
 
         if self.request.FILES.get('document_draft_signed'):
-            if Attachment_Extension_Check('single',forms_data['document_draft_signed'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_draft_signed'], None) is False:
                 raise ValidationError('New Draft contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_draft_signed']
@@ -775,7 +773,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_draft_signed = new_doc
 
         if self.request.FILES.get('document_final'):
-            if Attachment_Extension_Check('single',forms_data['document_final'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_final'], None) is False:
                 raise ValidationError('Final contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -784,7 +782,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_final = new_doc
 
         if self.request.FILES.get('document_final_signed'):
-            if Attachment_Extension_Check('single',forms_data['document_final_signed'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_final_signed'], None) is False:
                 raise ValidationError('Final Signed contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_final_signed']
@@ -792,7 +790,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_final_signed = new_doc
 
         if self.request.FILES.get('swan_river_trust_board_feedback'):
-            if Attachment_Extension_Check('single',forms_data['swan_river_trust_board_feedback'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['swan_river_trust_board_feedback'], None) is False:
                 raise ValidationError('Swan River Trust Board Feedback contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -801,7 +799,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.swan_river_trust_board_feedback = new_doc
 
         if self.request.FILES.get('deed'):
-            if Attachment_Extension_Check('single',forms_data['deed'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['deed'], None) is False:
                 raise ValidationError('Deed contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -809,7 +807,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.deed = new_doc
         if self.request.FILES.get('river_lease_scan_of_application'):
-            if Attachment_Extension_Check('single',forms_data['river_lease_scan_of_application'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['river_lease_scan_of_application'], None) is False:
                 raise ValidationError('River Lease Scan of Application contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -817,7 +815,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.river_lease_scan_of_application = new_doc
         if self.request.FILES.get('document_determination'):
-            if Attachment_Extension_Check('single',forms_data['document_determination'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_determination'], None) is False:
                 raise ValidationError('Determination contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -826,7 +824,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_determination = new_doc
 
         if self.request.FILES.get('document_determination_approved'):
-            if Attachment_Extension_Check('single',forms_data['document_determination_approved'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_determination_approved'], None) is False:
                 raise ValidationError('Determination contains and unallowed attachment extension.')
             new_doc = Record()
             new_doc.upload = self.request.FILES['document_determination_approved']
@@ -834,7 +832,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_determination_approved = new_doc
 
         if self.request.FILES.get('document_briefing_note'):
-            if Attachment_Extension_Check('single',forms_data['document_briefing_note'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_briefing_note'], None) is False:
                 raise ValidationError('Briefing Note contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -843,7 +841,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             self.object.document_briefing_note = new_doc
 
         if self.request.FILES.get('document_completion'):
-            if Attachment_Extension_Check('single',forms_data['document_completion'],None) is False:
+            if Attachment_Extension_Check('single', forms_data['document_completion'], None) is False:
                 raise ValidationError('Completion Docuemnt contains and unallowed attachment extension.')
 
             new_doc = Record()
@@ -893,7 +891,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_lodge_part5.html'
         if app.routeid is None:
-           app.routeid = 1
+            app.routeid = 1
         return context
 
     def get(self, request, *args, **kwargs):
@@ -911,21 +909,21 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
         if flowcontext['may_lodge'] == "True":
-            route = flow.getNextRouteObj('lodge',app.routeid,workflowtype)
-            flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
+            route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
+            flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
             if "required" in route:
                 for fielditem in route["required"]:
                     if hasattr(app, fielditem):
                         if getattr(app, fielditem) is None:
-                            messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                            messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                             return HttpResponseRedirect(app.get_absolute_url())
                         appattr = getattr(app, fielditem)
-                        if  isinstance(appattr, unicode) or isinstance(appattr, str):
+                        if isinstance(appattr, unicode) or isinstance(appattr, str):
                             if len(appattr) == 0:
-                                messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                                messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                                 return HttpResponseRedirect(app.get_absolute_url())
 
             donothing = ""
@@ -935,7 +933,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
 
   #      else:
    #         if app.state != app.APP_STATE_CHOICES.draft:
-                # TODO: better/explicit error response.
+            # TODO: better/explicit error response.
     #            messages.error(self.request, 'This application cannot be lodged!')
      #           return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationLodge, self).get(request, *args, **kwargs)
@@ -950,7 +948,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         """
         app = self.get_object()
         flowcontext = {}
-        #if app.app_type == app.APP_TYPE_CHOICES.part5:
+        # if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
         flow = Flow()
@@ -958,28 +956,24 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
 
         DefaultGroups = flow.groupList()
-        nextroute = flow.getNextRoute('lodge',app.routeid,workflowtype)
-        route = flow.getNextRouteObj('lodge',app.routeid,workflowtype)
+        nextroute = flow.getNextRoute('lodge', app.routeid, workflowtype)
+        route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
         app.routeid = nextroute
-        flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
         if "required" in route:
             for fielditem in route["required"]:
                 if hasattr(app, fielditem):
                     if getattr(app, fielditem) is None:
-                        messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                        messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                         return HttpResponseRedirect(app.get_absolute_url())
                     appattr = getattr(app, fielditem)
-                    if  isinstance(appattr, unicode) or isinstance(appattr, str):
-                       if len(appattr) == 0:
-                           messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
-                           return HttpResponseRedirect(app.get_absolute_url())
-
-
-
+                    if isinstance(appattr, unicode) or isinstance(appattr, str):
+                        if len(appattr) == 0:
+                            messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
+                            return HttpResponseRedirect(app.get_absolute_url())
 
         groupassignment = Group.objects.get(name=DefaultGroups['grouplink']['admin'])
         app.group = groupassignment
-
 
         app.state = app.APP_STATE_CHOICES.with_admin
         self.object.submit_date = date.today()
@@ -1027,11 +1021,11 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
         if flowcontext['may_refer'] != "True":
-                messages.error(self.request, 'Can not modify referrals on this application!')
-                return HttpResponseRedirect(app.get_absolute_url())
+            messages.error(self.request, 'Can not modify referrals on this application!')
+            return HttpResponseRedirect(app.get_absolute_url())
 
 
 #        else:
@@ -1056,7 +1050,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-        context = flow.getAccessRights(self.request,context,app.routeid,workflowtype)
+        context = flow.getAccessRights(self.request, context, app.routeid, workflowtype)
         return context
 
     def get_initial(self):
@@ -1100,6 +1094,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         action.save()
         return super(ApplicationRefer, self).form_valid(form)
 
+
 class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
@@ -1131,9 +1126,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
-        flowcontext = flow.getRequired(flowcontext,app.routeid,workflowtype)
-        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+        route = flow.getNextRouteObj(action, app.routeid, workflowtype)
 
         if action is "creator":
             if flowcontext['may_assign_to_creator'] != "True":
@@ -1141,10 +1136,10 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                 return HttpResponseRedirect(app.get_absolute_url())
         else:
             # nextroute = flow.getNextRoute(action,app.routeid,"part5")
-            assign_action = flow.checkAssignedAction(action,flowcontext)
+            assign_action = flow.checkAssignedAction(action, flowcontext)
             if assign_action != True:
                 if action in DefaultGroups['grouplink']:
-                    messages.error(self.request, 'This application cannot be reassign to '+ DefaultGroups['grouplink'][action])
+                    messages.error(self.request, 'This application cannot be reassign to ' + DefaultGroups['grouplink'][action])
                     return HttpResponseRedirect(app.get_absolute_url())
                 else:
                     messages.error(self.request, 'This application cannot be reassign, Unknown Error')
@@ -1159,13 +1154,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             for fielditem in route["required"]:
                 if hasattr(app, fielditem):
                     if getattr(app, fielditem) is None:
-                        messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
+                        messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                         return HttpResponseRedirect(app.get_absolute_url())
                     appattr = getattr(app, fielditem)
-                    if  isinstance(appattr, unicode) or isinstance(appattr, str):
-                       if len(appattr) == 0:
-                           messages.error(self.request, 'Required Field '+fielditem+' is empty,  Please Complete' )
-                           return HttpResponseRedirect(app.get_absolute_url())
+                    if isinstance(appattr, unicode) or isinstance(appattr, str):
+                        if len(appattr) == 0:
+                            messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
+                            return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
@@ -1209,7 +1204,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             assignee = None
             groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
 
-        route = flow.getNextRouteObj(action,app.routeid,workflowtype)
+        route = flow.getNextRouteObj(action, app.routeid, workflowtype)
         if route is None:
             messages.error(self.request, 'Error In Assigning Next Route, No routes Found')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -1237,19 +1232,19 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         if action != "creator" and action != 'referral':
             emailcontext['groupname'] = DefaultGroups['grouplink'][action]
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
-            emailGroup('Application Assignment to Group '+DefaultGroups['grouplink'][action],emailcontext,'application-assigned-to-group.html' ,None,None,None,DefaultGroups['grouplink'][action])
+            emailGroup('Application Assignment to Group ' + DefaultGroups['grouplink'][action], emailcontext, 'application-assigned-to-group.html', None, None, None, DefaultGroups['grouplink'][action])
         elif action == "creator":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailcontext['person'] = assignee
-            sendHtmlEmail([assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+            sendHtmlEmail([assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
         elif action == "referral":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
-            emailApplicationReferrals(app.id,'Application for Feedback ',emailcontext,'application-assigned-to-referee.html' ,None,None,None)
+            emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
 
         # Record an action on the application:
         action = Action(
-        content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
-            action='Next Step Application Assigned to group ({}) with action title ({}) and route id ({}) '.format(groupassignment,route['title'],self.object.routeid))
+            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
+            action='Next Step Application Assigned to group ({}) with action title ({}) and route id ({}) '.format(groupassignment, route['title'], self.object.routeid))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1284,10 +1279,10 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
         flow.get(workflowtype)
-        emailcontext = {'person': app.assignee }
+        emailcontext = {'person': app.assignee}
         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
         if self.request.user != app.assignee:
-            sendHtmlEmail([app.assignee.email],emailcontext['application_name']+' application assigned to you ',emailcontext,'application-assigned-to-person.html',None,None,None)
+            sendHtmlEmail([app.assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
 
         # Record an action on the application:
         action = Action(
@@ -1327,7 +1322,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 flow.get('part5')
                 flowcontext = {}
-                flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
+                flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, 'part5')
                 if flowcontext["may_assign_assessor"] != "True":
                     messages.error(self.request, 'This application cannot be assigned to an assessor!')
                     return HttpResponseRedirect(app.get_absolute_url())
@@ -1341,7 +1336,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
                 flow = Flow()
                 flow.get('part5')
                 flowcontext = {}
-                flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,'part5')
+                flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, 'part5')
 
                 if flowcontext["may_submit_approval"] != "True":
                     messages.error(self.request, 'This application cannot be assigned to an assessor!')
@@ -1390,21 +1385,21 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
                 flow.get('part5')
-                nextroute = flow.getNextRoute('assess',app.routeid,"part5")
+                nextroute = flow.getNextRoute('assess', app.routeid, "part5")
                 self.object.routeid = nextroute
             self.object.state = self.object.APP_STATE_CHOICES.with_assessor
         if self.kwargs['action'] == 'approve':
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
                 flow.get('part5')
-                nextroute = flow.getNextRoute('manager',app.routeid,"part5")
+                nextroute = flow.getNextRoute('manager', app.routeid, "part5")
                 self.object.routeid = nextroute
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
         if self.kwargs['action'] == 'process':
             if app.app_type == app.APP_TYPE_CHOICES.part5:
                 flow = Flow()
                 flow.get('part5')
-                nextroute = flow.getNextRoute('admin',app.routeid,"part5")
+                nextroute = flow.getNextRoute('admin', app.routeid, "part5")
                 self.object.routeid = nextroute
 
             self.object.state = self.object.APP_STATE_CHOICES.with_manager
@@ -1422,6 +1417,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
             action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
+
 
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
@@ -1490,7 +1486,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                 else:
                     msg = msg + """The Emergency Works needs to be printed and posted."""
                 messages.success(self.request, msg.format(self.object.pk, self.object.issue_date,
-                        self.get_success_url() + "pdf", 'EmergencyWorks.pdf'))
+                                                          self.get_success_url() + "pdf", 'EmergencyWorks.pdf'))
             else:
                 messages.success(
                     self.request, 'Application {} has been issued'.format(self.object.pk))
@@ -1613,11 +1609,12 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         if refactionresp == True:
             refnextaction.go_next_action(ref.application)
             action = Action(
-              content_object=ref.application, user=self.request.user,
-              action='All Referrals Completed, Progress to next Workflow Action {} '.format(ref.referee))
+                content_object=ref.application, user=self.request.user,
+                action='All Referrals Completed, Progress to next Workflow Action {} '.format(ref.referee))
             action.save()
 
         return HttpResponseRedirect(ref.application.get_absolute_url())
+
 
 class ReferralResend(LoginRequiredMixin, UpdateView):
     model = Referral
@@ -1629,7 +1626,7 @@ class ReferralResend(LoginRequiredMixin, UpdateView):
         # Rule: can't recall a referral that is any other status than
         # 'referred'.
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.recalled & referral.status != Referral.REFERRAL_STATUS_CHOICES.responded:
-            messages.error(self.request, 'This referral is already completed!'+ str(referral.status)+str(Referral.REFERRAL_STATUS_CHOICES.responded))
+            messages.error(self.request, 'This referral is already completed!' + str(referral.status) + str(Referral.REFERRAL_STATUS_CHOICES.responded))
             return HttpResponseRedirect(referral.application.get_absolute_url())
         return super(ReferralResend, self).get(request, *args, **kwargs)
 
@@ -1654,6 +1651,7 @@ class ReferralResend(LoginRequiredMixin, UpdateView):
         action.save()
 
         return HttpResponseRedirect(ref.application.get_absolute_url())
+
 
 class ReferralRemind(LoginRequiredMixin, UpdateView):
     model = Referral
@@ -1685,13 +1683,14 @@ class ReferralRemind(LoginRequiredMixin, UpdateView):
         emailcontext['application_id'] = ref.application.id
         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[ref.application.app_type]
 
-        sendHtmlEmail([ref.referee.email],'Application for Feedback Reminder',emailcontext,'application-assigned-to-referee.html',None,None,None)
+        sendHtmlEmail([ref.referee.email], 'Application for Feedback Reminder', emailcontext, 'application-assigned-to-referee.html', None, None, None)
 
         action = Action(
             content_object=ref.application, user=self.request.user,
             action='Referral to {} reminded'.format(ref.referee))
         action.save()
         return HttpResponseRedirect(ref.application.get_absolute_url())
+
 
 class ReferralDelete(LoginRequiredMixin, UpdateView):
     model = Referral
@@ -1709,7 +1708,8 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
         context = super(ReferralDelete, self).get_context_data(**kwargs)
         context['referral'] = self.get_object()
         return context
-    def get_success_url(self,application_id):
+
+    def get_success_url(self, application_id):
         return reverse('application_refer', args=(application_id,))
 
     def post(self, request, *args, **kwargs):
@@ -1727,7 +1727,6 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
             action='Referral to {} delete'.format(ref.referee))
         action.save()
         return HttpResponseRedirect(self.get_success_url(application_id))
-
 
 
 class ComplianceList(ListView):
@@ -1806,6 +1805,7 @@ class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_application().pk,))
 
+
 class WebPublish(LoginRequiredMixin, UpdateView):
     model = Application
     form_class = apps_forms.ApplicationWebPublishForm
@@ -1840,10 +1840,10 @@ class WebPublish(LoginRequiredMixin, UpdateView):
             initial['publish_determination_report'] = current_date
 
         initial['publish_type'] = self.kwargs['publish_type']
-        #try:
+        # try:
         #    pub_news = PublicationNewspaper.objects.get(
         #    application=self.kwargs['pk'])
-        #except:
+        # except:
         #    pub_news = None
         return initial
 
@@ -1883,7 +1883,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
 
 #       if flowcontext.state != app.APP_STATE_CHOICES.draft:
@@ -1906,10 +1906,10 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(NewsPaperPublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
 
-        #try:
+        # try:
         #    pub_news = PublicationNewspaper.objects.get(
         #    application=self.kwargs['pk'])
-        #except:
+        # except:
         #    pub_news = None
         return initial
 
@@ -1932,12 +1932,13 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
         return super(NewsPaperPublicationCreate, self).form_valid(form)
 
+
 class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
     model = PublicationNewspaper
     form_class = apps_forms.NewsPaperPublicationCreateForm
 
     def get(self, request, *args, **kwargs):
-		#app = self.get_object().application_set.first()
+                #app = self.get_object().application_set.first()
         PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
         app = Application.objects.get(pk=PubNew.application.id)
         flow = Flow()
@@ -1945,16 +1946,16 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         if flowcontext["may_update_publication_newspaper"] != "True":
             messages.error(
                 self.request, "Can't update newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         # Rule: can only change a vessel if the parent application is status
         # 'draft'.
-		#if app.state != Application.APP_STATE_CHOICES.draft:
-		#    messages.error(
-		#        self.request, 'You can only change a publication details when the application is "draft" status')
+            # if app.state != Application.APP_STATE_CHOICES.draft:
+            #    messages.error(
+            #        self.request, 'You can only change a publication details when the application is "draft" status')
 #        return HttpResponseRedirect(app.get_absolute_url())
         return super(NewsPaperPublicationUpdate, self).get(request, *args, **kwargs)
 
@@ -1964,7 +1965,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
         try:
             pub_news = PublicationNewspaper.objects.get(
-            pk=self.kwargs['pk'])
+                pk=self.kwargs['pk'])
         except:
             pub_news = None
 
@@ -1978,6 +1979,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
                 multifilelist.append(fileitem)
         initial['records'] = multifilelist
         return initial
+
     def get_context_data(self, **kwargs):
         context = super(NewsPaperPublicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update Newspaper Publication details'
@@ -1997,9 +1999,8 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
         records = pub_news.records.all()
         for filelist in records:
-            if 'records-clear_multifileid-'+str(filelist.id) in form.data:
+            if 'records-clear_multifileid-' + str(filelist.id) in form.data:
                 pub_news.records.remove(filelist)
-
 
         if self.request.FILES.get('records'):
             for f in self.request.FILES.getlist('records'):
@@ -2009,6 +2010,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
                 self.object.records.add(doc)
 
         return HttpResponseRedirect(app.get_absolute_url())
+
 
 class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
     model = PublicationNewspaper
@@ -2023,7 +2025,7 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         if flowcontext["may_update_publication_newspaper"] != "True":
             messages.error(
                 self.request, "Can't delete newspaper publication to this application")
@@ -2039,11 +2041,11 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         # and that referral is not completed.
   #      assessor = Group.objects.get(name='Assessor')
    #     ref = condition.referral
-	#    if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+        #    if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
         return super(NewsPaperPublicationDelete, self).get(request, *args, **kwargs)
-	#    else:
-	 #       messages.warning(self.request, 'You cannot delete this condition')
-	  #      return HttpResponseRedirect(condition.application.get_absolute_url())
+        #    else:
+        #       messages.warning(self.request, 'You cannot delete this condition')
+        #      return HttpResponseRedirect(condition.application.get_absolute_url())
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))
@@ -2055,10 +2057,11 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         modelobject = self.get_object()
         action = Action(
             content_object=modelobject.application, user=self.request.user,
-            action='Delete Newspaper Publication {} deleted (status: {})'.format(modelobject.pk,'delete'))
+            action='Delete Newspaper Publication {} deleted (status: {})'.format(modelobject.pk, 'delete'))
         action.save()
         messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
         return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
+
 
 class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     model = PublicationWebsite
@@ -2071,7 +2074,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = {}
-        flowcontext = flow.getAccessRights(request,flowcontext,app.routeid,workflowtype)
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         if flowcontext["may_update_publication_website"] != "True":
             messages.error(
                 self.request, "Can't update ebsite publication to this application")
@@ -2087,7 +2090,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 #        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
-		# self.object.original_document = self.kwargs['original_document']
+                # self.object.original_document = self.kwargs['original_document']
         context = super(WebsitePublicationChange,
                         self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
@@ -2099,23 +2102,22 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 
         doc = Record.objects.get(pk=self.kwargs['docid'])
         try:
-           pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+            pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
-           pub_web = None
+            pub_web = None
 
         filelist = []
         if pub_web:
-           if pub_web.published_document:
+            if pub_web.published_document:
 
-
-#          records = pub_news.records.all()
-              fileitem = {}
-              fileitem['fileid'] = pub_web.published_document.id
-              fileitem['path'] = pub_web.published_document.upload.name
-              filelist.append(fileitem)
+                #          records = pub_news.records.all()
+                fileitem = {}
+                fileitem['fileid'] = pub_web.published_document.id
+                fileitem['path'] = pub_web.published_document.upload.name
+                filelist.append(fileitem)
         if pub_web:
-           if pub_web.id:
-              initial['id'] = pub_web.id
+            if pub_web.id:
+                initial['id'] = pub_web.id
 
         initial['published_document'] = filelist
         doc = Record.objects.get(pk=self.kwargs['docid'])
@@ -2134,25 +2136,25 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         pub_web = None
         try:
-           pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+            pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
-           pub_web = None
+            pub_web = None
         if pub_web:
-           self.object.id = pub_web.id
-           self.object.published_document = pub_web.published_document
-           if pub_web.published_document:
-              if 'published_document-clear_multifileid-'+str(pub_web.published_document.id) in self.request.POST:
-                  self.object.published_document = None
+            self.object.id = pub_web.id
+            self.object.published_document = pub_web.published_document
+            if pub_web.published_document:
+                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
+                    self.object.published_document = None
 
         orig_doc = Record.objects.get(id=self.kwargs['docid'])
         self.object.original_document = orig_doc
 
         if self.request.FILES.get('published_document'):
-             for f in self.request.FILES.getlist('published_document'):
-                 doc = Record()
-                 doc.upload = f
-                 doc.save()
-                 self.object.published_document = doc
+            for f in self.request.FILES.getlist('published_document'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.published_document = doc
         return super(WebsitePublicationChange, self).form_valid(form)
 
 
@@ -2234,7 +2236,7 @@ class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
         initial['application'] = self.kwargs['application']
         try:
             pub_feed = PublicationFeedback.objects.get(
-            pk=self.kwargs['pk'])
+                pk=self.kwargs['pk'])
         except:
             pub_feed = None
 
@@ -2263,9 +2265,8 @@ class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
 
         records = pub_feed.records.all()
         for filelist in records:
-            if 'records-clear_multifileid-'+str(filelist.id) in form.data:
+            if 'records-clear_multifileid-' + str(filelist.id) in form.data:
                 pub_feed.records.remove(filelist)
-
 
         if self.request.FILES.get('records'):
             for f in self.request.FILES.getlist('records'):
@@ -2274,8 +2275,8 @@ class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.records.add(doc)
 
-
         return super(FeedbackPublicationUpdate, self).form_valid(form)
+
 
 class FeedbackPublicationDelete(LoginRequiredMixin, DeleteView):
     model = PublicationFeedback
@@ -2283,6 +2284,7 @@ class FeedbackPublicationDelete(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         modelobject = self.get_object()
         return super(FeedbackPublicationDelete, self).get(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))
 
@@ -2293,10 +2295,11 @@ class FeedbackPublicationDelete(LoginRequiredMixin, DeleteView):
         modelobject = self.get_object()
         action = Action(
             content_object=modelobject.application, user=self.request.user,
-            action='Delete Feedback Publication {} deleted (status: {})'.format(modelobject.pk,'delete'))
+            action='Delete Feedback Publication {} deleted (status: {})'.format(modelobject.pk, 'delete'))
         action.save()
         messages.success(self.request, 'Newspaper Feedback {} has been deleted'.format(modelobject.pk))
         return super(FeedbackPublicationDelete, self).post(request, *args, **kwargs)
+
 
 class ConditionCreate(LoginRequiredMixin, CreateView):
     """A view for a referee or an internal user to create a Condition object
@@ -2464,7 +2467,6 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
             else:
                 messages.warning(self.request, 'You cannot delete this condition')
                 return HttpResponseRedirect(condition.application.get_absolute_url())
-
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))
