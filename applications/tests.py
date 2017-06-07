@@ -12,7 +12,9 @@ from .models import Application, Referral, Condition, Vessel
 User = get_user_model()
 
 
-class ApplicationTest(TestCase):
+class StatDevTestCase(TestCase):
+    """Define fixtures that are common to all Statutory Development test cases.
+    """
 
     def setUp(self):
         self.client = Client()
@@ -65,6 +67,11 @@ class ApplicationTest(TestCase):
             Application, app_type=Application.APP_TYPE_CHOICES.licence,
             state=Application.APP_STATE_CHOICES.draft, assignee=self.user3,routeid=2)
         self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
+
+
+class ApplicationTest(StatDevTestCase):
+    """Test views and business rules related to Stat Dev applications models.
+    """
 
     def test_get_absolute_url(self):
         self.assertTrue(self.app1.get_absolute_url())
