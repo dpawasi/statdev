@@ -383,24 +383,23 @@ class ApplicationChange(LoginRequiredMixin, UpdateView):
 
 
     def get(self, request, *args, **kwargs):
-
         return super(ApplicationChange, self).get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
-         context = super(ApplicationChange, self).get_context_data(**kwargs)
-         context['page_heading'] = 'Update application details'
-         app = self.get_object()
+        context = super(ApplicationChange, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Update application details'
+        app = self.get_object()
 
-         # if app.app_type == app.APP_TYPE_CHOICES.part5:
-         if app.routeid is None:
-             app.routeid = 1
+        # if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
 
-         request = self.request
+        request = self.request
   #      flow = Flow()
  #       workflowtype = flow.getWorkFlowTypeFromApp(app)
 #        flow.get(workflowtype)
         #context = flow.getAccessRights(request, context, app.routeid, workflowtype)
-         return context
+        return context
 
     def get_initial(self):
         initial = super(ApplicationChange, self).get_initial()
