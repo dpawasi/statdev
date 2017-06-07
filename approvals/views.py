@@ -1,9 +1,12 @@
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, UpdateView
+from django.core.urlresolvers import reverse
 from .models import Approval as ApprovalModel 
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from applications.utils import get_query
+from . import forms as apps_forms
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -33,21 +36,61 @@ class ApprovalList(ListView):
             objlist = ApprovalModel.objects.all()
         usergroups = self.request.user.groups.all()
         context['app_list'] = []
-        for app in objlist:
+
+        for app in objlist.order_by('title'):
             row = {}
             row['app'] = app
         #    if app.group is not None:
             context['app_list'].append(row)
 
+#        context['app_list'] = context['app_list'].order_by('title')
+
         # TODO: any restrictions on who can create new applications?
         processor = Group.objects.get(name='Processor')
+
         # Rule: admin officers may self-assign applications.
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             context['may_assign_processor'] = True
 
         return context
 
+class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
+    model = ApprovalModel
+    form_class = apps_forms.ApprovalChangeStatus
+    template_name = 'applications/application_form.html'
+
+    def get(self, request, *args, **kwargs):
+        modelobject = self.get_object()
+        return super(ApprovalStatusChange, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('approval_list', args=())
+
+    def get_context_data(self, **kwargs):
+        context = super(ApprovalStatusChange,self).get_context_data(**kwargs)
+        self.object = self.get_object()
+        context['title'] = self.object.title
+        return context
+
+    def get_initial(self):
+        initial = super(ApprovalStatusChange, self).get_initial()
+        approval = self.get_object()
+        status = self.kwargs['status']
+        initial['status'] = ApprovalModel.APPROVAL_STATE_CHOICES.__getattr__(status)
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['application'])
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApprovalStatusChange, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        
+        self.object = form.save(commit=False)
+        status = self.kwargs['status']
+        self.object.status = ApprovalModel.APPROVAL_STATE_CHOICES.__getattr__(status)
+        self.object.save()
+        return super(ApprovalStatusChange, self).form_valid(form)
 
 
-
-# Create your views here.
