@@ -385,7 +385,7 @@ class ApplicationChange(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         return super(ApplicationChange, self).get(request, *args, **kwargs)
 
-	def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(ApplicationChange, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
         app = self.get_object()
