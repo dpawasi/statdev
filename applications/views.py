@@ -379,7 +379,9 @@ class ApplicationChange(LoginRequiredMixin, UpdateView):
     """This view is for changes or ammendents to existing applications
     """
     model = Application
-    
+    form_class = apps_forms.ApplicationChange
+
+
     def get(self, request, *args, **kwargs):
 
         return super(ApplicationChange, self).get(request, *args, **kwargs)
