@@ -1309,10 +1309,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         elif action == "referral":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
-            print "STATE"
-            print self.object.state
-            print app
-            print "END"
         if self.object.state == '14':
             self.complete_application(app)
  
