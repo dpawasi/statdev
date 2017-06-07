@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
     url(r'^applications/(?P<pk>\d+)/$', views.ApplicationDetail.as_view(), name='application_detail'),
+    url(r'^applications/(?P<pk>\d+)/(?P<action>\w+)/$', views.ApplicationChange.as_view(), name='application_detail'),
     url(r'^applications/(?P<pk>\d+)/pdf/$', views.ApplicationDetailPDF.as_view(), name='application_detail_pdf'),
     url(r'^applications/(?P<pk>\d+)/actions/$', views.ApplicationActions.as_view(), name='application_actions'),
     url(r'^applications/(?P<pk>\d+)/update/$', views.ApplicationUpdate.as_view(), name='application_update'),

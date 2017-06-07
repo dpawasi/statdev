@@ -81,7 +81,8 @@ class Application(models.Model):
         (3, 'part5', ('Part 5 - New Application')),
         (4, 'emergency', ('Emergency works')),
         (5, 'part5cr', ('Part 5 - Amendment Request')),
-        (6, 'part5amend', ('Part 5 - Amendment Application'))
+        (6, 'part5amend', ('Part 5 - Amendment Application')),
+        (7, 'test', ('Test - Application'))
     )
     APP_STATE_CHOICES = Choices(
         (1, 'draft', ('Draft')),

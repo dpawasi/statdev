@@ -30,7 +30,7 @@ from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferr
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
 from ledger.accounts.models import EmailUser, Address, Organisation
-
+from approvals.models import Approval
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -202,7 +202,7 @@ class ApplicationDetail(DetailView):
         usergroups = self.request.user.groups.all()
         # print app.group
         if app.group in usergroups:
-            if int(app.routeid) > 1:
+            if float(app.routeid) > 1:
                 context['may_assign_to_person'] = 'True'
 
         if app.app_type == app.APP_TYPE_CHOICES.part5:
@@ -220,10 +220,20 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             licence = Application_Licence()
             context = licence.get(app, self, context)
+        else:
+            flow = Flow()
+            workflowtype = flow.getWorkFlowTypeFromApp(app)
+            flow.get(workflowtype)
+            context = flow.getAccessRights(self.request,context,app.routeid,workflowtype)
+            context = flow.getCollapse(context,app.routeid,workflowtype)
+            context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+            context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+            context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+
 
         # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
-        if int(app.routeid) > 1:
+        if float(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
                 del context['workflow_actions']
@@ -236,6 +246,7 @@ class ApplicationDetail(DetailView):
             if app.assignee != self.request.user:
                 del context['workflow_actions']
                 context['workflow_actions'] = []
+
         # elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
         #    self.template_name = 'applications/application_detail_emergency.html'
         #
@@ -340,6 +351,17 @@ class ApplicationDetailPDF(ApplicationDetail):
             obj.pk)
         return response
 
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(id=kwargs['pk'])
+            if app.state == app.APP_STATE_CHOICES.new:
+                app.delete()
+                return HttpResponseRedirect(reverse('application_list'))
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationUpdate, self).post(request, *args, **kwargs)
+
 
 class ApplicationActions(DetailView):
     model = Application
@@ -353,6 +375,52 @@ class ApplicationActions(DetailView):
             content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
 
+class ApplicationChange(LoginRequiredMixin, UpdateView):
+    """This view is for changes or ammendents to existing applications
+    """
+    model = Application
+    
+    def get(self, request, *args, **kwargs):
+
+        return super(ApplicationChange, self).get(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+         context = super(ApplicationChange, self).get_context_data(**kwargs)
+         context['page_heading'] = 'Update application details'
+         app = self.get_object()
+
+         # if app.app_type == app.APP_TYPE_CHOICES.part5:
+         if app.routeid is None:
+             app.routeid = 1
+
+         request = self.request
+  #      flow = Flow()
+ #       workflowtype = flow.getWorkFlowTypeFromApp(app)
+#        flow.get(workflowtype)
+        #context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+         return context
+
+    def get_initial(self):
+        initial = super(ApplicationChange, self).get_initial()
+
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(id=kwargs['pk'])
+            if app.state == app.APP_STATE_CHOICES.new:
+                app.delete()
+                return HttpResponseRedirect(reverse('application_list'))
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationChange, self).post(request, *args, **kwargs)
+
+
+    def form_valid(self, form):
+        """Override form_valid to set the state to draft is this is a new application.
+        """
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=False)
+        return HttpResponseRedirect(self.get_success_url())
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     """A view for updating a draft (non-lodged) application.
@@ -1240,14 +1308,34 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         elif action == "referral":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
-
+            print "STATE"
+            print self.object.state
+            print app
+            print "END"
+        if self.object.state == '14':
+            self.complete_application(app)
+ 
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
             action='Next Step Application Assigned to group ({}) with action title ({}) and route id ({}) '.format(groupassignment, route['title'], self.object.routeid))
         action.save()
+
         return HttpResponseRedirect(self.get_success_url())
 
+    def complete_application(self,app): 
+        """Once and application is complete and approval needs to be created in the approval model.
+        """
+        approval = Approval.objects.create(
+                                          app_type=app.app_type,
+                                          title=app.title,
+                                          applicant = app.applicant,
+                                          application=app,
+                                          start_date = app.assessment_start_date,
+                                          status = 1
+                )
+        #approval.save()
+        return
 
 class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
@@ -2515,6 +2603,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         self.object = form.save()
         app.vessels.add(self.object.id)
         app.save()
+
         # Registration document uploads.
         if self.request.FILES.get('registration'):
             # Remove any existing documents.
@@ -3009,3 +3098,8 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
             action='Unlinked delegate access for {}'.format(user.get_full_name()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+
+
+

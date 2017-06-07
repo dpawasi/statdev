@@ -340,6 +340,9 @@ class Flow():
             workflowtype = 'part5cr'
         elif app.app_type == app.APP_TYPE_CHOICES.part5amend:
             workflowtype = 'part5amend'
+        elif app.app_type == app.APP_TYPE_CHOICES.test:
+            workflowtype = 'test'
         else:
-            workflowtype = ''
+            print ("No Work Flow Group in workflow.py function getWorkFlowTypeFromApp")
+            workflowtype = '' 
         return workflowtype
