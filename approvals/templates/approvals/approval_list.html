@@ -45,7 +45,7 @@
                     <td>{{ app_obj.app.applicant.get_full_name }}</td>
                     <td>{{ app_obj.app.get_status_display }}</td>
                     <td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
-                    <td>{{ app_obj.app.expiry_date }}</td>
+                    <td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
                     <td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
                     <td>
 						<ul class="nav navbar-nav">
@@ -56,23 +56,21 @@
                             <!-- Add Logic to check if ammendment request has been completed -->
                             <!--        <li><a href="/">Ammend</a></li> -->
                             {% endif %}
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'cancelled' %}" title="Log out">Cancel</a></li>
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'expired' %}" title="Log out">Expire</a></li>
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'suspended' %}" title="Log out">Suspend</a></li>
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Log out">Surrendered</a></li>
+                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'cancelled' %}" title="Cancel">Cancel</a></li>
+                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'expired' %}" title="Expire">Expire</a></li>
+                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'suspended' %}" title="Suspend">Suspend</a></li>
+                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Surrendered">Surrendered</a></li>
+                            
+                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Reinstate">Reinstate</a></li>
                             <li><a href="/">Renew</a></li>
                             <li><a href="/" title="Administration">Renewal Notice</a></li>
                             {% if app_obj.app.app_type == 3 %}
-                                <li><a href="/">Request Ammendment</a></li>
+                            <li><a href="{% url 'application_change' app_obj.app.pk 'requestammendment' %}">Request Ammendment</a></li>
                             {% endif %}
 
                              </ul>   
                             </li>
                 	   </ul>
-
-                    {% if app_obj.may_assign_to_person == "True" %}
-                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'application_assign_person' app_obj.app.pk %}">{% if app_obj.app.assignee == None %}Assign{% else %}Re Assign {% endif %}</a>
-                    {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

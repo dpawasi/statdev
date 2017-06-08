@@ -28,6 +28,9 @@ class Approval(models.Model):
      expiry_date = models.DateField(null=True, blank=True)
      status = models.IntegerField(choices=APPROVAL_STATE_CHOICES) 
      approval_document = models.ForeignKey(Record, null=True, blank=True, related_name='approval_document')
+     suspend_from_date = models.DateField(null=True, blank=True)
+     suspend_to_date = models.DateField(null=True, blank=True)
+
 
      def __str__(self):
         if self.id:

@@ -216,18 +216,22 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         #self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 class ApplicationChange(ApplicationFormMixin, ModelForm):
+     proposed_development_plans = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Supporting Documents')
 
      class Meta:
         model = Application
-        fields = ['title', 'description','cost','project_no', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
+        fields = ['title','app_type','proposed_development_plans','proposed_development_description']
 
      def __init__(self, *args, **kwargs):
         super(ApplicationChange, self).__init__(*args, **kwargs)
 
         self.helper = BaseFormHelper()
+        self.fields['proposed_development_description'].label = "Details of proposed ammendment"
+        self.fields['app_type'].disabled = True
+        self.fields['title'].disabled = True
         self.helper.form_id = 'id_form_change_ammend'
         self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('createform', 'Create Form', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 

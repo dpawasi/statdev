@@ -1,0 +1,75 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <br />
+    </div>
+    <!-- Action panel start -->
+
+    <div class="row">
+        {% include "applications/application_side_menu.html" %}
+
+        <!-- Main panel start -->
+        <div class="col-sm-8 col-md-9 col-lg-10">
+
+        <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="applicant_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#applicant_collapse" aria-expanded="false" aria-controls="application_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                           	Ammendment Request
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in {{ collapse.applicant }}" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
+                    <div class="panel-body">
+                      <div class="col-sm-12 col-md-12 col-lg-12">
+							<div class="col-lg-12" >
+                                <div class="col-lg-6">
+                                    <label>Part 5 Approval Id: </Label>
+                                </div>
+                                <div class="col-lg-6">
+                                   {{ object.proposed_development_description }}
+                                </div>
+                            </div>
+
+							<div class="col-lg-12" >
+                    	        <div class="col-lg-6">
+                	                <label>Details of proposed ammendment</Label>
+            	                </div>
+        	                    <div class="col-lg-6">
+    	                           {{ object.proposed_development_description }}
+	                            </div>
+							</div>
+                        </div>   
+
+
+
+
+
+                    </div>
+                </div>
+         </div>
+
+		</div>
+    </div>
+</div>
+{% endblock page_content_inner %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    $(function() {
+        $('.collapse').on('shown.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+        }).on('hidden.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+        });
+    });
+</script>
+{% endblock extra_js %}
