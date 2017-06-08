@@ -209,6 +209,9 @@ class ApplicationDetail(DetailView):
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
             context = part5.get(app, self, context)
+        elif app.app_type == app.APP_TYPE_CHOICES.part5cr:
+            self.template_name = 'applications/application_part5_ammendment_request.html'
+
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
@@ -375,52 +378,77 @@ class ApplicationActions(DetailView):
             content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
 
-class ApplicationChange(LoginRequiredMixin, UpdateView):
+class ApplicationChange(LoginRequiredMixin, CreateView):
     """This view is for changes or ammendents to existing applications
     """
-    model = Application
+#   model = Approval
     form_class = apps_forms.ApplicationChange
-
-
-    def get(self, request, *args, **kwargs):
-        return super(ApplicationChange, self).get(request, *args, **kwargs)
+    template_name = 'applications/application_change_form.html'
+#   def get(self, request, *args, **kwargs):
+#        return super(ApplicationChange, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationChange, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
-        app = self.get_object()
+
+        #approval = Approval.objects.get(id=self.kwargs['approvalid'])
+        #application = Application.objects.get(id=approval.application.id)
+
+
+        #app = self.get_object()
 
         # if app.app_type == app.APP_TYPE_CHOICES.part5:
-        if app.routeid is None:
-            app.routeid = 1
-
-        request = self.request
-  #      flow = Flow()
- #       workflowtype = flow.getWorkFlowTypeFromApp(app)
+#        if app.routeid is None:
+#            app.routeid = 1
+#
+#        request = self.request
+#        flow = Flow()
+#        workflowtype = flow.getWorkFlowTypeFromApp(app)
 #        flow.get(workflowtype)
-        #context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+ #       context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         return context
 
+    def get_form_kwargs(self):
+         kwargs = super(ApplicationChange, self).get_form_kwargs()
+        # kwargs['user'] = self.request.user
+         return kwargs
+
     def get_initial(self):
-        initial = super(ApplicationChange, self).get_initial()
+        initial = {}
+        approval = Approval.objects.get(id=self.kwargs['approvalid']) 
+        application = Application.objects.get(id=approval.application.id)
+
+        initial['title']  = application.title
+        initial['description'] = application.description
+#        initial['cost'] = application.cost
+
+        initial['app_type'] = 5
 
         return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            app = Application.objects.get(id=kwargs['pk'])
-            if app.state == app.APP_STATE_CHOICES.new:
-                app.delete()
-                return HttpResponseRedirect(reverse('application_list'))
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationChange, self).post(request, *args, **kwargs)
-
 
     def form_valid(self, form):
         """Override form_valid to set the state to draft is this is a new application.
         """
-        forms_data = form.cleaned_data
         self.object = form.save(commit=False)
+        forms_data = form.cleaned_data
+        approval = Approval.objects.get(id=self.kwargs['approvalid'])
+        application = Application.objects.get(id=approval.application.id)
+
+        self.object.app_type = 5
+        self.object.applicant = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submitted_by = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submit_date = date.today()
+        self.object.state = self.object.APP_STATE_CHOICES.new
+        self.object.save()
+
+#        self.object = form.save(commit=False)
         return HttpResponseRedirect(self.get_success_url())
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):

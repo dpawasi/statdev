@@ -176,6 +176,7 @@ class Application(models.Model):
     document_memo = models.ForeignKey(Record, null=True, blank=True, related_name='document_memo')
     document_briefing_note = models.ForeignKey(Record, null=True, blank=True, related_name='document_briefing_note')
     document_determination_approved = models.ForeignKey(Record, null=True, blank=True, related_name='document_determination_approved')
+    approval_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
