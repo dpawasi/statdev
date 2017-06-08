@@ -39,7 +39,7 @@
 
                 {% for app_obj in app_list %}
                 <tr>
-                    <td><a href="{% url 'approval_detail' app_obj.app.pk %}">{{ app_obj.app.pk }}</a></td>
+                    <td><a href="{% url 'approval_detail' app_obj.app.pk %}">AP-{{ app_obj.app.pk }}</a></td>
                     <td>{{ app_obj.app.get_app_type_display }}</td>
                     <td>{{ app_obj.app.title }}</td>
                     <td>{{ app_obj.app.applicant.get_full_name }}</td>
