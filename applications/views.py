@@ -194,7 +194,6 @@ class ApplicationDetail(DetailView):
 
         #sendHtmlEmail(['jason.moore@dpaw.wa.gov.au'],'HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None)
         #emailGroup('HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None,'Processor')
-
         if app.assignee is not None:
             context['application_assignee_id'] = app.assignee.id
 
@@ -211,7 +210,17 @@ class ApplicationDetail(DetailView):
             context = part5.get(app, self, context)
         elif app.app_type == app.APP_TYPE_CHOICES.part5cr:
             self.template_name = 'applications/application_part5_ammendment_request.html'
-
+            part5 = Application_Part5()
+            context = part5.get(app, self, context)
+            #flow = Flow()
+            #workflowtype = flow.getWorkFlowTypeFromApp(app)
+            #flow.get(workflowtype)
+            #context = flow.getAccessRights(self.request,context,app.routeid,workflowtype)
+            #context = flow.getCollapse(context,app.routeid,workflowtype)
+            #context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+            #context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+            #context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+ 
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
@@ -232,7 +241,7 @@ class ApplicationDetail(DetailView):
             context = flow.getHiddenAreas(context,app.routeid,workflowtype)
             context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
             context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
-
+#        print context['workflow_actions']
 
         # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
@@ -402,7 +411,7 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
 #            app.routeid = 1
 #
 #        request = self.request
-#        flow = Flow()
+#       / flow = Flow()
 #        workflowtype = flow.getWorkFlowTypeFromApp(app)
 #        flow.get(workflowtype)
  #       context = flow.getAccessRights(request, context, app.routeid, workflowtype)
@@ -415,14 +424,23 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         initial = {}
+        action = self.kwargs['action'] 
         approval = Approval.objects.get(id=self.kwargs['approvalid']) 
         application = Application.objects.get(id=approval.application.id)
 
         initial['title']  = application.title
         initial['description'] = application.description
-#        initial['cost'] = application.cost
+#       initial['cost'] = application.cost
 
-        initial['app_type'] = 5
+        if action == "amend": 
+            if approval.ammendment_application: 
+                initial['app_type'] = 6  
+            else:
+                raise ValidationError('There was and error raising your Application Change.')
+        elif action == 'requestamendment': 
+            initial['app_type'] = 5
+        else:
+            raise ValidationError('There was and error raising your Application Change.')
 
         return initial
 
@@ -435,17 +453,28 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
         """Override form_valid to set the state to draft is this is a new application.
         """
         self.object = form.save(commit=False)
+        action = self.kwargs['action']
+
         forms_data = form.cleaned_data
         approval = Approval.objects.get(id=self.kwargs['approvalid'])
         application = Application.objects.get(id=approval.application.id)
+        if action == "amend":
+            if approval.ammendment_application:
+                self.object.app_type = 6
+            else:
+                raise ValidationError('There was and error raising your Application Change.')
+        elif action == 'requestamendment':
+                self.object.app_type = 5
+        else: 
+            raise ValidationError('There was and error raising your Application Change.')
 
-        self.object.app_type = 5
         self.object.applicant = self.request.user
         self.object.assignee = self.request.user
         self.object.submitted_by = self.request.user
         self.object.assignee = self.request.user
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.new
+        self.object.approval_id = approval.id
         self.object.save()
 
 #        self.object = form.save(commit=False)
@@ -1290,6 +1319,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
         flow.get(workflowtype)
+        assessed_by = None
 
         if action == "creator":
             groupassignment = None
@@ -1299,6 +1329,8 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             assignee = None
         else:
             assignee = None
+            assessed_by = self.request.user 
+            
             groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
 
         route = flow.getNextRouteObj(action, app.routeid, workflowtype)
@@ -1339,7 +1371,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
         if self.object.state == '14':
             self.complete_application(app)
- 
+        if self.object.state == '10': 
+            self.ammendment_approved(app) 
+
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.action, user=self.request.user,
@@ -1359,7 +1393,11 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           start_date = app.assessment_start_date,
                                           status = 1
                 )
-        #approval.save()
+    def ammendment_approved(self,app):
+
+        approval = Approval.objects.get(id=app.approval_id)
+        approval.ammendment_application = app
+        approval.save()
         return
 
 class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
