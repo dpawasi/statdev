@@ -28,6 +28,7 @@ class Record(models.Model):
         (8, 'determination', ('Determination document')),
         (9, 'completion', ('Completed document')),
     )
+
     upload = models.FileField(max_length=512, upload_to='uploads/%Y/%m/%d')
     name = models.CharField(max_length=256)
     category = models.IntegerField(choices=DOC_CATEGORY_CHOICES, null=True, blank=True)
@@ -75,6 +76,7 @@ class Application(models.Model):
     """This model represents an application by a customer to P&W for a single
     permit, licence/permit, part 5, etc.
     """
+
     APP_TYPE_CHOICES = Choices(
         (1, 'permit', ('Permit')),
         (2, 'licence', ('Licence/permit')),
@@ -177,6 +179,7 @@ class Application(models.Model):
     document_briefing_note = models.ForeignKey(Record, null=True, blank=True, related_name='document_briefing_note')
     document_determination_approved = models.ForeignKey(Record, null=True, blank=True, related_name='document_determination_approved')
     approval_id = models.IntegerField(null=True, blank=True)
+    assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assessed_by') 
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
