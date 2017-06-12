@@ -65,7 +65,7 @@
                             <li><a href="{% url 'approval_status_change' app_obj.app.pk 'suspended' %}" title="Suspend">Suspend</a></li>
                             <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Surrendered">Surrendered</a></li>
                             
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Reinstate">Reinstate</a></li>
+                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'reinstate' %}" title="Reinstate">Reinstate</a></li>
                             <li><a href="/">Renew</a></li>
                             <li><a href="/" title="Administration">Renewal Notice</a></li>
                             {% if app_obj.app.app_type == 3 %}

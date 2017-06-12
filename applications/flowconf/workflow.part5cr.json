@@ -1,0 +1,291 @@
+{
+    "1": {
+        "title": "Form Lodgement",
+        "hidden": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+        },
+        "actions": [
+            {
+                "title": "Lodge Application",
+                "route": "2",
+                "routegroup":"lodge"
+            }
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+		"assigntoaccess": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
+            }
+        },
+        "collapse": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+        },
+        "fields": {
+            "description": "hide",
+            "cost": "hide",
+            "project_no": "hide",
+            "river_lease_require_river_lease":"hide",
+            "river_lease_reserve_licence": "hide",
+            "river_lease_application_number":"hide",
+            "proposed_development_current_use_of_land":"hide",
+            "certificate_of_title_volume":"hide",
+            "folio":"hide",
+            "diagram_plan_deposit_number":"hide",
+            "location":"hide",
+            "reserve_number":"hide",
+            "street_number_and_name":"hide",
+            "town_suburb":"hide",
+            "lot":"hide",
+            "nearest_road_intersection":"hide",
+            "land_owner_consent":"hide",
+            "document_final":"hide",
+            "document_completion":"hide",
+            "river_lease_scan_of_application":"hide",
+            "deed":"hide",
+            "document_determination":"hide",
+            "document_new_draft": "hide",
+            "document_draft_signed" : "hide",
+            "swan_river_trust_board_feedback": "hide",
+            "document_final_signed": "hide",
+            "document_new_draft_v3" : "hide",
+            "document_memo" : "hide",
+            "document_briefing_note" : "hide",
+            "document_determination_approved" :"hide",
+            "assessment_start_date" : "hide",
+            "document_draft" : "hide"
+        }
+    },
+    "2": {
+        "title": "Pre form complete",
+        "hidden": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+
+        },
+        "actions": [
+            {
+                "title": "Approve for Ammendment",
+                "route": "3",
+                "routegroup":"admin",
+                "state": "10"
+            },
+			{
+                "title": "Reject to Form Creator",
+                "route": "4",
+                "routegroup": "creator",
+                "state": "8",
+                "required": []
+            }
+
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "True",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_assign_to_creator": "True",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_assessor": "True"
+
+            },
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+
+        },
+        "collapse": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False" 
+        },
+        "fields": {
+        }
+    },
+    "3": {
+        "title": "Approved for Ammendments",
+        "hidden": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+
+        },
+        "actions": [
+        
+        ],
+        "formcomponent": {
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "True",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_assessor": "True",
+                "may_assign_to_person" : "False"
+
+            },
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+        },
+        "collapse": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+        },
+        "fields": {
+        }
+    },
+    "4": {
+        "title": "Ammendment Rejected",
+        "hidden": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+        },
+        "actions": [
+            {
+                "title": "Re-Assess",
+                "route": "2",
+                "routegroup":"lodge",
+                "state": "2"
+            }
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "assigntoaccess": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
+            }
+        },
+        "collapse": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+        },
+        "fields": {
+        }
+    }
+
+
+}
+

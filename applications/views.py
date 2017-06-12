@@ -220,7 +220,12 @@ class ApplicationDetail(DetailView):
             #context = flow.getHiddenAreas(context,app.routeid,workflowtype)
             #context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
             #context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
- 
+        elif app.app_type == app.APP_TYPE_CHOICES.part5amend:
+            self.template_name = 'applications/application_part5_amend.html'
+            part5 = Application_Part5()
+            context = part5.get(app, self, context)
+
+
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
@@ -434,7 +439,7 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
 
         if action == "amend": 
             if approval.ammendment_application: 
-                initial['app_type'] = 6  
+                initial['app_type'] = 6
             else:
                 raise ValidationError('There was and error raising your Application Change.')
         elif action == 'requestamendment': 
@@ -454,10 +459,11 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
         """
         self.object = form.save(commit=False)
         action = self.kwargs['action']
-
         forms_data = form.cleaned_data
+
         approval = Approval.objects.get(id=self.kwargs['approvalid'])
         application = Application.objects.get(id=approval.application.id)
+
         if action == "amend":
             if approval.ammendment_application:
                 self.object.app_type = 6
@@ -468,6 +474,7 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
         else: 
             raise ValidationError('There was and error raising your Application Change.')
 
+        self.object.proposed_development_description = forms_data['proposed_development_description'] 
         self.object.applicant = self.request.user
         self.object.assignee = self.request.user
         self.object.submitted_by = self.request.user
@@ -476,6 +483,16 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
         self.object.state = self.object.APP_STATE_CHOICES.new
         self.object.approval_id = approval.id
         self.object.save()
+
+        if self.request.FILES.get('proposed_development_plans'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('proposed_development_plans'), None) is False:
+                raise ValidationError('Proposed Development Plans contains and unallowed attachment extension.')
+        
+            for f in self.request.FILES.getlist('proposed_development_plans'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.proposed_development_plans.add(doc)
 
 #        self.object = form.save(commit=False)
         return HttpResponseRedirect(self.get_success_url())
@@ -580,8 +597,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
 #       flow = Flow()
         #workflow = flow.get()
-#        print (workflow)
+#       print (workflow)
 #       initial['land_owner_consent'] = app.land_owner_consent.all()
+
         multifilelist = []
         a1 = app.land_owner_consent.all()
         for b1 in a1:

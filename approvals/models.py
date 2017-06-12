@@ -38,8 +38,9 @@ class Approval(models.Model):
      details = models.TextField(null=True, blank=True)
 
      def __str__(self):
-        if self.id:
-            return '{} ({})'.format(self.title, self.app_type)
+        return 'Approvals {}: {} - {} ({})'.format(
+            self.pk, self.get_app_type_display(), self.title, self.get_status_display())
+
         return self.name
 
 

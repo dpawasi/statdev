@@ -329,7 +329,7 @@ class Flow():
     def getWorkFlowTypeFromApp(self,app):
         workflowtype = ''
         if app.app_type == app.APP_TYPE_CHOICES.part5:
-           workflowtype = 'part5'
+            workflowtype = 'part5'
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             workflowtype = 'emergency'
         elif app.app_type == app.APP_TYPE_CHOICES.permit:
