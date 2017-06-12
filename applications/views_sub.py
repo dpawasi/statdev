@@ -14,13 +14,14 @@ class Application_Part5():
             app.routeid = 1
 
         flow = Flow()
-        flow.get('part5')
-        context = flow.getAccessRights(request,context,app.routeid,'part5')
-        context = flow.getCollapse(context,app.routeid,'part5')
-        context = flow.getHiddenAreas(context,app.routeid,'part5')
-        context['workflow'] = flow.getAllRouteConf('part5',app.routeid)
-        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,'part5')
-        context['formcomponent'] = flow.getFormComponent(app.routeid,'part5')
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request,context,app.routeid,workflowtype)
+        context = flow.getCollapse(context,app.routeid,workflowtype)
+        context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+        context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
+        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
         try:
               LocObj = Location.objects.get(application_id=self_view.object.id)
               context['certificate_of_title_volume'] = LocObj.title_volume
