@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, UpdateView, DetailView
 from django.core.urlresolvers import reverse
 from .models import Approval as ApprovalModel 
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from applications.utils import get_query
 from . import forms as apps_forms
+from actions.models import Action
+from django.contrib.contenttypes.models import ContentType
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -88,9 +90,29 @@ class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         
         self.object = form.save(commit=False)
+        app = self.get_object()
         status = self.kwargs['status']
         self.object.status = ApprovalModel.APPROVAL_STATE_CHOICES.__getattr__(status)
         self.object.save()
+
+        action = Action(
+            content_object=app, category=Action.ACTION_CATEGORY_CHOICES.change,
+            user=self.request.user, action='Approval Change')
+        action.save()
+
         return super(ApprovalStatusChange, self).form_valid(form)
+
+
+class ApprovalActions(DetailView):
+    model = ApprovalModel
+    template_name = 'applications/application_actions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApprovalActions, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+            content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
+        return context
 
 
