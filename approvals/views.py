@@ -100,7 +100,6 @@ class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
             user=self.request.user, action='Approval Change')
         action.save()
 
-        print "ACTION COMPLETED"
         return super(ApprovalStatusChange, self).form_valid(form)
 
 
