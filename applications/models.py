@@ -9,6 +9,7 @@ from model_utils import Choices
 from django.contrib.auth.models import Group
 
 from ledger.accounts.models import Organisation
+#from ledger.payments.models import Invoice
 
 
 @python_2_unicode_compatible
@@ -179,7 +180,7 @@ class Application(models.Model):
     document_briefing_note = models.ForeignKey(Record, null=True, blank=True, related_name='document_briefing_note')
     document_determination_approved = models.ForeignKey(Record, null=True, blank=True, related_name='document_determination_approved')
     approval_id = models.IntegerField(null=True, blank=True)
-    assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assessed_by') 
+    assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assessed_by')
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -385,3 +386,15 @@ class Delegate(models.Model):
 
     class Meta:
         unique_together = ('email_user', 'organisation')
+
+
+@python_2_unicode_compatible
+class ApplicationInvoice(models.Model):
+    """This model represents a reference to an invoice for payment raised against
+    an application.
+    """
+    application = models.ForeignKey(Application)
+    invoice_reference = models.CharField(max_length=64)
+
+    def __str__(self):
+        return 'Application {} invoice {}'.format(self.application, self.invoice_reference)
