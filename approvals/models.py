@@ -17,7 +17,8 @@ class Approval(models.Model):
         (2, 'expired', ('Expired')),
         (3, 'cancelled', ('Cancelled')),
         (4, 'surrendered', ('Surrendered')),
-        (5, 'suspended', ('Suspended'))
+        (5, 'suspended', ('Suspended')),
+        (6, 'reinstate', ('Reinstate'))
      )
 
      app_type = models.IntegerField(choices=Application.APP_TYPE_CHOICES)
@@ -31,10 +32,16 @@ class Approval(models.Model):
      suspend_from_date = models.DateField(null=True, blank=True)
      suspend_to_date = models.DateField(null=True, blank=True)
      ammendment_application  = models.ForeignKey(Application, on_delete=models.CASCADE,null=True, blank=True, related_name='ammendment_application')
-
+     reinstate_date = models.DateField(null=True, blank=True)
+     cancellation_date = models.DateField(null=True, blank=True)
+     surrender_date = models.DateField(null=True, blank=True)
+     details = models.TextField(null=True, blank=True)
 
      def __str__(self):
         if self.id:
             return '{} ({})'.format(self.title, self.app_type)
         return self.name
+
+
+ 
 
