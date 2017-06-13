@@ -365,7 +365,18 @@ class Compliance(models.Model):
 class Communication(models.Model):
     """This model represents the communication model
     """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+    )
+
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none )
     details = models.TextField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True, related_name='communication_docs')
     state = models.IntegerField()  # move to foreign key once APP_STATE_CHOICES becomes a model
