@@ -4,7 +4,7 @@
     </div>
     <div class="panel-body">
         <h5>Communications</h5>
-        <p><a href="#">Show</a> | <a href="#">Add Entry</a></p>
+        <p><a href="{% url 'application_comms' object.pk %}">Show</a> | <a href="{% url 'application_comms_create' object.pk %}">Add Entry</a></p>
         <hr />
         <h5>Actions</h5>
         {# TODO: hide the Actions dropdown when no actions can be performed #}

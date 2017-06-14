@@ -392,6 +392,73 @@ class ApplicationActions(DetailView):
             content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
 
+class ApplicationComms(DetailView):
+    model = Communication 
+    template_name = 'applications/application_comms.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationComms, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['communications'] = Communication.objects.filter(application_id=app.pk).order_by('-created')
+        return context
+
+class ApplicationCommsCreate(CreateView):
+    model = Communication
+    form_class = apps_forms.CommunicationCreateForm
+    template_name = 'applications/application_comms_create.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationCommsCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new communication'
+        return context
+
+    def get_initial(self):
+        initial = {}
+  #      app = self.get_object()
+
+ #       print app.application.id
+#        initial['application']  =app.application
+        initial['application'] = self.kwargs['pk']
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(ApplicationCommsCreate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ApplicationCommsCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        app_id = self.kwargs['pk']
+
+        application = Application.objects.get(id=app_id)
+        self.object.application = application
+        self.object.save()
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents attached contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
+        self.object.save()
+        # If this is not an Emergency Works set the applicant as current user
+        success_url = reverse('application_comms', args=(app_id,))
+        return HttpResponseRedirect(success_url)
+
+
+
+
 class ApplicationChange(LoginRequiredMixin, CreateView):
     """This view is for changes or ammendents to existing applications
     """
