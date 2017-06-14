@@ -379,7 +379,7 @@ class Communication(models.Model):
     comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none )
     details = models.TextField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True, related_name='communication_docs')
-    state = models.IntegerField()  # move to foreign key once APP_STATE_CHOICES becomes a model
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
     created = models.DateTimeField(auto_now_add=True)
 
 
