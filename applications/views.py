@@ -439,7 +439,6 @@ class ApplicationCommsCreate(CreateView):
         app_id = self.kwargs['pk']
 
         application = Application.objects.get(id=app_id)
-        print application
         self.object.application = application
         self.object.save()
 
