@@ -340,6 +340,14 @@ class Flow():
             workflowtype = 'part5cr'
         elif app.app_type == app.APP_TYPE_CHOICES.part5amend:
             workflowtype = 'part5amend'
+        elif app.app_type == app.APP_TYPE_CHOICES.permitamend:
+            workflowtype = 'permitamend'
+        elif app.app_type == app.APP_TYPE_CHOICES.licenceamend:
+            workflowtype = 'licenceamend'
+        elif app.app_type == app.APP_TYPE_CHOICES.permitrenew:
+            workflowtype = 'permitrenew'
+        elif app.app_type == app.APP_TYPE_CHOICES.licencerenew:
+            workflowtype = 'licencerenew'
         elif app.app_type == app.APP_TYPE_CHOICES.test:
             workflowtype = 'test'
         else:
