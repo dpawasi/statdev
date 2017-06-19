@@ -24,7 +24,8 @@
             {
                 "title": "Lodge Application",
                 "route": "2",
-                "routegroup":"lodge"
+                "routegroup":"lodge",
+                "required": []
             }
         ],
 		"formcomponent": {

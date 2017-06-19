@@ -241,8 +241,11 @@ class Flow():
         context['required'] = {}
         json_obj = self.json_obj
         if json_obj[str(route)]:
-           if "required" in json_obj[str(route)]:
-              context["required"] = json_obj[str(route)]['required']
+            if "required" in json_obj[str(route)]:
+               context["required"] = json_obj[str(route)]['required']
+            else: 
+               context["required"] = json_obj[str(route)]['required'] = []
+
         return context
 
     def getFormComponent(self,route,flow):
@@ -274,7 +277,9 @@ class Flow():
                for a in json_obj[str(route)]['actions']:
                    if a["routegroup"]:
                        if a["routegroup"] == action:
-                          return a
+                           if "required" not in a:
+                              a["required"]= []
+                           return a
         return None
 
     def getAllRouteActions(self,route,flow):
@@ -306,7 +311,6 @@ class Flow():
         elif action == "creator":
             if context["may_assign_to_creator"] == "True":
                 assign_action = True
-
         return assign_action
 
     def groupList(self):

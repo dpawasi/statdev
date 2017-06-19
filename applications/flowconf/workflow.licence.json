@@ -24,7 +24,9 @@
             {
                 "title": "Lodge Application",
                 "route": "2",
-                "routegroup":"lodge"
+                "routegroup":"lodge",
+                "required" : []
+
             }
         ],
 		"formcomponent": {
@@ -90,7 +92,8 @@
             "assessment_start_date": "hide",
             "expire_date" : "hide",
             "document_final" :" hide"
-        }
+        },
+        "required" : []
     },
     "2": {
         "title": "Admin Officer",
@@ -197,7 +200,8 @@
             "document_determination": "hide",
             "document_completion": "hide",
             "assessment_start_date": "hide"
-        }
+        },
+       "required": []
     },
     "3": {
         "title": "Asessor",

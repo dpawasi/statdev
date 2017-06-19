@@ -1128,20 +1128,32 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
+        # print "ROUTE"
+        # print app.routeid
+
         if flowcontext['may_lodge'] == "True":
+            # print workflowtype
             route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
+            print "ROUTE"
+            print app.routeid
+            print route['required']
             flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
-            if "required" in route:
-                for fielditem in route["required"]:
-                    if hasattr(app, fielditem):
-                        if getattr(app, fielditem) is None:
+            # print "RR"
+            # print flowcontext
+            # print len(route["required"])
+            # print type(route["required"])
+            # if 'required' in route:
+            # if route.get["required"]:
+            for fielditem in route["required"]:
+                 if hasattr(app, fielditem):
+                    if getattr(app, fielditem) is None:
+                        messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
+                        return HttpResponseRedirect(app.get_absolute_url())
+                    appattr = getattr(app, fielditem)
+                    if isinstance(appattr, unicode) or isinstance(appattr, str):
+                        if len(appattr) == 0:
                             messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                             return HttpResponseRedirect(app.get_absolute_url())
-                        appattr = getattr(app, fielditem)
-                        if isinstance(appattr, unicode) or isinstance(appattr, str):
-                            if len(appattr) == 0:
-                                messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
-                                return HttpResponseRedirect(app.get_absolute_url())
 
             donothing = ""
         else:
@@ -1172,9 +1184,12 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
 
+        print "ROUTE"
+        print app.routeid
         DefaultGroups = flow.groupList()
         nextroute = flow.getNextRoute('lodge', app.routeid, workflowtype)
         route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
+
         app.routeid = nextroute
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
         if "required" in route:
