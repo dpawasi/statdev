@@ -1135,20 +1135,24 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
             # print workflowtype
             route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
             flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
-            # if 'required' in route:
-            # if route.get["required"]:
-            for fielditem in route["required"]:
-                 if hasattr(app, fielditem):
-                    if getattr(app, fielditem) is None:
-                        messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
-                        return HttpResponseRedirect(app.get_absolute_url())
-                    appattr = getattr(app, fielditem)
-                    if isinstance(appattr, unicode) or isinstance(appattr, str):
-                        if len(appattr) == 0:
-                            messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
-                            return HttpResponseRedirect(app.get_absolute_url())
 
-            donothing = ""
+            if route is not None: 
+                if 'required' in route:
+            # if route.get["required"]:
+                    for fielditem in route["required"]:
+                         if hasattr(app, fielditem):
+                            if getattr(app, fielditem) is None:
+                                messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
+                                return HttpResponseRedirect(app.get_absolute_url())
+                            appattr = getattr(app, fielditem)
+                            if isinstance(appattr, unicode) or isinstance(appattr, str):
+                                if len(appattr) == 0:
+                                    messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
+                                    return HttpResponseRedirect(app.get_absolute_url())
+                    donothing = ""
+            else:
+                messages.error(self.request, 'This application has no routes')
+                return HttpResponseRedirect(app.get_absolute_url())
         else:
             messages.error(self.request, 'This application cannot be lodged!')
             return HttpResponseRedirect(app.get_absolute_url())

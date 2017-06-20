@@ -195,7 +195,6 @@
             "location": "hide",
             "document_draft": "hide",
             "document_final": "hide",
-            "document_determination": "hide",
             "document_completion": "hide",
             "assessment_start_date": "hide"
         }
