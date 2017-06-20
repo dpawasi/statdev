@@ -283,7 +283,7 @@ class Referrals_Next_Action_Check():
         if "state" in route:
             app.state = route["state"]
         else:
-            app.state = None
+            app.state = 0 
 
         app.group = groupassignment
         app.assignee = assignee

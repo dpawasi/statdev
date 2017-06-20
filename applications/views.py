@@ -1134,14 +1134,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         if flowcontext['may_lodge'] == "True":
             # print workflowtype
             route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
-            print "ROUTE"
-            print app.routeid
-            print route['required']
             flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
-            # print "RR"
-            # print flowcontext
-            # print len(route["required"])
-            # print type(route["required"])
             # if 'required' in route:
             # if route.get["required"]:
             for fielditem in route["required"]:
@@ -1184,8 +1177,6 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
 
-        print "ROUTE"
-        print app.routeid
         DefaultGroups = flow.groupList()
         nextroute = flow.getNextRoute('lodge', app.routeid, workflowtype)
         route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)

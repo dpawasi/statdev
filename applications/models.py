@@ -93,6 +93,7 @@ class Application(models.Model):
     )
 
     APP_STATE_CHOICES = Choices(
+        (0, 'unknown',('Unknown')),
         (1, 'draft', ('Draft')),
         (2, 'with_admin', ('With Admin Officer')),
         (3, 'with_referee', ('With Referrals')),
