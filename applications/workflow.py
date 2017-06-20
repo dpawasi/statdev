@@ -241,8 +241,11 @@ class Flow():
         context['required'] = {}
         json_obj = self.json_obj
         if json_obj[str(route)]:
-           if "required" in json_obj[str(route)]:
-              context["required"] = json_obj[str(route)]['required']
+            if "required" in json_obj[str(route)]:
+               context["required"] = json_obj[str(route)]['required']
+            else: 
+               context["required"] = json_obj[str(route)]['required'] = []
+
         return context
 
     def getFormComponent(self,route,flow):
@@ -274,7 +277,9 @@ class Flow():
                for a in json_obj[str(route)]['actions']:
                    if a["routegroup"]:
                        if a["routegroup"] == action:
-                          return a
+                           if "required" not in a:
+                              a["required"]= []
+                           return a
         return None
 
     def getAllRouteActions(self,route,flow):
@@ -306,7 +311,6 @@ class Flow():
         elif action == "creator":
             if context["may_assign_to_creator"] == "True":
                 assign_action = True
-
         return assign_action
 
     def groupList(self):
@@ -340,6 +344,14 @@ class Flow():
             workflowtype = 'part5cr'
         elif app.app_type == app.APP_TYPE_CHOICES.part5amend:
             workflowtype = 'part5amend'
+        elif app.app_type == app.APP_TYPE_CHOICES.permitamend:
+            workflowtype = 'permitamend'
+        elif app.app_type == app.APP_TYPE_CHOICES.licenceamend:
+            workflowtype = 'licenceamend'
+        elif app.app_type == app.APP_TYPE_CHOICES.permitrenew:
+            workflowtype = 'permitrenew'
+        elif app.app_type == app.APP_TYPE_CHOICES.licencerenew:
+            workflowtype = 'licencerenew'
         elif app.app_type == app.APP_TYPE_CHOICES.test:
             workflowtype = 'test'
         else:

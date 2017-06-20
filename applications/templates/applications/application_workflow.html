@@ -5,6 +5,12 @@
     <div class="panel-body">
         <h4>Status:</h4>
         <p>{{ object.get_state_display }}</p>
+        <h4>Assigned Group:</h4>
+        <p>
+            {% if object.group %}
+               {{ object.group  }}
+            {% endif %}
+        </p>
         <h4>Assigned to:</h4>
         {% if object.assignee %}
         <p>

@@ -178,6 +178,7 @@ class ApplicationDetail(DetailView):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
         context['may_update'] = "False"
+
 #        print app.app_type
 #        print Application.APP_TYPE_CHOICES[app.app_type]
 #        print dict(Application.APP_TYPE_CHOICES).get('3')
@@ -225,7 +226,6 @@ class ApplicationDetail(DetailView):
             part5 = Application_Part5()
             context = part5.get(app, self, context)
 
-
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
@@ -234,6 +234,7 @@ class ApplicationDetail(DetailView):
         elif app.app_type == app.APP_TYPE_CHOICES.permit:
             permit = Application_Permit()
             context = permit.get(app, self, context)
+          
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             licence = Application_Licence()
             context = licence.get(app, self, context)
@@ -263,6 +264,7 @@ class ApplicationDetail(DetailView):
             if app.assignee != self.request.user:
                 del context['workflow_actions']
                 context['workflow_actions'] = []
+
 
         # elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
         #    self.template_name = 'applications/application_detail_emergency.html'
@@ -634,6 +636,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             return apps_forms.ApplicationPart5Form
         elif self.object.app_type == self.object.APP_TYPE_CHOICES.emergency:
             return apps_forms.ApplicationEmergencyForm
+        elif self.object.app_type == self.object.APP_TYPE_CHOICES.permitamend:
+            return apps_forms.ApplicationPermitForm
+        elif self.object.app_type == self.object.APP_TYPE_CHOICES.licenceamend:
+            return apps_forms.ApplicationLicencePermitForm
         else:
             # Add default forms.py and use json workflow to filter and hide fields
             return apps_forms.ApplicationPart5Form
@@ -1122,22 +1128,31 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
+        # print "ROUTE"
+        # print app.routeid
+
         if flowcontext['may_lodge'] == "True":
+            # print workflowtype
             route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
             flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
-            if "required" in route:
-                for fielditem in route["required"]:
-                    if hasattr(app, fielditem):
-                        if getattr(app, fielditem) is None:
-                            messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
-                            return HttpResponseRedirect(app.get_absolute_url())
-                        appattr = getattr(app, fielditem)
-                        if isinstance(appattr, unicode) or isinstance(appattr, str):
-                            if len(appattr) == 0:
+
+            if route is not None: 
+                if 'required' in route:
+            # if route.get["required"]:
+                    for fielditem in route["required"]:
+                         if hasattr(app, fielditem):
+                            if getattr(app, fielditem) is None:
                                 messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                                 return HttpResponseRedirect(app.get_absolute_url())
-
-            donothing = ""
+                            appattr = getattr(app, fielditem)
+                            if isinstance(appattr, unicode) or isinstance(appattr, str):
+                                if len(appattr) == 0:
+                                    messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
+                                    return HttpResponseRedirect(app.get_absolute_url())
+                    donothing = ""
+            else:
+                messages.error(self.request, 'This application has no routes')
+                return HttpResponseRedirect(app.get_absolute_url())
         else:
             messages.error(self.request, 'This application cannot be lodged!')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -1169,6 +1184,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         DefaultGroups = flow.groupList()
         nextroute = flow.getNextRoute('lodge', app.routeid, workflowtype)
         route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
+
         app.routeid = nextroute
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
         if "required" in route:
@@ -1479,10 +1495,10 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           status = 1
                 )
     def ammendment_approved(self,app):
-
-        approval = Approval.objects.get(id=app.approval_id)
-        approval.ammendment_application = app
-        approval.save()
+        if app.approval_id: 
+            approval = Approval.objects.get(id=app.approval_id)
+            approval.ammendment_application = app
+            approval.save()
         return
 
 class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):

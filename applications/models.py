@@ -85,9 +85,15 @@ class Application(models.Model):
         (4, 'emergency', ('Emergency works')),
         (5, 'part5cr', ('Part 5 - Amendment Request')),
         (6, 'part5amend', ('Part 5 - Amendment Application')),
-        (7, 'test', ('Test - Application'))
+        (7, 'test', ('Test - Application')),
+        (8, 'permitamend', ('Amend Permit')),
+        (9, 'licenceamend', ('Amend Licence')),
+        (10, 'permitrenew', ('Renew Permit')),
+        (11, 'licencerenew', ('Renew Licence'))
     )
+
     APP_STATE_CHOICES = Choices(
+        (0, 'unknown',('Unknown')),
         (1, 'draft', ('Draft')),
         (2, 'with_admin', ('With Admin Officer')),
         (3, 'with_referee', ('With Referrals')),
@@ -98,10 +104,11 @@ class Application(models.Model):
         (8, 'declined', ('Declined')),
         (9, 'new', ('New')),
         (10, 'approved', ('Approved')),
-        (11, 'expird', ('Expired')),
+        (11, 'expired', ('Expired')),
         (12, 'with_director', ('With Director')),
         (13, 'with_exec', ('With Executive')),
-        (14, 'completed', ('Completed'))
+        (14, 'completed', ('Completed')),
+        (15, 'creator', ('Form Creator'))
     )
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),

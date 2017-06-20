@@ -150,6 +150,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     land_owner_consent = MultiFileField(
         required=False, label='Landowner consent statement(s)',
         help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
+    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
         model = Application
@@ -159,7 +160,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             'purpose', 'max_participants', 'proposed_location', 'address',
             'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
-            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details',
+            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details','assessment_start_date','expire_date'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -191,6 +192,15 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
 
+        for fielditem in self.initial["fieldstatus"]:
+            if fielditem in self.fields:
+                del self.fields[fielditem]
+
+        for fielditem in self.initial["fieldrequired"]:
+            if fielditem in self.fields:
+                self.fields[fielditem].required = True
+
+
     def clean(self):
         cleaned_data = super(ApplicationLicencePermitForm, self).clean()
         # Clean the uploaded file fields (acceptable file types).
@@ -214,12 +224,16 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
 
 class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
+    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Attach more detailed descripton, maps or plans')
+    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
+    deed = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+
     class Meta:
         model = Application
         fields = [
             'title', 'description', 'proposed_commence', 'proposed_end',
-            'cost', 'project_no', 'related_permits', 'over_water', 'records',
-            'land_owner_consent', 'deed']
+            'cost', 'project_no', 'related_permits', 'over_water', 'assessment_start_date','expire_date']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPermitForm, self).__init__(*args, **kwargs)
@@ -237,7 +251,16 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['project_no'].label = "Riverbank project number (if applicable)"
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
-        self.fields['records'].label = "Attach more detailed descripton, maps or plans"
+#        self.fields['records'].label = "Attach more detailed descripton, maps or plans"
+
+        for fielditem in self.initial["fieldstatus"]:
+            del self.fields[fielditem]
+
+        for fielditem in self.initial["fieldrequired"]:
+            if fielditem in self.fields:
+                self.fields[fielditem].required = True
+
+
         #self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 
 class ApplicationChange(ApplicationFormMixin, ModelForm):
@@ -299,10 +322,12 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
 
         for fielditem in self.initial["fieldstatus"]:
-            del self.fields[fielditem]
+            if fielditem in self.fields:
+                del self.fields[fielditem]
 
         for fielditem in self.initial["fieldrequired"]:
-            self.fields[fielditem].required = True
+            if fielditem in self.fields:
+                self.fields[fielditem].required = True
 
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_update_part_5'

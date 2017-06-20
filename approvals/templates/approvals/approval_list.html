@@ -59,6 +59,8 @@
                                  <li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
                                  {% endif %}
                                 {% endif %}
+                            {% else %}
+                                <li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
                             {% endif %}
                             <li><a href="{% url 'approval_status_change' app_obj.app.pk 'cancelled' %}" title="Cancel">Cancel</a></li>
                             <li><a href="{% url 'approval_status_change' app_obj.app.pk 'expired' %}" title="Expire">Expire</a></li>
@@ -66,12 +68,15 @@
                             <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Surrendered">Surrendered</a></li>
                             
                             <li><a href="{% url 'approval_status_change' app_obj.app.pk 'reinstate' %}" title="Reinstate">Reinstate</a></li>
+                            {% if app_obj.app.app_type == 3 %}
+                            {% else %}
                             <li><a href="/">Renew</a></li>
+                            
                             <li><a href="/" title="Administration">Renewal Notice</a></li>
                             {% if app_obj.app.app_type == 3 %}
-                            <li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Request Ammendment</a></li>
+                                <li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Request Ammendment</a></li>
                             {% endif %}
-
+                            {% endif %}
                             </ul>   
                             </li>
                 	   </ul>
