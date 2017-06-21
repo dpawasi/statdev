@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, HTML
+from crispy_forms.layout import Layout, Submit, HTML, Fieldset, MultiField, Div
 from crispy_forms.bootstrap import FormActions
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
-
+from .crispy_common import crispy_heading, crispy_box, crispy_empty_box
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -200,7 +200,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             if fielditem in self.fields:
                 self.fields[fielditem].required = True
 
-
     def clean(self):
         cleaned_data = super(ApplicationLicencePermitForm, self).clean()
         # Clean the uploaded file fields (acceptable file types).
@@ -313,10 +312,10 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
     document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
     document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
-
+    
     class Meta:
         model = Application
-        fields = ['title', 'description','cost','project_no', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
+        fields = ['title', 'description','cost', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
@@ -330,12 +329,77 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
                 self.fields[fielditem].required = True
 
         self.helper = BaseFormHelper()
+        fieldtext = HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>Text Descriptioin</strong></div></div>")
+        attachpdf = HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>Please attach application (PDF)</strong></div></div>")
+        riverleasedesc = HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note "+'"'+" River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted. "+'"'+"</strong></div></div>")
+
+        crispy_boxes = crispy_empty_box() 
+        crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
+        crispy_boxes.append(crispy_box('proposal_collapse', 'form_proposal' , 'Proposed Commercial Acts and Activites','proposed_development_description',fieldtext))
+        crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information','certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection'))
+        crispy_boxes.append(crispy_box('riverleasesection29_collapse', 'form_riverleasesection29' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 29',riverleasedesc,'river_lease_require_river_lease',attachpdf,'river_lease_scan_of_application'))
+        crispy_boxes.append(crispy_box('riverleasesection32_collapse', 'form_riverleasesection32' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 32','river_lease_reserve_licence','river_lease_application_number'))
+        crispy_boxes.append(crispy_box('proposed_development_collapse', 'form_proposed_development' , 'Details of Proposed Development','cost','proposed_development_current_use_of_land','proposed_development_plans'))
+        crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent','land_owner_consent',))
+        crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed','deed'))
+#        crispy_boxes.append(crispy_box(
+
+ #       crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information')
+ #       crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title'))
+#        crispy_boxes = crispy_boxes +  crispy_box('title_collapse', 'form_title' , 'Title')
+
+
+        self.helper.layout = Layout(
+                                crispy_boxes,
+
+#                            Div(crispy_heading('certificate_collapse', 'form_certificate' , 'Certificate of Title Information'),
+#                                
+   #                         Div(Div(
+ #                             Fieldset(
+  #                              '',
+ #                               'description',
+ #                               'cost',
+ #                               'project_no',
+ #                               'river_lease_reserve_licence',
+ #                               'river_lease_application_number',
+ #                               'proposed_development_description',
+ #                               'proposed_development_current_use_of_land',
+ #                               'assessment_start_date'
+ #                             ), css_class='panel-body',
+ #                             ), css_class="panel-collapse collapse in",id="certificate_collapse",
+ #                            ), css_class='panel panel-default'  
+ #                           ),
+
+#
+#                          Fieldset('Documents',
+#                                   'land_owner_consent',
+#                                   'document_new_draft',
+#                                   'document_draft',
+#                                   'document_draft_signed',
+#                                   'document_final',
+#                                   'document_final_signed',
+#                                   'document_determination',
+#                                   'document_completion',
+#                                   'river_lease_scan_of_application',
+#                                   'deed',
+#                                   'swan_river_trust_board_feedback',
+#                                   'document_new_draft_v3',
+#                                   'document_memo',
+#                                   'document_determination',
+#                                   'document_briefing_note',
+#                                   'document_determination_approved'
+#                          )
+                        )
+   
+ 
+
         self.helper.form_id = 'id_form_update_part_5'
+        self.helper.form_class = 'form-horizontal form_fields'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
-
-
+   
+        
 class ApplicationEmergencyForm(ModelForm):
     class Meta:
         model = Application

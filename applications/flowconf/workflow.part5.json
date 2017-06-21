@@ -22,8 +22,7 @@
                 "title": "Lodge Application",
                 "route": "2",
                 "routegroup":"lodge",
-                "required": ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans"]
-
+                "required": ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans"]
             }
         ],
         "assigntoaccess": {
@@ -52,9 +51,7 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_assign_to_creator": "False"
-
             }
-
         },
         "collapse": {
             "applicant": "False",
