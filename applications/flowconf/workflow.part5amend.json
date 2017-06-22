@@ -15,7 +15,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "description": "hide"
         },
         "actions": [
             {
@@ -201,7 +202,8 @@
             "document_memo" : "hide",
             "document_determination_approved" : "hide",
             "swan_river_trust_board_feedback" : "hide",
-            "document_briefing_note" : "hide"
+            "document_briefing_note" : "hide",
+            "description": "hide"
 
         },
         "required": [

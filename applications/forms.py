@@ -1,14 +1,14 @@
 from __future__ import unicode_literals
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML, Fieldset, MultiField, Div
-from crispy_forms.bootstrap import FormActions
+from crispy_forms.bootstrap import FormActions, InlineRadios
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field
+from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_box, crispy_empty_box
+from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -312,7 +312,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
     document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
     document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
-    
+    river_lease_require_river_lease = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+    river_lease_reserve_licence = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+
     class Meta:
         model = Application
         fields = ['title', 'description','cost', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
@@ -329,24 +331,72 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
                 self.fields[fielditem].required = True
 
         self.helper = BaseFormHelper()
-        fieldtext = HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>Text Descriptioin</strong></div></div>")
-        attachpdf = HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>Please attach application (PDF)</strong></div></div>")
-        riverleasedesc = HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note "+'"'+" River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted. "+'"'+"</strong></div></div>")
 
-        crispy_boxes = crispy_empty_box() 
-        crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
-        crispy_boxes.append(crispy_box('proposal_collapse', 'form_proposal' , 'Proposed Commercial Acts and Activites','proposed_development_description',fieldtext))
-        crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information','certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection'))
-        crispy_boxes.append(crispy_box('riverleasesection29_collapse', 'form_riverleasesection29' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 29',riverleasedesc,'river_lease_require_river_lease',attachpdf,'river_lease_scan_of_application'))
-        crispy_boxes.append(crispy_box('riverleasesection32_collapse', 'form_riverleasesection32' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 32','river_lease_reserve_licence','river_lease_application_number'))
-        crispy_boxes.append(crispy_box('proposed_development_collapse', 'form_proposed_development' , 'Details of Proposed Development','cost','proposed_development_current_use_of_land','proposed_development_plans'))
-        crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent','land_owner_consent',))
-        crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed','deed'))
-#        crispy_boxes.append(crispy_box(
 
- #       crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information')
- #       crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title'))
-#        crispy_boxes = crispy_boxes +  crispy_box('title_collapse', 'form_title' , 'Title')
+        # Field helper Description text.
+        fieldtext = crispy_para('Text Description') 
+        attachpdf = crispy_para('Please attach application (PDF)')
+        riverleasedesc = crispy_para("If you intend to apply for a lease in relation to this proposed develeopment, you will need to complete a seperate Form - Application for a River reserve lease - and lodge it concurrently with this application. Note "+'"'+" River reserve leases will not be granted for developments requiring approval under section 70 of the Act - to which the proposed lease relates - unless that approval has been granted. "+'"'+"")
+        landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
+        landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
+        deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
+
+        # Field Groups & Collaspable Box Styling.
+
+        # Create Empty Object to append to.
+        crispy_boxes = crispy_empty_box()
+
+        # Title Box
+        if check_fields_exist(self.fields,['title']) is True:
+             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
+
+        # Certificate of Title Information
+        if check_fields_exist(self.fields,['certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection']) is True:
+             crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information','certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection'))
+
+        # River Reserve Lease (Swan and Cannning Management Act 2006 - section 29
+        if check_fields_exist(self.fields,['river_lease_require_river_lease','river_lease_scan_of_application']) is True:
+             crispy_boxes.append(crispy_box('riverleasesection29_collapse', 'form_riverleasesection29' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 29',riverleasedesc,InlineRadios('river_lease_require_river_lease'),attachpdf,'river_lease_scan_of_application'))
+
+        if check_fields_exist(self.fields,['river_lease_reserve_licence','river_lease_application_number']) is True:
+        # River Reserve Lease (Swan and Cannning Management Act 2006 - section 32
+             crispy_boxes.append(crispy_box('riverleasesection32_collapse', 'form_riverleasesection32' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 32',InlineRadios('river_lease_reserve_licence'),'river_lease_application_number'))
+
+        # Details of Proposed Developmen
+        if check_fields_exist(self.fields,['cost','proposed_development_current_use_of_land','proposed_development_description','proposed_development_plans']) is True:
+             crispy_boxes.append(crispy_box('proposed_development_collapse', 'form_proposed_development' , 'Details of Proposed Development','cost','proposed_development_current_use_of_land','proposed_development_description','proposed_development_plans'))
+
+        # Landowner Consent
+        if check_fields_exist(self.fields,['land_owner_consent']) is True:
+            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
+
+        # Deed
+        if check_fields_exist(self.fields,['deed']) is True:
+            crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
+
+        # Assessment Update Step
+        if check_fields_exist(self.fields,['assessment_start_date']) is True:
+            crispy_boxes.append(crispy_box('assessment_collapse', 'form_assessment' , 'Assessment','assessment_start_date','document_draft'))
+
+        if check_fields_exist(self.fields,['swan_river_trust_board_feedback']) is True:
+            crispy_boxes.append(crispy_box('boardfeedback_collapse', 'form_boardfeedback' , 'Attach Swan River Trust Board Feedback','swan_river_trust_board_feedback'))
+
+        if check_fields_exist(self.fields,['document_draft_signed']) is True:
+            crispy_boxes.append(crispy_box('boardfeedback_collapse', 'form_boardfeedback' , 'Attach Signed Draft','document_draft_signed'))
+        if check_fields_exist(self.fields,["document_new_draft_v3","document_memo"]) is True:
+            crispy_boxes.append(crispy_box('draft_new_collapse','form_draft_new','Attach new Draft & Memo','document_new_draft_v3','document_memo'))
+
+        if check_fields_exist(self.fields,["document_final_signed"]) is True:
+            crispy_boxes.append(crispy_box('final_signed_collapse','form_final_signed','Attach Final Signed Report','document_final_signed'))
+
+        if check_fields_exist(self.fields,["document_briefing_note","document_determination"]) is True:
+            crispy_boxes.append(crispy_box('determination_collapse','form_determination','Attached Deterimination & Breifing Notes','document_briefing_note','document_determination'))
+ 
+        if check_fields_exist(self.fields,['document_determination_approved']) is True:
+            crispy_boxes.append(crispy_box('determination_approved_collapse','form_determination_approved','Determination Approved','document_determination_approved'))
+
+
 
 
         self.helper.layout = Layout(
@@ -354,9 +404,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
 #                            Div(crispy_heading('certificate_collapse', 'form_certificate' , 'Certificate of Title Information'),
 #                                
-   #                         Div(Div(
- #                             Fieldset(
-  #                              '',
+#                         Div(Div(
+#                             Fieldset(
+#                              '',
  #                               'description',
  #                               'cost',
  #                               'project_no',
@@ -390,7 +440,6 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #                                   'document_determination_approved'
 #                          )
                         )
-   
  
 
         self.helper.form_id = 'id_form_update_part_5'
