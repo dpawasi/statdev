@@ -22,8 +22,7 @@
                 "title": "Lodge Application",
                 "route": "2",
                 "routegroup":"lodge",
-                "required": ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans"]
-
+                "required": ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans"]
             }
         ],
         "assigntoaccess": {
@@ -52,9 +51,7 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_assign_to_creator": "False"
-
             }
-
         },
         "collapse": {
             "applicant": "False",
@@ -83,7 +80,8 @@
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
             "document_briefing_note" : "hide",
-            "document_determination_approved" : "hide"
+            "document_determination_approved" : "hide",
+            "description": "hide"
 
         }
     },
@@ -120,14 +118,14 @@
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4",
-                "required": ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
+                "required": ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
             },
             {
                 "title": "Send to Referrals",
                 "route": "4",
                 "routegroup": "referral",
                 "state": "3",
-                "required" : ["title","description","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
+                "required" : ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
             },
             {
                 "title": "Assign to Form Creator",
@@ -199,7 +197,8 @@
             "document_memo" : "hide",
             "document_determination_approved" : "hide",
             "swan_river_trust_board_feedback" : "hide",
-            "document_briefing_note" : "hide"
+            "document_briefing_note" : "hide",
+            "description": "hide"
 
         },
         "required": [
@@ -407,7 +406,6 @@
             "document_memo" : "hide",
             "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
-
         },
         "required": [
             "assessment_start_date",

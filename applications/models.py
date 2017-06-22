@@ -115,6 +115,10 @@ class Application(models.Model):
         (1, 'onwater', ('On Water')),
         (2, 'both', ('Both')),
     )
+    APP_YESNO = Choices(
+        (True, ('Yes')),
+        (False, ('No'))
+    )
 
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant')
     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)

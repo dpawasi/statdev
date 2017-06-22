@@ -513,6 +513,12 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
                 raise ValidationError('There was and error raising your Application Change.')
         elif action == 'requestamendment': 
             initial['app_type'] = 5
+        elif action == 'renewlicence':
+            initial['app_type'] = 5
+        elif action == 'renewlicence':
+            initial['app_type'] = 11
+        elif action == 'renewpermit':
+            initial['app_type'] = 10
         else:
             raise ValidationError('There was and error raising your Application Change.')
 
@@ -540,6 +546,10 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
                 raise ValidationError('There was and error raising your Application Change.')
         elif action == 'requestamendment':
                 self.object.app_type = 5
+        elif action == 'renewlicence':
+                self.object.app_type = 11
+        elif action == 'renewpermit':
+                self.object.app_type = 10
         else: 
             raise ValidationError('There was and error raising your Application Change.')
 
@@ -616,6 +626,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationUpdate, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
+        context['left_sidebar'] = 'yes'
         app = self.get_object()
         # if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
