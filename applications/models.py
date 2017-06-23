@@ -170,6 +170,7 @@ class Application(models.Model):
     risk_mgmt_plan = models.ForeignKey(Record, blank=True, null=True, related_name='risk_mgmt_plan')
     safety_mgmt_procedures = models.ForeignKey(Record, blank=True, null=True, related_name='safety_mgmt_plan')
     brochures_itineries_adverts = models.ManyToManyField(Record, blank=True, related_name='brochures_itineries_adverts')
+    other_relevant_documents = models.ManyToManyField(Record, blank=True, related_name='other_relevant_documents')
     land_owner_consent = models.ManyToManyField(Record, blank=True, related_name='land_owner_consent')
     deed = models.ForeignKey(Record, blank=True, null=True, related_name='deed')
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
