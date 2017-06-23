@@ -34,7 +34,7 @@
                     "title": "Make Application Changes"
                 }
         },
-        "assigntoaccess": {
+        "iassigntoaccess": {
                 "may_update": "True",
                 "may_lodge":"True",
                 "may_refer":"False",
