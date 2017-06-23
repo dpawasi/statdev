@@ -33,6 +33,19 @@
                     "title": "Make Application Changes"
                 }
         },
+        "assigntoaccess": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
+        },
         "groupaccess": {
             "Processor": {
                 "may_update": "True",
@@ -90,7 +103,8 @@
         "fields": {
             "assessment_start_date": "hide",
             "expire_date" : "hide",
-            "document_final" :" hide"
+            "document_final" :" hide",
+            "expire_date" : "hide"
         }
     },
     "2": {
@@ -196,7 +210,8 @@
             "document_draft": "hide",
             "document_final": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "assessment_start_date": "hide",
+            "expire_date" : "hide"
         }
     },
     "3": {
