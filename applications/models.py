@@ -110,14 +110,22 @@ class Application(models.Model):
         (14, 'completed', ('Completed')),
         (15, 'creator', ('Form Creator'))
     )
+
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
         (1, 'onwater', ('On Water')),
         (2, 'both', ('Both')),
     )
+
     APP_YESNO = Choices(
         (True, ('Yes')),
         (False, ('No'))
+    )
+
+    APP_VESSEL_CRAFT = Choices(
+        (1, 'vessel', ('Vessel(s)')),
+        (2, 'craft', ('Craft(s)')),
+        (0, 'none', ('None'))
     )
 
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant')
@@ -138,6 +146,7 @@ class Application(models.Model):
     over_water = models.BooleanField(default=False)
     records = models.ManyToManyField(Record, blank=True, related_name='records')
     vessels = models.ManyToManyField(Vessel, blank=True)
+    vessel_or_craft_details = models.IntegerField(null=True, blank=True)
     purpose = models.ForeignKey(ApplicationPurpose, null=True, blank=True)
     max_participants = models.IntegerField(null=True, blank=True)
     proposed_location = models.SmallIntegerField(choices=APP_LOCATION_CHOICES, null=True, blank=True)
