@@ -110,14 +110,22 @@ class Application(models.Model):
         (14, 'completed', ('Completed')),
         (15, 'creator', ('Form Creator'))
     )
+
     APP_LOCATION_CHOICES = Choices(
         (0, 'onland', ('On Land')),
         (1, 'onwater', ('On Water')),
         (2, 'both', ('Both')),
     )
+
     APP_YESNO = Choices(
         (True, ('Yes')),
         (False, ('No'))
+    )
+
+    APP_VESSEL_CRAFT = Choices(
+        (1, 'vessel', ('Vessel(s)')),
+        (2, 'craft', ('Craft(s)')),
+        (0, 'none', ('None'))
     )
 
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant')
@@ -138,6 +146,7 @@ class Application(models.Model):
     over_water = models.BooleanField(default=False)
     records = models.ManyToManyField(Record, blank=True, related_name='records')
     vessels = models.ManyToManyField(Vessel, blank=True)
+    vessel_or_craft_details = models.IntegerField(null=True, blank=True)
     purpose = models.ForeignKey(ApplicationPurpose, null=True, blank=True)
     max_participants = models.IntegerField(null=True, blank=True)
     proposed_location = models.SmallIntegerField(choices=APP_LOCATION_CHOICES, null=True, blank=True)
@@ -161,6 +170,7 @@ class Application(models.Model):
     risk_mgmt_plan = models.ForeignKey(Record, blank=True, null=True, related_name='risk_mgmt_plan')
     safety_mgmt_procedures = models.ForeignKey(Record, blank=True, null=True, related_name='safety_mgmt_plan')
     brochures_itineries_adverts = models.ManyToManyField(Record, blank=True, related_name='brochures_itineries_adverts')
+    other_relevant_documents = models.ManyToManyField(Record, blank=True, related_name='other_relevant_documents')
     land_owner_consent = models.ManyToManyField(Record, blank=True, related_name='land_owner_consent')
     deed = models.ForeignKey(Record, blank=True, null=True, related_name='deed')
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='Submitted_by')
