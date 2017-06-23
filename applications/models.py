@@ -192,6 +192,7 @@ class Application(models.Model):
     document_determination_approved = models.ForeignKey(Record, null=True, blank=True, related_name='document_determination_approved')
     approval_id = models.IntegerField(null=True, blank=True)
     assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assessed_by')
+    supporting_info_demonstrate_compliance_trust_policies = models.ForeignKey(Record, null=True, blank=True, related_name='supporting_info_demonstrate_compliance_trust_policies')
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
