@@ -104,7 +104,7 @@
         "fields": {
             "assessment_start_date": "hide",
             "expire_date" : "hide",
-            "document_final" :" hide",
+            "document_final" :" hide"
         },
         "required" : []
     },
@@ -212,7 +212,7 @@
             "document_final": "hide",
             "document_determination": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide",
+            "assessment_start_date": "hide"
         },
        "required": []
     },

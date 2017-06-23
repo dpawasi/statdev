@@ -309,7 +309,6 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
       
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
-                print fielditem
                 del self.fields[fielditem]
 
         for fielditem in self.initial["fieldrequired"]:
