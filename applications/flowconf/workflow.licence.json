@@ -34,6 +34,19 @@
                     "title": "Make Application Changes"
                 }
         },
+        "iassigntoaccess": {
+                "may_update": "True",
+                "may_lodge":"True",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False",
+                "may_assign_to_creator": "False"
+        },
         "groupaccess": {
             "Processor": {
                 "may_update": "True",

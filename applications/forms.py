@@ -143,24 +143,35 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         label='Risk managment plan', required=False, max_length=128)
     safety_mgmt_procedures = FileField(
         label='Safety management procedures', required=False, max_length=128)
-    deed = FileField(required=False, max_length=128)
+    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
     brochures_itineries_adverts = MultiFileField(
         required=False, label='Brochures, itineraries or advertisements',
         help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
-    land_owner_consent = MultiFileField(
-        required=False, label='Landowner consent statement(s)',
-        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
+    #    land_owner_consent = MultiFileField(
+            #        required=False, label='Landowner consent statement(s)',
+        #        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
+    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)',
+            help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.'
+            )
+
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'})) 
+    vessel_or_craft_details = ChoiceField(choices=Application.APP_VESSEL_CRAFT ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+    jetty_dot_approval = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
+    food = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
+    beverage = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
+    byo_alcohol = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
+
 
     class Meta:
         model = Application
         fields = [
             'title', 'description', 'proposed_commence', 'proposed_end',
-            'cost', 'project_no', 'related_permits', 'over_water',
+            'over_water',
             'purpose', 'max_participants', 'proposed_location', 'address',
-            'jetties', 'jetty_dot_approval', 'jetty_dot_approval_expiry',
+            'jetties', 'jetty_dot_approval',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
-            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details','assessment_start_date','expire_date'
+            'refuel_location_method', 'berth_location', 'anchorage', 'operating_details','assessment_start_date','expire_date','vessel_or_craft_details'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -172,8 +183,8 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
         # Add labels for fields
-        self.fields['description'].label = "Proposed Commercial Acts or Activities"
-        self.fields['project_no'].label = "Riverbank Project Number"
+        self.fields['description'].label = "Summary"
+#        self.fields['project_no'].label = "Riverbank Project Number"
         self.fields['purpose'].label = "Purpose of Approval"
         self.fields['proposed_commence'].label = "Proposed Commencement Date"
         self.fields['proposed_end'].label = "Proposed End Date"
@@ -192,6 +203,11 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
 
+        deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
+        landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
+        landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
+
+
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
                 del self.fields[fielditem]
@@ -199,6 +215,33 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         for fielditem in self.initial["fieldrequired"]:
             if fielditem in self.fields:
                 self.fields[fielditem].required = True
+
+        crispy_boxes = crispy_empty_box()
+        if check_fields_exist(self.fields,['title']) is True:
+             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
+
+        if check_fields_exist(self.fields,['description']) is True:
+             crispy_boxes.append(crispy_box('summary_collapse', 'form_summary' , 'Proposed Commercial Acts or Activities','description'))
+
+        if check_fields_exist(self.fields,['description']) is True:
+             crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel or Craft Details',InlineRadios('vessel_or_craft_details'))) 
+
+        if check_fields_exist(self.fields,['purpose']) is True:
+             crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
+
+        if check_fields_exist(self.fields,['cert_survey','cert_public_liability_insurance','risk_mgmt_plan','safety_mgmt_procedures','brochures_itineries_adverts','other_relevant_documents']) is True:
+             crispy_boxes.append(crispy_box('other_documents_collapse', 'form_other_documents' , 'Other Documents','cert_survey','cert_public_liability_insurance','risk_mgmt_plan','safety_mgmt_procedures','brochures_itineries_adverts','other_relevant_documents'))
+
+        # Landowner Consent
+        if check_fields_exist(self.fields,['land_owner_consent']) is True:
+            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
+
+        # Deed
+        if check_fields_exist(self.fields,['deed']) is True:
+            crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
+
+        self.helper.layout = Layout(crispy_boxes,)
 
     def clean(self):
         cleaned_data = super(ApplicationLicencePermitForm, self).clean()
@@ -223,10 +266,21 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
 
 class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
+
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
     records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Attach more detailed descripton, maps or plans')
     land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+    over_water = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+
+    lot = CharField(required=False)
+    reserve_number = CharField(required=False)
+    town_suburb = CharField(required=False)
+    nearest_road_intersection = CharField(required=False)
+    local_government_authority = CharField(required=False)
+
+    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    supporting_info_demonstrate_compliance_trust_policies = FileField(required=False, max_length=128, widget=ClearableFileInput) 
 
     class Meta:
         model = Application
@@ -250,15 +304,47 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['project_no'].label = "Riverbank project number (if applicable)"
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
-#        self.fields['records'].label = "Attach more detailed descripton, maps or plans"
 
+#       self.fields['records'].label = "Attach more detailed descripton, maps or plans"
+      
         for fielditem in self.initial["fieldstatus"]:
-            del self.fields[fielditem]
+            if fielditem in self.fields:
+                del self.fields[fielditem]
 
         for fielditem in self.initial["fieldrequired"]:
             if fielditem in self.fields:
                 self.fields[fielditem].required = True
 
+        deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
+        landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
+        landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
+      
+        crispy_boxes = crispy_empty_box()
+        if check_fields_exist(self.fields,['title']) is True:
+            self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+            crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
+
+        # Location 
+        if check_fields_exist(self.fields,['lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority','over_water']) is True:
+            crispy_boxes.append(crispy_box('location_collapse', 'form_location' , 'Location','lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority',InlineRadios('over_water')))
+
+        if check_fields_exist(self.fields,['proposed_commence','proposed_end','cost','project_no','related_permits']) is True:
+            crispy_boxes.append(crispy_box('other_information_collapse', 'form_other_information' , 'Other Information','proposed_commence','proposed_end','cost','project_no','related_permits'))
+        if check_fields_exist(self.fields,['description','proposed_development_plans']) is True:
+            crispy_boxes.append(crispy_box('description_collapse', 'form_description' , 'Description','description','proposed_development_plans','supporting_info_demonstrate_compliance_trust_policies'))
+
+        # Landowner Consent
+        if check_fields_exist(self.fields,['land_owner_consent']) is True:
+            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
+
+        # Deed
+        if check_fields_exist(self.fields,['deed']) is True:
+            crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
+
+
+
+
+        self.helper.layout = Layout(crispy_boxes,)
 
         #self.fields['other_supporting_docs'].label = "Attach supporting information to demonstrate compliance with relevant Trust policies"
 

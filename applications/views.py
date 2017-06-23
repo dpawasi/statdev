@@ -703,6 +703,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             multifilelist.append(fileitem)
         initial['proposed_development_plans'] = multifilelist
 
+        a1 = app.other_relevant_documents.all()
+        multifilelist = []
+        for b1 in a1:
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
+        initial['other_relevant_documents'] = multifilelist
+
+       
         #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_new_draft:
             initial['document_new_draft'] = app.document_new_draft.upload
@@ -722,8 +732,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if app.document_determination_approved:
             initial['document_determination_approved'] = app.document_determination_approved.upload
 
-#        if app.proposed_development_plans:
-#           initial['proposed_development_plans'] = app.proposed_development_plans.upload
+#       if app.proposed_development_plans:
+#          initial['proposed_development_plans'] = app.proposed_development_plans.upload
 
         if app.deed:
             initial['deed'] = app.deed.upload
@@ -761,6 +771,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 initial['town_suburb'] = LocObj.suburb
                 initial['lot'] = LocObj.lot
                 initial['nearest_road_intersection'] = LocObj.intersection
+                initial['local_government_authority'] = LocObj.local_government_authority
         except ObjectDoesNotExist:
             donothing = ''
 
@@ -802,6 +813,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         for filelist in proposed_development_plans:
             if 'proposed_development_plans-clear_multifileid-' + str(filelist.id) in form.data:
                 application.proposed_development_plans.remove(filelist)
+
+        other_relevant_documents = application.other_relevant_documents.all()
+        for filelist in other_relevant_documents:
+            if 'other_relevant_documents-clear_multifileid-' + str(filelist.id) in form.data:
+                application.other_relevant_documents.remove(filelist)
 
         # if 'land_owner_consent-clear_multifileid' in forms_data:
         # Check for clear checkbox (remove files)
@@ -881,6 +897,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             doc.name = forms_data['safety_mgmt_procedures'].name
             doc.save()
             self.object.safety_mgmt_procedures = doc
+        
         # if self.request.FILES.get('deed'):
         #    if self.object.deed:
         #        doc = self.object.deed
@@ -906,6 +923,22 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #            doc.name = forms_data['river_lease_scan_of_application'].name
 #            doc.save()
 #            self.object.river_lease_scan_of_application = doc
+
+        if self.request.FILES.get('other_relevant_documents'):
+            # Remove existing documents.
+            for d in self.object.other_relevant_documents.all():
+                self.object.other_relevant_documents.remove(d)
+            # Add new uploads.
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
+                raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('other_relevant_documents'):
+                doc = Record()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                self.object.other_relevant_documents.add(doc)
+
         if self.request.FILES.get('brochures_itineries_adverts'):
             # Remove existing documents.
             for d in self.object.brochures_itineries_adverts.all():
@@ -1094,8 +1127,12 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_loc.suburb = forms_data['town_suburb']
         if 'lot' in forms_data:
             new_loc.lot = forms_data['lot']
-        if 'lot' in forms_data:
+        if 'nearest_road_intersection' in forms_data:
             new_loc.intersection = forms_data['nearest_road_intersection']
+        if 'local_government_authority' in forms_data:
+            new_loc.local_government_authority = forms_data['local_government_authority']
+
+
 
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
