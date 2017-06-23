@@ -277,6 +277,7 @@ class Location(models.Model):
     dpd_number = models.CharField(max_length=30, null=True, blank=True)
     location = models.CharField(max_length=256, null=True, blank=True)  # this seem like it different from street address based on the example form.
     street_number_name = models.CharField(max_length=256, null=True, blank=True)
+    local_government_authority = models.CharField(max_length=256, null=True, blank=True)
 
     def __str__(self):
         return 'Location {} ({})'.format(self.pk, self.application)
