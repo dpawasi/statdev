@@ -806,10 +806,7 @@ class AssignApplicantForm(ModelForm):
         self.helper.form_id = 'id_form_assign_person_application'
         self.helper.attrs = {'novalidate': ''}
         # Limit the assignee queryset.
-#        assigngroup = Group.objects.get(name=self.initial['assigngroup'])
- #       print 'fdsgfdsg'
-#        print kwargs['applicantid'] 
-        print kwargs 
+        
         applicant = self.initial['applicant']
         self.fields['applicant'].queryset = User.objects.filter(pk=applicant)
         self.fields['applicant'].required = True
