@@ -53,6 +53,9 @@ def crispy_empty_box():
 def crispy_para(paragraph):
     return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>"+paragraph+"</strong></div></div>")
 
+def crispy_button_link(label,link):
+    return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><a class='btn btn-primary btn-sm' role='button' href='"+link+"'>"+label+"</a></div></div>")
+
 def check_fields_exist(fields,fieldstocheck):
     for fe in fieldstocheck:
         if fe in fields:
