@@ -72,6 +72,13 @@ class ApplicationPurpose(models.Model):
         return self.purpose
 
 
+class Craft(models.Model):
+    name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+
 @python_2_unicode_compatible
 class Application(models.Model):
     """This model represents an application by a customer to P&W for a single
@@ -203,6 +210,8 @@ class Application(models.Model):
     approval_id = models.IntegerField(null=True, blank=True)
     assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assessed_by')
     supporting_info_demonstrate_compliance_trust_policies = models.ForeignKey(Record, null=True, blank=True, related_name='supporting_info_demonstrate_compliance_trust_policies')
+    type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
+    number_of_crafts  = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML, Fieldset, MultiField, Div
 from crispy_forms.bootstrap import FormActions, InlineRadios
@@ -8,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist
+from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -403,7 +404,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     class Meta:
         model = Application
-        fields = ['title', 'description','cost', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
+        fields = ['applicant','title', 'description','cost', 'river_lease_require_river_lease','river_lease_reserve_licence','river_lease_application_number','proposed_development_description','proposed_development_current_use_of_land','assessment_start_date']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
@@ -431,7 +432,8 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
         # Create Empty Object to append to.
         crispy_boxes = crispy_empty_box()
-
+        changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton))
         # Title Box
         if check_fields_exist(self.fields,['title']) is True:
              self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
@@ -527,6 +529,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #                          )
                         )
  
+        self.fields['applicant'].disabled = True
 
         self.helper.form_id = 'id_form_update_part_5'
         self.helper.form_class = 'form-horizontal form_fields'
@@ -548,9 +551,17 @@ class ApplicationEmergencyForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+        self.fields['applicant'].disabled = True;
+        self.fields['applicant'].required = True;
         # Add labels and help text for fields
         self.fields['proposed_commence'].label = "Start date"
         self.fields['proposed_end'].label = "Expiry date"
+        changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+        crispy_boxes = crispy_empty_box()
+        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works','applicant', changeapplicantbutton,'organisation', 'proposed_commence', 'proposed_end'))
+
+        self.helper.layout = Layout(crispy_boxes,)
+
 
 
 class ApplicationLodgeForm(Form):
@@ -780,6 +791,36 @@ class AssignPersonForm(ModelForm):
             )
         )
 
+class AssignApplicantForm(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['applicant']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignApplicantForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+        
+        applicant = self.initial['applicant']
+        self.fields['applicant'].queryset = User.objects.filter(pk=applicant)
+        self.fields['applicant'].required = True
+        self.fields['applicant'].disabled = True
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'applicant',
+            FormActions(
+                Submit('assign', 'Change Applicant', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
 
 class AssignCustomerForm(ModelForm):
     """A form for assigning an application back to the customer.
@@ -938,6 +979,8 @@ class AssignEmergencyForm(ModelForm):
             self.fields[k].disabled = True
         # Re-enable the assignee field.
         self.fields['assignee'].disabled = False
+
+
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this Emergency Works to a new Admin officer:</p>'),
@@ -1008,8 +1051,13 @@ class ApplicationEmergencyIssueForm(ModelForm):
             self.fields[k].disabled = True
         # Re-enable the assessment field.
         self.fields['assessment'].disabled = False
+
+        crispy_boxes = crispy_empty_box()
+        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works','holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment'))
+ 
+
         # Define the form layout.
-        self.helper.layout = Layout(
+        self.helper.layout = Layout(crispy_boxes,
             HTML('<p>Issue or decline this completed Emergency Works application:</p>'),
             'app_type', 'holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment',
             FormActions(
