@@ -517,9 +517,6 @@ class ApplicationCommsCreate(CreateView):
         success_url = reverse('application_comms', args=(app_id,))
         return HttpResponseRedirect(success_url)
 
-
-
-
 class ApplicationChange(LoginRequiredMixin, CreateView):
     """This view is for changes or ammendents to existing applications
     """
@@ -664,7 +661,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
 
-        if int(app.routeid) > 1:
+        if float(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
 
@@ -722,12 +719,17 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
+
         request = self.request
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontent = {}
         flowcontent = flow.getFields(flowcontent, app.routeid, workflowtype)
+        flowcontent = flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
+        flowcontent = flow.getHiddenAreas(flowcontent,app.routeid,workflowtype)
+        flowcontent['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
+
         flowcontent['formcomponent'] = flow.getFormComponent(app.routeid, workflowtype)
         initial['fieldstatus'] = []
 
@@ -739,6 +741,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             if "update" in flowcontent['formcomponent']:
                 if "required" in flowcontent['formcomponent']['update']:
                     initial['fieldrequired'] = flowcontent['formcomponent']['update']['required']
+
+        initial["workflow"] = flowcontent
+        initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
+
 
 #       flow = Flow()
         #workflow = flow.get()
@@ -1193,15 +1199,58 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if 'local_government_authority' in forms_data:
             new_loc.local_government_authority = forms_data['local_government_authority']
 
-
-
         if self.object.state == Application.APP_STATE_CHOICES.new:
             self.object.state = Application.APP_STATE_CHOICES.draft
 
         self.object.save()
         new_loc.save()
+
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
             form.save_m2m()
+        if self.request.POST.get('save'):
+            print self.request.POST['save']
+#        if self.request.POST.get('nextstep') or self.request.POST.get('prevstep'):
+            # print self.request.POST['nextstep']          
+            # if self.request.POST.get('prevstep'):
+            # print self.request.POST['nextstep']
+            # print "CONDITION ROUTING"
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(application)
+        flow.get(workflowtype)
+        conditionactions = flow.getAllConditionBasedRouteActions(application.routeid)
+
+#       print self.request.POST
+#       print conditionactions
+        if conditionactions:
+             for ca in conditionactions:
+                 for fe in self.request.POST:
+                     if ca == fe:
+                         for ro in conditionactions[ca]['routeoptions']:
+                             if ro['field'] in self.request.POST:
+                                 if ro['fieldvalue'] == self.request.POST[ro['field']]:
+                                     self.object.routeid = ro['route']
+                                     self.object.state = ro['state']
+                                     self.object.save()
+                                     return HttpResponseRedirect(reverse('application_update',kwargs={'pk':self.object.id}))
+                     #                    print conditionactions[ca]['routeoptions'] 
+#                    if ca['fieldvalue'] == self.request.POST[fe]:
+   #                      self.object.routeid = ca['route']
+ #                        self.object.state = ca['state']
+  #                       self.object.save()
+    #                     print fe
+#                           print forms_data[fe]
+#                           print fe
+     #                    return HttpResponseRedirect(reverse('application_update',kwargs={'pk':self.object.id}))
+              
+#                    self.object.routeid = ca['route']
+#                    self.object.state = ca['state']
+#                    print ca['fieldoperator']
+ #                   print ca['field']
+  #                  print ca['fieldvalue']
+ #                   print ca['route']
+#                    print ca['state']
+
+        self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -1435,7 +1484,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
     """
-
     model = Application
 
     def get(self, request, *args, **kwargs):
@@ -2904,14 +2952,14 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
-        if app.state != app.APP_STATE_CHOICES.draft:
-            messages.error(
-                self.request, "Can't add new vessels to this application")
-            return HttpResponseRedirect(app.get_absolute_url())
+#        if app.state != app.APP_STATE_CHOICES.draft:
+#            messages.error(
+#                self.request, "Can't add new vessels to this application")
+#            return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselCreate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('application_detail', args=(self.kwargs['pk'],))
+        return reverse('application_update', args=(self.kwargs['pk'],))
 
     def get_context_data(self, **kwargs):
         context = super(VesselCreate, self).get_context_data(**kwargs)
@@ -2954,11 +3002,14 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
         app = self.get_object().application_set.first()
         # Rule: can only change a vessel if the parent application is status
         # 'draft'.
-        if app.state != Application.APP_STATE_CHOICES.draft:
-            messages.error(
-                self.request, 'You can only change a vessel details when the application is "draft" status')
-            return HttpResponseRedirect(app.get_absolute_url())
+        #if app.state != Application.APP_STATE_CHOICES.draft:
+        #    messages.error(
+        #        self.request, 'You can only change a vessel details when the application is "draft" status')
+        #    return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselUpdate, self).get(request, *args, **kwargs)
+
+    def get_success_url(self,app_id):
+        return reverse('application_update', args=(app_id,))
 
     def get_context_data(self, **kwargs):
         context = super(VesselUpdate, self).get_context_data(**kwargs)
@@ -2986,7 +3037,8 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.registration.add(doc)
         app = self.object.application_set.first()
-        return HttpResponseRedirect(app.get_absolute_url())
+        print app.id
+        return HttpResponseRedirect(self.get_success_url(app.id),)
 
 
 class RecordCreate(LoginRequiredMixin, CreateView):

@@ -62,3 +62,7 @@ def check_fields_exist(fields,fieldstocheck):
             return True
     return False
 
+def crispy_button(helper,stepid,steplabel):
+    helper.add_input(Submit(stepid, steplabel, css_class='btn-lg'))
+    return helper
+

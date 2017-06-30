@@ -50,7 +50,9 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_assign_to_creator": "False"
+                "may_assign_to_creator": "False",
+                "may_change_application_applicant" :"True"
+
             }
         },
         "collapse": {

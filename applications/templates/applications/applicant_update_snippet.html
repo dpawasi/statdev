@@ -1,0 +1,66 @@
+
+{{ app }}
+
+{% with object.applicant as applicant %}
+<div class="col-sm-8 col-md-9 col-lg-4">
+    <h4>Applicant details:</h4>
+    <table class="table table-borderless">
+        <tr>
+            <th>Name</th>
+            <td>{{ applicant.get_full_name }}</td>
+        </tr>
+        <tr>
+            <th>Date of birth</th>
+            <td>{{ applicant.dob }}</td>
+        </tr>
+    </table>
+</div>
+<div class="col-sm-8 col-md-9 col-lg-4">
+    <h4>Address details:</h4>
+    <table class="table table-borderless">
+        {% with applicant.postal_address as address %}
+            <tr>
+                <th>Postal address</th>
+                <td>{{ address.line1 }}
+                {% if address.line2 %}
+                <br>{{ address.line2 }}
+                {% endif %}
+                {% if address.line3 %}
+                <br>{{ address.line3 }}
+                {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Town / Suburb</th>
+                <td>{{ address.locality }}</td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td>{{ address.get_state_display }}</td>
+            </tr>
+            <tr>
+                <th>Postcode</th>
+                <td>{{ address.postcode }}</td>
+            </tr>
+        {% endwith %}
+    </table>
+</div>
+<div class="col-sm-8 col-md-9 col-lg-4">
+    <h4>Contact details:</h4>
+    <table class="table table-borderless">
+        <tr>
+            <th>Phone</th>
+            <td>{{ applicant.phone_number }}</td>
+        </tr>
+        <tr>
+            <th>Mobile</th>
+            <td>{{ applicant.mobile_number }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ applicant.email }}</td>
+        </tr>
+    </table>
+</div>
+{% endwith %}
+

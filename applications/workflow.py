@@ -118,6 +118,9 @@ class Flow():
             context["may_publish_publication_feedback_determination"] = "False"
         if "may_update_publication_feedback_determination" not in context:
             context["may_update_publication_feedback_determination"] = "False"
+        if "may_change_application_applicant" not in context:
+            context["may_change_application_applicant"] = "False"
+
 
         # Form Components
         if "form_component_update" not in context:
@@ -287,6 +290,14 @@ class Flow():
         if json_obj[str(route)]:
             if json_obj[str(route)]['actions']:
                return json_obj[str(route)]['actions']
+
+    def getAllConditionBasedRouteActions(self,route):
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+            if 'condition-based-actions' in json_obj[str(route)]:
+                if json_obj[str(route)]['condition-based-actions']:
+                    return json_obj[str(route)]['condition-based-actions']
+
 
     def checkAssignedAction(self,action,context):
         assign_action = False

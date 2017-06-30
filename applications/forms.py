@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect
 from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link
+from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -155,6 +155,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.'
             )
 
+    location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
     other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'})) 
     vessel_or_craft_details = ChoiceField(choices=Application.APP_VESSEL_CRAFT ,widget=RadioSelect(attrs={'class':'radio-inline'}))
@@ -167,10 +168,10 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     class Meta:
         model = Application
         fields = [
-            'title', 'description', 'proposed_commence', 'proposed_end',
+            'applicant','title', 'description', 'proposed_commence', 'proposed_end',
             'over_water',
             'purpose', 'max_participants', 'proposed_location', 'address',
-            'jetties', 'jetty_dot_approval',
+            'jetties', 'jetty_dot_approval','type_of_crafts','number_of_crafts',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
             'refuel_location_method', 'berth_location', 'anchorage', 'operating_details','assessment_start_date','expire_date','vessel_or_craft_details'
         ]
@@ -180,20 +181,22 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_update_licence_permit'
         self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        #self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        #self.helper.add_input(Submit('cancel', 'Cancel'))
 
         # Add labels for fields
         self.fields['description'].label = "Summary"
-#        self.fields['project_no'].label = "Riverbank Project Number"
+#       self.fields['project_no'].label = "Riverbank Project Number"
         self.fields['purpose'].label = "Purpose of Approval"
         self.fields['proposed_commence'].label = "Proposed Commencement Date"
         self.fields['proposed_end'].label = "Proposed End Date"
         self.fields['max_participants'].label = "Maximum Number of Participants"
         self.fields['address'].label = "Address of any landbased component of the commercial activity"
-        self.fields['proposed_location'].label = "Location / Route and Access Points"
+        self.fields['proposed_location'].label = "Proposed Location"
+        self.fields['location_route_access'].label = "Location / Route and Access Points (mark clearly on map)"
+        # self.fields['proposed_location'].label = "Location / Route and Access Points"
         self.fields['jetties'].label = "List all jetties to be used"
-        self.fields['jetty_dot_approval'].label = "Do you have approval to use Departmen of Transport service jetties?"
+        self.fields['jetty_dot_approval'].label = "Do you have approval to use Department of Transport service jetties?"
         self.fields['drop_off_pick_up'].label = "List all drop off and pick up points"
         self.fields['food'].label = "Food to be served?"
         self.fields['beverage'].label = "Beverage to be served?"
@@ -203,7 +206,9 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['refuel_location_method'].label = "Location and method of refueling"
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
+        self.fields['vessel_or_craft_details'].label = "Are there any vessels or crafts to be noted in this application?"
 
+        vesselandcraftdetails = crispy_para("Any vessel or craft to be used by a commercial operator in the river reserve must be noted in this application with the relevent Department of Transport certificate of survery or hire and driver registration.")
         deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
         landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
@@ -218,15 +223,40 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                 self.fields[fielditem].required = True
 
         crispy_boxes = crispy_empty_box()
+
+
+        if check_fields_exist(self.fields,['applicant']) is True:
+            self.fields['applicant'].disabled = True
+    #        print self.initial["workflow"]["hidden"]['vessels']
+            if self.initial["may_change_application_applicant"] == "True":
+                changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+            else: 
+                changeapplicantbutton = HTML('')
+            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton,HTML('{% include "applications/applicant_update_snippet.html" %}')))
+
+
         if check_fields_exist(self.fields,['title']) is True:
              self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
-             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
+             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title',))
 
         if check_fields_exist(self.fields,['description']) is True:
+             
              crispy_boxes.append(crispy_box('summary_collapse', 'form_summary' , 'Proposed Commercial Acts or Activities','description'))
 
         if check_fields_exist(self.fields,['description']) is True:
-             crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel or Craft Details',InlineRadios('vessel_or_craft_details'))) 
+             crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'))) 
+
+        if self.initial["workflow"]["hidden"]['vessels'] == "False":
+            if self.initial['vessel_or_craft_details'] == 1:
+                crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel Details',HTML('{% include "applications/application_vessels.html" %}')))
+        if 'crafts' in self.initial["workflow"]["hidden"]:    
+            if self.initial["workflow"]["hidden"]['crafts'] == "False":
+                if self.initial['vessel_or_craft_details'] == 2:
+                    crispy_boxes.append(crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))
+                else: 
+                    del self.fields['type_of_crafts']
+                    del self.fields['number_of_crafts']
+                    
 
         if check_fields_exist(self.fields,['purpose']) is True:
              crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
@@ -242,7 +272,31 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         if check_fields_exist(self.fields,['deed']) is True:
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
 
-        self.helper.layout = Layout(crispy_boxes,)
+        self.helper.layout = Layout(crispy_boxes,
+  #                FormActions(
+  #                            Submit('lodge', 'Lodge', css_class='btn-lg'),
+  #                              Submit('cancel', 'Cancel')
+                              #                            )
+        )
+
+        if 'condactions' in self.initial['workflow']:
+             print "yes"
+             print self.initial['workflow']['condactions']
+             for ca in self.initial['workflow']['condactions']:
+                 if 'steplabel' in self.initial['workflow']['condactions'][ca]: 
+                 # for ro in self.initial['workflow']['condactions'][ca]['routeoptions']:
+                  #    print ro
+                      self.helper = crispy_button(self.helper,ca,self.initial['workflow']['condactions'][ca]['steplabel'])
+
+  #           self.helper = crispy_button(self.helper,'step1','Step 1')
+#             self.helper.add_input(Submit('prevstep', 'Prev Step', css_class='btn-lg'))
+ #            self.helper.add_input(Submit('nextstep', 'Next Step', css_class='btn-lg'))
+
+        else:
+             self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+             self.helper.add_input(Submit('cancel', 'Cancel'))
+                             
+
 
     def clean(self):
         cleaned_data = super(ApplicationLicencePermitForm, self).clean()
@@ -286,7 +340,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     class Meta:
         model = Application
         fields = [
-            'title', 'description', 'proposed_commence', 'proposed_end',
+            'applicant','title', 'description', 'proposed_commence', 'proposed_end',
             'cost', 'project_no', 'related_permits', 'over_water', 'assessment_start_date','expire_date']
 
     def __init__(self, *args, **kwargs):
@@ -321,13 +375,22 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
       
         crispy_boxes = crispy_empty_box()
+        self.fields['applicant'].disabled = True
+
+        if self.initial["may_change_application_applicant"] == "True":
+            changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+        else:
+            changeapplicantbutton = HTML('')
+        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton))
+
+
         if check_fields_exist(self.fields,['title']) is True:
             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
 
         # Location 
         if check_fields_exist(self.fields,['lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority','over_water']) is True:
-            crispy_boxes.append(crispy_box('location_collapse', 'form_location' , 'Location','lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority',InlineRadios('over_water')))
+            crispy_boxes.append(crispy_box('location_collapse', 'form_location' , 'Location','lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority',InlineRadios('over_water')) )
 
         if check_fields_exist(self.fields,['proposed_commence','proposed_end','cost','project_no','related_permits']) is True:
             crispy_boxes.append(crispy_box('other_information_collapse', 'form_other_information' , 'Other Information','proposed_commence','proposed_end','cost','project_no','related_permits'))
@@ -428,12 +491,21 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
         deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
 
+
         # Field Groups & Collaspable Box Styling.
 
         # Create Empty Object to append to.
         crispy_boxes = crispy_empty_box()
-        changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+#        changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+#        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton))
+        if self.initial["may_change_application_applicant"] == "True":
+            changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+        else:
+            changeapplicantbutton = HTML('')
         crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton))
+
+
+
         # Title Box
         if check_fields_exist(self.fields,['title']) is True:
              self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"

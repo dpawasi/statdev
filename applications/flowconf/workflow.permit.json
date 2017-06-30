@@ -57,7 +57,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_change_application_applicant" :"True"
 
             },
             "Assessor": {
