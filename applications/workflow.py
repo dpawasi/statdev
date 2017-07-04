@@ -120,6 +120,9 @@ class Flow():
             context["may_update_publication_feedback_determination"] = "False"
         if "may_change_application_applicant" not in context:
             context["may_change_application_applicant"] = "False"
+        if "may_update_vessels_list" not in context:
+            context["may_update_vessels_list"] = "False"
+
 
 
         # Form Components

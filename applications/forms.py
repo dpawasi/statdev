@@ -280,8 +280,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         )
 
         if 'condactions' in self.initial['workflow']:
-             print "yes"
-             print self.initial['workflow']['condactions']
              for ca in self.initial['workflow']['condactions']:
                  if 'steplabel' in self.initial['workflow']['condactions'][ca]: 
                  # for ro in self.initial['workflow']['condactions'][ca]['routeoptions']:

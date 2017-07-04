@@ -58,7 +58,7 @@
         "actions": [
             {
                 "title": "Lodge Application",
-                "route": "2",
+                "route": "3.1",
                 "routegroup":"lodge",
                 "required" : []
 
@@ -80,7 +80,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "may_update_vessels_list": "False"
         },
         "groupaccess": {
 
@@ -195,7 +196,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "may_update_vessels_list": "True"
         },
         "groupaccess": {
 
@@ -329,7 +331,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "may_update_vessels_list": "False"
         },
         "groupaccess": {
 
@@ -392,8 +395,6 @@
 
 
 
-
-
     "3.1": {
         "title": "Form Lodgement (Licence/Permit)",
         "hidden": {
@@ -444,7 +445,7 @@
         "actions": [
             {
                 "title": "Lodge Application",
-                "route": "2",
+                "route": "3.2",
                 "routegroup":"lodge",
                 "required" : []
 
@@ -456,7 +457,7 @@
             }
         },
         "assigntoaccess": {
-            "may_update": "True",
+            "may_update": "False",
             "may_lodge":"True",
             "may_refer":"False",
             "may_assign":"False",

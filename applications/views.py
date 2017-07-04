@@ -1288,7 +1288,6 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
 
         # print "ROUTE"
         # print app.routeid
-
         if flowcontext['may_lodge'] == "True":
             # print workflowtype
             route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
@@ -2952,10 +2951,21 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
+#        action = self.kwargs['action']
+
+        flow = Flow()
+        flowcontext = {}
+        flowcontext['application_assignee_id'] = app.assignee.id
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+        if flowcontext["may_update_vessels_list"] != "True":
 #        if app.state != app.APP_STATE_CHOICES.draft:
-#            messages.error(
-#                self.request, "Can't add new vessels to this application")
-#            return HttpResponseRedirect(app.get_absolute_url())
+            messages.error(
+                self.request, "Can't add new vessels to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselCreate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -3006,6 +3016,19 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
         #    messages.error(
         #        self.request, 'You can only change a vessel details when the application is "draft" status')
         #    return HttpResponseRedirect(app.get_absolute_url())
+        flow = Flow()
+        flowcontext = {}
+        flowcontext['application_assignee_id'] = app.assignee.id
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+        if flowcontext["may_update_vessels_list"] != "True":
+#        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(
+                self.request, "Can't add new vessels to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(VesselUpdate, self).get(request, *args, **kwargs)
 
     def get_success_url(self,app_id):

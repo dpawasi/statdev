@@ -66,7 +66,7 @@ class StatDevTestCase(TestCase):
             state=Application.APP_STATE_CHOICES.draft, assignee=self.user1,routeid=1)
         self.app2 = mixer.blend(
             Application, app_type=Application.APP_TYPE_CHOICES.licence,
-            state=Application.APP_STATE_CHOICES.draft, assignee=self.user3,routeid=2)
+            state=Application.APP_STATE_CHOICES.draft, assignee=self.user3,routeid=3.1)
         self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
 
 
@@ -126,7 +126,7 @@ class ApplicationTest(StatDevTestCase):
 
     def test_update_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.routeid = 2
+        self.app1.routeid = 3.1
         self.app1.assignee = None
         self.app1.save()
         url = reverse('application_update', args=(self.app1.pk,))
@@ -153,7 +153,7 @@ class ApplicationTest(StatDevTestCase):
 
     def test_lodge_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.routeid = 2
+        self.app1.routeid = 5
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.get(url)
@@ -166,14 +166,14 @@ class ApplicationTest(StatDevTestCase):
 
     def test_refer_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.routeid = 2
+        self.app1.routeid = 3.2
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
     def test_refer_application_get_redirect(self):
-        self.app1.routeid = 2
+        self.app1.routeid = 3.1
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
@@ -183,7 +183,7 @@ class ApplicationTest(StatDevTestCase):
         self.user1.groups.add(referee)  # Make user1 a referee.
         count = Referral.objects.count()
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.routeid = 2
+        self.app1.routeid = 3.2
         self.app1.save()
         url = reverse('application_refer', args=(self.app1.pk,))
         resp = self.client.post(url, {'referee': self.user1.pk, 'period': 21})
@@ -429,6 +429,8 @@ class ApplicationTest(StatDevTestCase):
         self.assertEquals(r.status, Referral.REFERRAL_STATUS_CHOICES.recalled)
 
     def test_application_add_vessel_get(self):
+        self.app1.routeid = 1.1
+        self.app1.save()
         url = reverse('application_add_vessel', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
@@ -444,10 +446,13 @@ class ApplicationTest(StatDevTestCase):
         self.assertFalse(Vessel.objects.exists())
         url = reverse('application_add_vessel', args=(self.app1.pk,))
         resp = self.client.post(url, {'name': 'foo'})
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, self.app1.get_absolute_url()+"update/")
         self.assertTrue(Vessel.objects.exists())
 
     def test_vessel_update_get(self):
+        self.app1.routeid = 1.1
+        self.app1.save()
+
         vessel = mixer.blend(Vessel)
         self.app1.vessels.add(vessel)
         url = reverse('vessel_update', args=(vessel.pk,))
@@ -458,6 +463,7 @@ class ApplicationTest(StatDevTestCase):
         vessel = mixer.blend(Vessel)
         self.app1.vessels.add(vessel)
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.routeid = 5
         self.app1.save()
         url = reverse('vessel_update', args=(vessel.pk,))
         resp = self.client.get(url)
@@ -468,6 +474,6 @@ class ApplicationTest(StatDevTestCase):
         self.app1.vessels.add(vessel)
         url = reverse('vessel_update', args=(vessel.pk,))
         resp = self.client.post(url, {'name': 'foo'})
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, self.app1.get_absolute_url()+"update/")
         v = Vessel.objects.get(pk=vessel.pk)
         self.assertEquals(v.name, 'foo')
