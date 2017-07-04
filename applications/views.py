@@ -1207,7 +1207,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
             form.save_m2m()
-        if self.request.POST.get('save'):
+#        if self.request.POST.get('save'):
 #        if self.request.POST.get('nextstep') or self.request.POST.get('prevstep'):
             # print self.request.POST['nextstep']          
             # if self.request.POST.get('prevstep'):
