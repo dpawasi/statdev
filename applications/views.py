@@ -3059,7 +3059,6 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.registration.add(doc)
         app = self.object.application_set.first()
-        print app.id
         return HttpResponseRedirect(self.get_success_url(app.id),)
 
 
