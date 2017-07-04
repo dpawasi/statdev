@@ -18,23 +18,74 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "vessels" : "True"
+        },
+        "condition-based-actions": { 
+            "nextstep": {
+                "steplabel": "Next Step",
+                "routeoptions": [{
+                    "field": "vessel_or_craft_details",
+                    "fieldvalue": "1",
+                    "fieldoperator":"equals",
+                    "route": "1.1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                },
+                {
+                    "field": "vessel_or_craft_details",
+                    "fieldvalue": "2",
+                    "fieldoperator":"equals",
+                    "route": "1.2",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                },
+                {
+                    "field": "vessel_or_craft_details",
+                    "fieldvalue": "0",
+                    "fieldoperator":"equals",
+                    "route": "3.1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                }
+
+                ]
+            }
         },
         "actions": [
             {
                 "title": "Lodge Application",
-                "route": "2",
+                "route": "3.1",
                 "routegroup":"lodge",
                 "required" : []
 
             }
         ],
-		"formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
-        "iassigntoaccess": {
+        "assigntoaccess": {
+            "may_update": "True",
+            "may_lodge":"False",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False",
+            "may_update_vessels_list": "False"
+        },
+        "groupaccess": {
+
+            "Processor": {
                 "may_update": "True",
                 "may_lodge":"True",
                 "may_refer":"False",
@@ -45,7 +96,378 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_assign_to_creator": "False"
+                "may_change_application_applicant" :"True"
+            }
+        },
+        "collapse": {
+            "applicant": "False",
+            "title": "False",
+            "proposed_activities": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "details_of_proposed_development": "False",
+            "publication": "True",
+            "referrals": "True",
+            "deed": "False",
+            "landowner_consent": "False"
+        },
+        "fields": {
+            "assessment_start_date": "hide",
+            "expire_date" : "hide",
+            "document_final" :" hide",
+            "type_of_crafts" : "hide",
+            "number_of_crafts" : "hide"
+        },
+        "required" : []
+    },
+    "1.1": {
+        "title": "Add Vessells (Licence/Permit)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "vessels": "False",
+            "proposed_details": "False",
+            "certificate_of_survery":"False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "True",
+            "conditions": "True",
+            "assessments": "True",
+            "stakeholdercommunication": "True",
+            "referrals": "True",
+            "crafts" : "True"
+        },
+        "condition-based-actions": {
+            "2-prevstep": {
+                "steplabel": "Prev Step",
+                "routeoptions": [{
+                    "field": "2-prevstep",
+                    "fieldvalue": "Prev Step",
+                    "fieldoperator":"equals",
+                    "route": "1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                }
+                ]
+            },
+            "1-nextstep": {
+                "steplabel": "Next Step",
+                "routeoptions": [{
+                    "field": "1-nextstep",
+                    "fieldvalue": "Next Step",
+                    "fieldoperator":"equals",
+                    "route": "3.1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                }
+                ]
+            }
+        },
+        "actions": [
+            {
+                "title": "Lodge Application",
+                "route": "2",
+                "routegroup":"lodge",
+                "required" : []
+
+            }
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "assigntoaccess": {
+            "may_update": "True",
+            "may_lodge":"False",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False",
+            "may_update_vessels_list": "True"
+        },
+        "groupaccess": {
+
+        },
+        "collapse": {
+            "applicant": "False",
+            "title": "False",
+            "proposed_activities": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "details_of_proposed_development": "False",
+            "publication": "True",
+            "referrals": "True",
+            "deed": "False",
+            "landowner_consent": "False"
+        },
+        "fields": {
+            "applicant" : "hide",
+            "title" : "hide",
+            "purpose" : "hide",
+            "proposed_commence" : "hide",
+            "proposed_end" : "hide",
+            "max_participants" : "hide",
+            "proposed_location" : "hide",
+            "address" : "hide",
+            "jetties" : "hide",
+            "jetty_dot_approval" :"hide",
+            "drop_off_pick_up" : "hide",
+            "food" : "hide",
+            "beverage" : "hide",
+            "byo_alcohol" : "hide",
+            "sullage_disposal" : "hide",
+            "waste_disposal" : "hide",
+            "refuel_location_method" : "hide",
+            "berth_location" : "hide",
+            "anchorage" : "hide",
+            "operating_details" : "hide",
+            "vessel_or_craft_details" : "hide",
+            "cert_survey" :"hide",
+            "cert_public_liability_insurance" : "hide",
+            "risk_mgmt_plan" : "hide",
+            "safety_mgmt_procedures" : "hide",
+            "brochures_itineries_adverts" : "hide",
+            "other_relevant_documents" : "hide",
+            "land_owner_consent" : "hide",
+            "deed": "hide",
+            "description" : "hide",
+            "assessment_start_date": "hide",
+            "expire_date" : "hide",
+            "document_final" :" hide",
+            "type_of_crafts" : "hide",
+            "number_of_crafts" : "hide"
+        },
+        "required" : ["type_of_crafts","number_of_crafts"]
+    },
+
+    "1.2": {
+        "title": "Form Lodgement (Licence/Permit)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "vessels": "False",
+            "proposed_details": "False",
+            "certificate_of_survery":"False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "True",
+            "conditions": "True",
+            "assessments": "True",
+            "stakeholdercommunication": "True",
+            "referrals": "True",
+            "vessels" : "True",
+            "crafts" : "False"
+        },
+        "condition-based-actions": {
+            "2-prevstep": {
+                "steplabel": "Prev Step",
+                "routeoptions": [{
+                    "field": "2-prevstep",
+                    "fieldvalue": "Prev Step",
+                    "fieldoperator":"equals",
+                    "route": "1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                }
+                ]
+            },
+            "1-nextstep": {
+                "steplabel": "Next Step",
+                "routeoptions": [{
+                    "field": "1-nextstep",
+                    "fieldvalue": "Next Step",
+                    "fieldoperator":"equals",
+                    "route": "3.1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                }
+                ]
+            }
+        },
+        "actions": [
+            {
+                "title": "Lodge Application",
+                "route": "2",
+                "routegroup":"lodge",
+                "required" : []
+
+            }
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "assigntoaccess": {
+            "may_update": "True",
+            "may_lodge":"False",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False",
+            "may_update_vessels_list": "False"
+        },
+        "groupaccess": {
+
+        },
+        "collapse": {
+            "applicant": "False",
+            "title": "False",
+            "proposed_activities": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "details_of_proposed_development": "False",
+            "publication": "True",
+            "referrals": "True",
+            "deed": "False",
+            "landowner_consent": "False"
+        },
+        "fields": {
+            "applicant" : "hide",
+            "title" : "hide",
+            "purpose" : "hide",
+            "proposed_commence" : "hide",
+            "proposed_end" : "hide",
+            "max_participants" : "hide",
+            "proposed_location" : "hide",
+            "address" : "hide",
+            "jetties" : "hide",           
+            "jetty_dot_approval" :"hide",
+            "drop_off_pick_up" : "hide", 
+            "food" : "hide",
+            "beverage" : "hide",
+            "byo_alcohol" : "hide",
+            "sullage_disposal" : "hide",
+            "waste_disposal" : "hide",
+            "refuel_location_method" : "hide",
+            "berth_location" : "hide",
+            "anchorage" : "hide",
+            "operating_details" : "hide",
+            "vessel_or_craft_details" : "hide",
+            "cert_survey" :"hide",
+            "cert_public_liability_insurance" : "hide",
+            "risk_mgmt_plan" : "hide",
+            "safety_mgmt_procedures" : "hide",
+            "brochures_itineries_adverts" : "hide",
+            "other_relevant_documents" : "hide",
+            "land_owner_consent" : "hide",
+            "deed": "hide",
+            "description" : "hide",
+            "assessment_start_date": "hide",
+            "expire_date" : "hide",
+            "document_final" :" hide"
+
+        },
+        "required" : []
+    },
+
+
+
+
+
+
+
+    "3.1": {
+        "title": "Form Lodgement (Licence/Permit)",
+        "hidden": {
+            "applicant": "False",
+            "title": "False",
+            "certificate_commerical_acts_and_activities": "False",
+            "vessels": "False",
+            "proposed_details": "False",
+            "certificate_of_survery":"False",
+            "proposed_activities": "False",
+            "details_of_proposed_development": "False",
+            "river_reserve_lease_section_29": "False",
+            "river_reserve_lease_section_32": "False",
+            "landowner_consent": "False",
+            "deed": "False",
+            "publication": "True",
+            "conditions": "True",
+            "assessments": "True",
+            "stakeholdercommunication": "True",
+            "referrals": "True",
+            "crafts": "False"
+        },
+        "condition-based-actions": { "nextstep": 
+            {
+                "steplabel": "Next Step",
+                "routeoptions": [{
+                    "field": "vessel_or_craft_details",
+                    "fieldvalue": "1",
+                    "fieldoperator":"equals",
+                    "route": "3.1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                },
+                {
+                    "field": "vessel_or_craft_details",
+                    "fieldvalue": "2",
+                    "fieldoperator":"equals",
+                    "route": "3.1",
+                    "routegroup":"lodge",
+                    "required" : [],
+                    "state": "15"
+                }
+                ]
+            }
+        },
+
+        "actions": [
+            {
+                "title": "Lodge Application",
+                "route": "3.2",
+                "routegroup":"lodge",
+                "required" : []
+
+            }
+        ],
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "assigntoaccess": {
+            "may_update": "False",
+            "may_lodge":"True",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False"
         },
         "groupaccess": {
             "Processor": {
@@ -58,7 +480,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "may_change_application_applicant" :"True"
 
             },
             "Assessor": {
@@ -105,10 +528,11 @@
             "assessment_start_date": "hide",
             "expire_date" : "hide",
             "document_final" :" hide"
+
         },
         "required" : []
     },
-    "2": {
+    "3.2": {
         "title": "Admin Officer",
         "hidden": {
             "applicant": "False",
@@ -150,9 +574,22 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "assigntoaccess": {
+            "may_update": "True",
+            "may_lodge":"True",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False"
         },
         "groupaccess": {
             "Processor": {
@@ -212,9 +649,14 @@
             "document_final": "hide",
             "document_determination": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "assessment_start_date": "hide",
+            "type_of_crafts" : "hide",
+            "number_of_crafts" : "hide"
+
+
+
         },
-       "required": []
+        "required": []
     },
     "3": {
         "title": "Asessor",
@@ -238,7 +680,7 @@
             "referrals": "True"
         },
         "actions": [
-	        {
+            {
                 "title": "Approve to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
@@ -247,9 +689,22 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "assigntoaccess": {
+            "may_update": "True",
+            "may_lodge":"True",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False"
         },
         "groupaccess": {
             "Assessor": {
@@ -324,11 +779,11 @@
             "safety_mgmt_procedures" : "hide",
             "brochures_itineries_adverts" : "hide",
             "jetty_dot_approval" : "hide"
-            
+
         },
         "required" : ["assessment_start_date","expire_date"]
 
-        
+
     },
     "4": {
         "title": "Referrals",
@@ -352,7 +807,7 @@
             "referrals": "True"
         },
         "actions": [
-			{
+            {
                 "title": "Assign to Assessor",
                 "route": "3",
                 "routegroup":"assess",
@@ -360,9 +815,9 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Processor": {
@@ -469,9 +924,9 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Approver": {
@@ -568,7 +1023,7 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                                "may_submit_approval": "False",
+                "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
 
@@ -656,7 +1111,7 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                                "may_submit_approval": "False",
+                "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
 
@@ -697,7 +1152,7 @@
             "assessment_start_date": "hide"
         }
     },
-   "8": {
+    "8": {
         "title": "Declined & Close Application",
         "hidden": {
             "applicant": "False",
@@ -744,7 +1199,7 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                                "may_submit_approval": "False",
+                "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
 
