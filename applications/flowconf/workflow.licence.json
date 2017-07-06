@@ -84,7 +84,6 @@
             "may_update_vessels_list": "False"
         },
         "groupaccess": {
-
             "Processor": {
                 "may_update": "True",
                 "may_lodge":"True",
@@ -122,7 +121,7 @@
         "required" : []
     },
     "1.1": {
-        "title": "Add Vessells (Licence/Permit)",
+        "title": "Add Vessels (Licence/Permit)",
         "hidden": {
             "applicant": "False",
             "title": "False",
@@ -389,12 +388,6 @@
         "required" : []
     },
 
-
-
-
-
-
-
     "3.1": {
         "title": "Form Lodgement (Licence/Permit)",
         "hidden": {
@@ -441,7 +434,6 @@
                 ]
             }
         },
-
         "actions": [
             {
                 "title": "Lodge Application",
@@ -481,7 +473,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_change_application_applicant" :"True"
+                "may_change_application_applicant" :"True",
+                "may_update_vessels_list": "True"
 
             },
             "Assessor": {
@@ -652,9 +645,6 @@
             "assessment_start_date": "hide",
             "type_of_crafts" : "hide",
             "number_of_crafts" : "hide"
-
-
-
         },
         "required": []
     },
@@ -778,7 +768,12 @@
             "risk_mgmt_plan" : "",
             "safety_mgmt_procedures" : "hide",
             "brochures_itineries_adverts" : "hide",
-            "jetty_dot_approval" : "hide"
+            "jetty_dot_approval" : "hide",
+            "type_of_crafts" : "hide",
+            "number_of_crafts" : "hide",
+            "assessment_start_date" : "hide",
+            "expire_date" : "hide",
+            "vessel_or_craft_details" :"hide"
 
         },
         "required" : ["assessment_start_date","expire_date"]

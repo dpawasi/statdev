@@ -1,7 +1,7 @@
 from django.contrib.admin import register, ModelAdmin
 from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
-    Condition, Compliance, Delegate, ApplicationInvoice, Communication)
+    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft)
 
 
 @register(Record)
@@ -78,4 +78,10 @@ class ApplicationInvoiceAdmin(ModelAdmin):
 class CommunicationAdmin(ModelAdmin):
     list_display = ('application', 'comms_to', 'comms_from','subject','comms_type','details','created')
     search_fields = ('comms_to','comms_from','subject','details')
+
+@register(Craft)
+class CraftAdmin(ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
 

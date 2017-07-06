@@ -81,7 +81,8 @@
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
             "document_briefing_note" : "hide",
-            "document_determination_approved" : "hide"
+            "document_determination_approved" : "hide",
+            "description": "hide"
 
         }
     },

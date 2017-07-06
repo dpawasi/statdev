@@ -87,7 +87,6 @@ class HomePage(LoginRequiredMixin, TemplateView):
         return app_list
 
 
-
 class ApplicationApplicantChange(DetailView):
     #    form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/applicant_applicantsearch.html'
@@ -655,7 +654,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
   #          assessor = Group.objects.get(name='Assessor')
   #          approver = Group.objects.get(name='Approver')
   #          referee = Group.objects.get(name='Referee')
-
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
@@ -684,6 +682,13 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['page_heading'] = 'Update application details'
         context['left_sidebar'] = 'yes'
         app = self.get_object()
+
+        if app.assignee:
+            context['application_assignee_id'] = app.assignee.id
+        else:
+            context['application_assignee_id'] = None
+
+
         # if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
@@ -779,7 +784,15 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             multifilelist.append(fileitem)
         initial['other_relevant_documents'] = multifilelist
 
-       
+        a1 = app.brochures_itineries_adverts.all()
+        multifilelist = []
+        for b1 in a1:
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
+        initial['brochures_itineries_adverts'] = multifilelist
+
         #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
         if app.document_new_draft:
             initial['document_new_draft'] = app.document_new_draft.upload
@@ -993,8 +1006,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         if self.request.FILES.get('other_relevant_documents'):
             # Remove existing documents.
-            for d in self.object.other_relevant_documents.all():
-                self.object.other_relevant_documents.remove(d)
+ #           for d in self.object.other_relevant_documents.all():
+  #              self.object.other_relevant_documents.remove(d)
             # Add new uploads.
             if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
                 raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
@@ -1006,10 +1019,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.other_relevant_documents.add(doc)
 
+        brochures_itineries_adverts = application.brochures_itineries_adverts.all()
+        for filelist in brochures_itineries_adverts:
+            if 'brochures_itineries_adverts-clear_multifileid-' + str(filelist.id) in form.data:
+                 self.object.brochures_itineries_adverts.remove(filelist)
+
         if self.request.FILES.get('brochures_itineries_adverts'):
+            print self.request.FILES.getlist('brochures_itineries_adverts')
             # Remove existing documents.
-            for d in self.object.brochures_itineries_adverts.all():
-                self.object.brochures_itineries_adverts.remove(d)
+#            for d in self.object.brochures_itineries_adverts.all():
+ #               self.object.brochures_itineries_adverts.remove(d)
             # Add new uploads.
             if Attachment_Extension_Check('multi', self.request.FILES.getlist('brochures_itineries_adverts'), None) is False:
                 raise ValidationError('Brochures Itineries contains and unallowed attachment extension.')
@@ -1020,6 +1039,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.name = f.name
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
+
         if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
             # for d in self.object.land_owner_consent.all():
@@ -1044,6 +1064,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.upload = f
                 doc.save()
                 self.object.proposed_development_plans.add(doc)
+
         if self.request.POST.get('document_draft-clear'):
             #application = Application.objects.get(id=self.object.id)
             #document = Record.objects.get(pk=application.document_draft.id)
@@ -2989,18 +3010,67 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
         # Registration document uploads.
         if self.request.FILES.get('registration'):
-            # Remove any existing documents.
-            for d in self.object.registration.all():
-                self.object.registration.remove(d)
-            # Add new uploads.
-            for f in form.cleaned_data['registration']:
+            for f in self.request.FILES.getlist('registration'):
                 doc = Record()
                 doc.upload = f
-                doc.name = f.name
                 doc.save()
                 self.object.registration.add(doc)
 
         return super(VesselCreate, self).form_valid(form)
+
+
+class VesselDelete(LoginRequiredMixin, UpdateView):
+    model = Vessel 
+    form_class = apps_forms.VesselDeleteForm
+    template_name = 'applications/vessel_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        vessel = self.get_object()
+        app = self.get_object().application_set.first()
+        flow = Flow()
+        flowcontext = {}
+        flowcontext['application_assignee_id'] = app.assignee.id
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+        if flowcontext["may_update_vessels_list"] != "True":
+#        if app.state != app.APP_STATE_CHOICES.draft:
+            messages.error(
+                self.request, "Can't add new vessels to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        #if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+        #    messages.error(self.request, 'This delete is already completed!')
+        #    return HttpResponseRedirect(referral.application.get_absolute_url())
+        return super(VesselDelete, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(VesselDelete, self).get_context_data(**kwargs)
+        context['vessel'] = self.get_object()
+        return context
+
+    def get_success_url(self, application_id):
+        return reverse('application_update', args=(application_id,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().application.get_absolute_url())
+        return super(VesselDelete, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        vessel = self.get_object()
+#        application_id = vessel.application.id
+        app = self.object.application_set.first()
+        vessel.delete()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=app, user=self.request.user,
+            action='Vessel to {} delete'.format(vessel.id))
+        action.save()
+        return HttpResponseRedirect(self.get_success_url(app.id))
+
+
 
 
 class VesselUpdate(LoginRequiredMixin, UpdateView):
@@ -3015,6 +3085,13 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
         #    messages.error(
         #        self.request, 'You can only change a vessel details when the application is "draft" status')
         #    return HttpResponseRedirect(app.get_absolute_url())
+        flowcontext = {}
+        if app.assignee:
+            flowcontext['application_assignee_id'] = app.assignee.id
+        else:
+            flowcontext['application_assignee_id'] = None
+
+
         flow = Flow()
         flowcontext = {}
         flowcontext['application_assignee_id'] = app.assignee.id
@@ -3038,6 +3115,20 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
         context['page_heading'] = 'Update vessel details'
         return context
 
+    def get_initial(self):
+        initial = super(VesselUpdate, self).get_initial()
+#        initial['application_id'] = self.kwargs['pk']
+        vessels = self.get_object()
+        a1 = vessels.registration.all()
+        multifilelist = []
+        for b1 in a1:
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
+        initial['registration'] = multifilelist
+
+        return initial
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
@@ -3047,17 +3138,20 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         # Registration document uploads.
+        rego = self.object.registration.all()
+        for filelist in rego:
+            if 'registration-clear_multifileid-' + str(filelist.id) in form.data:
+                 self.object.registration.remove(filelist)
+
+
+  
         if self.request.FILES.get('registration'):
-            # Remove any existing documents.
-            for d in self.object.registration.all():
-                self.object.registration.remove(d)
-            # Add new uploads.
-            for f in form.cleaned_data['registration']:
+            for f in self.request.FILES.getlist('registration'):
                 doc = Record()
                 doc.upload = f
-                doc.name = f.name
                 doc.save()
                 self.object.registration.add(doc)
+
         app = self.object.application_set.first()
         return HttpResponseRedirect(self.get_success_url(app.id),)
 
