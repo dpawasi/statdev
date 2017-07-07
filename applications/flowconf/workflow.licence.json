@@ -51,7 +51,6 @@
                     "required" : [],
                     "state": "15"
                 }
-
                 ]
             }
         },
@@ -410,7 +409,7 @@
             "referrals": "True",
             "crafts": "False"
         },
-        "condition-based-actions": { "nextstep": 
+        "icondition-based-actions": { "nextstep": 
             {
                 "steplabel": "Next Step",
                 "routeoptions": [{
@@ -777,8 +776,6 @@
 
         },
         "required" : ["assessment_start_date","expire_date"]
-
-
     },
     "4": {
         "title": "Referrals",

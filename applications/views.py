@@ -95,17 +95,6 @@ class ApplicationApplicantChange(DetailView):
     def get_queryset(self):
         qs = super(ApplicationApplicantChange, self).get_queryset()
 
-        # Did we pass in a search string? If so, filter the queryset and return
-        # it.
-#        if 'q' in self.request.GET and self.request.GET['q']:
-#            query_str = self.request.GET['q']
-            # Replace single-quotes with double-quotes
-#            query_str = query_str.replace("'", r'"')
-            # Filter by pk, title, applicant__email, organisation__name,
-            # assignee__email
-#            query = get_query(
-#                query_str, ['pk'])
- #           qs = qs.filter(query).distinct()
         return qs
 
     def get_context_data(self, **kwargs):
@@ -120,19 +109,13 @@ class ApplicationApplicantChange(DetailView):
             for se_wo in query_str_split:
                 search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo) 
             listusers = EmailUser.objects.filter(search_filter)
- #           listusers =  EmailUser.objects.all()
         else:
             listusers =  EmailUser.objects.all()
 
-#        usergroups = self.request.user.groups.all()
         context['acc_list'] = []
         for lu in listusers:
             row = {}
-#            row['may_assign_to_person'] = 'False'
             row['acc_row'] = lu 
-#            if app.group is not None:
- #               if app.group in usergroups:
-  #                  row['may_assign_to_person'] = 'True'
             context['acc_list'].append(row)
 
         # TODO: any restrictions on who can create new applications?
@@ -228,15 +211,26 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         success_url = reverse('application_update', args=(self.object.pk,))
         return HttpResponseRedirect(success_url)
 
-
 class ApplicationDetail(DetailView):
     model = Application
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationDetail, self).get_context_data(**kwargs)
         app = self.get_object()
-        context['may_update'] = "False"
 
+        context['may_update'] = "False"
+        context['allow_admin_side_menu'] = "False"
+
+#       processor = Group.objects.get(name='Processor')
+#       groups = Group.objects.filter(name=['Processor','Approver','Assessor','Executive'])
+#       usergroups = User.objects.filter(groups__name__in=['Processor','Approver','Assessor','Executive'])
+#       print self.request.user.groups.all()
+#        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+#        if self.request.user.groups.all() in ['Processor']:
+        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == "True":
+            context['allow_admin_side_menu'] = "True"
+#        if groups in self.request.user.groups.all():
+#            print "YES"
 #        print app.app_type
 #        print Application.APP_TYPE_CHOICES[app.app_type]
 #        print dict(Application.APP_TYPE_CHOICES).get('3')
@@ -475,10 +469,6 @@ class ApplicationCommsCreate(CreateView):
 
     def get_initial(self):
         initial = {}
-  #      app = self.get_object()
-
- #       print app.application.id
-#        initial['application']  =app.application
         initial['application'] = self.kwargs['pk']
         return initial
 
@@ -519,36 +509,16 @@ class ApplicationCommsCreate(CreateView):
 class ApplicationChange(LoginRequiredMixin, CreateView):
     """This view is for changes or ammendents to existing applications
     """
-#   model = Approval
     form_class = apps_forms.ApplicationChange
     template_name = 'applications/application_change_form.html'
-#   def get(self, request, *args, **kwargs):
-#        return super(ApplicationChange, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationChange, self).get_context_data(**kwargs)
         context['page_heading'] = 'Update application details'
-
-        #approval = Approval.objects.get(id=self.kwargs['approvalid'])
-        #application = Application.objects.get(id=approval.application.id)
-
-
-        #app = self.get_object()
-
-        # if app.app_type == app.APP_TYPE_CHOICES.part5:
-#        if app.routeid is None:
-#            app.routeid = 1
-#
-#        request = self.request
-#       / flow = Flow()
-#        workflowtype = flow.getWorkFlowTypeFromApp(app)
-#        flow.get(workflowtype)
- #       context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         return context
 
     def get_form_kwargs(self):
          kwargs = super(ApplicationChange, self).get_form_kwargs()
-        # kwargs['user'] = self.request.user
          return kwargs
 
     def get_initial(self):
