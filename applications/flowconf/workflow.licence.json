@@ -1,5 +1,12 @@
 {
-    "1": {
+   "options": { 
+      "steps": { "Step 1": ["Title","Proposed Commerical Acts or Activities","Choose Vessel or Craft","Proposal Details","Other Documents","Landowner Consent" ],
+                 "Step 2": ["Add Vessel or Crafts"],
+                 "Step 3": ["Checklist"],
+                "Step 4" : ["Lodge Application"] 
+        }
+   },
+   "1": {
         "title": "Form Lodgement (Licence/Permit)",
         "hidden": {
             "applicant": "False",
@@ -30,6 +37,7 @@
                     "fieldoperator":"equals",
                     "route": "1.1",
                     "routegroup":"lodge",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
                 },
@@ -39,6 +47,7 @@
                     "fieldoperator":"equals",
                     "route": "1.2",
                     "routegroup":"lodge",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
                 },
@@ -47,7 +56,7 @@
                     "fieldvalue": "0",
                     "fieldoperator":"equals",
                     "route": "3.1",
-                    "routegroup":"lodge",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
                 }
@@ -149,7 +158,7 @@
                     "fieldvalue": "Prev Step",
                     "fieldoperator":"equals",
                     "route": "1",
-                    "routegroup":"lodge",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
                 }
@@ -162,7 +171,7 @@
                     "fieldvalue": "Next Step",
                     "fieldoperator":"equals",
                     "route": "3.1",
-                    "routegroup":"lodge",
+                    "routeurl": "application_detail",
                     "required" : [],
                     "state": "15"
                 }
@@ -284,7 +293,7 @@
                     "fieldvalue": "Prev Step",
                     "fieldoperator":"equals",
                     "route": "1",
-                    "routegroup":"lodge",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
                 }
@@ -297,7 +306,7 @@
                     "fieldvalue": "Next Step",
                     "fieldoperator":"equals",
                     "route": "3.1",
-                    "routegroup":"lodge",
+                    "routeurl": "application_detail",
                     "required" : [],
                     "state": "15"
                 }
@@ -458,7 +467,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "allow_admin_side_menu" : "True"
         },
         "groupaccess": {
             "Processor": {
@@ -581,7 +591,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "allow_admin_side_menu" : "True"
         },
         "groupaccess": {
             "Processor": {
@@ -607,7 +618,8 @@
                 "may_recall_resend": "False",
                 "may_assign_to_creator": "True",
                 "may_referral_delete": "True",
-                "may_view_action_log": "True"
+                "may_view_action_log": "True",
+                "allow_admin_side_menu" : "True"
             },
             "Approver": {
                 "may_update": "True",
@@ -667,6 +679,7 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True"
+
         },
         "actions": [
             {
@@ -693,7 +706,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "allow_admin_side_menu" : "True"
         },
         "groupaccess": {
             "Assessor": {
@@ -706,7 +720,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             },
             "Approver": {
                 "may_update": "True",
@@ -718,7 +733,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
 
         },
@@ -822,7 +838,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Assessor": {
@@ -835,7 +852,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Approver": {
@@ -848,7 +866,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
 
         },

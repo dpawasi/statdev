@@ -232,8 +232,8 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                 changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
             else: 
                 changeapplicantbutton = HTML('')
-            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton,HTML('{% include "applications/applicant_update_snippet.html" %}')))
-
+            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
+            del self.fields['applicant']
 
         if check_fields_exist(self.fields,['title']) is True:
              self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"

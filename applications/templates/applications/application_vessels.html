@@ -48,6 +48,7 @@
 {% else %}
 <p>None</p>
 {% endif %}
+
 {% if may_update_vessels_list == "True"  %}
 <a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
     Add new vessel / craft

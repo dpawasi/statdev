@@ -122,7 +122,8 @@ class Flow():
             context["may_change_application_applicant"] = "False"
         if "may_update_vessels_list" not in context:
             context["may_update_vessels_list"] = "False"
-
+        if "allow_admin_side_menu" not in context:
+            context["allow_admin_side_menu"] = "False"
 
 
         # Form Components
@@ -372,3 +373,10 @@ class Flow():
             print ("No Work Flow Group in workflow.py function getWorkFlowTypeFromApp")
             workflowtype = '' 
         return workflowtype
+
+
+    def getWorkflowOptions(self):
+        json_obj = self.json_obj
+        if "options" in json_obj:
+            return json_obj["options"]
+        return None

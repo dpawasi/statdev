@@ -1,4 +1,9 @@
 {
+    "options": {
+        "steps": { "Step 1": ["Applicant","Title","Location","Other Information","Description","Landowner Consent","Deed"],
+                   "Step 2": ["Checklist"]
+        }
+    },
     "1": {
         "title": "Form Lodgement (Permit)",
         "hidden": {
@@ -28,23 +33,23 @@
                 "required": []
             }
         ],
-		"formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "assigntoaccess": {
-                "may_update": "True",
-                "may_lodge":"True",
-                "may_refer":"False",
-                "may_assign":"False",
-                "may_assign_customer": "False",
-                "may_assign_processor": "False",
-                "may_create_condition":"False",
-                "may_submit_approval": "False",
-                "may_issue": "False",
-                "may_generate_pdf": "False",
-                "may_assign_to_creator": "False"
+            "may_update": "True",
+            "may_lodge":"True",
+            "may_refer":"False",
+            "may_assign":"False",
+            "may_assign_customer": "False",
+            "may_assign_processor": "False",
+            "may_create_condition":"False",
+            "may_submit_approval": "False",
+            "may_issue": "False",
+            "may_generate_pdf": "False",
+            "may_assign_to_creator": "False"
         },
         "groupaccess": {
             "Processor": {
@@ -150,9 +155,9 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Processor": {
@@ -237,7 +242,7 @@
             "referrals": "True"
         },
         "actions": [
-	        {
+            {
                 "title": "Approve to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
@@ -246,9 +251,9 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Assessor": {
@@ -301,11 +306,11 @@
             "records" : "hide",
             "land_owner_consent" : "hide",
             "deed" : "hide"
-            
+
         },
         "required" : ["assessment_start_date","expire_date"]
 
-        
+
     },
     "4": {
         "title": "Referrals",
@@ -329,7 +334,7 @@
             "referrals": "True"
         },
         "actions": [
-			{
+            {
                 "title": "Assign to Assessor",
                 "route": "3",
                 "routegroup":"assess",
@@ -337,9 +342,9 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Processor": {
@@ -446,9 +451,9 @@
             }
         ],
         "formcomponent": {
-                "update": {
-                    "title": "Make Application Changes"
-                }
+            "update": {
+                "title": "Make Application Changes"
+            }
         },
         "groupaccess": {
             "Approver": {
@@ -545,7 +550,7 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                                "may_submit_approval": "False",
+                "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
 
@@ -633,7 +638,7 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                                "may_submit_approval": "False",
+                "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
 
@@ -674,7 +679,7 @@
             "assessment_start_date": "hide"
         }
     },
-   "8": {
+    "8": {
         "title": "Declined & Close Application",
         "hidden": {
             "applicant": "False",
@@ -721,7 +726,7 @@
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
                 "may_create_condition":"False",
-                                "may_submit_approval": "False",
+                "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False"
 

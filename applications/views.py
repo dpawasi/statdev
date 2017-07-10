@@ -227,8 +227,10 @@ class ApplicationDetail(DetailView):
 #       print self.request.user.groups.all()
 #        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
 #        if self.request.user.groups.all() in ['Processor']:
-        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == "True":
-            context['allow_admin_side_menu'] = "True"
+        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
+            #             context['allow_admin_side_menu'] = "True"
+            print context['allow_admin_side_menu']
 #        if groups in self.request.user.groups.all():
 #            print "YES"
 #        print app.app_type
@@ -300,6 +302,7 @@ class ApplicationDetail(DetailView):
             context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
             context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
 #        print context['workflow_actions']
+        print context['allow_admin_side_menu']
 
         # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
@@ -317,7 +320,7 @@ class ApplicationDetail(DetailView):
                 del context['workflow_actions']
                 context['workflow_actions'] = []
 
-
+        context['may_update_vessels_list'] = "False"
         # elif app.app_type == app.APP_TYPE_CHOICES.emergencyold:
         #    self.template_name = 'applications/application_detail_emergency.html'
         #
@@ -664,8 +667,12 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             app.routeid = 1
         request = self.request
         flow = Flow()
+        
         workflowtype = flow.getWorkFlowTypeFromApp(app)
+#        print context['workflowoptions']
         flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        print context['workflowoptions']
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         return context
 
@@ -1221,7 +1228,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                                      self.object.routeid = ro['route']
                                      self.object.state = ro['state']
                                      self.object.save()
-                                     return HttpResponseRedirect(reverse('application_update',kwargs={'pk':self.object.id}))
+                                     routeurl = "applicantion_update" 
+                                     if "routeurl" in ro:
+                                         routeurl = ro["routeurl"]
+
+                                     return HttpResponseRedirect(reverse(routeurl,kwargs={'pk':self.object.id}))
                      #                    print conditionactions[ca]['routeoptions'] 
 #                    if ca['fieldvalue'] == self.request.POST[fe]:
    #                      self.object.routeid = ca['route']
