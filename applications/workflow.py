@@ -157,8 +157,6 @@ class Flow():
                            context[at] = assigntoaccess[at]
         return context
 
-
-
     def getGroupAccess(self,context,route,group):
         json_obj = self.json_obj
         if json_obj[str(route)]:

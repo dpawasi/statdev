@@ -227,10 +227,10 @@ class ApplicationDetail(DetailView):
 #       print self.request.user.groups.all()
 #        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
 #        if self.request.user.groups.all() in ['Processor']:
-        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
-        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
+#        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+#        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
             #             context['allow_admin_side_menu'] = "True"
-            print context['allow_admin_side_menu']
+#            print context['allow_admin_side_menu']
 #        if groups in self.request.user.groups.all():
 #            print "YES"
 #        print app.app_type
@@ -302,7 +302,7 @@ class ApplicationDetail(DetailView):
             context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
             context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
 #        print context['workflow_actions']
-        print context['allow_admin_side_menu']
+#        print context['allow_admin_side_menu']
 
         # context = flow.getAllGroupAccess(request,context,app.routeid,workflowtype)
         # may_update has extra business rules
@@ -672,7 +672,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #        print context['workflowoptions']
         flow.get(workflowtype)
         context['workflowoptions'] = flow.getWorkflowOptions()
-        print context['workflowoptions']
+#        print context['workflowoptions']
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         return context
 
@@ -908,8 +908,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc = self.object.cert_survey
             else:
                 doc = Record()
-
-            if Attachment_Extension_Check('single', forms_data['cert_public_liability_insurance'], None) is False:
+            if Attachment_Extension_Check('single', forms_data['cert_survey'], None) is False:
                 raise ValidationError('Certficate Survey contains and unallowed attachment extension.')
 
             doc.upload = forms_data['cert_survey']
@@ -1002,7 +1001,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                  self.object.brochures_itineries_adverts.remove(filelist)
 
         if self.request.FILES.get('brochures_itineries_adverts'):
-            print self.request.FILES.getlist('brochures_itineries_adverts')
+            #  print self.request.FILES.getlist('brochures_itineries_adverts')
             # Remove existing documents.
 #            for d in self.object.brochures_itineries_adverts.all():
  #               self.object.brochures_itineries_adverts.remove(d)
@@ -1218,6 +1217,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
 #       print self.request.POST
 #       print conditionactions
+
         if conditionactions:
              for ca in conditionactions:
                  for fe in self.request.POST:
@@ -1225,13 +1225,17 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                          for ro in conditionactions[ca]['routeoptions']:
                              if ro['field'] in self.request.POST:
                                  if ro['fieldvalue'] == self.request.POST[ro['field']]:
+                                     if "routeurl" in ro:
+                                        if ro["routeurl"] == "application_lodge":
+                                            return HttpResponseRedirect(reverse(ro["routeurl"],kwargs={'pk':self.object.id}))
+
                                      self.object.routeid = ro['route']
                                      self.object.state = ro['state']
                                      self.object.save()
-                                     routeurl = "applicantion_update" 
+
+                                     routeurl = "application_update" 
                                      if "routeurl" in ro:
                                          routeurl = ro["routeurl"]
-
                                      return HttpResponseRedirect(reverse(routeurl,kwargs={'pk':self.object.id}))
                      #                    print conditionactions[ca]['routeoptions'] 
 #                    if ca['fieldvalue'] == self.request.POST[fe]:
@@ -1253,7 +1257,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
 
 class ApplicationLodge(LoginRequiredMixin, UpdateView):
     model = Application
@@ -1322,6 +1325,9 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
      #           return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationLodge, self).get(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse('application_list')
+
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
@@ -1338,11 +1344,10 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
-
         DefaultGroups = flow.groupList()
         nextroute = flow.getNextRoute('lodge', app.routeid, workflowtype)
         route = flow.getNextRouteObj('lodge', app.routeid, workflowtype)
-
+       
         app.routeid = nextroute
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
         if "required" in route:

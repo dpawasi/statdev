@@ -224,7 +224,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
         crispy_boxes = crispy_empty_box()
 
-
         if check_fields_exist(self.fields,['applicant']) is True:
             self.fields['applicant'].disabled = True
     #        print self.initial["workflow"]["hidden"]['vessels']
@@ -257,7 +256,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                     del self.fields['type_of_crafts']
                     del self.fields['number_of_crafts']
                     
-
         if check_fields_exist(self.fields,['purpose']) is True:
              crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
 
@@ -271,6 +269,13 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         # Deed
         if check_fields_exist(self.fields,['deed']) is True:
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
+
+
+        if check_fields_exist(self.fields,['document_final']) is True:
+            crispy_boxes.append(crispy_box('document_final_collapse', 'form_document_final' , 'Assessment','document_final','assessment_start_date','expire_date'))
+
+
+
 
         self.helper.layout = Layout(crispy_boxes,
   #                FormActions(

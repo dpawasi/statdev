@@ -3,7 +3,7 @@
       "steps": { "Step 1": ["Title","Proposed Commerical Acts or Activities","Choose Vessel or Craft","Proposal Details","Other Documents","Landowner Consent" ],
                  "Step 2": ["Add Vessel or Crafts"],
                  "Step 3": ["Checklist"],
-                "Step 4" : ["Lodge Application"] 
+                 "Step 4": ["Lodge Application"] 
         }
    },
    "1": {
@@ -171,7 +171,7 @@
                     "fieldvalue": "Next Step",
                     "fieldoperator":"equals",
                     "route": "3.1",
-                    "routeurl": "application_detail",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
                 }
@@ -194,7 +194,7 @@
         },
         "assigntoaccess": {
             "may_update": "True",
-            "may_lodge":"False",
+            "may_lodge":"True",
             "may_refer":"False",
             "may_assign":"False",
             "may_assign_customer": "False",
@@ -261,7 +261,6 @@
         },
         "required" : ["type_of_crafts","number_of_crafts"]
     },
-
     "1.2": {
         "title": "Form Lodgement (Licence/Permit)",
         "hidden": {
@@ -395,7 +394,6 @@
         },
         "required" : []
     },
-
     "3.1": {
         "title": "Form Lodgement (Licence/Permit)",
         "hidden": {
@@ -418,24 +416,28 @@
             "referrals": "True",
             "crafts": "False"
         },
-        "icondition-based-actions": { "nextstep": 
-            {
-                "steplabel": "Next Step",
+        "condition-based-actions": {
+            "2-prevstep": {
+                "steplabel": "Prev Step",
                 "routeoptions": [{
-                    "field": "vessel_or_craft_details",
-                    "fieldvalue": "1",
+                    "field": "2-prevstep",
+                    "fieldvalue": "Prev Step",
                     "fieldoperator":"equals",
-                    "route": "3.1",
-                    "routegroup":"lodge",
+                    "route": "1",
+                    "routeurl": "application_update",
                     "required" : [],
                     "state": "15"
-                },
-                {
-                    "field": "vessel_or_craft_details",
-                    "fieldvalue": "2",
+                }
+                ]
+            },
+            "1-nextstep": {
+                "steplabel": "Lodge Application",
+                "routeoptions": [{
+                    "field": "1-nextstep",
+                    "fieldvalue": "Lodge Application",
                     "fieldoperator":"equals",
-                    "route": "3.1",
-                    "routegroup":"lodge",
+                    "route": "3.2",
+                    "routeurl": "application_lodge",
                     "required" : [],
                     "state": "15"
                 }
@@ -457,7 +459,7 @@
             }
         },
         "assigntoaccess": {
-            "may_update": "False",
+            "may_update": "True",
             "may_lodge":"True",
             "may_refer":"False",
             "may_assign":"False",
@@ -676,9 +678,10 @@
             "deed": "False",
             "publication": "True",
             "conditions": "True",
-            "assessments": "True",
+            "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "vessels": "True"
 
         },
         "actions": [
@@ -687,27 +690,13 @@
                 "route": "5",
                 "routegroup": "manager",
                 "state": "5",
-                "required": ["assessment_start_date","expiry_date","document_final" ]
+                "required": ["assessment_start_date","expiry_date","document_final"]
             }
         ],
         "formcomponent": {
             "update": {
                 "title": "Make Application Changes"
             }
-        },
-        "assigntoaccess": {
-            "may_update": "True",
-            "may_lodge":"True",
-            "may_refer":"False",
-            "may_assign":"False",
-            "may_assign_customer": "False",
-            "may_assign_processor": "False",
-            "may_create_condition":"False",
-            "may_submit_approval": "False",
-            "may_issue": "False",
-            "may_generate_pdf": "False",
-            "may_assign_to_creator": "False",
-            "allow_admin_side_menu" : "True"
         },
         "groupaccess": {
             "Assessor": {
@@ -752,6 +741,7 @@
             "landowner_consent": "False"
         },
         "fields": {
+            "applicant": "hide",
             "title": "hide",
             "description" :"hide",
             "proposed_commence" : "hide",
@@ -786,9 +776,8 @@
             "jetty_dot_approval" : "hide",
             "type_of_crafts" : "hide",
             "number_of_crafts" : "hide",
-            "assessment_start_date" : "hide",
-            "expire_date" : "hide",
-            "vessel_or_craft_details" :"hide"
+            "vessel_or_craft_details" :"hide",
+            "other_relevant_documents":"hide"
 
         },
         "required" : ["assessment_start_date","expire_date"]
