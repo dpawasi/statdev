@@ -5,6 +5,7 @@ from applications import views
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
+    url(r'^applications/apply/$', views.ApplicationApply.as_view(), name='application_apply'),
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
     url(r'^applications/(?P<pk>\d+)/$', views.ApplicationDetail.as_view(), name='application_detail'),
     url(r'^applications/(?P<pk>\d+)/pdf/$', views.ApplicationDetailPDF.as_view(), name='application_detail_pdf'),
@@ -41,6 +42,7 @@ urlpatterns = [
     url(r'^condition/(?P<pk>\d+)/update/(?P<action>\w+)/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/delete/$', views.ConditionDelete.as_view(), name='condition_delete'),
     url(r'^vessel/(?P<pk>\d+)/update/$', views.VesselUpdate.as_view(), name='vessel_update'),
+    url(r'^vessel/(?P<pk>\d+)/delete/$', views.VesselDelete.as_view(), name='vessel_delete'),
     url(r'^newspaperpublication/(?P<pk>\d+)/update/', views.NewsPaperPublicationUpdate.as_view(), name='newspaperpublication_update'),
     url(r'^newspaperpublication/(?P<pk>\d+)/delete/', views.NewsPaperPublicationDelete.as_view(), name='newspaperpublication_delete'),
     url(r'^websitepublication/(?P<pk>\d+)/change/(?P<docid>\d+)/', views.WebsitePublicationChange.as_view(), name='websitepublication_change'),

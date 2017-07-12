@@ -23,7 +23,6 @@ class BaseFormHelper(FormHelper):
     label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
 
-
 class ApplicationCreateForm(ModelForm):
     class Meta:
         model = Application
@@ -47,6 +46,31 @@ class ApplicationCreateForm(ModelForm):
 
         # Add labels for fields
         self.fields['app_type'].label = "Application Type"
+
+class ApplicationApplyForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['app_type', 'organisation']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        super(ApplicationApplyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Limit the organisation queryset unless the user is a superuser.
+#        if not user.is_superuser:
+ #           user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
+  #          self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+   #     self.fields['organisation'].help_text = '''The company or organisation
+    #        on whose behalf you are applying (leave blank if not applicable).'''
+
+        # Add labels for fields
+        self.fields['app_type'].label = "Application Type"
+
 
 class CommunicationCreateForm(ModelForm):
     records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
@@ -145,9 +169,10 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     safety_mgmt_procedures = FileField(
         label='Safety management procedures', required=False, max_length=128)
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    brochures_itineries_adverts = MultiFileField(
-        required=False, label='Brochures, itineraries or advertisements',
-        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
+    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    #MultiFileField(
+    #    required=False, label='Brochures, itineraries or advertisements',
+    #    help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
     #    land_owner_consent = MultiFileField(
             #        required=False, label='Landowner consent statement(s)',
         #        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
@@ -169,7 +194,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         model = Application
         fields = [
             'applicant','title', 'description', 'proposed_commence', 'proposed_end',
-            'over_water',
             'purpose', 'max_participants', 'proposed_location', 'address',
             'jetties', 'jetty_dot_approval','type_of_crafts','number_of_crafts',
             'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
@@ -224,7 +248,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
         crispy_boxes = crispy_empty_box()
 
-
         if check_fields_exist(self.fields,['applicant']) is True:
             self.fields['applicant'].disabled = True
     #        print self.initial["workflow"]["hidden"]['vessels']
@@ -232,8 +255,8 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                 changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
             else: 
                 changeapplicantbutton = HTML('')
-            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton,HTML('{% include "applications/applicant_update_snippet.html" %}')))
-
+            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
+            del self.fields['applicant']
 
         if check_fields_exist(self.fields,['title']) is True:
              self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
@@ -244,7 +267,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
              crispy_boxes.append(crispy_box('summary_collapse', 'form_summary' , 'Proposed Commercial Acts or Activities','description'))
 
         if check_fields_exist(self.fields,['description']) is True:
-             crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'))) 
+             crispy_boxes.append(crispy_box('vessel_or_crafts_view_collapse', 'form_vessel_or_crafts_view' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'))) 
 
         if self.initial["workflow"]["hidden"]['vessels'] == "False":
             if self.initial['vessel_or_craft_details'] == 1:
@@ -257,7 +280,6 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                     del self.fields['type_of_crafts']
                     del self.fields['number_of_crafts']
                     
-
         if check_fields_exist(self.fields,['purpose']) is True:
              crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
 
@@ -272,27 +294,34 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         if check_fields_exist(self.fields,['deed']) is True:
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
 
+
+        if check_fields_exist(self.fields,['document_final']) is True:
+            crispy_boxes.append(crispy_box('document_final_collapse', 'form_document_final' , 'Assessment','document_final','assessment_start_date','expire_date'))
+
+
+
+
         self.helper.layout = Layout(crispy_boxes,
   #                FormActions(
   #                            Submit('lodge', 'Lodge', css_class='btn-lg'),
   #                              Submit('cancel', 'Cancel')
                               #                            )
         )
-
         if 'condactions' in self.initial['workflow']:
-             for ca in self.initial['workflow']['condactions']:
-                 if 'steplabel' in self.initial['workflow']['condactions'][ca]: 
+             if  self.initial['workflow']['condactions'] is not None:
+                 for ca in self.initial['workflow']['condactions']: 
+                     if 'steplabel' in self.initial['workflow']['condactions'][ca]: 
                  # for ro in self.initial['workflow']['condactions'][ca]['routeoptions']:
                   #    print ro
-                      self.helper = crispy_button(self.helper,ca,self.initial['workflow']['condactions'][ca]['steplabel'])
-
+                          self.helper = crispy_button(self.helper,ca,self.initial['workflow']['condactions'][ca]['steplabel'])
+ 
   #           self.helper = crispy_button(self.helper,'step1','Step 1')
 #             self.helper.add_input(Submit('prevstep', 'Prev Step', css_class='btn-lg'))
  #            self.helper.add_input(Submit('nextstep', 'Next Step', css_class='btn-lg'))
 
-        else:
-             self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-             self.helper.add_input(Submit('cancel', 'Cancel'))
+             else:
+                 self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+                 self.helper.add_input(Submit('cancel', 'Cancel'))
                              
 
 
@@ -402,9 +431,6 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         # Deed
         if check_fields_exist(self.fields,['deed']) is True:
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
-
-
-
 
         self.helper.layout = Layout(crispy_boxes,)
 
@@ -721,7 +747,6 @@ class ReferralResendForm(Form):
         self.helper.add_input(Submit('remind', 'Resend', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
-
 class ReferralDeleteForm(Form):
     """Form is to allow a referral to be reminded about the outstanding feedback
     """
@@ -733,6 +758,16 @@ class ReferralDeleteForm(Form):
         self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+class VesselDeleteForm(Form):
+    """Form is to allow a referral to be reminded about the outstanding feedback
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
+        super(VesselDeleteForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_vessel_delete'
+        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class ConditionCreateForm(ModelForm):
     class Meta:
@@ -1157,9 +1192,10 @@ class ComplianceCreateForm(ModelForm):
 
 
 class VesselForm(ModelForm):
-    registration = MultiFileField(
-        required=False, label='Registration & licence documents',
-        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
+    registration = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+#MultiFileField(
+ #       required=False, label='Registration & licence documents',
+#        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
 
     class Meta:
         model = Vessel

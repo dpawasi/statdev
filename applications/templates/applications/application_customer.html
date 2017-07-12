@@ -1,0 +1,15 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Application</h3>
+    </div>
+    <div class="panel-body">
+        {% for wo in workflowoptions.steps.items %}
+        <h4>{{ wo.0 }}</h4>
+        <ul style='list-style-type: square;'>
+              {% for wof in wo.1 %}
+                     <li><h5>{{ wof }}</h5></li>
+              {% endfor %}
+        </ul>
+        {% endfor %}
+	</div>
+</div>

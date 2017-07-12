@@ -153,7 +153,7 @@ class ApplicationTest(StatDevTestCase):
 
     def test_lodge_application_get_redirect(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.routeid = 5
+        self.app1.routeid = 5 
         self.app1.save()
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.get(url)
@@ -162,7 +162,8 @@ class ApplicationTest(StatDevTestCase):
     def test_lodge_application_post(self):
         url = reverse('application_lodge', args=(self.app1.pk,))
         resp = self.client.post(url)
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+#        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, reverse('application_list'))
 
     def test_refer_application_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_admin

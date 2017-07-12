@@ -1,4 +1,9 @@
 {
+    "options": {
+        "steps": { "Step 1": ["Applicant","Title","Certificate of Title Information","River Reserve Lease - section 29","River Reserve Lease - section 32","Details of Proposed Development","Landowner Consent","Deed"],
+                   "Step 2": ["Checklist"]
+        }
+    },
     "1": {
         "title": "Form Lodgement",
         "hidden": {
