@@ -5,6 +5,7 @@ from applications import views
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
+    url(r'^applications/apply/$', views.ApplicationApply.as_view(), name='application_apply'),
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
     url(r'^applications/(?P<pk>\d+)/$', views.ApplicationDetail.as_view(), name='application_detail'),
     url(r'^applications/(?P<pk>\d+)/pdf/$', views.ApplicationDetailPDF.as_view(), name='application_detail_pdf'),

@@ -99,6 +99,12 @@ class Application(models.Model):
         (11, 'licencerenew', ('Renew Licence'))
     )
 
+    APP_APPLY_ON = Choices(
+         (1,'yourself', ('On Behalf of yourself')),
+         (2, 'somebody_else_individual', ('On Behalf of indivdual as somebody else (as an authorised agent)')),
+         (3, 'somebody_else_company', ('On Behalf of a company as somebody else (as an authorised agent)'))
+    )
+
     APP_STATE_CHOICES = Choices(
         (0, 'unknown',('Unknown')),
         (1, 'draft', ('Draft')),
@@ -137,7 +143,8 @@ class Application(models.Model):
 
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant')
     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
-    app_type = models.IntegerField(choices=APP_TYPE_CHOICES)
+    app_type = models.IntegerField(choices=APP_TYPE_CHOICES, blank=True, null=True)
+    apply_on_behalf_of = models.IntegerField(choices=APP_APPLY_ON, blank=True, null=True)
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='assignee')
     state = models.IntegerField(choices=APP_STATE_CHOICES, default=APP_STATE_CHOICES.draft, editable=False)
     title = models.CharField(max_length=256)

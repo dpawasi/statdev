@@ -211,6 +211,42 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         success_url = reverse('application_update', args=(self.object.pk,))
         return HttpResponseRedirect(success_url)
 
+class ApplicationApply(LoginRequiredMixin, CreateView):
+    form_class = apps_forms.ApplicationApplyForm
+    template_name = 'applications/application_apply_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationApply, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new application'
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(ApplicationApply, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ApplicationApply, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        # If this is not an Emergency Works set the applicant as current user
+        if not (self.object.app_type == Application.APP_TYPE_CHOICES.emergency):
+            self.object.applicant = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submitted_by = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submit_date = date.today()
+        self.object.state = self.object.APP_STATE_CHOICES.new
+        self.object.save()
+        success_url = reverse('application_update', args=(self.object.pk,))
+        return HttpResponseRedirect(success_url)
+
+
 class ApplicationDetail(DetailView):
     model = Application
 
@@ -1215,9 +1251,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flow.get(workflowtype)
         conditionactions = flow.getAllConditionBasedRouteActions(application.routeid)
 
-#       print self.request.POST
-#       print conditionactions
-
         if conditionactions:
              for ca in conditionactions:
                  for fe in self.request.POST:
@@ -1237,24 +1270,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                                      if "routeurl" in ro:
                                          routeurl = ro["routeurl"]
                                      return HttpResponseRedirect(reverse(routeurl,kwargs={'pk':self.object.id}))
-                     #                    print conditionactions[ca]['routeoptions'] 
-#                    if ca['fieldvalue'] == self.request.POST[fe]:
-   #                      self.object.routeid = ca['route']
- #                        self.object.state = ca['state']
-  #                       self.object.save()
-    #                     print fe
-#                           print forms_data[fe]
-#                           print fe
-     #                    return HttpResponseRedirect(reverse('application_update',kwargs={'pk':self.object.id}))
-              
-#                    self.object.routeid = ca['route']
-#                    self.object.state = ca['state']
-#                    print ca['fieldoperator']
- #                   print ca['field']
-  #                  print ca['fieldvalue']
- #                   print ca['route']
-#                    print ca['state']
-
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

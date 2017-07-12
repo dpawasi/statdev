@@ -23,7 +23,6 @@ class BaseFormHelper(FormHelper):
     label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
 
-
 class ApplicationCreateForm(ModelForm):
     class Meta:
         model = Application
@@ -47,6 +46,31 @@ class ApplicationCreateForm(ModelForm):
 
         # Add labels for fields
         self.fields['app_type'].label = "Application Type"
+
+class ApplicationApplyForm(ModelForm):
+    class Meta:
+        model = Application
+        fields = ['app_type', 'organisation']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        super(ApplicationApplyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Limit the organisation queryset unless the user is a superuser.
+#        if not user.is_superuser:
+ #           user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
+  #          self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+   #     self.fields['organisation'].help_text = '''The company or organisation
+    #        on whose behalf you are applying (leave blank if not applicable).'''
+
+        # Add labels for fields
+        self.fields['app_type'].label = "Application Type"
+
 
 class CommunicationCreateForm(ModelForm):
     records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
