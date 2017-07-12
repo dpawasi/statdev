@@ -53,6 +53,30 @@ def crispy_empty_box():
 def crispy_para(paragraph):
     return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>"+paragraph+"</strong></div></div>")
 
+def crispy_para_no_label(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>"+paragraph+"</strong></div></div>")
+
+def crispy_h1(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h1>"+paragraph+"</h1></div></div>")
+
+def crispy_h2(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h2>"+paragraph+"</h2></div></div>")
+
+def crispy_h3(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h3>"+paragraph+"</h3></div></div>")
+
+def crispy_h4(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h4>"+paragraph+"</h4></div></div>")
+
+def crispy_h5(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h5>"+paragraph+"</h5></div></div>")
+
+def crispy_h6(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h6>"+paragraph+"</h6></div></div>")
+
+def crispy_h7(paragraph):
+    return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><h7>"+paragraph+"</h7></div></div>")
+
 def crispy_button_link(label,link):
     return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><a class='btn btn-primary btn-sm' role='button' href='"+link+"'>"+label+"</a></div></div>")
 

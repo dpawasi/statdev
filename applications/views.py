@@ -211,6 +211,8 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         success_url = reverse('application_update', args=(self.object.pk,))
         return HttpResponseRedirect(success_url)
 
+
+
 class ApplicationApply(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationApplyForm
     template_name = 'applications/application_apply_form.html'
@@ -234,6 +236,8 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
         """Override form_valid to set the assignee as the object creator.
         """
         self.object = form.save(commit=False)
+        forms_data = form.cleaned_data
+
         # If this is not an Emergency Works set the applicant as current user
         if not (self.object.app_type == Application.APP_TYPE_CHOICES.emergency):
             self.object.applicant = self.request.user
@@ -243,7 +247,58 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.new
         self.object.save()
-        success_url = reverse('application_update', args=(self.object.pk,))
+
+        apply_on_behalf_of = forms_data['apply_on_behalf_of']
+        if apply_on_behalf_of == '1':
+            nextstep = 'apptype'
+        else:
+            nextstep = 'info'
+
+
+        success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
+        return HttpResponseRedirect(success_url)
+
+class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
+    model = Application 
+    form_class = apps_forms.ApplicationApplyUpdateForm
+
+    def get(self, request, *args, **kwargs):
+        return super(ApplicationApplyUpdate, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(ApplicationApplyUpdate, self).get_initial()
+        initial['action'] = self.kwargs['action']
+
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationApplyUpdate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        forms_data = form.cleaned_data
+        action = self.kwargs['action']
+        nextstep = ''
+        apply_on_behalf_of = 0
+        if 'apply_on_behalf_of' in forms_data:
+            apply_on_behalf_of = forms_data['apply_on_behalf_of']
+        if action == 'new':
+            if apply_on_behalf_of == '1':
+               nextstep = 'apptype'
+            else:
+               nextstep = 'info'
+
+        elif action == 'info':
+            nextstep = 'apptype'
+
+        app = Application.objects.get(pk=self.object.pk)
+        if action == 'apptype':
+            success_url = reverse('application_update', args=(self.object.pk,))
+        else:
+            success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
         return HttpResponseRedirect(success_url)
 
 
