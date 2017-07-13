@@ -4,9 +4,29 @@
 .table-borderless > tfoot > tr > th,
 .table-borderless > thead > tr > td,
 .table-borderless > thead > tr > th {
-	border: none;
+    border: none;
 }
 
 .collapse-glyph {
     float: right;
+}
+
+.radio-caption {
+    padding-top: 5px;
+    padding-left: 20px;
+    color: #67bce6; 
+    font-size: 14px;
+}
+
+#div_id_app_type {
+    padding-left:30px;
+}
+
+#div_id_apply_on_behalf_of {
+    padding-left:30px;
+
+}
+
+#div_id_organisation {
+    padding-left:30px;
 }

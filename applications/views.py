@@ -254,7 +254,6 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
         else:
             nextstep = 'info'
 
-
         success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
         return HttpResponseRedirect(success_url)
 
