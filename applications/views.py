@@ -149,30 +149,66 @@ class ApplicationList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationList, self).get_context_data(**kwargs)
-        if 'q' in self.request.GET and self.request.GET['q']:
+        context['query_string'] = ''
+        if 'action' in self.request.GET and self.request.GET['action']:
+   #        if 'q' in self.request.GET and self.request.GET['q']:
+
             query_str = self.request.GET['q']
-            applications = Application.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str))
+            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
+            if self.request.GET['apptype'] != '':
+                query_obj &= Q(app_type=int(self.request.GET['apptype']))
+            if self.request.GET['applicant'] != '':
+                query_obj &= Q(applicant=int(self.request.GET['applicant']))
+            if self.request.GET['appstatus'] != '':
+                query_obj &= Q(state=int(self.request.GET['appstatus']))
+
+
+#            query_obj |= Q(tags__tag__contains=t) 
+            print query_obj
+            applications = Application.objects.filter(query_obj)
+            context['query_string'] = self.request.GET['q']
+
+            if self.request.GET['apptype'] != '':
+                 context['apptype'] = int( self.request.GET['apptype'])
+            if self.request.GET['applicant'] != '':
+                 context['applicant'] = int(self.request.GET['applicant'])
+            if 'appstatus' in self.request.GET:
+                if self.request.GET['appstatus'] != '':
+                    context['appstatus'] = int(self.request.GET['appstatus'])
+
         else:
             applications = Application.objects.all()
 
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+        context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
         usergroups = self.request.user.groups.all()
         context['app_list'] = []
         for app in applications:
             row = {}
             row['may_assign_to_person'] = 'False'
             row['app'] = app
+
+            # Create a distinct list of applicants 
+            if app.applicant:
+                if app.applicant.id in context['app_applicants']:
+                    donothing = ''
+                else:
+                    context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
+            # end of creation
+
             if app.group is not None:
                 if app.group in usergroups:
                     row['may_assign_to_person'] = 'True'
             context['app_list'].append(row)
-
         # TODO: any restrictions on who can create new applications?
         context['may_create'] = True
         processor = Group.objects.get(name='Processor')
         # Rule: admin officers may self-assign applications.
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             context['may_assign_processor'] = True
-
         return context
 
 
