@@ -151,8 +151,6 @@ class ApplicationList(ListView):
         context = super(ApplicationList, self).get_context_data(**kwargs)
         context['query_string'] = ''
         if 'action' in self.request.GET and self.request.GET['action']:
-   #        if 'q' in self.request.GET and self.request.GET['q']:
-
             query_str = self.request.GET['q']
             query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
             if self.request.GET['apptype'] != '':
@@ -163,8 +161,6 @@ class ApplicationList(ListView):
                 query_obj &= Q(state=int(self.request.GET['appstatus']))
 
 
-#            query_obj |= Q(tags__tag__contains=t) 
-            print query_obj
             applications = Application.objects.filter(query_obj)
             context['query_string'] = self.request.GET['q']
 
