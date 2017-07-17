@@ -103,7 +103,7 @@ class ApplicationApplicantChange(DetailView):
         context = super(ApplicationApplicantChange, self).get_context_data(**kwargs)
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
-            query_str_split = query_str.split();
+            query_str_split = query_str.split()
 
             search_filter = Q()
             for se_wo in query_str_split:
@@ -150,6 +150,7 @@ class ApplicationList(ListView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationList, self).get_context_data(**kwargs)
         context['query_string'] = ''
+
         if 'action' in self.request.GET and self.request.GET['action']:
             query_str = self.request.GET['q']
             query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
@@ -165,7 +166,7 @@ class ApplicationList(ListView):
             context['query_string'] = self.request.GET['q']
 
             if self.request.GET['apptype'] != '':
-                 context['apptype'] = int( self.request.GET['apptype'])
+                 context['apptype'] = int(self.request.GET['apptype'])
             if self.request.GET['applicant'] != '':
                  context['applicant'] = int(self.request.GET['applicant'])
             if 'appstatus' in self.request.GET:

@@ -8,11 +8,12 @@
 <div class="container-fluid">
     <div class="row">
         <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
-        <br />
+        <br/>
     </div>
+
     <!-- Action panel start -->
     <div class="row">
-            {% include "applications/application_side_menu.html" %}
+        {% include "applications/application_side_menu.html" %}
         <!-- Main panel start -->
         <div class="col-sm-8 col-md-9 col-lg-10">
 

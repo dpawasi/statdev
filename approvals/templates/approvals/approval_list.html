@@ -1,95 +1,184 @@
 {% extends "base_statdev.html" %}
 {% load static %}
 {% block page_content_inner %}
-<h1>Approvals</h1>
-<div class="row">
-    <form action="" method="get">
-        <div class="hidden-xs col-sm-1">
-            <label for="search_field">Search:</label>
-        </div>
-        <div class="col-xs-12 col-sm-8">
-            <input id="search_field" type="text" class="form-control" name="q" placeholder="Search..." value="{{ query_string }}">
-        </div>
-        {% if may_create %}
-        <div class="col-xs-12 col-sm-3">
-            <a class="btn btn-primary pull-right" role="button" href="{% url 'application_create' %}">Create a new application</a>
-        </div>
-        {% endif %}
-    </form>
+
+<div class="panel panel-default">
+
+	<div class="panel-heading" role="tab" id="title_heading">
+		<h3 class="panel-title">
+			<a role="button" data-toggle="collapse" href="#application_list_collapse" aria-expanded="false" aria-controls="application_list_collapse">
+				<span class="glyphicon glyphicon-plus"></span>
+				Approvals
+			</a>
+		</h3>
+	</div>
+
+	<div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
+		<div class="panel-body">
+			<div class="row">
+				<form action="" method="get">
+					<div class="col-sm-12 col-lg-12">
+						<input type='hidden' name='action' value='search'>
+						<!-- RES -->
+						<div class="col-sm-12 col-lg-3">
+							<div class="col-sm-12 col-lg-12">
+								<label>Type:</label>
+							</div>
+							<div class="col-sm-12 col-lg-12">
+								<select class="select form-control" id="id_apptype" name="apptype">
+									<option value="" >All</option>
+									{% for at in app_apptypes %}
+									{% if apptype == at.0 %}
+									<option selected="selected" value="{{ at.0 }}">{{ at.1 }}</option>
+									{% else %}
+									<option value="{{ at.0 }}">{{ at.1 }}</option>
+									{% endif %}
+
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-12 col-lg-3">
+							<div class="col-sm-12 col-lg-12">
+								<label>Holder:</label>
+							</div>
+							<div class="col-sm-12 col-lg-12">
+								<select class="select form-control" id="id_applicant" name="applicant">
+									<option value="" selected="selected">All</option>
+									{% for person in app_applicants_list|dictsort:'name' %}
+									{% if applicant == person.id %}
+									<option selected="selected" value="{{ person.id }}">{{ person.name }}</option>
+									{% else %}
+									<option value="{{ person.id }}">{{ person.name }}</option>
+									{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+
+						<div class="col-sm-12 col-lg-3">
+							<div class="col-sm-12 col-lg-12">
+								<label>Status:</label>
+							</div>
+							<div class="col-sm-12 col-lg-12">
+								<select class="select form-control" id="id_appstatus" name="appstatus">
+									<option value="" selected="selected">All</option>
+									{% for at in app_appstatus %}
+									{% if appstatus == at.0 %}
+									<option selected value="{{ at.0 }}">{{ at.1 }}</option>
+									{% else %}
+									<option value="{{ at.0 }}">{{ at.1 }}</option>
+									{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-lg-12">
+						<div class="col-sm-12 col-lg-9">
+
+							<div class="col-sm-12 col-lg-12">
+								<label for="search_field">Keywords:</label>
+							</div>
+							<div class="col-sm-12 col-lg-12">
+								<input id="search_field" type="text" class="form-control" name="q" placeholder="Enter Keywords" value="{{ query_string }}">
+							</div>
+						</div>
+
+						 <div class="col-sm-12 col-lg-3">
+		                    <div class="col-sm-12 col-lg-12">
+        		                <input type="submit" name="search" value="Search" class="btn btn-primary btn-lg" id="submit-id-save">
+                		    </div>
+		                </div>
+
+					</div>
+				</form>
+			</div>
+
+			<br>
+			<div class="row">
+				<div class="col-xs-12">
+					<table id='approvals-table' class="table table-striped table-bordered table-condensed">
+						<thead>
+							<tr>
+								<th>Approval no.</th>
+								<th>Type</th>
+								<th>Title</th>
+								<th>Holder</th>
+								<th>Status</th>
+								<th>Start Date</th>
+								<th>Expiry Date</th>
+								<th>Approval</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							{% for app_obj in app_list %}
+							<tr>
+								<td><a href="{% url 'approval_detail' app_obj.app.pk %}">AP-{{ app_obj.app.pk }}</a></td>
+								<td>{{ app_obj.app.get_app_type_display }}</td>
+								<td>{{ app_obj.app.title }}</td>
+								<td>{{ app_obj.app.applicant.get_full_name }}</td>
+								<td>{{ app_obj.app.get_status_display }}</td>
+								<td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
+								<td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
+								<td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
+								<td>
+									<ul class="nav navbar-nav">
+										<li class="dropdown">
+											<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
+											<ul class="dropdown-menu" role="menu">
+												{% if app_obj.app.app_type == 3 %}
+												<!-- Add Logic to check if ammendment request has been completed -->
+												{% if app_obj.app.ammendment_application %}
+												{% if app_obj.app.ammendment_application.get_state_display == "Approved" %}
+												<li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
+												{% endif %}
+												{% endif %}
+												{% else %}
+												<li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
+												{% endif %}
+												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'cancelled' %}" title="Cancel">Cancel</a></li>
+												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'expired' %}" title="Expire">Expire</a></li>
+												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'suspended' %}" title="Suspend">Suspend</a></li>
+												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Surrendered">Surrendered</a></li>
+
+												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'reinstate' %}" title="Reinstate">Reinstate</a></li>
+												{% if app_obj.app.app_type == 3 %}
+												{% else %}
+												<li><a href="/">Renew</a></li>
+
+												<li><a href="/" title="Administration">Renewal Notice</a></li>
+												{% if app_obj.app.app_type == 3 %}
+												<li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Request Ammendment</a></li>
+												{% endif %}
+												{% endif %}
+											</ul>   
+										</li>
+									</ul>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</div>
 </div>
 
-<br>
-<div class="row">
-    <div class="col-xs-12">
-        <table class="table table-striped table-bordered table-condensed">
-            <thead>
-                <tr>
-                    <th>Approval no.</th>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Holder</th>
-                    <th>Status</th>
-                    <th>Start Date</th>
-                    <th>Expiry Date</th>
-                    <th>Approval</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+<script>
 
-                {% for app_obj in app_list %}
-                <tr>
-                    <td><a href="{% url 'approval_detail' app_obj.app.pk %}">AP-{{ app_obj.app.pk }}</a></td>
-                    <td>{{ app_obj.app.get_app_type_display }}</td>
-                    <td>{{ app_obj.app.title }}</td>
-                    <td>{{ app_obj.app.applicant.get_full_name }}</td>
-                    <td>{{ app_obj.app.get_status_display }}</td>
-                    <td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
-                    <td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
-                    <td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
-                    <td>
-						<ul class="nav navbar-nav">
-						<li class="dropdown">
-					    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            {% if app_obj.app.app_type == 3 %}
-                            <!-- Add Logic to check if ammendment request has been completed -->
-                                {% if app_obj.app.ammendment_application %}
-                                 {% if app_obj.app.ammendment_application.get_state_display == "Approved" %}
-                                 <li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
-                                 {% endif %}
-                                {% endif %}
-                            {% else %}
-                                <li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
-                            {% endif %}
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'cancelled' %}" title="Cancel">Cancel</a></li>
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'expired' %}" title="Expire">Expire</a></li>
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'suspended' %}" title="Suspend">Suspend</a></li>
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Surrendered">Surrendered</a></li>
-                            
-                            <li><a href="{% url 'approval_status_change' app_obj.app.pk 'reinstate' %}" title="Reinstate">Reinstate</a></li>
-                            {% if app_obj.app.app_type == 3 %}
-                            {% else %}
-                            <li><a href="/">Renew</a></li>
-                            
-                            <li><a href="/" title="Administration">Renewal Notice</a></li>
-                            {% if app_obj.app.app_type == 3 %}
-                                <li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Request Ammendment</a></li>
-                            {% endif %}
-                            {% endif %}
-                            </ul>   
-                            </li>
-                	   </ul>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+function loadApprovalTable() { 
+    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25});
+}
+window.onload= function() {
+    loadApprovalTable();
+}
 
-
-
+</script>
 
 {% endblock %}
 
