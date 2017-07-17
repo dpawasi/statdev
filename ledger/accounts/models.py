@@ -217,13 +217,11 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         default=False,
         help_text='Designates whether the user can log into the admin site.',
     )
-
     is_active = models.BooleanField(
         default=True,
         help_text='Designates whether this user should be treated as active.'
                   'Unselect this instead of deleting ledger.accounts.',
     )
-
     date_joined = models.DateTimeField(default=timezone.now)
 
     TITLE_CHOICES = (
@@ -233,7 +231,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         ('Ms', 'Ms'),
         ('Dr', 'Dr')
     )
-
     title = models.CharField(max_length=100, choices=TITLE_CHOICES, null=True, blank=True)
     dob = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True, verbose_name="date of birth")
     phone_number = models.CharField(max_length=50, null=True, blank=True)
