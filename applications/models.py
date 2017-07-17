@@ -101,8 +101,9 @@ class Application(models.Model):
 
     APP_APPLY_ON = Choices(
          (1,'yourself', ('On Behalf of yourself')),
-         (2, 'somebody_else_individual', ('On Behalf of indivdual as somebody else (as an authorised agent)')),
-         (3, 'somebody_else_company', ('On Behalf of a company as somebody else (as an authorised agent)'))
+         (2,'yourcompany', ('On Behalf of your company')),
+         (3, 'somebody_else_individual', ('On Behalf of indivdual as somebody else (as an authorised agent)')),
+         (4, 'somebody_else_company', ('On Behalf of a company as somebody else (as an authorised agent)'))
     )
 
     APP_STATE_CHOICES = Choices(

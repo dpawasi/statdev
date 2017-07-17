@@ -6,10 +6,10 @@ from crispy_forms.bootstrap import FormActions, InlineRadios
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect
-from applications.widgets import ClearableMultipleFileInput
+from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField
+from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button
+from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -17,13 +17,13 @@ from .models import (
 
 User = get_user_model()
 
-
 class BaseFormHelper(FormHelper):
     form_class = 'form-horizontal'
     label_class = 'col-xs-12 col-sm-4 col-md-3 col-lg-2'
     field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-4'
 
 class ApplicationCreateForm(ModelForm):
+
     class Meta:
         model = Application
         fields = ['app_type', 'organisation']
@@ -37,6 +37,7 @@ class ApplicationCreateForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
         # Limit the organisation queryset unless the user is a superuser.
         if not user.is_superuser:
             user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
@@ -48,28 +49,115 @@ class ApplicationCreateForm(ModelForm):
         self.fields['app_type'].label = "Application Type"
 
 class ApplicationApplyForm(ModelForm):
+    apply_on_behalf_of = ChoiceField(choices=Application.APP_APPLY_ON ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+
     class Meta:
         model = Application
-        fields = ['app_type', 'organisation']
+        fields = ['apply_on_behalf_of']
 
     def __init__(self, *args, **kwargs):
         # User must be passed in as a kwarg.
         user = kwargs.pop('user')
         super(ApplicationApplyForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_create_application'
-        self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
-        # Limit the organisation queryset unless the user is a superuser.
-#        if not user.is_superuser:
- #           user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
-  #          self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
-   #     self.fields['organisation'].help_text = '''The company or organisation
-    #        on whose behalf you are applying (leave blank if not applicable).'''
 
-        # Add labels for fields
-        self.fields['app_type'].label = "Application Type"
+
+        crispy_boxes = crispy_empty_box()
+        self.helper.form_show_labels = False
+        crispy_boxes.append(crispy_box('on_behalf_collapse','form_on_behalf','Apply on behalf of',crispy_h3("Do you want to apply"),'apply_on_behalf_of' ))
+        self.helper.layout = Layout(crispy_boxes,)
+
+        self.helper.form_id = 'id_form_apply_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
+
+
+class ApplicationApplyUpdateForm(ModelForm):
+
+    apply_on_behalf_of = ChoiceField(choices=Application.APP_APPLY_ON ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+    app_type = ChoiceField(choices=Application.APP_TYPE_CHOICES,
+            widget=RadioSelectWithCaptions(
+                attrs={'class':'radio-inline'}, 
+                caption={'caption-2':'Apply for a licence and permit to undertake an activity within the river reserve, and on land within the Riverpark etc.', 
+                         'caption-1':'Apply for permit to carry out works, actor activities within the Riverpark', 
+                         'caption-3':'Apply for development approval in accordance with Part 5 of the <b>Swan and Canning Rivers Management Act</B>' } 
+                ))
+    organisation = ModelChoiceField(queryset=Organisation.objects.all(), empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
+
+    # Indivdual & Company
+    applicant_company_given_names = CharField(max_length=256, required=False)
+    applicant_company_surname = CharField(max_length=256, required=False)
+    applicant_company_dob = CharField(max_length=256, required=False)
+    applicant_company_email = CharField(max_length=256, required=False)
+
+    # Company only
+    applicant_company = CharField(max_length=256, required=False)
+    applicant_abn = CharField(max_length=256, required=False)
+
+    class Meta:
+        model = Application
+        fields = ['apply_on_behalf_of','app_type','organisation']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        #user = kwargs.pop('user')
+        super(ApplicationApplyUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        self.helper.field_class = 'col-xs-12 col-sm-8 col-md-6 col-lg-6'
+        APP_TYPE_CHOICES = [] 
+        # print Application.APP_APPLY_ON
+
+        action = self.initial['action']
+        if action == 'new':
+            crispy_boxes = crispy_empty_box()
+            self.helper.form_show_labels = False
+            crispy_boxes.append(crispy_box('on_behalf_collapse','form_on_behalf','Apply on behalf of',crispy_h3("Do you want to apply"),'apply_on_behalf_of' ))
+         #   self.helper.layout = Layout(crispy_boxes,)
+        elif action == 'apptype':
+            del self.fields['applicant_company_given_names']
+            del self.fields['applicant_company_surname']
+            del self.fields['applicant_company_dob']
+            del self.fields['applicant_company_email']
+            del self.fields['applicant_company']
+            del self.fields['applicant_abn']
+            del self.fields['apply_on_behalf_of']
+            del self.fields['organisation']
+
+            self.fields['app_type'].label = ''
+
+            for i in Application.APP_TYPE_CHOICES:
+                if i[0] in [4,5,6,7,8,9,10,11]:
+                    skip = 'yes'
+                else:
+                    APP_TYPE_CHOICES.append(i)
+            self.fields['app_type'].choices = APP_TYPE_CHOICES
+
+            crispy_boxes = crispy_empty_box()
+            crispy_boxes.append(crispy_box('apply_for_collapse','form_apply_for','Apply for',crispy_h3("Do you want to apply for"),'app_type',crispy_para_no_label("Unsure which application you require Click Here")))
+        else:
+            del self.fields['app_type']
+            del self.fields['apply_on_behalf_of']
+
+            apply_on_behalf_of = self.initial['apply_on_behalf_of']
+            if apply_on_behalf_of == 3:
+                del self.fields['organisation']
+
+                crispy_boxes = crispy_empty_box()
+                crispy_boxes.append(crispy_box('on_behalf_indivdual_collapse','form_on_behalf_indivdual','Apply on behalf of indivdual',crispy_h3("Please Complete:"),'applicant_company_given_names','applicant_company_surname','applicant_company_dob','applicant_company_email'))
+                self.helper.layout = Layout(crispy_boxes,)
+            elif apply_on_behalf_of == 2:
+                self.helper.form_show_labels = False
+                crispy_boxes = crispy_empty_box()
+                crispy_boxes.append(crispy_box('choose_organisation_collapse','form_choose_organisation','Choose Organisation',crispy_h3("Please choose an organisation"),'organisation'))
+            elif apply_on_behalf_of == 4:
+                del self.fields['organisation']
+                crispy_boxes = crispy_empty_box()
+                crispy_boxes.append(crispy_box('on_behalf_indivdual_collapse','form_on_behalf_indivdual','Apply on behalf of company',crispy_h3("Please Complete"),'applicant_company','applicant_abn','applicant_company_given_names','applicant_company_surname','applicant_company_dob','applicant_company_email'))
+
+        self.helper.layout = Layout(crispy_boxes,)
+        self.helper.form_id = 'id_form_apply_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
 
 
 class CommunicationCreateForm(ModelForm):

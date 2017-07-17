@@ -1,0 +1,26 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+{% load static %} 
+{% block page_content_inner %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h1>New Application</h1>
+        <br />
+    </div>
+    <!-- Action panel start -->
+    <div class="row">
+        {% if left_sidebar == 'yes' %}
+            {% include "applications/application_side_menu.html" %}
+        {% endif %}
+        <!-- Main panel start -->
+        
+        <div class="col-sm-8 col-md-9 col-lg-10">
+            {% crispy form %}
+
+            {% endblock %}
+
+        </div>
+    </div>
+</div>
