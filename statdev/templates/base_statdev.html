@@ -6,20 +6,35 @@
 <link rel="stylesheet" type="text/css" href="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/css/dataTables.bootstrap.css">
 {% endblock %}
 
-{% block navbar_site_title %}<a class="navbar-brand" href="/">Statutory Development</a>{% endblock navbar_site_title %}
+{% block navbar_site_title %}
 
+<a class="navbar-brand" href="/">Statutory Development</a>
+<ul class='nav navbar-nav hidden-xs'>
+    <li><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
+    <li><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
+    <li><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
+    <li><a href="#"><strike>Clearance of Conditions</strike></a></li>
+    <li><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
+    <li><a href="#"><strike>Search</strike></a></li>
+
+
+</ul>
+
+{% endblock navbar_site_title %}
 {% block navbar_links %}
-<li><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
-<li><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
-{#<li><a href="#">Approvals</a></li>#}
-{#<li><a href="#">Emergency works</a></li>#}
-{#<li><a href="#">Clearance requests</a></li>#}
-<li><a href="{% url 'organisation_list' %}" title="Companies">Companies</a></li>
+<li class='hidden-lg hidden-md'><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
+<li class='hidden-lg hidden-md'><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
+<li class='hidden-lg hidden-md'><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
+<li class='hidden-lg hidden-md'><a href="#"><strike>Clearance of Conditions</strike></a></li>
+<li class='hidden-lg hidden-md'><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
+<li class='hidden-lg hidden-md'><a href="#"><strike>Search</strike></a></li>
+
 {% block navbar_auth %}
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{% firstof user.get_full_name user.email %} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">
         <li><a href="{% url 'user_account'%}">My personal details</a></li>
+        <li><a href="{% url 'organisation_list' %}" title="My Companies">My Companies</a></li>
         {% if user.is_superuser %}
         <li><a href="{% url 'admin:index' %}" title="Administration">Administration</a></li>
         {% endif %}
@@ -70,11 +85,12 @@
 {% endblock %}
 
 {% block extra_js %}
-<script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/jquery-ui-bootstrap/0.5pre/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/js/jquery.dataTables.js"></script>
 
 <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/js/dataTables.bootstrap.js"></script>
+<script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+
 <script>
     $(function() {
         // Initialise datepicker widgets.

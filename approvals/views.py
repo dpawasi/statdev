@@ -33,12 +33,26 @@ class ApprovalList(ListView):
     def get_context_data(self, **kwargs):
         context = super(ApprovalList, self).get_context_data(**kwargs)
 
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+               skip = 'yes'
+            else:
+               APP_TYPE_CHOICES.append(i)
+               APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes']= APP_TYPE_CHOICES
+
+
         if 'action' in self.request.GET and self.request.GET['action']:
             query_str = self.request.GET['q']
             query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str)
 
             if self.request.GET['apptype'] != '':
                 query_obj &= Q(app_type=int(self.request.GET['apptype']))
+            else:
+                query_obj &= Q(app_type__in=APP_TYPE_CHOICES_IDS)
+
             if self.request.GET['applicant'] != '':
                 query_obj &= Q(applicant=int(self.request.GET['applicant']))
             if self.request.GET['appstatus'] != '':
@@ -67,7 +81,6 @@ class ApprovalList(ListView):
         context['app_list'] = []
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
-        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
         context['app_appstatus'] = list(ApprovalModel.APPROVAL_STATE_CHOICES)
 
         for app in objlist.order_by('title'):
