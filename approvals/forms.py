@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, HTML
+from crispy_forms.layout import Layout, Submit, HTML, Hidden
 from crispy_forms.bootstrap import FormActions
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -31,8 +31,13 @@ class ApprovalChangeStatus(ModelForm):
         # User must be passed in as a kwarg.
         super(ApprovalChangeStatus, self).__init__(*args, **kwargs)
 
-#       print self.initial['status']
+        # print self.initial['status']
         status = Approval.APPROVAL_STATE_CHOICES[self.initial['status']]
+
+        print "FORM"
+#        self.fields['status'].initial =3
+#        print self.fields['status'].initial
+        print self.initial['status']
 
         if status == "Expired":
             del self.fields['start_date']
@@ -81,6 +86,11 @@ class ApprovalChangeStatus(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.fields['status'].widget.attrs['disabled'] = True
         self.fields['status'].required = False
+
+        # Purpose of the extra field (hidden) is to ensure the status dropdown is 
+        # populated on form field error.  So the dropdown doesn't come through blank
+        self.helper.add_input(Hidden('status',self.initial['status']))
+        ###
         self.helper.add_input(Submit('changestatus', 'Change Status', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 

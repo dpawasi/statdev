@@ -26,24 +26,31 @@ class ApplicationCreateForm(ModelForm):
 
     class Meta:
         model = Application
-        fields = ['app_type', 'organisation']
+        fields = ['app_type']
 
     def __init__(self, *args, **kwargs):
         # User must be passed in as a kwarg.
         user = kwargs.pop('user')
         super(ApplicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
+
+        app_type = None
+        if 'app_type' in self.initial:
+            app_type = self.initial['app_type']
+            if app_type == 4:
+                self.fields['app_type'].widget.attrs['disabled'] = True
+
         self.helper.form_id = 'id_form_create_application'
         self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('create', 'Create', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
         # Limit the organisation queryset unless the user is a superuser.
-        if not user.is_superuser:
-            user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
-            self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
-        self.fields['organisation'].help_text = '''The company or organisation
-            on whose behalf you are applying (leave blank if not applicable).'''
+        #if not user.is_superuser:
+            #user_orgs = [d.pk for d in Delegate.objects.filter(email_user=user)]
+            #self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+        #self.fields['organisation'].help_text = '''The company or organisation
+            #on whose behalf you are applying (leave blank if not applicable).'''
 
         # Add labels for fields
         self.fields['app_type'].label = "Application Type"
@@ -757,15 +764,18 @@ class ApplicationEmergencyForm(ModelForm):
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
-        self.fields['applicant'].disabled = True;
-        self.fields['applicant'].required = True;
+        self.fields['applicant'].disabled = True
+        self.fields['applicant'].required = True
         # Add labels and help text for fields
         self.fields['proposed_commence'].label = "Start date"
         self.fields['proposed_end'].label = "Expiry date"
-        changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
-        crispy_boxes = crispy_empty_box()
-        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works','applicant', changeapplicantbutton,'organisation', 'proposed_commence', 'proposed_end'))
 
+        changeapplicantbutton = crispy_button_link('Add / Change Applicant or Organisation',reverse('applicant_change', args=(self.initial['application_id'],)))
+        crispy_boxes = crispy_empty_box()
+        
+        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works',HTML('{% include "applications/applicant_update_snippet.html" %}') ,HTML('{% include "applications/organisation_update_snippet.html" %}'),changeapplicantbutton,'organisation', 'proposed_commence', 'proposed_end'))
+        del self.fields['applicant']
+        del self.fields['organisation']
         self.helper.layout = Layout(crispy_boxes,)
 
 
@@ -1013,7 +1023,7 @@ class AssignApplicantForm(ModelForm):
     class Meta:
         model = Application
         #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
-        fields = ['applicant']
+        fields = ['applicant','organisation']
 
     def __init__(self, *args, **kwargs):
         super(AssignApplicantForm, self).__init__(*args, **kwargs)
@@ -1026,11 +1036,16 @@ class AssignApplicantForm(ModelForm):
         self.fields['applicant'].queryset = User.objects.filter(pk=applicant)
         self.fields['applicant'].required = True
         self.fields['applicant'].disabled = True
+     
+        user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
+        self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+
         # Define the form layout.
         self.helper.layout = Layout(
             HTML('<p>Assign this application for processing:</p>'),
             #'app_type', 'title', 'description', 'submit_date', 'assignee',
             'applicant',
+            'organisation',
             FormActions(
                 Submit('assign', 'Change Applicant', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')

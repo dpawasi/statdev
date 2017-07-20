@@ -1,0 +1,45 @@
+
+{{ app }}
+
+{% with object.organisation as organisation %}
+<div class="col-sm-12 col-md-12 col-lg-12">
+    <h4>Organisation details:</h4>
+    <table class="table table-borderless">
+        <tr>
+            <th>Name</th>
+            <td>{{ organisation.name }}</td>
+        </tr>
+        <tr>
+            <th>ABN</th>
+            <td>{{ organisation.abn }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-12">
+    <h4>Address details:</h4>
+    <table class="table table-borderless">
+        <tr>
+            <th>Postal Address</th>
+            <td>{{ organisation.postal_address.line1 }}</td>
+        </tr>
+        <tr>
+            <th>Town/Suburb</th>
+            <td>{{ organisation.postal_address.locality }}</td>
+        </tr>
+		<tr>
+            <th>State</th>
+            <td>{{ organisation.postal_address.state }}</td>
+			<th>Postcode</th>
+			<td>{{ organisation.postal_address.postcode }}</td>
+        </tr>
+       <tr>
+            <th>Country</th>
+            <td>{{ organisation.postal_address.get_country_display }}</td>
+        </tr>
+    </table>
+</div>
+
+
+{% endwith %}
+

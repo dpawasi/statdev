@@ -133,9 +133,17 @@ class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
         approval = self.get_object()
         status = self.kwargs['status']
         initial['status'] = ApprovalModel.APPROVAL_STATE_CHOICES.__getattr__(status)
+        print initial
         return initial
 
     def post(self, request, *args, **kwargs):
+        #        self.initial = self.get_initial()
+        self.object = self.get_object()
+        self.object.status = 2
+        print "TT"
+        print request.POST.get('status', 2)
+        #print self.initial['status']
+        print self.args 
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['application'])
             return HttpResponseRedirect(app.get_absolute_url())

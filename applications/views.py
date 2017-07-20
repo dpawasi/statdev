@@ -100,33 +100,42 @@ class ApplicationApplicantChange(DetailView):
     def get_context_data(self, **kwargs):
 
         #listusers =  EmailUser.objects.all()
+        listorgs = []
         context = super(ApplicationApplicantChange, self).get_context_data(**kwargs)
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
-
             search_filter = Q()
+            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+            orgs = []
+            for d in listorgs:
+                d.email_user.id
+                orgs.append(d.email_user.id)
+             
             for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo) 
+                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            # Add Organsations Results , Will also filter out duplicates
+            search_filter |= Q(pk__in=orgs)
+            # Get all applicants
             listusers = EmailUser.objects.filter(search_filter)
+            
+
         else:
             listusers =  EmailUser.objects.all()
 
         context['acc_list'] = []
         for lu in listusers:
             row = {}
-            row['acc_row'] = lu 
+            row['acc_row'] = lu
+            lu.organisations = []
+            lu.organisations =  Delegate.objects.filter(email_user=lu.id) 
+            for o in lu.organisations: 
+                print o.organisation
             context['acc_list'].append(row)
-
-        # TODO: any restrictions on who can create new applications?
-#        context['may_create'] = True
- #       processor = Group.objects.get(name='Processor')
-        # Rule: admin officers may self-assign applications.
-#        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-#            context['may_assign_processor'] = True
         context['applicant_id'] =  self.object.pk
 
         return context
+
 
 class ApplicationList(ListView):
     model = Application
@@ -312,6 +321,46 @@ class EmergencyWorksList(ListView):
             context['may_assign_processor'] = True
         return context
 
+class ApplicationCreateEW(LoginRequiredMixin, CreateView):
+    form_class = apps_forms.ApplicationCreateForm
+    template_name = 'applications/application_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationCreateEW, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new application'
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(ApplicationCreateEW, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_initial(self):
+        initial = {}
+        initial['app_type'] = 4
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ApplicationCreateEW, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        # If this is not an Emergency Works set the applicant as current user
+        if not (self.object.app_type == Application.APP_TYPE_CHOICES.emergency):
+            self.object.applicant = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submitted_by = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submit_date = date.today()
+        self.object.state = self.object.APP_STATE_CHOICES.new
+        self.object.app_type = 4
+        self.object.save()
+        success_url = reverse('application_update', args=(self.object.pk,))
+        return HttpResponseRedirect(success_url)
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationCreateForm
