@@ -230,7 +230,6 @@ class EmergencyWorksList(ListView):
    
     def get_queryset(self):
         qs = super(EmergencyWorksList, self).get_queryset()
-        print self.template_name 
         # Did we pass in a search string? If so, filter the queryset and return
         # it.
         if 'q' in self.request.GET and self.request.GET['q']:
@@ -1485,7 +1484,11 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # Rule: application state must be 'draft'.
         app = self.get_object()
         flowcontext = {}
-        flowcontext['application_assignee_id'] = app.assignee.id
+        
+        if app.assignee: 
+            flowcontext['application_assignee_id'] = app.assignee.id
+        else:
+            flowcontext['application_assignee_id'] = None
 
         workflowtype = ''
 
@@ -1519,7 +1522,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
                                     return HttpResponseRedirect(app.get_absolute_url())
                     donothing = ""
             else:
-                messages.error(self.request, 'This application has no routes')
+                messages.error(self.request, 'This application has no matching routes.')
                 return HttpResponseRedirect(app.get_absolute_url())
         else:
             messages.error(self.request, 'This application cannot be lodged!')

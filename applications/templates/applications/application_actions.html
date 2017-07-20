@@ -7,7 +7,7 @@
         <p><a href="{% url 'application_detail' object.pk %}">Return to application details</a></p>
         <h2>Action/communication log</h2>
         {% if actions %}
-        <table class="table table-bordered table-striped">
+        <table id='action-log-table' class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>Date & time</th>
@@ -32,4 +32,15 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+function loadTableGrid() {
+        $('#action-log-table').dataTable({searching: true, paging: true, "pageLength": 25});
+}
+window.onload= function() {
+        loadTableGrid();
+}
+</script>
+
+
 {% endblock page_content_inner %}

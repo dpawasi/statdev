@@ -22,6 +22,8 @@ class Application_Part5():
         context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
         context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+
         try:
               LocObj = Location.objects.get(application_id=self_view.object.id)
               context['certificate_of_title_volume'] = LocObj.title_volume
@@ -203,6 +205,7 @@ class Application_Emergency():
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
         context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
 
         if app.organisation:
            context['address'] = app.organisation.postal_address
@@ -226,6 +229,7 @@ class Application_Permit():
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
         context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
 
         return context
 
@@ -244,6 +248,8 @@ class Application_Licence():
         context = flow.getHiddenAreas(context,app.routeid,workflowtype)
         context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
         context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+
         return context
 
 
