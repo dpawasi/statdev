@@ -212,7 +212,7 @@ class ApplicationTest(StatDevTestCase):
         self.assertFalse(Condition.objects.exists())
         url = reverse('condition_create', args=(self.app1.pk,))
         resp = self.client.post(url, {'condition': 'foobar'})
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
         self.assertTrue(Condition.objects.exists())
 
     def test_condition_update_get(self):
@@ -243,7 +243,7 @@ class ApplicationTest(StatDevTestCase):
         condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
         url = reverse('condition_update', args=(condition.pk,))
         resp = self.client.post(url, {'condition': 'foobar'})
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
         c = Condition.objects.get(pk=condition.pk)
         self.assertEquals(c.condition, 'foobar')
 
@@ -364,12 +364,13 @@ class ApplicationTest(StatDevTestCase):
     def test_application_issue_post(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_manager
         self.app1.assignee = self.user2
+        self.app1.app_type = Application.APP_TYPE_CHOICES.emergency 
         self.app1.save()
         # Log in as user2
         self.client.logout()
         self.client.login(email=self.user2.email, password='pass')
         url = reverse('application_issue', args=(self.app1.pk,))
-        resp = self.client.post(url, {'assessment': 'issue'})
+        resp = self.client.post(url, {'issue': 'Issue'})
         self.assertRedirects(resp, self.app1.get_absolute_url())
         a = Application.objects.get(pk=self.app1.pk)
         self.assertEquals(a.assignee, None)

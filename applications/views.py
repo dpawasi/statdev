@@ -356,7 +356,7 @@ class ApplicationCreateEW(LoginRequiredMixin, CreateView):
         self.object.submitted_by = self.request.user
         self.object.assignee = self.request.user
         self.object.submit_date = date.today()
-        self.object.state = self.object.APP_STATE_CHOICES.new
+        self.object.state = self.object.APP_STATE_CHOICES.draft
         self.object.app_type = 4
         self.object.save()
         success_url = reverse('application_update', args=(self.object.pk,))
@@ -907,7 +907,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
-
+        
         if float(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
@@ -950,6 +950,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['workflowoptions'] = flow.getWorkflowOptions()
 #        print context['workflowoptions']
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        context = flow.getCollapse(context,app.routeid,workflowtype)
+        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        context['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
+        context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
+
         return context
 
     def get_form_class(self):
@@ -987,7 +992,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flowcontent = flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
         flowcontent = flow.getHiddenAreas(flowcontent,app.routeid,workflowtype)
         flowcontent['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
-
+        initial['disabledfields'] = flow.getDisabled(flowcontent,app.routeid,workflowtype) 
         flowcontent['formcomponent'] = flow.getFormComponent(app.routeid, workflowtype)
         initial['fieldstatus'] = []
 
@@ -1500,6 +1505,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                                  if ro['fieldvalue'] == self.request.POST[ro['field']]:
                                      if "routeurl" in ro:
                                         if ro["routeurl"] == "application_lodge":
+                                            return HttpResponseRedirect(reverse(ro["routeurl"],kwargs={'pk':self.object.id}))
+                                        if ro["routeurl"] == "application_issue":
                                             return HttpResponseRedirect(reverse(ro["routeurl"],kwargs={'pk':self.object.id}))
 
                                      self.object.routeid = ro['route']
@@ -2161,7 +2168,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
+            return HttpResponseRedirect(self.get_object().get_absolute_url()+'update/')
         return super(ApplicationIssue, self).post(request, *args, **kwargs)
 
     def get_form_class(self):
@@ -2188,7 +2195,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         d = form.cleaned_data
-        if d['assessment'] == 'issue':
+        if self.request.POST.get('issue') == 'Issue':
             self.object.state = self.object.APP_STATE_CHOICES.issued
             self.object.assignee = None
             # Record an action on the application:
@@ -2211,12 +2218,12 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                     msg = msg + """The Emergency Works has been emailed."""
                 else:
                     msg = msg + """The Emergency Works needs to be printed and posted."""
-                messages.success(self.request, msg.format(self.object.pk, self.object.issue_date,
+                messages.success(self.request, msg.format(self.object.pk, self.object.issue_date.strftime('%d/%m/%Y'),
                                                           self.get_success_url() + "pdf", 'EmergencyWorks.pdf'))
             else:
                 messages.success(
                     self.request, 'Application {} has been issued'.format(self.object.pk))
-        elif d['assessment'] == 'decline':
+        elif self.request.POST.get('decline') == 'Decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
             # Record an action on the application:
@@ -2227,6 +2234,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
             messages.warning(
                 self.request, 'Application {} has been declined'.format(self.object.pk))
         self.object.save()
+
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
 
@@ -3057,7 +3065,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         """Override to redirect to the condition's parent application detail view.
         """
-        return reverse('application_detail', args=(self.object.application.pk,))
+        return reverse('application_update', args=(self.object.application.pk,))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -3160,7 +3168,7 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
                 action='Condition {} updated (status: {})'.format(self.object.pk, self.object.get_status_display()))
             action.save()
         self.object.save()
-        return HttpResponseRedirect(self.object.application.get_absolute_url())
+        return HttpResponseRedirect(self.object.application.get_absolute_url()+'update/')
 
 
 class ConditionDelete(LoginRequiredMixin, DeleteView):

@@ -752,6 +752,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
    
         
 class ApplicationEmergencyForm(ModelForm):
+
     class Meta:
         model = Application
         fields = ['applicant', 'organisation', 'proposed_commence', 'proposed_end']
@@ -761,8 +762,6 @@ class ApplicationEmergencyForm(ModelForm):
         self.helper = BaseFormHelper()
         self.helper.form_id = 'id_form_update_emergency'
         self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
 
         self.fields['applicant'].disabled = True
         self.fields['applicant'].required = True
@@ -772,13 +771,35 @@ class ApplicationEmergencyForm(ModelForm):
 
         changeapplicantbutton = crispy_button_link('Add / Change Applicant or Organisation',reverse('applicant_change', args=(self.initial['application_id'],)))
         crispy_boxes = crispy_empty_box()
-        
-        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works',HTML('{% include "applications/applicant_update_snippet.html" %}') ,HTML('{% include "applications/organisation_update_snippet.html" %}'),changeapplicantbutton,'organisation', 'proposed_commence', 'proposed_end'))
+        organisation = self.initial['organisation']
+
+        if organisation is not None:
+            applicant_info = HTML('{% include "applications/organisation_update_snippet.html" %}')
+        else: 
+            applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')
+
+        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works',applicant_info,changeapplicantbutton,'organisation'))
+        crispy_boxes.append(crispy_box('emergency_period_collapse', 'form_emergency_period' , 'Emergency Works Period', 'proposed_commence', 'proposed_end',Submit('1-nextstep', 'Save', css_class='btn-lg')))
+        crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
+
+        if 'condactions' in self.initial['workflow']:
+             if  self.initial['workflow']['condactions'] is not None:
+                 for ca in self.initial['workflow']['condactions']:
+                     if 'steplabel' in self.initial['workflow']['condactions'][ca]:
+                          self.helper = crispy_button(self.helper,ca,self.initial['workflow']['condactions'][ca]['steplabel'])
+             else:
+                 self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+                 self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
         del self.fields['applicant']
         del self.fields['organisation']
+
+        for fielditem in self.initial["disabledfields"]:
+            if fielditem in self.fields:
+                self.fields[fielditem].disabled = True
+
         self.helper.layout = Layout(crispy_boxes,)
-
-
 
 class ApplicationLodgeForm(Form):
     """A basic form to submit a request to lodge an application.
@@ -1257,47 +1278,46 @@ class ApplicationIssueForm(ModelForm):
 
 
 class ApplicationEmergencyIssueForm(ModelForm):
-    assessment = ChoiceField(choices=[
-        (None, '---------'),
-        ('issue', 'Issue'),
-        ('decline', 'Decline'),
-    ])
+    #    assessment = ChoiceField(choices=[
+    #    (None, '---------'),
+    #    ('issue', 'Issue'),
+    #    ('decline', 'Decline'),
+    #])
 
-    holder = CharField(required=False)
-    abn = CharField(required=False)
+    #    holder = CharField(required=False)
+#    abn = CharField(required=False)
 
     class Meta:
         model = Application
-        fields = ['app_type', 'issue_date', 'proposed_commence', 'proposed_end']
+        fields = []
 
     def __init__(self, *args, **kwargs):
         super(ApplicationEmergencyIssueForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_application_issue'
         self.helper.attrs = {'novalidate': ''}
-        self.fields['app_type'].required = False
+ #       self.fields['app_type'].required = False
         # Disable all form fields.
-        for k, v in self.fields.items():
-            self.fields[k].disabled = True
+#        for k, v in self.fields.items():
+#            self.fields[k].disabled = True
         # Re-enable the assessment field.
-        self.fields['assessment'].disabled = False
+#        self.fields['assessment'].disabled = False
 
         crispy_boxes = crispy_empty_box()
-        crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works','holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment'))
+        #crispy_boxes.append(crispy_box('emergency_collapse', 'form_emergency' , 'Emergency Works','holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment'))
  
 
         # Define the form layout.
         self.helper.layout = Layout(crispy_boxes,
-            HTML('<p>Issue or decline this completed Emergency Works application:</p>'),
-            'app_type', 'holder', 'abn', 'issue_date', 'proposed_commence', 'proposed_end', 'assessment',
+            HTML('<p>Click Issue to issue this completed Emergency Works application:</p>'),
             FormActions(
-                Submit('save', 'Issue', css_class='btn-lg'),
+                Submit('issue', 'Issue', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
             )
         )
 
-        self.fields['proposed_commence'].label = "Start Date"
-        self.fields['proposed_end'].label = "Expiry Date"
+        #        self.fields['proposed_commence'].label = "Start Date"
+#        self.fields['proposed_end'].label = "Expiry Date"
 
 class ComplianceCreateForm(ModelForm):
     supporting_document = FileField(required=False, max_length=128)

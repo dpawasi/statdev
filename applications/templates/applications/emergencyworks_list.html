@@ -128,10 +128,14 @@
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
                                             <ul class="dropdown-menu" role="menu">
                                                 {% if app_obj.app.state == 1 %}
+                                                <!-- Show Process button if draft -->
                                                 <li><a href="{% url 'application_update' app_obj.app.pk %}">Process</a></li>
                                                 {% endif %}
-                                                <li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Assign</a></li>
-                                                <li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Reassign</a></li>
+                                                {% if app_obj.app.assignee > 0%}
+                                                   <li><a href="{% url 'application_assign_person' app_obj.app.pk %}">Reassign</a></li>
+                                                {% else %}
+                                                <li><a href="{% url 'application_assign_person' app_obj.app.pk %}">Assign</a></li>
+                                                {% endif %}
                                             </ul>
                                         </li>
                                     </ul>

@@ -34,10 +34,8 @@ class ApprovalChangeStatus(ModelForm):
         # print self.initial['status']
         status = Approval.APPROVAL_STATE_CHOICES[self.initial['status']]
 
-        print "FORM"
 #        self.fields['status'].initial =3
 #        print self.fields['status'].initial
-        print self.initial['status']
 
         if status == "Expired":
             del self.fields['start_date']
