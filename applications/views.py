@@ -129,8 +129,8 @@ class ApplicationApplicantChange(DetailView):
             row['acc_row'] = lu
             lu.organisations = []
             lu.organisations =  Delegate.objects.filter(email_user=lu.id) 
-            for o in lu.organisations: 
-                print o.organisation
+            #for o in lu.organisations: 
+            #    print o.organisation
             context['acc_list'].append(row)
         context['applicant_id'] =  self.object.pk
 
