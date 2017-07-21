@@ -122,7 +122,8 @@ class Application(models.Model):
         (12, 'with_director', ('With Director')),
         (13, 'with_exec', ('With Executive')),
         (14, 'completed', ('Completed')),
-        (15, 'creator', ('Form Creator'))
+        (15, 'creator', ('Form Creator')),
+        (16, 'current', ('Current'))
     )
 
     APP_LOCATION_CHOICES = Choices(

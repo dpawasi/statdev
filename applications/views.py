@@ -100,33 +100,42 @@ class ApplicationApplicantChange(DetailView):
     def get_context_data(self, **kwargs):
 
         #listusers =  EmailUser.objects.all()
+        listorgs = []
         context = super(ApplicationApplicantChange, self).get_context_data(**kwargs)
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
-            query_str_split = query_str.split();
-
+            query_str_split = query_str.split()
             search_filter = Q()
+            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+            orgs = []
+            for d in listorgs:
+                d.email_user.id
+                orgs.append(d.email_user.id)
+             
             for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo) 
+                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            # Add Organsations Results , Will also filter out duplicates
+            search_filter |= Q(pk__in=orgs)
+            # Get all applicants
             listusers = EmailUser.objects.filter(search_filter)
+            
+
         else:
             listusers =  EmailUser.objects.all()
 
         context['acc_list'] = []
         for lu in listusers:
             row = {}
-            row['acc_row'] = lu 
+            row['acc_row'] = lu
+            lu.organisations = []
+            lu.organisations =  Delegate.objects.filter(email_user=lu.id) 
+            #for o in lu.organisations: 
+            #    print o.organisation
             context['acc_list'].append(row)
-
-        # TODO: any restrictions on who can create new applications?
-#        context['may_create'] = True
- #       processor = Group.objects.get(name='Processor')
-        # Rule: admin officers may self-assign applications.
-#        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
-#            context['may_assign_processor'] = True
         context['applicant_id'] =  self.object.pk
 
         return context
+
 
 class ApplicationList(ListView):
     model = Application
@@ -150,11 +159,27 @@ class ApplicationList(ListView):
     def get_context_data(self, **kwargs):
         context = super(ApplicationList, self).get_context_data(**kwargs)
         context['query_string'] = ''
+        
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+               skip = 'yes'
+            else:
+               APP_TYPE_CHOICES.append(i)
+               APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes']= APP_TYPE_CHOICES
+        
+
         if 'action' in self.request.GET and self.request.GET['action']:
             query_str = self.request.GET['q']
             query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
             if self.request.GET['apptype'] != '':
                 query_obj &= Q(app_type=int(self.request.GET['apptype']))
+            else:
+                query_obj &= Q(app_type__in=APP_TYPE_CHOICES_IDS)
+
+
             if self.request.GET['applicant'] != '':
                 query_obj &= Q(applicant=int(self.request.GET['applicant']))
             if self.request.GET['appstatus'] != '':
@@ -165,7 +190,7 @@ class ApplicationList(ListView):
             context['query_string'] = self.request.GET['q']
 
             if self.request.GET['apptype'] != '':
-                 context['apptype'] = int( self.request.GET['apptype'])
+                 context['apptype'] = int(self.request.GET['apptype'])
             if self.request.GET['applicant'] != '':
                  context['applicant'] = int(self.request.GET['applicant'])
             if 'appstatus' in self.request.GET:
@@ -173,12 +198,13 @@ class ApplicationList(ListView):
                     context['appstatus'] = int(self.request.GET['appstatus'])
 
         else:
-            applications = Application.objects.all()
+            applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
-        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+#        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
         context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
+
         usergroups = self.request.user.groups.all()
         context['app_list'] = []
         for app in applications:
@@ -207,6 +233,134 @@ class ApplicationList(ListView):
             context['may_assign_processor'] = True
         return context
 
+class EmergencyWorksList(ListView):
+    model = Application
+    template_name = 'applications/emergencyworks_list.html'
+   
+    def get_queryset(self):
+        qs = super(EmergencyWorksList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return
+        # it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by pk, title, applicant__email, organisation__name,
+            # assignee__email
+            query = get_query(
+                query_str, ['pk', 'title', 'applicant__email', 'organisation__name', 'assignee__email'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(EmergencyWorksList, self).get_context_data(**kwargs)
+        context['query_string'] = ''
+       
+        applications = Application.objects.filter(app_type=4)
+
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+
+        APP_STATUS_CHOICES = []
+        for i in Application.APP_STATE_CHOICES:
+            if i[0] in [1,11,16]:
+               APP_STATUS_CHOICES.append(i)
+
+        context['app_appstatus'] = list(APP_STATUS_CHOICES)
+
+
+        if 'action' in self.request.GET and self.request.GET['action']:
+            query_str = self.request.GET['q']
+            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
+            query_obj &= Q(app_type=4)
+
+            if self.request.GET['applicant'] != '':
+                query_obj &= Q(applicant=int(self.request.GET['applicant']))
+            if self.request.GET['appstatus'] != '':
+                query_obj &= Q(state=int(self.request.GET['appstatus']))
+
+
+            applications = Application.objects.filter(query_obj)
+            context['query_string'] = self.request.GET['q']
+
+        if 'applicant' in self.request.GET:
+            if self.request.GET['applicant'] != '':
+               context['applicant'] = int(self.request.GET['applicant'])
+            if 'appstatus' in self.request.GET:
+               if self.request.GET['appstatus'] != '':
+                  context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+
+        usergroups = self.request.user.groups.all()
+        context['app_list'] = []
+        for app in applications:
+            row = {}
+            row['may_assign_to_person'] = 'False'
+            row['app'] = app
+
+            # Create a distinct list of applicants
+            if app.applicant:
+                if app.applicant.id in context['app_applicants']:
+                    donothing = ''
+                else:
+                    context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
+            # end of creation
+
+            if app.group is not None:
+                if app.group in usergroups:
+                    row['may_assign_to_person'] = 'True'
+            context['app_list'].append(row)
+        # TODO: any restrictions on who can create new applications?
+        context['may_create'] = True
+        processor = Group.objects.get(name='Processor')
+        # Rule: admin officers may self-assign applications.
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            context['may_assign_processor'] = True
+        return context
+
+class ApplicationCreateEW(LoginRequiredMixin, CreateView):
+    form_class = apps_forms.ApplicationCreateForm
+    template_name = 'applications/application_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationCreateEW, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new application'
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(ApplicationCreateEW, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_initial(self):
+        initial = {}
+        initial['app_type'] = 4
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ApplicationCreateEW, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        # If this is not an Emergency Works set the applicant as current user
+        if not (self.object.app_type == Application.APP_TYPE_CHOICES.emergency):
+            self.object.applicant = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submitted_by = self.request.user
+        self.object.assignee = self.request.user
+        self.object.submit_date = date.today()
+        self.object.state = self.object.APP_STATE_CHOICES.draft
+        self.object.app_type = 4
+        self.object.save()
+        success_url = reverse('application_update', args=(self.object.pk,))
+        return HttpResponseRedirect(success_url)
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationCreateForm
@@ -753,7 +907,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
-
+        
         if float(app.routeid) > 1:
             if app.assignee is None:
                 context['may_update'] = "False"
@@ -796,6 +950,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['workflowoptions'] = flow.getWorkflowOptions()
 #        print context['workflowoptions']
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        context = flow.getCollapse(context,app.routeid,workflowtype)
+        context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        context['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
+        context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
+
         return context
 
     def get_form_class(self):
@@ -833,7 +992,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         flowcontent = flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
         flowcontent = flow.getHiddenAreas(flowcontent,app.routeid,workflowtype)
         flowcontent['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
-
+        initial['disabledfields'] = flow.getDisabled(flowcontent,app.routeid,workflowtype) 
         flowcontent['formcomponent'] = flow.getFormComponent(app.routeid, workflowtype)
         initial['fieldstatus'] = []
 
@@ -1347,6 +1506,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                                      if "routeurl" in ro:
                                         if ro["routeurl"] == "application_lodge":
                                             return HttpResponseRedirect(reverse(ro["routeurl"],kwargs={'pk':self.object.id}))
+                                        if ro["routeurl"] == "application_issue":
+                                            return HttpResponseRedirect(reverse(ro["routeurl"],kwargs={'pk':self.object.id}))
 
                                      self.object.routeid = ro['route']
                                      self.object.state = ro['state']
@@ -1379,7 +1540,11 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         # Rule: application state must be 'draft'.
         app = self.get_object()
         flowcontext = {}
-        flowcontext['application_assignee_id'] = app.assignee.id
+        
+        if app.assignee: 
+            flowcontext['application_assignee_id'] = app.assignee.id
+        else:
+            flowcontext['application_assignee_id'] = None
 
         workflowtype = ''
 
@@ -1413,7 +1578,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
                                     return HttpResponseRedirect(app.get_absolute_url())
                     donothing = ""
             else:
-                messages.error(self.request, 'This application has no routes')
+                messages.error(self.request, 'This application has no matching routes.')
                 return HttpResponseRedirect(app.get_absolute_url())
         else:
             messages.error(self.request, 'This application cannot be lodged!')
@@ -2003,7 +2168,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_object().get_absolute_url())
+            return HttpResponseRedirect(self.get_object().get_absolute_url()+'update/')
         return super(ApplicationIssue, self).post(request, *args, **kwargs)
 
     def get_form_class(self):
@@ -2030,7 +2195,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         d = form.cleaned_data
-        if d['assessment'] == 'issue':
+        if self.request.POST.get('issue') == 'Issue':
             self.object.state = self.object.APP_STATE_CHOICES.issued
             self.object.assignee = None
             # Record an action on the application:
@@ -2053,12 +2218,12 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
                     msg = msg + """The Emergency Works has been emailed."""
                 else:
                     msg = msg + """The Emergency Works needs to be printed and posted."""
-                messages.success(self.request, msg.format(self.object.pk, self.object.issue_date,
+                messages.success(self.request, msg.format(self.object.pk, self.object.issue_date.strftime('%d/%m/%Y'),
                                                           self.get_success_url() + "pdf", 'EmergencyWorks.pdf'))
             else:
                 messages.success(
                     self.request, 'Application {} has been issued'.format(self.object.pk))
-        elif d['assessment'] == 'decline':
+        elif self.request.POST.get('decline') == 'Decline':
             self.object.state = self.object.APP_STATE_CHOICES.declined
             self.object.assignee = None
             # Record an action on the application:
@@ -2069,6 +2234,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
             messages.warning(
                 self.request, 'Application {} has been declined'.format(self.object.pk))
         self.object.save()
+
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
 
@@ -2899,7 +3065,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         """Override to redirect to the condition's parent application detail view.
         """
-        return reverse('application_detail', args=(self.object.application.pk,))
+        return reverse('application_update', args=(self.object.application.pk,))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -3002,7 +3168,7 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
                 action='Condition {} updated (status: {})'.format(self.object.pk, self.object.get_status_display()))
             action.save()
         self.object.save()
-        return HttpResponseRedirect(self.object.application.get_absolute_url())
+        return HttpResponseRedirect(self.object.application.get_absolute_url()+'update/')
 
 
 class ConditionDelete(LoginRequiredMixin, DeleteView):

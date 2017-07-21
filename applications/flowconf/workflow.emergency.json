@@ -7,15 +7,38 @@
             "emergencyworks": "False"
         },
         "actions": [
-            {
-                "title": "Lodge Application",
-                "route": "2",
-                "routegroup":"lodge"
-            }
         ],
         "formcomponent": {
             "update": {
                 "title": "Make Application Changes"
+            }
+        },
+        "condition-based-actions": {
+            "2-issue": {
+                "steplabel": "Issue",
+                "routeoptions": [{
+                    "field": "2-issue",
+                    "fieldvalue": "Issue",
+                    "fieldoperator":"equals",
+                    "route": "3",
+                    "routeurl": "application_issue",
+                    "required" : [],
+                    "state": "16"
+                }
+                ]
+            },
+            "1-nextstep": {
+                "steplabel": "Save",
+                "routeoptions": [{
+                    "field": "1-nextstep",
+                    "fieldvalue": "Save",
+                    "fieldoperator":"equals",
+                    "route": "2",
+                    "routeurl": "application_update",
+                    "required" : [],
+                    "state": "1"
+                }
+                ]
             }
         },
         "groupaccess": {
@@ -26,10 +49,12 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
-                "may_create_condition":"False",
+                "may_create_condition":"True",
+                "may_update_condition" : "True",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Assessor": {
@@ -42,7 +67,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Approver": {
@@ -55,20 +81,22 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
 
         },
         "collapse": {
             "holder": "False",
             "address": "False",
-            "emergencyworks": "False"
+            "emergencyworks": "False",
+            "conditions": "False"
         },
         "fields": {
         }
     },
     "2": {
-        "title": "License Submitted",
+        "title": "Emergency Works (Not Issued)",
         "hidden": {
             "holder": "False",
             "address": "False",
@@ -82,6 +110,36 @@
                 "routegroup":"assess"
             }
         ],
+
+        "condition-based-actions": {
+            "2-issue": {
+                "steplabel": "Issue",
+                "routeoptions": [{
+                    "field": "2-issue",
+                    "fieldvalue": "Issue",
+                    "fieldoperator":"equals",
+                    "route": "3",
+                    "routeurl": "application_issue",
+                    "required" : [],
+                    "state": "16"
+                }
+                ]
+            },
+            "1-nextstep": {
+                "steplabel": "Save",
+                "routeoptions": [{
+                    "field": "1-nextstep",
+                    "fieldvalue": "Save",
+                    "fieldoperator":"equals",
+                    "route": "2",
+                    "routeurl": "application_update",
+                    "required" : [],
+                    "state": "1"
+                }
+                ]
+            }
+        },
+
         "formcomponent": {
             "update": {
                 "title": "Make Application Changes"
@@ -95,7 +153,8 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
-                "may_create_condition":"False",
+                "may_create_condition":"True",
+                "may_update_condition" : "True",
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
@@ -132,10 +191,85 @@
         "collapse": {
             "holder": "False",
             "address": "False",
-            "emergencyworks": "False" 
+            "emergencyworks": "False",
+            "conditions": "False" 
         },
         "fields": {
         }
+    },
+    "3": {
+        "title": "Emergency Works Issued",
+        "hidden": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False"
+
+        },
+        "actions": [
+        ],
+
+        "condition-based-actions": {
+        },
+
+        "formcomponent": {
+            "update": {
+                "title": "Make Application Changes"
+            }
+        },
+        "groupaccess": {
+            "Processor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_update_condition" : "False",
+                "may_generate_pdf": "False",
+                "may_assign_assessor": "True"
+
+            },
+            "Assessor": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+
+            },
+            "Approver": {
+                "may_update": "False",
+                "may_lodge":"False",
+                "may_refer":"False",
+                "may_assign":"False",
+                "may_assign_customer": "False",
+                "may_assign_processor": "False",
+                "may_create_condition":"False",
+                "may_submit_approval": "False",
+                "may_issue": "False",
+                "may_generate_pdf": "False"
+            }
+
+        },
+        "collapse": {
+            "holder": "False",
+            "address": "False",
+            "emergencyworks": "False",
+            "conditions": "False"
+        },
+        "fields": {
+            "applicant" : "hide" 
+        },
+        "disabled": ["proposed_commence","proposed_end"]
+        
     }
 
 }

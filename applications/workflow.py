@@ -253,6 +253,17 @@ class Flow():
 
         return context
 
+    def getDisabled(self,context,route,flow):
+        context['disabled'] = {}
+        json_obj = self.json_obj
+        if json_obj[str(route)]:
+            if "disabled" in json_obj[str(route)]:
+               context["disabled"] = json_obj[str(route)]['disabled']
+            else:
+               context["disabled"] = json_obj[str(route)]['disabled'] = []
+        return context["disabled"]
+ 
+
     def getFormComponent(self,route,flow):
         json_obj = self.json_obj
         if json_obj[str(route)]:

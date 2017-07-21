@@ -469,8 +469,7 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False",
-            "allow_admin_side_menu" : "True"
+            "may_assign_to_creator": "False"
         },
         "groupaccess": {
             "Processor": {
@@ -940,7 +939,8 @@
                 "may_submit_approval": "False",
                 "may_assign_assessor": "True", 
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
         },
         "collapse": {
@@ -1012,8 +1012,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
-
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             },
             "Assessor": {
                 "may_update": "True",
@@ -1025,8 +1025,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
-
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             },
             "Approver": {
                 "may_update": "True",
@@ -1038,7 +1038,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
 
         },
@@ -1100,8 +1101,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
-
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             },
             "Assessor": {
                 "may_update": "True",
@@ -1113,7 +1114,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Approver": {
@@ -1126,7 +1128,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
 
         },
@@ -1188,7 +1191,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Assessor": {
@@ -1201,7 +1205,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
 
             },
             "Approver": {
@@ -1214,7 +1219,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "allow_admin_side_menu" : "True"
             }
 
         },

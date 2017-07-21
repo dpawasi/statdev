@@ -9,6 +9,7 @@ from applications.utils import get_query
 from . import forms as apps_forms
 from actions.models import Action
 from django.contrib.contenttypes.models import ContentType
+from applications.models import Application
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -31,21 +32,74 @@ class ApprovalList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ApprovalList, self).get_context_data(**kwargs)
-        if 'q' in self.request.GET and self.request.GET['q']:
+
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+               skip = 'yes'
+            else:
+               APP_TYPE_CHOICES.append(i)
+               APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes']= APP_TYPE_CHOICES
+
+
+        if 'action' in self.request.GET and self.request.GET['action']:
             query_str = self.request.GET['q']
-            objlist = ApprovalModel.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) )
+            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str)
+
+            if self.request.GET['apptype'] != '':
+                query_obj &= Q(app_type=int(self.request.GET['apptype']))
+            else:
+                query_obj &= Q(app_type__in=APP_TYPE_CHOICES_IDS)
+
+            if self.request.GET['applicant'] != '':
+                query_obj &= Q(applicant=int(self.request.GET['applicant']))
+            if self.request.GET['appstatus'] != '':
+                query_obj &= Q(status=int(self.request.GET['appstatus']))
+
+            objlist = ApprovalModel.objects.filter(query_obj)
+            context['query_string'] = self.request.GET['q']
+
+            if self.request.GET['apptype'] != '':
+                 context['apptype'] = int(self.request.GET['apptype'])
+            if self.request.GET['applicant'] != '':
+                 context['applicant'] = int(self.request.GET['applicant'])
+            if 'appstatus' in self.request.GET:
+                if self.request.GET['appstatus'] != '':
+                    context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+
+#        if 'q' in self.request.GET and self.request.GET['q']:
+ #           query_str = self.request.GET['q']
+  #          objlist = ApprovalModel.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str))
         else:
             objlist = ApprovalModel.objects.all()
         usergroups = self.request.user.groups.all()
+
         context['app_list'] = []
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_appstatus'] = list(ApprovalModel.APPROVAL_STATE_CHOICES)
 
         for app in objlist.order_by('title'):
             row = {}
             row['app'] = app
         #    if app.group is not None:
+
+            if app.applicant:
+                if app.applicant.id in context['app_applicants']:
+                    donothing = ''
+                else:
+                    context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name})
+
+
             context['app_list'].append(row)
 
-#        context['app_list'] = context['app_list'].order_by('title')
+
+#       context['app_list'] = context['app_list'].order_by('title')
 
         # TODO: any restrictions on who can create new applications?
         processor = Group.objects.get(name='Processor')
@@ -82,6 +136,10 @@ class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
         return initial
 
     def post(self, request, *args, **kwargs):
+        #        self.initial = self.get_initial()
+        self.object = self.get_object()
+        self.object.status = 2
+        #print self.initial['status']
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['application'])
             return HttpResponseRedirect(app.get_absolute_url())

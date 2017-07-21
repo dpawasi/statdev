@@ -1,5 +1,3 @@
-
-
 <div class="panel panel-default">
 	<div class="panel-heading" role="tab" id="conditions_heading">
 		<h3 class="panel-title">
@@ -30,18 +28,18 @@
 						<td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
 						<td>{{ cond.get_status_display }}</td>
 						<td>
-                            {% if workflow_actions %}
-							{% if may_update_condition == "True" %}
-							{% if may_accept_condition and cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
-							<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
-							<a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>
-							{% else %}
-							{% if cond.status == cond.CONDITION_STATUS_CHOICES.applied %}
-							<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk %}">Update</a>
-							<a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_delete' cond.pk %}">Delete</a>
-							{% endif %}
-							{% endif %}
-							{% endif %}
+                            {% if workflow_actions or condactions %}
+							    {% if may_update_condition == "True" %}
+    					    		{% if may_accept_condition and cond.status == cond.CONDITION_STATUS_CHOICES.proposed %}
+	        		    				<a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk 'apply' %}">Apply</a>
+			        		    		<a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_update' cond.pk 'reject' %}">Reject</a>
+        							{% else %}
+		       	    				    {% if cond.status == cond.CONDITION_STATUS_CHOICES.applied %}
+			            				    <a class="btn btn-primary btn-sm" role="button" href="{% url 'condition_update' cond.pk %}">Update</a>
+    				    	        		<a class="btn btn-danger btn-sm" role="button" href="{% url 'condition_delete' cond.pk %}">Delete</a>
+	    				    		    {% endif %}
+		    				    	{% endif %}
+    							{% endif %}
                             {% endif %}
 						</td>
 					</tr>
@@ -52,7 +50,7 @@
 			{% else %}
 			<p>None</p>
 			{% endif %}
-            {% if workflow_actions %}
+            {% if workflow_actions or condactions %}
             {% if may_create_condition == "True" %}
                <a href="{% url 'condition_create' object.pk %}" class="btn btn-primary" role="button">
                Add Condition
