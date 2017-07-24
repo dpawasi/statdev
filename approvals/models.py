@@ -25,6 +25,7 @@ class Approval(models.Model):
      title = models.CharField(max_length=254)
      applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant_holder') 
      application = models.ForeignKey(Application, on_delete=models.CASCADE,null=True, blank=True, related_name='application') 
+     issue_date = models.DateField(null=True, blank=True, auto_now_add=True)
      start_date = models.DateField(null=True, blank=True)
      expiry_date = models.DateField(null=True, blank=True)
      status = models.IntegerField(choices=APPROVAL_STATE_CHOICES) 
