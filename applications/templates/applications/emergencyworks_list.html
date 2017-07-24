@@ -130,11 +130,13 @@
                                                 {% if app_obj.app.state == 1 %}
                                                 <!-- Show Process button if draft -->
                                                 <li><a href="{% url 'application_update' app_obj.app.pk %}">Process</a></li>
-                                                {% endif %}
                                                 {% if app_obj.app.assignee > 0%}
                                                    <li><a href="{% url 'application_assign_person' app_obj.app.pk %}">Reassign</a></li>
                                                 {% else %}
                                                 <li><a href="{% url 'application_assign_person' app_obj.app.pk %}">Assign</a></li>
+                                                {% endif %}
+                                                {% else %}
+                                                    <li><a href="{% url 'application_detail' app_obj.app.pk %}">View</a></li>
                                                 {% endif %}
                                             </ul>
                                         </li>

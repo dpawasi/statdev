@@ -374,7 +374,7 @@ class ApplicationTest(StatDevTestCase):
         self.assertRedirects(resp, self.app1.get_absolute_url())
         a = Application.objects.get(pk=self.app1.pk)
         self.assertEquals(a.assignee, None)
-        self.assertEquals(a.state, Application.APP_STATE_CHOICES.issued)
+        self.assertEquals(a.state, Application.APP_STATE_CHOICES.current)
 
     def test_referral_complete_get(self):
         self.client.logout()

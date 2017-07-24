@@ -70,7 +70,6 @@ class ApprovalList(ListView):
                     context['appstatus'] = int(self.request.GET['appstatus'])
 
 
-
 #        if 'q' in self.request.GET and self.request.GET['q']:
  #           query_str = self.request.GET['q']
   #          objlist = ApprovalModel.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str))
@@ -108,6 +107,14 @@ class ApprovalList(ListView):
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             context['may_assign_processor'] = True
 
+        return context
+
+class ApprovalDetails(LoginRequiredMixin,DetailView):
+    model = ApprovalModel
+
+    def get_context_data(self, **kwargs):
+        context = super(ApprovalDetails, self).get_context_data(**kwargs)
+        app = self.get_object()
         return context
 
 class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
