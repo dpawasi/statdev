@@ -1901,6 +1901,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
         if self.object.state == '14':
+        # Form Commpleted & Create Approval
             self.complete_application(app)
         if self.object.state == '10': 
             self.ammendment_approved(app) 
@@ -1924,6 +1925,28 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           start_date = app.assessment_start_date,
                                           status = 1
                 )
+    
+        # get all conditions 
+        conditions = Condition.objects.filter(application=app)
+        print conditions
+        # create clearance conditions
+        for c in conditions:
+
+
+                compliance = Compliance.objects.create(
+                                          app_type=app.app_type,
+                                          title=app.title,
+                                          condition=c,
+                                          approval_id=approval.id,
+                                          applicant=approval.applicant,
+                                          assignee=None,
+                                          assessed_by=None,
+                                          assessed_date=None                                          
+
+
+                )
+
+
     def ammendment_approved(self,app):
         if app.approval_id: 
             approval = Approval.objects.get(id=app.approval_id)
