@@ -358,6 +358,8 @@ class ApplicationCreateEW(LoginRequiredMixin, CreateView):
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.draft
         self.object.app_type = 4
+        processor = Group.objects.get(name='Processor')
+        self.object.group = processor
         self.object.save()
         success_url = reverse('application_update', args=(self.object.pk,))
         return HttpResponseRedirect(success_url)
@@ -2196,7 +2198,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         self.object = form.save(commit=False)
         d = form.cleaned_data
         if self.request.POST.get('issue') == 'Issue':
-            self.object.state = self.object.APP_STATE_CHOICES.issued
+            self.object.state = self.object.APP_STATE_CHOICES.current
             self.object.assignee = None
             # Record an action on the application:
             action = Action(
