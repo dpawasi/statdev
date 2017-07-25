@@ -395,6 +395,7 @@ class Compliance(models.Model):
     )
 
     approval_id = models.IntegerField(blank=True, null=True)
+    title = models.CharField(max_length=256, blank=True, null=True) 
     app_type = models.IntegerField(choices=Application.APP_TYPE_CHOICES, blank=True, null=True)
     condition = models.ForeignKey(Condition, on_delete=models.PROTECT)
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_applicant')
