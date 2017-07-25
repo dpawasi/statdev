@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
 from django.contrib.auth.models import Group
-
+#from approvals.models import Approval
 from ledger.accounts.models import Organisation
 #from ledger.payments.models import Invoice
 
@@ -385,15 +385,25 @@ class Compliance(models.Model):
     requirements for a single condition, based upon supplied evidence.
     """
     COMPLIANCE_STATUS_CHOICES = Choices(
-        (1, 'requested', ('Requested')),
-        (2, 'approved', ('Approved')),
-        (3, 'returned', ('Returned')),
+        (1, 'pending', ('Pending')),
+        (2, 'due',('Due')),
+        (3, 'future', ('Future')),
+        (4, 'approved', ('Approved')),
+        (5, 'with_assessor', ('With Assessor')),
+        (6, 'with_manager', ('With Manager')),
+        (7, 'with_holder', ('With Licence Holder'))
     )
+
+    approval_id = models.IntegerField(blank=True, null=True)
+    app_type = models.IntegerField(choices=Application.APP_TYPE_CHOICES, blank=True, null=True)
     condition = models.ForeignKey(Condition, on_delete=models.PROTECT)
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_applicant')
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assignee')
-    status = models.IntegerField(choices=COMPLIANCE_STATUS_CHOICES, default=COMPLIANCE_STATUS_CHOICES.requested)
-    submit_date = models.DateField()
+    assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assigned_by')
+    assessed_date = models.DateField(blank=True, null=True)
+    status = models.IntegerField(choices=COMPLIANCE_STATUS_CHOICES, default=COMPLIANCE_STATUS_CHOICES.pending)
+    submit_date = models.DateField(auto_now_add=True)
+    due_date = models.DateField(blank=True, null=True)
     compliance = models.TextField(blank=True, null=True, help_text='Information to fulfil requirement of condition.')
     comments = models.TextField(blank=True, null=True)
     approve_date = models.DateField(blank=True, null=True)
