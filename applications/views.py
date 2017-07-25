@@ -732,7 +732,6 @@ class ApplicationComms(DetailView):
     template_name = 'applications/application_comms.html'
 
     def get_context_data(self, **kwargs):
-        print "COMMS"
         context = super(ApplicationComms, self).get_context_data(**kwargs)
         app = self.get_object()
         # TODO: define a GenericRelation field on the Application model.
