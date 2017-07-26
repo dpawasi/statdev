@@ -31,6 +31,9 @@ from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
 from ledger.accounts.models import EmailUser, Address, Organisation
 from approvals.models import Approval
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+import math
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -1928,23 +1931,100 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     
         # get all conditions 
         conditions = Condition.objects.filter(application=app)
+
         print conditions
         # create clearance conditions
         for c in conditions:
+            print "REC"
+            #print c.recur_pattern
+            start_date = app.proposed_commence
+            end_date = c.due_date
+            print start_date
+            print end_date
+ #           print (app.proposed_commence - timedelta(days=app.proposed_commence.weekday()))
+#            print c.iii
+            if c.recur_pattern == 1:
+                #                  print c.due_date
+                  print c.recur_freq
+                 # print app.proposed_commence
+#                  start_date_monday = (start_date - timedelta(days=start_date.weekday()))
+#                  print start_date_monday
+                  print  "NOROUND"
+                  num_of_weeks = (end_date - start_date).days / 7.0
+                  num_of_weeks_whole = str(num_of_weeks).split('.')
+                  num_of_weeks_whole = num_of_weeks_whole[0]
+                  #num_of_weeks = math.ceil((end_date - start_date_monday).days / 7.0)
+                  week_freq = num_of_weeks / c.recur_freq
+                  week_freq_whole = int(str(week_freq).split('.')[0])
+                  print "WHOLE"
+                  print week_freq_whole
+                  loopcount = 1
+                  loop_start_date = start_date
+                  while loopcount <= week_freq_whole:
+                      print loopcount
+                      loopcount = loopcount + 1
+                      week_date_plus = timedelta(weeks = c.recur_freq)
 
+                      new_week_date = loop_start_date + week_date_plus
+                      print new_week_date
+                      loop_start_date = new_week_date
+                      compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=new_week_date
+                                     )
+                  
+                  if week_freq > week_freq_whole:
+                      print "END AS LAST DATE"
+                      print c.due_date
+                      print "END"
+                      print app.proposed_commence
+                      print "MONTHS"
+                      print start_date + relativedelta(months=1)
+                      print "DAYS"
+                     
+                      compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=c.due_date
+                                     )
+            if c.recur_pattern == 2:
+  #               print (end_date.year - start_date.year)
+#                 num_of_months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month
+ #                print num_of_months
+                 r = relativedelta(end_date, start_date)
+#                 print num_of_months
+                 num_of_months = r.years * 12 + r.months / c.recur_freq
+                 print "NUM"
+                 print num_of_months 
+                 loopcount = 1
+                 loop_start_date = start_date
+                 while loopcount <= num_of_months:
+                      print loopcount
+                      loopcount = loopcount + 1
+                      months_date_plus = loop_start_date + relativedelta(months=c.recur_freq)
+                      loop_start_date = months_date_plus
+                      print months_date_plus
 
-                compliance = Compliance.objects.create(
-                                          app_type=app.app_type,
-                                          title=app.title,
-                                          condition=c,
-                                          approval_id=approval.id,
-                                          applicant=approval.applicant,
-                                          assignee=None,
-                                          assessed_by=None,
-                                          assessed_date=None                                          
-
-
-                )
+#                 print r.months
+                 print r.days
+                 #week_freq = num_of_weeks / c.recur_freq
+                 #week_freq_whole = int(str(week_freq).split('.')[0])
+                  
+                   
+            print c.iii
 
 
     def ammendment_approved(self,app):
