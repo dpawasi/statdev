@@ -385,7 +385,7 @@ class Compliance(models.Model):
     requirements for a single condition, based upon supplied evidence.
     """
     COMPLIANCE_STATUS_CHOICES = Choices(
-        (1, 'pending', ('Pending')),
+        (1, 'current', ('current')),
         (2, 'due',('Due')),
         (3, 'future', ('Future')),
         (4, 'approved', ('Approved')),
@@ -402,7 +402,7 @@ class Compliance(models.Model):
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assignee')
     assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assigned_by')
     assessed_date = models.DateField(blank=True, null=True)
-    status = models.IntegerField(choices=COMPLIANCE_STATUS_CHOICES, default=COMPLIANCE_STATUS_CHOICES.pending)
+    status = models.IntegerField(choices=COMPLIANCE_STATUS_CHOICES, default=COMPLIANCE_STATUS_CHOICES.future)
     submit_date = models.DateField(auto_now_add=True)
     due_date = models.DateField(blank=True, null=True)
     compliance = models.TextField(blank=True, null=True, help_text='Information to fulfil requirement of condition.')
