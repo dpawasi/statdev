@@ -324,6 +324,94 @@ class EmergencyWorksList(ListView):
             context['may_assign_processor'] = True
         return context
 
+class ComplianceList(ListView):
+    model = Compliance 
+    template_name = 'applications/compliance_list.html'
+
+    def get_queryset(self):
+        qs = super(ComplianceList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return
+        # it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by pk, title, applicant__email, organisation__name,
+            # assignee__email
+            query = get_query(
+                query_str, ['pk', 'title', 'applicant__email', 'assignee__email'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceList, self).get_context_data(**kwargs)
+        context['query_string'] = ''
+
+        items = Compliance.objects.filter()
+
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+
+        APP_STATUS_CHOICES = []
+        for i in Application.APP_STATE_CHOICES:
+            if i[0] in [1,11,16]:
+               APP_STATUS_CHOICES.append(i)
+
+        context['app_appstatus'] = list(APP_STATUS_CHOICES)
+
+
+        if 'action' in self.request.GET and self.request.GET['action']:
+            query_str = self.request.GET['q']
+            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(assignee__email__icontains=query_str)
+            query_obj &= Q(app_type=4)
+
+            if self.request.GET['applicant'] != '':
+                query_obj &= Q(applicant=int(self.request.GET['applicant']))
+            if self.request.GET['appstatus'] != '':
+                query_obj &= Q(state=int(self.request.GET['appstatus']))
+
+
+            applications = Compliance.objects.filter(query_obj)
+            context['query_string'] = self.request.GET['q']
+
+        if 'applicant' in self.request.GET:
+            if self.request.GET['applicant'] != '':
+               context['applicant'] = int(self.request.GET['applicant'])
+            if 'appstatus' in self.request.GET:
+               if self.request.GET['appstatus'] != '':
+                  context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+
+        usergroups = self.request.user.groups.all()
+        context['app_list'] = []
+        for item in items:
+            row = {}
+            row['may_assign_to_person'] = 'False'
+            row['app'] = item
+
+            # Create a distinct list of applicants
+#            if app.applicant:
+#                if app.applicant.id in context['app_applicants']:
+#                    donothing = ''
+#                else:
+#                    context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+#                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
+#            # end of creation
+
+#            if app.group is not None:
+#                if app.group in usergroups:
+#                    row['may_assign_to_person'] = 'True'
+#            context['app_list'].append(row)
+        # TODO: any restrictions on who can create new applications?
+        context['may_create'] = True
+        processor = Group.objects.get(name='Processor')
+        # Rule: admin officers may self-assign applications.
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            context['may_assign_processor'] = True
+        return context
+
 class ApplicationCreateEW(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/application_form.html'
@@ -2599,22 +2687,22 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url(application_id))
 
 
-class ComplianceList(ListView):
-    model = Compliance
-
-    def get_queryset(self):
-        qs = super(ComplianceList, self).get_queryset()
-        # Did we pass in a search string? If so, filter the queryset and return
-        # it.
-        if 'q' in self.request.GET and self.request.GET['q']:
-            query_str = self.request.GET['q']
-            # Replace single-quotes with double-quotes
-            query_str = query_str.replace("'", r'"')
-            # Filter by applicant__email, assignee__email, compliance
-            query = get_query(
-                query_str, ['applicant__email', 'assignee__email', 'compliance'])
-            qs = qs.filter(query).distinct()
-        return qs
+#class ComplianceList(ListView):
+#    model = Compliance
+#
+#    def get_queryset(self):
+#        qs = super(ComplianceList, self).get_queryset()
+#        # Did we pass in a search string? If so, filter the queryset and return
+#        # it.
+#        if 'q' in self.request.GET and self.request.GET['q']:
+#            query_str = self.request.GET['q']
+#            # Replace single-quotes with double-quotes
+#            query_str = query_str.replace("'", r'"')
+#            # Filter by applicant__email, assignee__email, compliance
+#            query = get_query(
+#                query_str, ['applicant__email', 'assignee__email', 'compliance'])
+#            qs = qs.filter(query).distinct()
+#        return qs
 
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
