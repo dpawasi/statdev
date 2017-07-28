@@ -31,6 +31,9 @@ from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
 from ledger.accounts.models import EmailUser, Address, Organisation
 from approvals.models import Approval
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+import math
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
@@ -313,6 +316,94 @@ class EmergencyWorksList(ListView):
                 if app.group in usergroups:
                     row['may_assign_to_person'] = 'True'
             context['app_list'].append(row)
+        # TODO: any restrictions on who can create new applications?
+        context['may_create'] = True
+        processor = Group.objects.get(name='Processor')
+        # Rule: admin officers may self-assign applications.
+        if processor in self.request.user.groups.all() or self.request.user.is_superuser:
+            context['may_assign_processor'] = True
+        return context
+
+class ComplianceList(ListView):
+    model = Compliance 
+    template_name = 'applications/compliance_list.html'
+
+    def get_queryset(self):
+        qs = super(ComplianceList, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return
+        # it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by pk, title, applicant__email, organisation__name,
+            # assignee__email
+            query = get_query(
+                query_str, ['pk', 'title', 'applicant__email', 'assignee__email'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceList, self).get_context_data(**kwargs)
+        context['query_string'] = ''
+
+        items = Compliance.objects.filter()
+
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+
+        APP_STATUS_CHOICES = []
+        for i in Application.APP_STATE_CHOICES:
+            if i[0] in [1,11,16]:
+               APP_STATUS_CHOICES.append(i)
+
+        context['app_appstatus'] = list(APP_STATUS_CHOICES)
+
+
+        if 'action' in self.request.GET and self.request.GET['action']:
+            query_str = self.request.GET['q']
+            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(assignee__email__icontains=query_str)
+            query_obj &= Q(app_type=4)
+
+            if self.request.GET['applicant'] != '':
+                query_obj &= Q(applicant=int(self.request.GET['applicant']))
+            if self.request.GET['appstatus'] != '':
+                query_obj &= Q(state=int(self.request.GET['appstatus']))
+
+
+            applications = Compliance.objects.filter(query_obj)
+            context['query_string'] = self.request.GET['q']
+
+        if 'applicant' in self.request.GET:
+            if self.request.GET['applicant'] != '':
+               context['applicant'] = int(self.request.GET['applicant'])
+            if 'appstatus' in self.request.GET:
+               if self.request.GET['appstatus'] != '':
+                  context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+
+        usergroups = self.request.user.groups.all()
+        context['app_list'] = []
+        for item in items:
+            row = {}
+            row['may_assign_to_person'] = 'False'
+            row['app'] = item
+
+            # Create a distinct list of applicants
+#            if app.applicant:
+#                if app.applicant.id in context['app_applicants']:
+#                    donothing = ''
+#                else:
+#                    context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+#                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
+#            # end of creation
+
+#            if app.group is not None:
+#                if app.group in usergroups:
+#                    row['may_assign_to_person'] = 'True'
+#            context['app_list'].append(row)
         # TODO: any restrictions on who can create new applications?
         context['may_create'] = True
         processor = Group.objects.get(name='Processor')
@@ -1901,6 +1992,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
         if self.object.state == '14':
+        # Form Commpleted & Create Approval
             self.complete_application(app)
         if self.object.state == '10': 
             self.ammendment_approved(app) 
@@ -1924,6 +2016,136 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           start_date = app.assessment_start_date,
                                           status = 1
                 )
+   
+        # For compliance ( create clearance of conditions )
+        # get all conditions 
+        conditions = Condition.objects.filter(application=app)
+
+        # print conditions
+        # create clearance conditions
+        for c in conditions:
+            
+            start_date = app.proposed_commence
+            end_date = c.due_date
+            if c.recur_pattern == 1:
+                  num_of_weeks = (end_date - start_date).days / 7.0
+                  num_of_weeks_whole = str(num_of_weeks).split('.')
+                  num_of_weeks_whole = num_of_weeks_whole[0]
+                  week_freq = num_of_weeks / c.recur_freq
+                  week_freq_whole = int(str(week_freq).split('.')[0])
+                  loopcount = 1
+                  loop_start_date = start_date
+                  while loopcount <= week_freq_whole:
+                      loopcount = loopcount + 1
+                      week_date_plus = timedelta(weeks = c.recur_freq)
+
+                      new_week_date = loop_start_date + week_date_plus
+                      loop_start_date = new_week_date
+                      compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=new_week_date,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.future
+                                     )
+                  
+                  if week_freq > week_freq_whole:
+                      compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=c.due_date,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.future
+                                     )
+            if c.recur_pattern == 2:
+                 r = relativedelta(end_date, start_date)
+                 num_of_months = float(r.years * 12 + r.months) / c.recur_freq
+                 loopcount = 0
+                 loop_start_date = start_date
+
+                 while loopcount < int(num_of_months):
+                      months_date_plus = loop_start_date + relativedelta(months=c.recur_freq)
+                      loop_start_date = months_date_plus
+                      loopcount = loopcount + 1
+                      compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=months_date_plus,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.future
+                                     )
+
+                 if num_of_months > loopcount:
+                      compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=end_date,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.future
+                                   )
+
+            if c.recur_pattern == 3: 
+              
+                 r = relativedelta(end_date, start_date)
+                 if r.years > 0:
+                     loopcount = 0
+                     loop_start_date = start_date
+                     while loopcount < int(r.years):
+                           years_date_plus = loop_start_date + relativedelta(years=c.recur_freq)
+                           loop_start_date = years_date_plus
+                           loopcount = loopcount + 1
+ 
+                           compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=years_date_plus,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.future
+                                     )
+
+
+                 if r.months > 0 or r.days > 0:
+                     compliance = Compliance.objects.create(
+                                      app_type=app.app_type,
+                                      title=app.title,
+                                      condition=c,
+                                      approval_id=approval.id,
+                                      applicant=approval.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=end_date,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.future
+                                   )
+
+            #print c.iii
+
+
     def ammendment_approved(self,app):
         if app.approval_id: 
             approval = Approval.objects.get(id=app.approval_id)
@@ -2465,22 +2687,22 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url(application_id))
 
 
-class ComplianceList(ListView):
-    model = Compliance
-
-    def get_queryset(self):
-        qs = super(ComplianceList, self).get_queryset()
-        # Did we pass in a search string? If so, filter the queryset and return
-        # it.
-        if 'q' in self.request.GET and self.request.GET['q']:
-            query_str = self.request.GET['q']
-            # Replace single-quotes with double-quotes
-            query_str = query_str.replace("'", r'"')
-            # Filter by applicant__email, assignee__email, compliance
-            query = get_query(
-                query_str, ['applicant__email', 'assignee__email', 'compliance'])
-            qs = qs.filter(query).distinct()
-        return qs
+#class ComplianceList(ListView):
+#    model = Compliance
+#
+#    def get_queryset(self):
+#        qs = super(ComplianceList, self).get_queryset()
+#        # Did we pass in a search string? If so, filter the queryset and return
+#        # it.
+#        if 'q' in self.request.GET and self.request.GET['q']:
+#            query_str = self.request.GET['q']
+#            # Replace single-quotes with double-quotes
+#            query_str = query_str.replace("'", r'"')
+#            # Filter by applicant__email, assignee__email, compliance
+#            query = get_query(
+#                query_str, ['applicant__email', 'assignee__email', 'compliance'])
+#            qs = qs.filter(query).distinct()
+#        return qs
 
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):

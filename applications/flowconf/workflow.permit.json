@@ -293,7 +293,8 @@
                 "may_assign":"False",
                 "may_assign_customer": "False",
                 "may_assign_processor": "False",
-                "may_create_condition":"False",
+                "may_create_condition":"True",
+                "may_update_condition":"True",
                 "may_submit_approval": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
@@ -325,7 +326,8 @@
             "publication": "True",
             "referrals": "True",
             "deed": "False",
-            "landowner_consent": "False"
+            "landowner_consent": "False",
+            "conditions" : "False"
         },
         "fields": {
             "applicant":"hide",

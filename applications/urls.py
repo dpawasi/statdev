@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/webpublish/(?P<publish_type>\w+)/', views.WebPublish.as_view(), name='application_publish_documents'),
     url(r'^applications/(?P<approvalid>\d+)/change/(?P<action>\w+)/$', views.ApplicationChange.as_view(), name='application_change'),
     url(r'^emergency-works/$', views.EmergencyWorksList.as_view(), name='emergencyworks_list'),
+    url(r'^compliance/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^referrals/(?P<pk>\d+)/complete/$', views.ReferralComplete.as_view(), name='referral_complete'),
     url(r'^referrals/(?P<pk>\d+)/recall/$', views.ReferralRecall.as_view(), name='referral_recall'),
     url(r'^referrals/(?P<pk>\d+)/resend/$', views.ReferralResend.as_view(), name='referral_resend'),

@@ -16,8 +16,7 @@ if not DEBUG:
     ALLOWED_HOSTS = [env('ALLOWED_DOMAIN'), ]
 else:
     ALLOWED_HOSTS = ['*']
-
-
+GIT_COMMIT_DATE = os.popen('git log -1 --format=%cd').read()
 # Application definition
 AUTH_USER_MODEL = 'accounts.EmailUser'
 INSTALLED_APPS = [
