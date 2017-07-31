@@ -1,0 +1,199 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h1>Approval for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <br/>
+    </div>
+
+    <!-- Action panel start -->
+    <div class="row">
+        {% include "approvals/approval_side_menu.html" %}
+
+        <!--- remove everything eblow this tag to the end tag if everything has been moved -->
+        <div class="col-sm-4 col-md-3 col-lg-2"  style='display: none'>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Actions</h3>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
+                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
+                        {% if may_assign_emergency %}<li><a href="{% url 'application_assign' object.pk 'assign_emergency' %}">Assign</a></li>{% endif %}
+                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
+                        <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
+                        {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Submission</h3>
+                </div>
+                <div class="panel-body">
+                    <h4>Submitted by:</h4>
+                    <p>
+                    {% if object.applicant.first_name %}
+                    {{ object.applicant.first_name }} {{ object.applicant.last_name }}
+                    {% else %}
+                    {{ object.applicant.email }}
+                    {% endif %}
+                    </p>
+                    <h4>Lodged on</h4>
+                    <p>{{ object.submit_date|date:"d-M-Y" }}</p>
+                    {% comment %}
+                    <br />
+                    <h4>Lodgement  Date   Action</h4>
+                    {% endcomment %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Workflow</h3>
+                </div>
+                <div class="panel-body">
+                    <h4>Status:</h4>
+                    <p>{{ object.get_state_display }}</p>
+                    <h4>Assigned to:</h4>
+                    {% if object.assignee %}
+                    <p>
+                    {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
+                    {% else %}{{ object.assignee.email }}
+                    {% endif %}
+                    </p>
+                    {% else %}
+                    <p>--</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- remove all above to beginning of this tag if everything been moved -->
+
+        <div class="col-sm-8 col-md-9 col-lg-10">
+            <!-- Conditions -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#address_collapse">
+                    <h3 class="panel-title">
+                        Conditions
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in" id="address_collapse">
+                    <div class="panel-body">
+                        <div>
+                            {% if conditions %} 
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-12 col-lg-1">
+                                    <label>ID</label>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-3">
+                                    <label>App Type</label>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-3">
+                                    <label>Condition</label>
+                                </div>
+                            </div>
+                            {% for c in conditions %}
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        {{ c.condition.condition }} - {{ c.id }}
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        {% if c.comments %}
+                                            {{ c.comments }}
+                                        {% else %}
+                                           <i>Please provide comment</i>
+                                        {% endif %}
+                                     </div>
+                                     <div class="col-sm-12 col-md-12 col-lg-12">
+                                         <a href="{% url "compliance_condition_update" c.id %}" class="btn btn-primary btn-sm" role="button">Add Clearance Condition</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency works panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#emergency_collapse">
+                    <h3 class="panel-title">
+                        {{ object.get_app_type_display }} 
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in" id="emergency_collapse">
+                    <div class="panel-body">
+                        <div class="col-sm-12 col-md-9 col-lg-9">
+                            <div class="col-sm-12 col-md-9 col-lg-9">
+                                <!-- Issue Date -->
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label>Issue Date</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-9 col-lg-9">
+                                        {{ object.issue_date|date:"d-M-Y" }}
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <!-- Start Date -->
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label>Start Date</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-9 col-lg-9">
+                                        {{ object.start_date|date:"d-M-Y" }}
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <!-- Expiry Date --> 
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label>Expiry Date</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-9 col-lg-9">
+                                        {{ object.expiry_date|date:"d-M-Y" }}
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <!-- Expiry Date -->
+                                    <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label>Document</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-9 col-lg-9">
+                                        <img src="/static/images/pdf.png">&nbsp;&nbsp;<A HREF=''>Document</A>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page_content_inner %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(function() {
+    $('.collapse').on('shown.bs.collapse', function() {
+        $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+    }).on('hidden.bs.collapse', function() {
+        $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+    });
+});
+</script>
+{% endblock extra_js %}

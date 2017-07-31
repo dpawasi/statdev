@@ -912,6 +912,21 @@ class VesselDeleteForm(Form):
         self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+class ComplianceComplete(ModelForm):
+    """Compliance Complete form
+    """
+    class Meta:
+        model = Compliance
+        fields = ['condition','applicant','comments']
+
+    def __init__(self, *args, **kwargs):
+        super(ComplianceComplete, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['condition'].required = True
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
 class ConditionCreateForm(ModelForm):
     class Meta:
         model = Condition

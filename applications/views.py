@@ -91,13 +91,12 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
 
 class ApplicationApplicantChange(DetailView):
-    #    form_class = apps_forms.ApplicationCreateForm
+    # form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/applicant_applicantsearch.html'
     model = Application
 
     def get_queryset(self):
         qs = super(ApplicationApplicantChange, self).get_queryset()
-
         return qs
 
     def get_context_data(self, **kwargs):
@@ -793,8 +792,6 @@ class ApplicationDetailPDF(ApplicationDetail):
         response['Content-Disposition'] = 'attachment; filename=application_{}.pdf'.format(
             obj.pk)
         return response
-
-        return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -2704,6 +2701,36 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 #            qs = qs.filter(query).distinct()
 #        return qs
 
+class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
+    model = Approval
+    template_name = 'applications/compliance_detail.html' 
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
+        app = self.get_object()
+        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        print context['conditions']
+        return context
+
+class ComplianceComplete(LoginRequiredMixin,UpdateView):
+    model = Compliance
+    template_name = 'applications/compliance_update.html'
+    form_class = apps_forms.ComplianceComplete
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceComplete, self).get_context_data(**kwargs)
+        app = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ComplianceComplete, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponseRedirect("/")
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     model = Compliance
