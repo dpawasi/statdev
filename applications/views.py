@@ -2728,9 +2728,44 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
             return HttpResponseRedirect(app.get_absolute_url())
         return super(ComplianceComplete, self).post(request, *args, **kwargs)
 
+    def get_initial(self):
+        initial = super(ComplianceComplete, self).get_initial()
+        multifilelist = []
+
+        records = self.object.records.all()
+        for b1 in records:
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
+        initial['records'] = multifilelist
+        return initial
+
     def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect("/")
+        self.object = form.save(commit=False)
+
+        for filelist in self.object.records.all():
+             if 'records-clear_multifileid-' + str(filelist.id) in form.data:
+                   self.object.records.remove(filelist)
+
+        if self.request.FILES.get('records'):
+
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.name = f.name
+                print f.name
+                doc.save()
+                self.object.records.add(doc)
+                print self.object.records
+
+        form.save()
+        form.save_m2m()
+        #self.object.approval_id
+        return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.approval_id,)))
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     model = Compliance
@@ -3184,6 +3219,7 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=True)
+#       print self.object.records
         if self.request.FILES.get('records'):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()

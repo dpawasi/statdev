@@ -915,15 +915,18 @@ class VesselDeleteForm(Form):
 class ComplianceComplete(ModelForm):
     """Compliance Complete form
     """
+    records = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+
     class Meta:
         model = Compliance
-        fields = ['condition','applicant','comments']
+        fields = ['condition','comments']
 
     def __init__(self, *args, **kwargs):
         super(ComplianceComplete, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.attrs = {'novalidate': ''}
         self.fields['condition'].required = True
+        self.fields['condition'].disabled = True
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 

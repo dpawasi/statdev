@@ -39,9 +39,9 @@
                     <h4>Submitted by:</h4>
                     <p>
                     {% if object.applicant.first_name %}
-                    {{ object.applicant.first_name }} {{ object.applicant.last_name }}
+                        {{ object.applicant.first_name }} {{ object.applicant.last_name }}
                     {% else %}
-                    {{ object.applicant.email }}
+                        {{ object.applicant.email }}
                     {% endif %}
                     </p>
                     <h4>Lodged on</h4>
@@ -121,65 +121,24 @@
                             {% endfor %}
                             {% endif %}
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Emergency works panel -->
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-target="#emergency_collapse">
-                    <h3 class="panel-title">
-                        {{ object.get_app_type_display }} 
-                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
-                    </h3>
-                </div>
-                <div class="panel-collapse collapse in" id="emergency_collapse">
-                    <div class="panel-body">
-                        <div class="col-sm-12 col-md-9 col-lg-9">
-                            <div class="col-sm-12 col-md-9 col-lg-9">
-                                <!-- Issue Date -->
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <div class="col-sm-12 col-md-3 col-lg-3">
-                                        <label>Issue Date</label>
-                                    </div>
-                                    <div class="col-sm-12 col-md-9 col-lg-9">
-                                        {{ object.issue_date|date:"d-M-Y" }}
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <!-- Start Date -->
-                                    <div class="col-sm-12 col-md-3 col-lg-3">
-                                        <label>Start Date</label>
-                                    </div>
-                                    <div class="col-sm-12 col-md-9 col-lg-9">
-                                        {{ object.start_date|date:"d-M-Y" }}
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <!-- Expiry Date --> 
-                                    <div class="col-sm-12 col-md-3 col-lg-3">
-                                        <label>Expiry Date</label>
-                                    </div>
-                                    <div class="col-sm-12 col-md-9 col-lg-9">
-                                        {{ object.expiry_date|date:"d-M-Y" }}
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-12 col-md-12 col-lg-12">
-                                    <!-- Expiry Date -->
-                                    <div class="col-sm-12 col-md-3 col-lg-3">
-                                        <label>Document</label>
-                                    </div>
-                                    <div class="col-sm-12 col-md-9 col-lg-9">
-                                        <img src="/static/images/pdf.png">&nbsp;&nbsp;<A HREF=''>Document</A>
-                                    </div>
-                                </div>
-
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-sm-12 col-md-12 col-lg-1">
+                                <label>Supporting Documents</label>
                             </div>
+                            <div class="col-sm-12 col-md-12 col-lg-9">
+                                {% for c in conditions %}
+                                     {% for d in c.records.all %}
+                                     <img src="/static/images/pdf.png"> &nbsp; <A HREF='/media/{{ d.upload.name }}'>{{ d }}</A><BR>
+                                     {% endfor %}
+                                {% endfor %}
+                            </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
