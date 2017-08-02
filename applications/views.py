@@ -346,7 +346,7 @@ class ComplianceList(ListView):
         context = super(ComplianceList, self).get_context_data(**kwargs)
         context['query_string'] = ''
 
-        items = Compliance.objects.filter()
+        items = Compliance.objects.filter().order_by('due_date')
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
@@ -494,10 +494,18 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 class ApplicationApply(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationApplyForm
     template_name = 'applications/application_apply_form.html'
+    def get(self, request):
+        if self.request.user.groups.filter(name__in=['Processor']).exists():
+            app = Application.objects.create(submitted_by=self.request.user
+                                             ,submit_date=date.today()
+                                             ,state=Application.APP_STATE_CHOICES.new
+                                             )
+            return HttpResponseRedirect("/applications/"+str(app.id)+"/apply/apptype/")
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationApply, self).get_context_data(**kwargs)
         context['page_heading'] = 'Create new application'
+       
         return context
 
     def get_form_kwargs(self):
@@ -2724,8 +2732,8 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            app = self.get_object().application_set.first()
-            return HttpResponseRedirect(app.get_absolute_url())
+           compliance = Compliance.objects.get(id=kwargs['pk'])
+           return HttpResponseRedirect(reverse("compliance_approval_detail", args=(compliance.approval_id,)))
         return super(ComplianceComplete, self).post(request, *args, **kwargs)
 
     def get_initial(self):
@@ -2757,15 +2765,16 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
                 doc = Record()
                 doc.upload = f
                 doc.name = f.name
-                print f.name
+                # print f.name
                 doc.save()
                 self.object.records.add(doc)
-                print self.object.records
+                # print self.object.records
 
         form.save()
         form.save_m2m()
         #self.object.approval_id
         return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.approval_id,)))
+
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     model = Compliance

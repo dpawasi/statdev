@@ -99,6 +99,9 @@
                                 </div>
                             </div>
                             {% for c in conditions %}
+
+                            <!-- Current -->
+                            {% if c.status == 1 %}
                             <div class="col-sm-12 col-md-12 col-lg-12">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
@@ -107,17 +110,19 @@
                                 </div>
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        {% if c.comments %}
-                                            {{ c.comments }}
-                                        {% else %}
-                                           <i>Please provide comment</i>
-                                        {% endif %}
+                                            {% if c.comments %}
+                                                {{ c.comments }}
+                                            {% else %}
+                                               <i>Please provide comment</i>
+                                            {% endif %}
                                      </div>
                                      <div class="col-sm-12 col-md-12 col-lg-12">
                                          <a href="{% url "compliance_condition_update" c.id %}" class="btn btn-primary btn-sm" role="button">Add Clearance Condition</a>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
+
                             {% endfor %}
                             {% endif %}
                         </div>

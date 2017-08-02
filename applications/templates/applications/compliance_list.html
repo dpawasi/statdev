@@ -29,7 +29,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for obj in object_list %}
+        {% for obj in object_list|dictsort:"due_date" %}
         <tr>
             <td>{{ obj.pk }}</td>
             <td>{{ obj.get_app_type_display }}</td>
@@ -47,7 +47,7 @@
 
 <script>
 function loadTable() {
-        $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25});
+        $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 7, "desc" ]]});
 }
 window.onload= function() {
         loadTable();

@@ -68,6 +68,8 @@ class ApplicationApplyForm(ModelForm):
         super(ApplicationApplyForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
 
+        # delete internal option
+        del self.fields['apply_on_behalf_of'].choices[4]
 
         crispy_boxes = crispy_empty_box()
         self.helper.form_show_labels = False
