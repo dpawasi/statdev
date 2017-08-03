@@ -120,8 +120,6 @@ class ApplicationApplicantChange(DetailView):
             search_filter |= Q(pk__in=orgs)
             # Get all applicants
             listusers = EmailUser.objects.filter(search_filter)
-            
-
         else:
             listusers =  EmailUser.objects.all()
 

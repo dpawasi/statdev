@@ -364,6 +364,7 @@ class Condition(models.Model):
         (2, 'monthly', ('Monthly')),
         (3, 'annually', ('Annually')),
     )
+
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
     condition = models.TextField(blank=True, null=True)
     referral = models.ForeignKey(Referral, null=True, blank=True, on_delete=models.PROTECT)
@@ -392,7 +393,8 @@ class Compliance(models.Model):
         (4, 'approved', ('Approved')),
         (5, 'with_assessor', ('With Assessor')),
         (6, 'with_manager', ('With Manager')),
-        (7, 'with_holder', ('With Licence Holder'))
+        (7, 'with_holder', ('With Licence Holder')),
+        (8, 'expired', ('Expired'))
     )
 
     approval_id = models.IntegerField(blank=True, null=True)

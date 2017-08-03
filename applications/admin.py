@@ -60,7 +60,7 @@ class ConditionAdmin(ModelAdmin):
 class ComplianceAdmin(ModelAdmin):
     date_hierarchy = 'submit_date'
     filter_horizontal = ('records',)
-    list_display = ('__str__', 'applicant', 'assignee', 'status', 'submit_date', 'approve_date')
+    list_display = ('__str__', 'applicant', 'approval_id','assignee', 'status', 'submit_date', 'approve_date','due_date')
     search_fields = ('applicant__email', 'assignee__email', 'compliance', 'comments')
 
 
