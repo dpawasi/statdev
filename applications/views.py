@@ -494,13 +494,15 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 class ApplicationApply(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationApplyForm
     template_name = 'applications/application_apply_form.html'
-    def get(self, request):
+
+    def get(self, request, *args, **kwargs):
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             app = Application.objects.create(submitted_by=self.request.user
                                              ,submit_date=date.today()
                                              ,state=Application.APP_STATE_CHOICES.new
                                              )
             return HttpResponseRedirect("/applications/"+str(app.id)+"/apply/apptype/")
+        return super(ApplicationApply, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationApply, self).get_context_data(**kwargs)
@@ -553,7 +555,6 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationApplyUpdate, self).get_initial()
         initial['action'] = self.kwargs['action']
-
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -581,7 +582,11 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
 
         app = Application.objects.get(pk=self.object.pk)
         if action == 'apptype':
-            success_url = reverse('application_update', args=(self.object.pk,))
+            if self.request.user.groups.filter(name__in=['Processor']).exists():
+                success_url = reverse('applicant_change', args=(self.object.pk,))
+            else:
+                success_url = reverse('application_update', args=(self.object.pk,))
+
         else:
             success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
         return HttpResponseRedirect(success_url)
@@ -2212,7 +2217,6 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
     """A view to allow an application applicant details to be reassigned to a different applicant name and 
        is only can only be set by and admin officer.
     """
-
     model = Application
 
     def get(self, request, *args, **kwargs):
@@ -2249,10 +2253,11 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
 #            sendHtmlEmail([app.assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
 
         # Record an action on the application:
-        action = Action(
-            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
-            action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
-        action.save()
+        if self.object.assignee:
+            action = Action(
+                content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+                action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
+            action.save()
         return HttpResponseRedirect(self.get_success_url(self.kwargs['pk']))
 
     def get_initial(self):
@@ -2717,7 +2722,6 @@ class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
         context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
         context['conditions'] = Compliance.objects.filter(approval_id=app.id)
-        print context['conditions']
         return context
 
 class ComplianceComplete(LoginRequiredMixin,UpdateView):
