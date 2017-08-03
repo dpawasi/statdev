@@ -29,11 +29,11 @@
         </tr>
     </thead>
     <tbody>
-        {% for obj in object_list %}
+        {% for obj in object_list|dictsort:"due_date" %}
         <tr>
             <td>{{ obj.pk }}</td>
             <td>{{ obj.get_app_type_display }}</td>
-            <td>{{ obj.approval_id }}</td>
+            <td>{% if obj.approval_id is None %}None{% else %}<a HREF='{% url 'compliance_approval_detail' obj.approval_id %}'>{{ obj.approval_id }}{% endif %}</a></td>
             <td>{{ obj.title }}</td>
             <td>{{ obj.applicant.get_full_name }}</td>
             <td>{{ obj.get_status_display }}</td>
@@ -47,7 +47,7 @@
 
 <script>
 function loadTable() {
-        $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25});
+        $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 7, "desc" ]]});
 }
 window.onload= function() {
         loadTable();

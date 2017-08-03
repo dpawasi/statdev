@@ -68,6 +68,8 @@ class ApplicationApplyForm(ModelForm):
         super(ApplicationApplyForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
 
+        # delete internal option
+        del self.fields['apply_on_behalf_of'].choices[4]
 
         crispy_boxes = crispy_empty_box()
         self.helper.form_show_labels = False
@@ -910,6 +912,24 @@ class VesselDeleteForm(Form):
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_vessel_delete'
         self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+class ComplianceComplete(ModelForm):
+    """Compliance Complete form
+    """
+    records = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+
+    class Meta:
+        model = Compliance
+        fields = ['condition','comments']
+
+    def __init__(self, *args, **kwargs):
+        super(ComplianceComplete, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.attrs = {'novalidate': ''}
+        self.fields['condition'].required = True
+        self.fields['condition'].disabled = True
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class ConditionCreateForm(ModelForm):

@@ -91,13 +91,12 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
 
 class ApplicationApplicantChange(DetailView):
-    #    form_class = apps_forms.ApplicationCreateForm
+    # form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/applicant_applicantsearch.html'
     model = Application
 
     def get_queryset(self):
         qs = super(ApplicationApplicantChange, self).get_queryset()
-
         return qs
 
     def get_context_data(self, **kwargs):
@@ -347,7 +346,7 @@ class ComplianceList(ListView):
         context = super(ComplianceList, self).get_context_data(**kwargs)
         context['query_string'] = ''
 
-        items = Compliance.objects.filter()
+        items = Compliance.objects.filter().order_by('due_date')
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
@@ -496,9 +495,19 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationApplyForm
     template_name = 'applications/application_apply_form.html'
 
+    def get(self, request, *args, **kwargs):
+        if self.request.user.groups.filter(name__in=['Processor']).exists():
+            app = Application.objects.create(submitted_by=self.request.user
+                                             ,submit_date=date.today()
+                                             ,state=Application.APP_STATE_CHOICES.new
+                                             )
+            return HttpResponseRedirect("/applications/"+str(app.id)+"/apply/apptype/")
+        return super(ApplicationApply, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(ApplicationApply, self).get_context_data(**kwargs)
         context['page_heading'] = 'Create new application'
+       
         return context
 
     def get_form_kwargs(self):
@@ -546,7 +555,6 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationApplyUpdate, self).get_initial()
         initial['action'] = self.kwargs['action']
-
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -574,7 +582,11 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
 
         app = Application.objects.get(pk=self.object.pk)
         if action == 'apptype':
-            success_url = reverse('application_update', args=(self.object.pk,))
+            if self.request.user.groups.filter(name__in=['Processor']).exists():
+                success_url = reverse('applicant_change', args=(self.object.pk,))
+            else:
+                success_url = reverse('application_update', args=(self.object.pk,))
+
         else:
             success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
         return HttpResponseRedirect(success_url)
@@ -793,8 +805,6 @@ class ApplicationDetailPDF(ApplicationDetail):
         response['Content-Disposition'] = 'attachment; filename=application_{}.pdf'.format(
             obj.pk)
         return response
-
-        return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -2207,7 +2217,6 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
     """A view to allow an application applicant details to be reassigned to a different applicant name and 
        is only can only be set by and admin officer.
     """
-
     model = Application
 
     def get(self, request, *args, **kwargs):
@@ -2244,10 +2253,11 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
 #            sendHtmlEmail([app.assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
 
         # Record an action on the application:
-        action = Action(
-            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
-            action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
-        action.save()
+        if self.object.assignee:
+            action = Action(
+                content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+                action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
+            action.save()
         return HttpResponseRedirect(self.get_success_url(self.kwargs['pk']))
 
     def get_initial(self):
@@ -2704,6 +2714,71 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 #            qs = qs.filter(query).distinct()
 #        return qs
 
+class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
+    model = Approval
+    template_name = 'applications/compliance_detail.html' 
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
+        app = self.get_object()
+        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        return context
+
+class ComplianceComplete(LoginRequiredMixin,UpdateView):
+    model = Compliance
+    template_name = 'applications/compliance_update.html'
+    form_class = apps_forms.ComplianceComplete
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceComplete, self).get_context_data(**kwargs)
+        app = self.get_object()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+           compliance = Compliance.objects.get(id=kwargs['pk'])
+           return HttpResponseRedirect(reverse("compliance_approval_detail", args=(compliance.approval_id,)))
+        return super(ComplianceComplete, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(ComplianceComplete, self).get_initial()
+        multifilelist = []
+
+        records = self.object.records.all()
+        for b1 in records:
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
+        initial['records'] = multifilelist
+        return initial
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+
+        for filelist in self.object.records.all():
+             if 'records-clear_multifileid-' + str(filelist.id) in form.data:
+                   self.object.records.remove(filelist)
+
+        if self.request.FILES.get('records'):
+
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.name = f.name
+                # print f.name
+                doc.save()
+                self.object.records.add(doc)
+                # print self.object.records
+
+        form.save()
+        form.save_m2m()
+        #self.object.approval_id
+        return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.approval_id,)))
+
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     model = Compliance
@@ -3157,6 +3232,7 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=True)
+#       print self.object.records
         if self.request.FILES.get('records'):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()

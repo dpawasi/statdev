@@ -103,7 +103,8 @@ class Application(models.Model):
          (1,'yourself', ('On Behalf of yourself')),
          (2,'yourcompany', ('On Behalf of your company')),
          (3, 'somebody_else_individual', ('On Behalf of indivdual as somebody else (as an authorised agent)')),
-         (4, 'somebody_else_company', ('On Behalf of a company as somebody else (as an authorised agent)'))
+         (4, 'somebody_else_company', ('On Behalf of a company as somebody else (as an authorised agent)')),
+         (5, 'internal', ('Internal'))
     )
 
     APP_STATE_CHOICES = Choices(
@@ -385,7 +386,7 @@ class Compliance(models.Model):
     requirements for a single condition, based upon supplied evidence.
     """
     COMPLIANCE_STATUS_CHOICES = Choices(
-        (1, 'current', ('current')),
+        (1, 'current', ('Current')),
         (2, 'due',('Due')),
         (3, 'future', ('Future')),
         (4, 'approved', ('Approved')),
