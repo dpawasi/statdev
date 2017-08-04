@@ -36,6 +36,25 @@ from dateutil.relativedelta import relativedelta
 import math
 
 class HomePage(LoginRequiredMixin, TemplateView):
+    # preperation to replace old homepage with screen designs..
+    template_name = 'applications/home_page.html'
+    def get_context_data(self, **kwargs):
+        context = super(HomePage, self).get_context_data(**kwargs)
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+               skip = 'yes'
+            else:
+               APP_TYPE_CHOICES.append(i)
+               APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes']= APP_TYPE_CHOICES
+        applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
+        print applications
+        return context
+
+
+class HomePageOLD(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
     template_name = 'applications/home_page.html'
 
@@ -336,7 +355,7 @@ class ComplianceList(ListView):
             # Filter by pk, title, applicant__email, organisation__name,
             # assignee__email
             query = get_query(
-                query_str, ['pk', 'title', 'applicant__email', 'assignee__email'])
+                query_str, ['pk', 'title', 'applicant__email', 'assignee__email','approval_id'])
             qs = qs.filter(query).distinct()
         return qs
 

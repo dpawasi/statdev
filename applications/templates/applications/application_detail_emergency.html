@@ -86,22 +86,30 @@
                 <div class="panel-collapse collapse {{ collapse.holder }}" id="holder_collapse">
                     <div class="panel-body">
                         <div class="col-sm-8 col-md-6 col-lg-4">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th>Name</th>
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Name<label>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-8">
                                     {% if object.organisation %}
-                                        <td>{{ object.organisation.name }}</td>
+                                        {{ object.organisation.name }}
                                     {% elif object.applicant %}
-                                        <td>{{ object.applicant.get_full_name }}</td>
+                                        {{ object.applicant.get_full_name }}
                                     {% endif %}
-                                </tr>
-                                <tr>
+                                </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
                                     {% if object.organisation %}
-                                        <th>ABN</th>
-                                        <td>{{ object.organisation.abn }}</td>
-                                    {% endif %}
-                                </tr>
-                            </table>
+                                    <div class="col-sm-12 col-md-6 col-lg-4"> 
+                                    <label>ABN</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                        {{ object.organisation.abn }}
+                                     </div>
+                                   {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
