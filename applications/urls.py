@@ -56,6 +56,7 @@ urlpatterns = [
     url(r'^records/create/$', views.RecordCreate.as_view(), name='document_create'),
     url(r'^records/$', views.RecordList.as_view(), name='document_list'),
     # URLs related to user account, address and organisation management.
+    url(r'^search/$', views.SearchList.as_view(), name='search_list'),
     url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
@@ -67,5 +68,5 @@ urlpatterns = [
     url(r'^organisations/(?P<pk>\d+)/address/create/(?P<type>\w+)/$', views.OrganisationAddressCreate.as_view(), name='organisation_address_create'),
     url(r'^organisations/(?P<pk>\d+)/request-delegate-access/$', views.RequestDelegateAccess.as_view(), name='request_delegate_access'),
     url(r'^organisations/(?P<pk>\d+)/confirm-delegate-access/(?P<uid>[0-9A-Za-z]+)-(?P<token>.+)/$', views.ConfirmDelegateAccess.as_view(), name='confirm_delegate_access'),
-    url(r'^organisations/(?P<pk>\d+)/unlink-delegate/(?P<user_id>\w+)/$', views.UnlinkDelegate.as_view(), name='unlink_delegate'),
+    url(r'^organisations/(?P<pk>\d+)/unlink-delegate/(?P<user_id>\w+)/$', views.UnlinkDelegate.as_view(), name='unlink_delegate')
 ]

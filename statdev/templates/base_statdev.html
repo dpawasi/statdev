@@ -16,7 +16,7 @@
         <li class='hidden-sm' ><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
         <li class='hidden-sm' ><a href="{% url 'compliance_list' %}">Clearance of Conditions</a></li>
         <li class='hidden-sm' ><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
-        <li class='hidden-sm' ><a href="#"><strike>Search</strike></a></li>
+        <li class='hidden-sm' ><a href="{% url 'search_list' %}">Search</a></li>
     {% else %}
         <li class='hidden-sm' ><a href="" title="Contact Us">Contact Us</a></li> 
         <li class='hidden-sm' ><a href="" title="Further Information">Further Information</a></li>
@@ -87,7 +87,6 @@
                 <small> Form Step: {{ object.routeid }} </small>
                 {% endif %}
             </div>
-
         </div>
     </div>
 </div>
