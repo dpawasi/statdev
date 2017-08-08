@@ -56,7 +56,10 @@ urlpatterns = [
     url(r'^records/create/$', views.RecordCreate.as_view(), name='document_create'),
     url(r'^records/$', views.RecordList.as_view(), name='document_list'),
     # URLs related to user account, address and organisation management.
-    url(r'^search/$', views.SearchList.as_view(), name='search_list'),
+    url(r'^search/$', views.SearchMenu.as_view(), name='search_list'),
+    url(r'^search/person-company/$', views.SearchPersonCompanyList.as_view(), name='search_person_company'),
+    url(r'^search/keyword/$', views.SearchKeywords.as_view(), name='search_keyword'),
+    url(r'^search/reference/$', views.SearchReference.as_view(), name='search_reference'),
     url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),

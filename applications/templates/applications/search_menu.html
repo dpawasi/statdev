@@ -1,0 +1,9 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+
+<A HREF='{% url "search_person_company" %}'>Search - Person & Company</A><BR>
+<A HREF='{% url "search_keyword" %}'>Search - Keyword</A><BR>
+<A HREF='{% url "search_reference" %}'>Search - Reference</A><BR>
+
+{% endblock %}

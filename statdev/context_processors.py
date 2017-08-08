@@ -5,7 +5,6 @@ def has_group(user):
     staff_groups = ['Approver','Assessor','Director','Emergency','Executive','Processor']
     user_groups = user.groups.all()
     for sg in user_groups:
-        print sg
         group = Group.objects.get(name=sg)
         if group in user.groups.all():
             return True
