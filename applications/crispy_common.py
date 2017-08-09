@@ -7,7 +7,7 @@ from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Tex
 
 """
 Purpose of this is to minimise bloating the main form.py with html and keeping the fieldset box standardise and allowing simplified changes to 
-the styling of the box in one place instead of having to replicate the same style changes accross multple field sets individually.  Keeping the styling standardised. 
+the styling of the box in one place instead of having to replicate the same style changes accross multiple fieldsets individually.  Keeping the styling standardised. 
 
 crispy_heading: 
    crispy_heading is linked to crispy_box set h3 styling and id information.  It takes 3 parameters:

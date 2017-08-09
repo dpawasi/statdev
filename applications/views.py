@@ -36,6 +36,27 @@ from dateutil.relativedelta import relativedelta
 import math
 
 class HomePage(LoginRequiredMixin, TemplateView):
+    # preperation to replace old homepage with screen designs..
+    template_name = 'applications/home_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HomePage, self).get_context_data(**kwargs)
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+               skip = 'yes'
+            else:
+               APP_TYPE_CHOICES.append(i)
+               APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes']= APP_TYPE_CHOICES
+        applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
+        #print applications
+
+        return context
+
+
+class HomePageOLD(LoginRequiredMixin, TemplateView):
     # TODO: rename this view to something like UserDashboard.
     template_name = 'applications/home_page.html'
 
@@ -91,6 +112,7 @@ class HomePage(LoginRequiredMixin, TemplateView):
 
 
 class ApplicationApplicantChange(DetailView):
+
     # form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/applicant_applicantsearch.html'
     model = Application
@@ -120,8 +142,6 @@ class ApplicationApplicantChange(DetailView):
             search_filter |= Q(pk__in=orgs)
             # Get all applicants
             listusers = EmailUser.objects.filter(search_filter)
-            
-
         else:
             listusers =  EmailUser.objects.all()
 
@@ -134,12 +154,13 @@ class ApplicationApplicantChange(DetailView):
             #for o in lu.organisations: 
             #    print o.organisation
             context['acc_list'].append(row)
-        context['applicant_id'] =  self.object.pk
+        context['applicant_id'] = self.object.pk
 
         return context
 
 
 class ApplicationList(ListView):
+
     model = Application
 
     def get_queryset(self):
@@ -204,7 +225,7 @@ class ApplicationList(ListView):
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
-#        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+#       context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
         context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
 
         usergroups = self.request.user.groups.all()
@@ -338,7 +359,7 @@ class ComplianceList(ListView):
             # Filter by pk, title, applicant__email, organisation__name,
             # assignee__email
             query = get_query(
-                query_str, ['pk', 'title', 'applicant__email', 'assignee__email'])
+                query_str, ['pk', 'title', 'applicant__email', 'assignee__email','approval_id'])
             qs = qs.filter(query).distinct()
         return qs
 
@@ -399,7 +420,7 @@ class ComplianceList(ListView):
 #                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
 #            # end of creation
 
-#            if app.group is not None:
+ #            if app.group is not None:
 #                if app.group in usergroups:
 #                    row['may_assign_to_person'] = 'True'
 #            context['app_list'].append(row)
@@ -409,6 +430,194 @@ class ComplianceList(ListView):
         # Rule: admin officers may self-assign applications.
         if processor in self.request.user.groups.all() or self.request.user.is_superuser:
             context['may_assign_processor'] = True
+        return context
+
+class SearchMenu(ListView):
+    model = Compliance
+    template_name = 'applications/search_menu.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchMenu, self).get_context_data(**kwargs)
+        return context
+
+class SearchPersonList(ListView):
+    model = Compliance
+    template_name = 'applications/search_person_list.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SearchPersonList, self).get_context_data(**kwargs)
+        context['query_string'] = ''
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str_split = query_str.split()
+            search_filter = Q()
+            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+            orgs = []
+            for d in listorgs:
+                d.email_user.id
+                orgs.append(d.email_user.id)
+
+            for se_wo in query_str_split:
+                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            # Add Organsations Results , Will also filter out duplicates
+            search_filter |= Q(pk__in=orgs)
+            # Get all applicants
+            listusers = EmailUser.objects.filter(search_filter)
+        else:
+            listusers = EmailUser.objects.all()       
+
+        context['acc_list'] = []
+        for lu in listusers:
+            row = {}
+            row['acc_row'] = lu
+            lu.organisations = []
+            lu.organisations = Delegate.objects.filter(email_user=lu.id)
+            #for o in lu.organisations:
+            #    print o.organisation
+            context['acc_list'].append(row)
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            context['query_string'] = self.request.GET['q']
+
+
+        return context
+
+
+class SearchCompanyList(ListView):
+    model = Compliance
+    template_name = 'applications/search_company_list.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SearchCompanyList, self).get_context_data(**kwargs)
+        context['query_string'] = ''
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str_split = query_str.split()
+            search_filter = Q()
+            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+            orgs = []
+            for d in listorgs:
+                d.email_user.id
+                orgs.append(d.email_user.id)
+
+            for se_wo in query_str_split:
+                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            # Add Organsations Results , Will also filter out duplicates
+            search_filter |= Q(pk__in=orgs)
+            # Get all applicants
+            listusers = EmailUser.objects.filter(search_filter)
+        else:
+            listusers = EmailUser.objects.all()
+
+        context['acc_list'] = []
+        for lu in listusers:
+            row = {}
+            row['acc_row'] = lu
+            lu.organisations = []
+            lu.organisations = Delegate.objects.filter(email_user=lu.id)
+            #for o in lu.organisations:
+            #    print o.organisation
+            context['acc_list'].append(row)
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            context['query_string'] = self.request.GET['q']
+
+
+        return context
+
+
+
+class SearchKeywords(ListView):
+    model = Compliance
+    template_name = 'applications/search_keywords_list.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SearchKeywords, self).get_context_data(**kwargs)
+        context['APP_TYPES'] = Application.APP_TYPE_CHOICES
+        context['query_string'] = ''
+
+        APP_TYPE_CHOICES = [{"key":"applications", "value":"Applications"},{"key":"approvals","value":"Approvals" },{"key":"emergency","value":"Emergency Works"},{"key":"compliance","value":"Compliance"}]
+        context['APP_TYPES'] = list(APP_TYPE_CHOICES)
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str_split = query_str.split()
+            search_filter = Q()
+            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+
+            orgs = []
+            for d in listorgs:
+                d.email_user.id
+                orgs.append(d.email_user.id)
+
+            for se_wo in query_str_split:
+                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            # Add Organsations Results , Will also filter out duplicates
+            search_filter |= Q(pk__in=orgs)
+            # Get all applicants
+            listusers = EmailUser.objects.filter(search_filter)
+        else:
+            listusers = EmailUser.objects.all()
+
+        context['acc_list'] = []
+        for lu in listusers:
+            row = {}
+            row['acc_row'] = lu
+            lu.organisations = []
+            lu.organisations = Delegate.objects.filter(email_user=lu.id)
+            #for o in lu.organisations:
+            #    print o.organisation
+            context['acc_list'].append(row)
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            context['query_string'] = self.request.GET['q']
+        return context
+
+class SearchReference(ListView):
+    model = Compliance
+    template_name = 'applications/search_reference_list.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SearchReference, self).get_context_data(**kwargs)
+        context['query_string'] = ''
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str_split = query_str.split()
+            search_filter = Q()
+            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+            orgs = []
+            for d in listorgs:
+                d.email_user.id
+                orgs.append(d.email_user.id)
+
+            for se_wo in query_str_split:
+                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            # Add Organsations Results , Will also filter out duplicates
+            search_filter |= Q(pk__in=orgs)
+            # Get all applicants
+            listusers = EmailUser.objects.filter(search_filter)
+        else:
+            listusers = EmailUser.objects.all()
+
+        context['acc_list'] = []
+        for lu in listusers:
+            row = {}
+            row['acc_row'] = lu
+            lu.organisations = []
+            lu.organisations = Delegate.objects.filter(email_user=lu.id)
+            #for o in lu.organisations:
+            #    print o.organisation
+            context['acc_list'].append(row)
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            context['query_string'] = self.request.GET['q']
         return context
 
 class ApplicationCreateEW(LoginRequiredMixin, CreateView):

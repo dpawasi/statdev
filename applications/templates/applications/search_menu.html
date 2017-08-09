@@ -1,0 +1,17 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<div class="well">
+    <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+    Please choose and area of the system you would like to search:
+                  </div>
+<div class="bs-example" data-example-id="list-group-anchors"> 
+             <div class="list-group">
+                  <A HREF='{% url "search_person" %}' class="list-group-item " ><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span> Search Person</A>
+                  <A HREF='{% url "search_company" %}' class="list-group-item " ><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span> Search Company</A>
+                  <A HREF='{% url "search_keyword" %}' class="list-group-item " > <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span> Search Keyword</A>
+                  <A HREF='{% url "search_reference" %}' class="list-group-item "> <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span> Search Reference</A>
+             </div> 
+</div>
+
+{% endblock %}

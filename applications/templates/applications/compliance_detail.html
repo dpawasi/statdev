@@ -12,10 +12,11 @@
 
     <!-- Action panel start -->
     <div class="row">
+        <!--
         {% include "approvals/approval_side_menu.html" %}
-
+        -->
         <!--- remove everything eblow this tag to the end tag if everything has been moved -->
-        <div class="col-sm-4 col-md-3 col-lg-2"  style='display: none'>
+        <div class="col-sm-4 col-md-3 col-lg-2"  >
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Actions</h3>
@@ -73,8 +74,9 @@
             </div>
         </div>
         <!-- remove all above to beginning of this tag if everything been moved -->
-
         <div class="col-sm-8 col-md-9 col-lg-10">
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
             <!-- Conditions -->
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-target="#address_collapse">
@@ -143,6 +145,25 @@
                     </div>
                 </div>
             </div>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- Conditions -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#address_collapse">
+                    <h3 class="panel-title">
+                       Action 
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in" id="address_collapse">
+                    <a href="" class="btn btn-primary btn-sm" role="button">Approve</a> <a href="" class="btn btn-primary btn-sm" role="button">Submit to Manager</a> <a href="" class="btn btn-primary btn-sm" role="button">Return to licence holder</a>
+
+                </div>
+            </div>
+            </div>
+            </div>
+
+
 
         </div>
     </div>

@@ -1,7 +1,22 @@
 {% extends "base_statdev.html" %}
 
 {% block page_content_inner %}
-<h1>Requests for compliance with conditions</h1>
+
+
+<div class="panel panel-default">
+
+    <div class="panel-heading" role="tab" id="title_heading">
+        <h3 class="panel-title">
+            <a role="button" data-toggle="collapse" href="#application_list_collapse" aria-expanded="false" aria-controls="application_list_collapse">
+                <span class="glyphicon glyphicon-plus"></span>
+                Compliance - Clearance of Conditions
+            </a>
+        </h3>
+    </div>
+
+    <div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
+        <div class="panel-body">
+
 <!-- Search bar -->
 <form action="" method="get">
     <div class="row">
@@ -39,12 +54,32 @@
             <td>{{ obj.get_status_display }}</td>
             <td>{{ obj.due_date|date:"d-M-Y" }}</td>
             <td>{{ obj.assignee }}</td>
-            <td></td>
+            <td>
+                     <ul class="nav navbar-nav">
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                {% if app_obj.app.state == 1 %}
+                                                <!-- Show Process button if draft -->
+                                                   <li><a href="{% url 'compliance_condition_update' obj.approval_id %}">Process</a></li>
+                                                {% if app_obj.app.assignee > 0%}
+                                                   <li><a href="{% url 'application_assign_person' app_obj.app.pk %}">Reassign</a></li>
+                                                {% else %}
+                                                   <li><a href="{% url 'application_assign_person' app_obj.app.pk %}">Assign</a></li>
+                                                {% endif %}
+                                                {% else %}
+                                                    <li><a href="{% url 'compliance_approval_detail' obj.approval_id %}">View</a></li>
+                                                {% endif %}
+                                           </ul>
+                           </li>
+                     </ul>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
+</div>
+</div>
 <script>
 function loadTable() {
         $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 7, "desc" ]]});
@@ -53,7 +88,5 @@ window.onload= function() {
         loadTable();
 }
 </script>
-
-
 
 {% endblock %}

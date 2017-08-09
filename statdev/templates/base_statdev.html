@@ -7,27 +7,36 @@
 {% endblock %}
 
 {% block navbar_site_title %}
-
 <a class="navbar-brand" href="/">Statutory Development</a>
 <ul class='nav navbar-nav hidden-xs'>
-    <li><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
-    <li><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
-    <li><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
-    <li><a href="{% url 'compliance_list' %}">Clearance of Conditions</a></li>
-    <li><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
-    <li><a href="#"><strike>Search</strike></a></li>
 
+    {% if staff == True %}
+        <li class='hidden-sm' ><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
+        <li class='hidden-sm' ><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
+        <li class='hidden-sm' ><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
+        <li class='hidden-sm' ><a href="{% url 'compliance_list' %}">Clearance of Conditions</a></li>
+        <li class='hidden-sm' ><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
+        <li class='hidden-sm' ><a href="{% url 'search_list' %}">Search</a></li>
+    {% else %}
+        <li class='hidden-sm' ><a href="" title="Contact Us">Contact Us</a></li> 
+        <li class='hidden-sm' ><a href="" title="Further Information">Further Information</a></li>
+    {% endif %}
 
 </ul>
 
 {% endblock navbar_site_title %}
 {% block navbar_links %}
-<li class='hidden-lg hidden-md'><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
-<li class='hidden-lg hidden-md'><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
-<li class='hidden-lg hidden-md'><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
-<li class='hidden-lg hidden-md'><a href="{% url 'compliance_list' %}">Clearance of Conditions</a></li>
-<li class='hidden-lg hidden-md'><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
-<li class='hidden-lg hidden-md'><a href="#"><strike>Search</strike></a></li>
+{% if staff == True %}
+    <li class='hidden-lg hidden-md'><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
+    <li class='hidden-lg hidden-md'><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
+    <li class='hidden-lg hidden-md'><a href="{% url 'emergencyworks_list' %}">Emergency works</a></li>
+    <li class='hidden-lg hidden-md'><a href="{% url 'compliance_list' %}">Clearance of Conditions</a></li>
+    <li class='hidden-lg hidden-md'><a href="#" title="Company Access"><strike>Company Access</strike></a></li>
+    <li class='hidden-lg hidden-md'><a href="#"><strike>Search</strike></a></li>
+{% else %}
+    <li class='hidden-lg hidden-md' ><a href="" title="Contact Us">Contact Us</a></li>
+    <li class='hidden-lg hidden-md' ><a href="" title="Further Information">Further Information</a></li>
+{% endif %}
 
 {% block navbar_auth %}
 <li class="dropdown">
@@ -78,7 +87,6 @@
                 <small> Form Step: {{ object.routeid }} </small>
                 {% endif %}
             </div>
-
         </div>
     </div>
 </div>
