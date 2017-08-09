@@ -18,6 +18,16 @@
             <form action="" method="get">
                 <div class="row">
                     <div class="hidden-xs col-sm-1">
+                        <label for="search_field">Filter:</label>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-11 col-lg-11">
+                        {% for applist in APP_TYPES %} 
+                          <input type='checkbox' value='{{ at.0 }}' id='app_type_selection-{{ at.0 }}' > {{ applist.value }} 
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="hidden-xs col-sm-1">
                         <label for="search_field">Search:</label>
                     </div>
                     <div class="col-xs-12 col-sm-11 col-md-8">
@@ -57,7 +67,7 @@
                     </td>
                     <td>{{ acc_obj.acc_row.date_joined|date:"d-M-Y" }}</td>
                     <td>
-                    <a class="btn btn-primary btn-sm" role="button" href="">Select Applicant</a>
+                    <a class="btn btn-primary btn-sm" role="button" href="">View Person</a>
                     </td>
                 </tr>
                 {% endfor %}
