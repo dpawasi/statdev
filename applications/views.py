@@ -517,7 +517,7 @@ class SearchCompanyList(ListView):
         context['acc_list'] = []
         for lu in listusers:
             row = {}
-            print lu.organisation.name
+            # print lu.organisation.name
             row['acc_row'] = lu
 #            lu.organisations = []
 #            lu.organisations = Delegate.objects.filter(email_user=lu.id)
