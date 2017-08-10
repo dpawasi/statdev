@@ -349,7 +349,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             self.fields['applicant'].disabled = True
     #        print self.initial["workflow"]["hidden"]['vessels']
             if self.initial["may_change_application_applicant"] == "True":
-                changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+                changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
             else: 
                 changeapplicantbutton = HTML('')
             crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
@@ -489,7 +489,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         #self.fields['applicant'].disabled = True
 
         if self.initial["may_change_application_applicant"] == "True":
-            changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+            changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
         else:
             changeapplicantbutton = HTML('')
         if 'applicant' in self.fields:
@@ -634,7 +634,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton))
 
         if self.initial["may_change_application_applicant"] == "True":
-            changeapplicantbutton = crispy_button_link('Add / Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
+            changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
         else:
             changeapplicantbutton = HTML('')
         crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
@@ -773,7 +773,7 @@ class ApplicationEmergencyForm(ModelForm):
         self.fields['proposed_commence'].label = "Start date"
         self.fields['proposed_end'].label = "Expiry date"
 
-        changeapplicantbutton = crispy_button_link('Add / Change Applicant or Organisation',reverse('applicant_change', args=(self.initial['application_id'],)))
+        changeapplicantbutton = crispy_button_link('Change Applicant or Organisation',reverse('applicant_change', args=(self.initial['application_id'],)))
         crispy_boxes = crispy_empty_box()
         organisation = self.initial['organisation']
 

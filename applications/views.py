@@ -130,18 +130,19 @@ class ApplicationApplicantChange(DetailView):
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
             search_filter = Q()
-            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
-            orgs = []
-            for d in listorgs:
-                d.email_user.id
-                orgs.append(d.email_user.id)
+#            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+#            orgs = []
+#            for d in listorgs:
+                #                d.email_user.id
+ #               orgs.append(d.email_user.id)
              
-            for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+#            for se_wo in query_str_split:
+                #               search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
             # Add Organsations Results , Will also filter out duplicates
-            search_filter |= Q(pk__in=orgs)
+#            search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = EmailUser.objects.filter(search_filter)
+#            listusers = EmailUser.objects.filter(search_filter)
+            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
         else:
             listusers =  EmailUser.objects.all()
 
@@ -498,38 +499,36 @@ class SearchCompanyList(ListView):
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
             search_filter = Q()
-            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
-            orgs = []
-            for d in listorgs:
-                d.email_user.id
-                orgs.append(d.email_user.id)
+            #listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
+            #orgs = []
+            #for d in listorgs:
+            #    d.email_user.id
+            #    orgs.append(d.email_user.id)
 
-            for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+            #for se_wo in query_str_split:
+            #    search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
             # Add Organsations Results , Will also filter out duplicates
-            search_filter |= Q(pk__in=orgs)
+            #search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = EmailUser.objects.filter(search_filter)
+            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
         else:
-            listusers = EmailUser.objects.all()
+            listusers = Delegate.objects.all()
 
         context['acc_list'] = []
         for lu in listusers:
             row = {}
+            print lu.organisation.name
             row['acc_row'] = lu
-            lu.organisations = []
-            lu.organisations = Delegate.objects.filter(email_user=lu.id)
-            #for o in lu.organisations:
-            #    print o.organisation
+#            lu.organisations = []
+#            lu.organisations = Delegate.objects.filter(email_user=lu.id)
+             #for o in lu.organisations:
+             #    print o.organisation
             context['acc_list'].append(row)
 
         if 'q' in self.request.GET and self.request.GET['q']:
             context['query_string'] = self.request.GET['q']
 
-
         return context
-
-
 
 class SearchKeywords(ListView):
     model = Compliance
@@ -4108,6 +4107,68 @@ class OrganisationList(LoginRequiredMixin, ListView):
             query = get_query(query_str, ['name', 'abn'])
             qs = qs.filter(query).distinct()
         return qs
+
+class OrganisationDetails(LoginRequiredMixin, DetailView):
+    model = Organisation
+    template_name = 'applications/organisation_details.html'
+
+    def get_queryset(self):
+        qs = super(OrganisationDetails, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by name and ABN fields.
+            query = get_query(query_str, ['name', 'abn'])
+            qs = qs.filter(query).distinct()
+        print self.template_name
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationDetails, self).get_context_data(**kwargs)
+        org = self.get_object()
+        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+        context['nav_details'] = 'active'
+        return context
+
+
+class OrganisationOther(LoginRequiredMixin, DetailView):
+    model = Organisation
+    template_name = 'applications/organisation_details.html'
+
+    def get_queryset(self):
+        qs = super(OrganisationOther, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by name and ABN fields.
+            query = get_query(query_str, ['name', 'abn'])
+            qs = qs.filter(query).distinct()
+        print self.template_name
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationOther, self).get_context_data(**kwargs)
+        org = self.get_object()
+        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+        context['nav_other'] = 'active'
+        if "action" in self.kwargs:
+             action=self.kwargs['action']
+             # Navbar
+             if action == "applications":
+                 context['nav_other_applications'] = "active"
+             elif action == "approvals":
+                 context['nav_other_approvals'] = "active"
+             elif action == "emergency":
+                 context['nav_other_emergency'] = "active"
+             elif action == "clearance":
+                 context['nav_other_clearance'] = "active"
+
+
+        return context
 
 
 class OrganisationCreate(LoginRequiredMixin, CreateView):
