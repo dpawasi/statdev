@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from applications import views
 
-
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
@@ -65,6 +64,8 @@ urlpatterns = [
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
     url(r'^account/address/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
+    url(r'^person/details/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonDetails.as_view(), name='person_details_actions'),
+    url(r'^person/other/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonOther.as_view(), name='person_other_actions'),
     url(r'^organisations/$', views.OrganisationList.as_view(), name='organisation_list'),
     url(r'^organisations/create/$', views.OrganisationCreate.as_view(), name='organisation_create'),
     url(r'^organisations/details/(?P<pk>\d+)/$', views.OrganisationDetails.as_view(), name='organisation_details'),

@@ -49,7 +49,7 @@
                         <td>{{ acc_obj.acc_row.organisation.abn }}</td>
                         <td>{{ acc_obj.acc_row.organisation.postal_address }}</td>
                         <td>
-                            <a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_details" acc_obj.acc_row.organisation.id %}">View Company</a>
+                            <a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_details_actions" acc_obj.acc_row.organisation.id "company" %}">View Company</a>
                         </td>
                     </tr>
                     {% endfor %}

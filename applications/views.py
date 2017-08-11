@@ -4108,6 +4108,82 @@ class OrganisationList(LoginRequiredMixin, ListView):
             qs = qs.filter(query).distinct()
         return qs
 
+class PersonDetails(LoginRequiredMixin, DetailView):
+    model = EmailUser 
+    template_name = 'applications/person_details.html'
+
+    def get_queryset(self):
+        qs = super(PersonDetails, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by name and ABN fields.
+            query = get_query(query_str, ['name', 'abn'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(PersonDetails, self).get_context_data(**kwargs)
+        org = self.get_object()
+#        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+        context['nav_details'] = 'active'
+
+        if "action" in self.kwargs:
+             action=self.kwargs['action']
+             # Navbar
+             if action == "personal":
+                 context['nav_details_personal'] = "active"
+             elif action == "identification":
+                 context['nav_details_identification'] = "active"
+             elif action == "address":
+                 context['nav_details_address'] = "active"
+             elif action == "contactdetails":
+                 context['nav_details_contactdetails'] = "active"
+             elif action == "companies":
+                 context['nav_details_companies'] = "active"
+
+        return context
+
+class PersonOther(LoginRequiredMixin, DetailView):
+    model = EmailUser
+    template_name = 'applications/person_details.html'
+
+    def get_queryset(self):
+        qs = super(PersonOther, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by name and ABN fields.
+            query = get_query(query_str, ['name', 'abn'])
+            qs = qs.filter(query).distinct()
+        print self.template_name
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(PersonOther, self).get_context_data(**kwargs)
+        org = self.get_object()
+#        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+        context['nav_other'] = 'active'
+        if "action" in self.kwargs:
+             action=self.kwargs['action']
+             # Navbar
+             if action == "applications":
+                 context['nav_other_applications'] = "active"
+             elif action == "approvals":
+                 context['nav_other_approvals'] = "active"
+             elif action == "emergency":
+                 context['nav_other_emergency'] = "active"
+             elif action == "clearance":
+                 context['nav_other_clearance'] = "active"
+
+        return context
+
+
+
 class OrganisationDetails(LoginRequiredMixin, DetailView):
     model = Organisation
     template_name = 'applications/organisation_details.html'
@@ -4129,6 +4205,20 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
         org = self.get_object()
         context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
         context['nav_details'] = 'active'
+
+        if "action" in self.kwargs:
+             action=self.kwargs['action']
+             # Navbar
+             if action == "company":
+                 context['nav_details_company'] = "active"
+             elif action == "certofincorp":
+                 context['nav_details_certofincorp'] = "active"
+             elif action == "address":
+                 context['nav_details_address'] = "active"
+             elif action == "contactdetails":
+                 context['nav_details_contactdetails'] = "active"
+             elif action == "linkedperson":
+                 context['nav_details_linkedperson'] = "active"
         return context
 
 
@@ -4165,7 +4255,6 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
                  context['nav_other_emergency'] = "active"
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
-
 
         return context
 

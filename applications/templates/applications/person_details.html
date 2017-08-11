@@ -8,12 +8,12 @@
             <div class="row">
                 <div class="col-sm-12 col-md-12 col-lg-12">
                     <div class="col-sm-12 col-md-12 col-lg-12">
-                        <h1>{{ object.name }} - {{ object.abn }}</h1>
+                        <h1>{{ object.first_name }} {{ object.last_name }}</h1>
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <ul class="nav nav-tabs">
-                            <li role="presentation" class="{{ nav_details }}"><a href="{% url "organisation_details_actions" object.pk "company" %}">Details</a></li>
-                            <li role="presentation" class="{{ nav_other }}"><a href="{% url "organisation_other_actions" object.pk "applications" %}">Other</a></li>
+                            <li role="presentation" class="{{ nav_details }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Details</a></li>
+                            <li role="presentation" class="{{ nav_other }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Other</a></li>
                         </ul>
                         <BR>
                     </div>
@@ -23,23 +23,23 @@
 
                     <div class="col-sm-12 col-md-9 col-lg-9">
                         <ul class="nav nav-pills">
-                            <li role="presentation" class="{{ nav_details_company }}"><a href="{% url "organisation_details_actions" object.pk "company" %}">Company Details</a></li>
-                            <li role="presentation" class="{{ nav_details_certofincorp }}" ><a href="{% url "organisation_details_actions" object.pk "certofincorp" %}">Certificate of Incorportion</a></li>
-                            <li role="presentation" class="{{ nav_details_address }}" ><a href="{% url "organisation_details_actions" object.pk "address" %}">Address Details</a></li>
-                            <li role="presentation" class="{{ nav_details_contactdetails }}" ><a href="{% url "organisation_details_actions" object.pk "contactdetails" %}">Contact Details</a></li>
-                            <li role="presentation" class="{{ nav_details_linkedperson }}" ><a href="{% url "organisation_details_actions" object.pk "linkedperson" %}">Linked Person's</a></li>
+                            <li role="presentation" class="{{ nav_details_personal }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Personal Details</a></li>
+                            <li role="presentation" class="{{ nav_details_identification }}" ><a href="{% url "person_details_actions" object.pk "identification" %}">Identification</a></li>
+                            <li role="presentation" class="{{ nav_details_address }}" ><a href="{% url "person_details_actions" object.pk "address" %}">Address Details</a></li>
+                            <li role="presentation" class="{{ nav_details_contactdetails }}" ><a href="{% url "person_details_actions" object.pk "contactdetails" %}">Contact Details</a></li>
+                            <li role="presentation" class="{{ nav_details_companies }}" ><a href="{% url "person_details_actions" object.pk "companies" %}">Companies</a></li>
                         </ul>
                         <br>
                     </div>
 
                     <div class="col-sm-8 col-md-9 col-lg-10">
-                        {% if nav_details_company == "active" %}
+                        {% if nav_details_personal == "active" %}
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="title_heading">
                                 <h3 class="panel-title">
                                     <a role="button" data-toggle="collapse" href="#company_details_collapse" aria-expanded="false" aria-controls="company_details_collapse">
                                         <span class="glyphicon glyphicon-plus"></span>
-                                        Company Details 
+                                        Personal Details
                                     </a>
                                 </h3>
                             </div>
@@ -52,16 +52,15 @@
                                             <label>Name</label>
                                         </div>
                                         <div class="col-sm-12 col-md-9 col-lg-9">
-                                            {{ object.name }}
-
+                                            {{ object.first_name }} {{ object.last_name }}
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <div class="col-sm-12 col-md-3 col-lg-3">
-                                            <label>ABN</label>
+                                            <label>Date of birth</label>
                                         </div>
                                         <div class="col-sm-12 col-md-9 col-lg-9">
-                                            {{ object.abn }}
+                                            {{ object.dob }}
 
                                         </div>
                                     </div>
@@ -76,13 +75,13 @@
                                 </div>
                             </div>
                         </div>
-                        {% elif nav_details_certofincorp == "active" %}
+                        {% elif nav_details_identification == "active" %}
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="title_heading">
                                 <h3 class="panel-title">
                                     <a role="button" data-toggle="collapse" href="#cert_incorp_collapse" aria-expanded="false" aria-controls="cert_incorp_collapse">
                                         <span class="glyphicon glyphicon-plus"></span>
-                                        Certifcate of Incorportion
+                                        Identification
                                     </a>
                                 </h3>
                             </div>
@@ -173,13 +172,13 @@
                                 </div>
                             </div>
                         </div>
-                        {% elif nav_details_linkedperson == "active" %}
+                        {% elif nav_details_companies == "active" %}
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="title_heading">
                                 <h3 class="panel-title">
                                     <a role="button" data-toggle="collapse" href="#linked_person_collapse" aria-expanded="false" aria-controls="linked_person_collapse">
                                         <span class="glyphicon glyphicon-plus"></span>
-                                        Linked Person
+                                        Companies
                                     </a>
                                 </h3>
                             </div>
@@ -195,10 +194,10 @@
                     {% elif nav_other == "active" %}
                     <div class="col-sm-12 col-md-9 col-lg-9">
                         <ul class="nav nav-pills">
-                            <li role="presentation" class="{{ nav_other_applications }}"><a href="{% url "organisation_other_actions" object.pk "applications" %}">Applications</a></li>
-                            <li role="presentation" class="{{ nav_other_approvals }}" ><a href="{% url "organisation_other_actions" object.pk "approvals" %}">Approvals</a></li>
-                            <li role="presentation" class="{{ nav_other_emergency }}" ><a href="{% url "organisation_other_actions" object.pk "emergency" %}">Emergency Works</a></li>
-                            <li role="presentation" class="{{ nav_other_clearance }}" ><a href="{% url "organisation_other_actions" object.pk "clearance" %}">Clearance of Conditions</a></li>
+                            <li role="presentation" class="{{ nav_other_applications }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Applications</a></li>
+                            <li role="presentation" class="{{ nav_other_approvals }}" ><a href="{% url "person_other_actions" object.pk "approvals" %}">Approvals</a></li>
+                            <li role="presentation" class="{{ nav_other_emergency }}" ><a href="{% url "person_other_actions" object.pk "emergency" %}">Emergency Works</a></li>
+                            <li role="presentation" class="{{ nav_other_clearance }}" ><a href="{% url "person_other_actions" object.pk "clearance" %}">Clearance of Conditions</a></li>
                         </ul>
                         <br>
                     </div>
