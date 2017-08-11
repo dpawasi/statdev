@@ -4122,7 +4122,6 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
             # Filter by name and ABN fields.
             query = get_query(query_str, ['name', 'abn'])
             qs = qs.filter(query).distinct()
-        print self.template_name
         return qs
 
     def get_context_data(self, **kwargs):
