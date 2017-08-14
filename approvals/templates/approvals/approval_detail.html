@@ -37,8 +37,10 @@
 				<div class="panel-body">
 					<h4>Submitted by:</h4>
 					<p>
-					{% if object.applicant.first_name %}{{ object.applicant.first_name }} {{ object.applicant.last_name }}
-					{% else %}{{ object.applicant.email }}
+					{% if object.applicant.first_name %}
+                        {{ object.applicant.first_name }} {{ object.applicant.last_name }}
+					{% else %}
+                        {{ object.applicant.email }}
 					{% endif %}
 					</p>
 					<h4>Lodged on</h4>

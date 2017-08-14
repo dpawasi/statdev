@@ -4150,33 +4150,234 @@ class PersonOther(LoginRequiredMixin, DetailView):
     model = EmailUser
     template_name = 'applications/person_details.html'
 
-    def get_queryset(self):
-        qs = super(PersonOther, self).get_queryset()
-        # Did we pass in a search string? If so, filter the queryset and return it.
-        if 'q' in self.request.GET and self.request.GET['q']:
-            query_str = self.request.GET['q']
-            # Replace single-quotes with double-quotes
-            query_str = query_str.replace("'", r'"')
-            # Filter by name and ABN fields.
-            query = get_query(query_str, ['name', 'abn'])
-            qs = qs.filter(query).distinct()
+#    def get_queryset(self):
+#        qs = super(PersonOther, self).get_queryset()
+#        # Did we pass in a search string? If so, filter the queryset and return it.
+#        if 'q' in self.request.GET and self.request.GET['q']:
+#            query_str = self.request.GET['q']
+#            # Replace single-quotes with double-quotes
+#            query_str = query_str.replace("'", r'"')
+#            # Filter by name and ABN fields.
+#            query = get_query(query_str, ['name', 'abn'])
+#            qs = qs.filter(query).distinct()
         #print self.template_name
-        return qs
+#        return qs
 
     def get_context_data(self, **kwargs):
         context = super(PersonOther, self).get_context_data(**kwargs)
+
         org = self.get_object()
-#        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+#       context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
         context['nav_other'] = 'active'
+
         if "action" in self.kwargs:
              action=self.kwargs['action']
              # Navbar
              if action == "applications":
                  context['nav_other_applications'] = "active"
+                 context['app'] = ''
+
+                 APP_TYPE_CHOICES = []
+                 APP_TYPE_CHOICES_IDS = []
+                 for i in Application.APP_TYPE_CHOICES:
+                     if i[0] in [4,5,6,7,8,9,10,11]:
+                         skip = 'yes'
+                     else:
+                         APP_TYPE_CHOICES.append(i)
+                         APP_TYPE_CHOICES_IDS.append(i[0])
+                 context['app_apptypes']= APP_TYPE_CHOICES
+
+                 context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
+                 search_filter = Q(applicant=self.kwargs['pk'])
+
+
+                 if 'searchaction' in self.request.GET and self.request.GET['searchaction']:
+                      query_str = self.request.GET['q']
+                   #   query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
+
+                      if self.request.GET['apptype'] != '':
+                          search_filter &= Q(app_type=int(self.request.GET['apptype']))
+                      else:
+                          end = ''
+                          #                   search_filter &= Q(app_type__in=APP_TYPE_CHOICES_IDS)
+
+
+                      if self.request.GET['appstatus'] != '':
+                          search_filter &= Q(state=int(self.request.GET['appstatus']))
+
+#                      applications = Application.objects.filter(query_obj)
+                      context['query_string'] = self.request.GET['q']
+
+                      if self.request.GET['apptype'] != '':
+                          context['apptype'] = int(self.request.GET['apptype'])
+                      if 'appstatus' in self.request.GET:
+                          if self.request.GET['appstatus'] != '':
+                              context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+
+                      if 'q' in self.request.GET and self.request.GET['q']:
+                          query_str = self.request.GET['q']
+                          query_str_split = query_str.split()
+                          for se_wo in query_str_split:
+                              search_filter= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+                      print search_filter
+                 applications = Application.objects.filter(search_filter)[:200]
+
+                 usergroups = self.request.user.groups.all()
+                 context['app_list'] = []
+
+                 for app in applications:
+                      row = {}
+                      row['may_assign_to_person'] = 'False'
+                      row['app'] = app
+
+                      # Create a distinct list of applicants
+#                      if app.applicant:
+#                          if app.applicant.id in context['app_applicants']:
+#                               donothing = ''
+#                          else:
+#                              context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+#                              context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
+                          # end of creation
+
+                      if app.group is not None:
+                          if app.group in usergroups:
+                              row['may_assign_to_person'] = 'True'
+                      context['app_list'].append(row)
+
              elif action == "approvals":
                  context['nav_other_approvals'] = "active"
+                 search_filter = Q(applicant=self.kwargs['pk'], status=1)
+
+                 APP_TYPE_CHOICES = []
+                 APP_TYPE_CHOICES_IDS = []
+                 for i in Application.APP_TYPE_CHOICES:
+                     if i[0] in [4,5,6,7,8,9,10,11]:
+                          skip = 'yes'
+                     else:
+                          APP_TYPE_CHOICES.append(i)
+                          APP_TYPE_CHOICES_IDS.append(i[0])
+                 context['app_apptypes']= APP_TYPE_CHOICES
+
+
+                 if 'action' in self.request.GET and self.request.GET['action']:
+#                    query_str = self.request.GET['q']
+#                    search_filter = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str)
+
+                    if self.request.GET['apptype'] != '':
+                        search_filter &= Q(app_type=int(self.request.GET['apptype']))
+                    else:
+                        search_filter &= Q(app_type__in=APP_TYPE_CHOICES_IDS)
+ 
+                    if self.request.GET['appstatus'] != '':
+                        search_filter &= Q(status=int(self.request.GET['appstatus']))
+
+                    context['query_string'] = self.request.GET['q']
+
+                    if self.request.GET['apptype'] != '':
+                        context['apptype'] = int(self.request.GET['apptype'])
+                    if 'appstatus' in self.request.GET:
+                        if self.request.GET['appstatus'] != '':
+                            context['appstatus'] = int(self.request.GET['appstatus'])
+
+                    if 'q' in self.request.GET and self.request.GET['q']:
+                       query_str = self.request.GET['q']
+                       query_str_split = query_str.split()
+                       for se_wo in query_str_split:
+                           search_filter= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+                 approval = Approval.objects.filter(search_filter)[:200]
+
+                 context['app_list'] = []
+                 context['app_applicants'] = {}
+                 context['app_applicants_list'] = []
+                 context['app_appstatus'] = list(Approval.APPROVAL_STATE_CHOICES)
+
+                 for app in approval:
+                     row = {}
+                     row['app'] = app
+                     if app.applicant:
+                         if app.applicant.id in context['app_applicants']:
+                             donothing = ''
+                         else:
+                             context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+                             context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name})
+
+                     context['app_list'].append(row)
+                 
+
+
              elif action == "emergency":
                  context['nav_other_emergency'] = "active"
+                 action=self.kwargs['action']
+             # Navbar
+                 context['app'] = ''
+
+                 APP_TYPE_CHOICES = []
+                 APP_TYPE_CHOICES_IDS = []
+#                 for i in Application.APP_TYPE_CHOICES:
+                     #                     if i[0] in [4,5,6,7,8,9,10,11]:
+                         #                         skip = 'yes'
+#                     else:
+                         #                         APP_TYPE_CHOICES.append(i)
+#                         APP_TYPE_CHOICES_IDS.append(i[0])
+
+                 APP_TYPE_CHOICES.append('4')
+                 APP_TYPE_CHOICES_IDS.append('4')
+                 context['app_apptypes']= APP_TYPE_CHOICES
+
+                 context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
+                 search_filter = Q(applicant=self.kwargs['pk'], app_type=4)
+
+                 if 'searchaction' in self.request.GET and self.request.GET['searchaction']:
+                      query_str = self.request.GET['q']
+                   #   query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
+
+                      context['query_string'] = self.request.GET['q']
+
+                      if self.request.GET['appstatus'] != '':
+                          search_filter &= Q(state=int(self.request.GET['appstatus']))
+
+
+                      if 'appstatus' in self.request.GET:
+                          if self.request.GET['appstatus'] != '':
+                              context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+                      if 'q' in self.request.GET and self.request.GET['q']:
+                          query_str = self.request.GET['q']
+                          query_str_split = query_str.split()
+                          for se_wo in query_str_split:
+                              search_filter= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+                 print search_filter
+                 applications = Application.objects.filter(search_filter)[:200]
+
+#                 print applications
+                 usergroups = self.request.user.groups.all()
+                 context['app_list'] = []
+                 for app in applications:
+                      row = {}
+                      row['may_assign_to_person'] = 'False'
+                      row['app'] = app
+
+                      # Create a distinct list of applicants
+#                      if app.applicant:
+#                          if app.applicant.id in context['app_applicants']:
+#                               donothing = ''
+#                          else:
+#                              context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+#                              context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
+                          # end of creation
+
+                      if app.group is not None:
+                          if app.group in usergroups:
+                              row['may_assign_to_person'] = 'True'
+                      context['app_list'].append(row)
+
+
+
+
+
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
 
