@@ -2230,6 +2230,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           app_type=app.app_type,
                                           title=app.title,
                                           applicant = app.applicant,
+                                          organisation = app.organisation,
                                           application=app,
                                           start_date = app.assessment_start_date,
                                           status = 1
