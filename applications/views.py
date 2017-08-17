@@ -4144,6 +4144,11 @@ class PersonDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_contactdetails'] = "active"
              elif action == "companies":
                  context['nav_details_companies'] = "active"
+                 user = EmailUser.objects.get(id=self.kwargs['pk'])
+                 context['organisations'] = Delegate.objects.filter(email_user=user)
+#                 for i in context['organisations']:
+ #                    print i.organisation.name
+                 #print context['organisations']
 
         return context
 
@@ -4616,12 +4621,75 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
 
                      context['app_list'].append(row)
 
-
-
              elif action == "emergency":
                  context['nav_other_emergency'] = "active"
+                 action=self.kwargs['action']
+                 context['app'] = ''
+
+                 APP_TYPE_CHOICES = []
+                 APP_TYPE_CHOICES_IDS = []
+                 APP_TYPE_CHOICES.append('4')
+                 APP_TYPE_CHOICES_IDS.append('4')
+                 context['app_apptypes']= APP_TYPE_CHOICES
+                 context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
+                 #user = EmailUser.objects.get(id=self.kwargs['pk'])
+                 #delegate = Delegate.objects.filter(email_user=user).values('id')
+                 search_filter = Q(organisation=self.kwargs['pk'], app_type=4)
+
+                 if 'searchaction' in self.request.GET and self.request.GET['searchaction']:
+                      query_str = self.request.GET['q']
+                   #   query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
+
+                      context['query_string'] = self.request.GET['q']
+
+                      if self.request.GET['appstatus'] != '':
+                          search_filter &= Q(state=int(self.request.GET['appstatus']))
+
+
+                      if 'appstatus' in self.request.GET:
+                          if self.request.GET['appstatus'] != '':
+                              context['appstatus'] = int(self.request.GET['appstatus'])
+
+
+                      if 'q' in self.request.GET and self.request.GET['q']:
+                          query_str = self.request.GET['q']
+                          query_str_split = query_str.split()
+                          for se_wo in query_str_split:
+                              search_filter= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+
+                 applications = Application.objects.filter(search_filter)[:200]
+
+#                print applications
+                 usergroups = self.request.user.groups.all()
+                 context['app_list'] = []
+                 for app in applications:
+                      row = {}
+                      row['may_assign_to_person'] = 'False'
+                      row['app'] = app
+
+                      if app.group is not None:
+                          if app.group in usergroups:
+                              row['may_assign_to_person'] = 'True'
+                      context['app_list'].append(row)
+
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
+                 search_filter = Q(organisation=self.kwargs['pk']) 
+
+                 items = Compliance.objects.filter(applicant=self.kwargs['pk']).order_by('due_date')
+
+                 context['app_applicants'] = {}
+                 context['app_applicants_list'] = []
+                 context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+
+                 APP_STATUS_CHOICES = []
+                 for i in Application.APP_STATE_CHOICES:
+                     if i[0] in [1,11,16]:
+                         APP_STATUS_CHOICES.append(i)
+
+                 context['app_appstatus'] = list(APP_STATUS_CHOICES)
+                 context['compliance'] = items
+
 
         return context
 
@@ -4649,6 +4717,30 @@ class OrganisationCreate(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'New organisation created successfully!')
         return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
 
+
+class OrganisationUserCreate(LoginRequiredMixin, CreateView):
+    """A view to create a new Organisation.
+    """
+    form_class = apps_forms.OrganisationForm
+    template_name = 'accounts/organisation_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationUserCreate, self).get_context_data(**kwargs)
+        context['action'] = 'Create'
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('organisation_list'))
+        return super(OrganisationUserCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        # Assign the creating user as a delegate to the new organisation.
+        user = EmailUser.objects.get(id=self.kwargs['pk'])
+        Delegate.objects.create(email_user=user, organisation=self.obj)
+        messages.success(self.request, 'New organisation created successfully!')
+        return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
 
 class OrganisationDetail(LoginRequiredMixin, DetailView):
     model = Organisation

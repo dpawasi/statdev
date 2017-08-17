@@ -68,6 +68,7 @@ urlpatterns = [
     url(r'^person/other/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonOther.as_view(), name='person_other_actions'),
     url(r'^organisations/$', views.OrganisationList.as_view(), name='organisation_list'),
     url(r'^organisations/create/$', views.OrganisationCreate.as_view(), name='organisation_create'),
+    url(r'^organisations/create/(?P<pk>\d+)/$', views.OrganisationUserCreate.as_view(), name='organisation_user_create'),
     url(r'^organisations/details/(?P<pk>\d+)/$', views.OrganisationDetails.as_view(), name='organisation_details'),
 #    url(r'^organisations/other/(?P<pk>\d+)/$', views.OrganisationOther.as_view(), name='organisation_other'),
     url(r'^organisations/other/(?P<pk>\d+)/(?P<action>\w+)/$', views.OrganisationOther.as_view(), name='organisation_other_actions'),

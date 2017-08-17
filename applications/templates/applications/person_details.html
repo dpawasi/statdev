@@ -3,225 +3,289 @@
 {% block page_content_inner %}
 <div class="panel panel-default">
 
-    <div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-sm-12 col-md-12 col-lg-12">
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <h1>{{ object.first_name }} {{ object.last_name }}</h1>
-                    </div>
-                    <div class="col-sm-12 col-md-12 col-lg-12">
-                        <ul class="nav nav-tabs">
-                            <li role="presentation" class="{{ nav_details }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Details</a></li>
-                            <li role="presentation" class="{{ nav_other }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Other</a></li>
-                        </ul>
-                        <BR>
-                    </div>
+	<div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-sm-12 col-md-12 col-lg-12">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<h1>{{ object.first_name }} {{ object.last_name }}</h1>
+					</div>
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<ul class="nav nav-tabs">
+							<li role="presentation" class="{{ nav_details }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Details</a></li>
+							<li role="presentation" class="{{ nav_other }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Other</a></li>
+						</ul>
+						<BR>
+					</div>
 
-                    {% include "applications/application_side_menu.html" %}
-                    {% if nav_details == "active" %}
+					{% include "applications/application_side_menu.html" %}
+					{% if nav_details == "active" %}
 
-                    <div class="col-sm-12 col-md-9 col-lg-9">
-                        <ul class="nav nav-pills">
-                            <li role="presentation" class="{{ nav_details_personal }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Personal Details</a></li>
-                            <li role="presentation" class="{{ nav_details_identification }}" ><a href="{% url "person_details_actions" object.pk "identification" %}">Identification</a></li>
-                            <li role="presentation" class="{{ nav_details_address }}" ><a href="{% url "person_details_actions" object.pk "address" %}">Address Details</a></li>
-                            <li role="presentation" class="{{ nav_details_contactdetails }}" ><a href="{% url "person_details_actions" object.pk "contactdetails" %}">Contact Details</a></li>
-                            <li role="presentation" class="{{ nav_details_companies }}" ><a href="{% url "person_details_actions" object.pk "companies" %}">Companies</a></li>
-                        </ul>
-                        <br>
-                    </div>
+					<div class="col-sm-12 col-md-9 col-lg-9">
+						<ul class="nav nav-pills">
+							<li role="presentation" class="{{ nav_details_personal }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Personal Details</a></li>
+							<li role="presentation" class="{{ nav_details_identification }}" ><a href="{% url "person_details_actions" object.pk "identification" %}">Identification</a></li>
+							<li role="presentation" class="{{ nav_details_address }}" ><a href="{% url "person_details_actions" object.pk "address" %}">Address Details</a></li>
+							<li role="presentation" class="{{ nav_details_contactdetails }}" ><a href="{% url "person_details_actions" object.pk "contactdetails" %}">Contact Details</a></li>
+							<li role="presentation" class="{{ nav_details_companies }}" ><a href="{% url "person_details_actions" object.pk "companies" %}">Companies</a></li>
+						</ul>
+						<br>
+					</div>
 
-                    <div class="col-sm-8 col-md-9 col-lg-10">
-                        {% if nav_details_personal == "active" %}
+					<div class="col-sm-8 col-md-9 col-lg-10">
+						{% if nav_details_personal == "active" %}
 
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="title_heading">
-                                <h3 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#company_details_collapse" aria-expanded="false" aria-controls="company_details_collapse">
-                                        <span class="glyphicon glyphicon-plus"></span>
-                                        Personal Details
-                                    </a>
-                                </h3>
-                            </div>
+						<div class="panel panel-default">
+							<div class="panel-heading" role="tab" id="title_heading">
+								<h3 class="panel-title">
+									<a role="button" data-toggle="collapse" href="#company_details_collapse" aria-expanded="false" aria-controls="company_details_collapse">
+										<span class="glyphicon glyphicon-plus"></span>
+										Personal Details
+									</a>
+								</h3>
+							</div>
 
-                            <div class="panel-collapse collapse in" id="company_details_collapse" role="tabpanel" aria-labelledby="company_details_heading">
-                                <div class="panel-body">
+							<div class="panel-collapse collapse in" id="company_details_collapse" role="tabpanel" aria-labelledby="company_details_heading">
+								<div class="panel-body">
 
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-3 col-lg-3">
+											<label>Name</label>
+										</div>
+										<div class="col-sm-12 col-md-9 col-lg-9">
+											{{ object.first_name }} {{ object.last_name }}
+										</div>
+									</div>
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-3 col-lg-3">
+											<label>Date of birth</label>
+										</div>
+										<div class="col-sm-12 col-md-9 col-lg-9">
+											{{ object.dob }}
+										</div>
+									</div>
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-11 col-lg-11">
+											&nbsp;
+										</div>
+										<div class="col-sm-12 col-md-1 col-lg-1">
+											<a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_update" object.pk %}">Edit</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% elif nav_details_identification == "active" %}
+						<div class="panel panel-default">
+							<div class="panel-heading" role="tab" id="title_heading">
+								<h3 class="panel-title">
+									<a role="button" data-toggle="collapse" href="#cert_incorp_collapse" aria-expanded="false" aria-controls="cert_incorp_collapse">
+										<span class="glyphicon glyphicon-plus"></span>
+										Identification
+									</a>
+								</h3>
+							</div>
+
+							<div class="panel-collapse collapse in" id="cert_incorp_collapse" role="tabpanel" aria-labelledby="cert_incorp_heading">
+								<div class="panel-body">
+								</div>
+							</div>
+						</div>
+						{% elif nav_details_address == "active" %}
+						<div class="panel panel-default">
+							<div class="panel-collapse collapse in" id="address_details_collapse" role="tabpanel" aria-labelledby="address_details_heading">
+								<div class="panel-body">
+									<div class="table-responsive">
+										<div class="col-sm-12 col-md-12 col-lg-12">
+											<div class="col-sm-12 col-md-3 col-lg-3">
+												<label>Postal Address</label>
+											</div>
+											<div class="col-sm-12 col-md-9 col-lg-9">
+												{{ object.postal_address.line1 }} {{ object.postal_address.line2 }} {{ object.postal_address.line3 }}
+											</div>
+										</div>
+
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <div class="col-sm-12 col-md-3 col-lg-3">
+                                                <label>Town/Suburb</label>
+                                            </div>
+                                            <div class="col-sm-12 col-md-9 col-lg-9">
+                                                {{ object.postal_address.locality }}
+                                            </div>
+                                        </div>
+											<div class="col-sm-12 col-md-3 col-lg-3">
+
+                                            <div class="col-sm-12 col-md-3 col-lg-3">
+                                                <label>State</label>
+                                            </div>
+                                            <div class="col-sm-12 col-md-9 col-lg-9">
+                                                {{ object.postal_address.state }}
+                                            </div>
+											</div>
+
+                                           <div class="col-sm-12 col-md-9 col-lg-9">
+
+                                            <div class="col-sm-12 col-md-3 col-lg-3">
+                                                <label>Postcode</label>
+                                            </div>
+                                            <div class="col-sm-12 col-md-9 col-lg-9">
+                                                {{ object.postal_address.postcode }} 
+                                          </div>
+                                            </div>
+
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <div class="col-sm-12 col-md-3 col-lg-3">
+                                                <label>Country</label>
+                                            </div>
+                                            <div class="col-sm-12 col-md-9 col-lg-9">
+                                                {{ object.postal_address.country }} 
+                                           </div>
+                                        </div>
+										<div class="col-sm-12 col-md-12 col-lg-12">
+												<div class="col-sm-12 col-md-3 col-lg-3">
+                                                        {% if object.postal_address %}
+	                                                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.postal_address.pk %}">Update</a>
+														{% else %}
+															<a class="btn btn-primary btn-sm" role="button" href="{% url 'address_create' object.pk %}">Create</a>
+                                                        {% endif %}
+												</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+						{% elif nav_details_contactdetails == "active" %}
+						<div class="panel panel-default">
+							<div class="panel-heading" role="tab" id="title_heading">
+								<h3 class="panel-title">
+									<a role="button" data-toggle="collapse" href="#contact_details_collapse" aria-expanded="false" aria-controls="contact_details_collapse">
+										<span class="glyphicon glyphicon-plus"></span>
+										Contact Details
+									</a>
+								</h3>
+							</div>
+
+							<div class="panel-collapse collapse in" id="contact_details_collapse" role="tabpanel" aria-labelledby="contact_details_heading">
+								<div class="panel-body">
+
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-3 col-lg-3">
+											<label>Phone (home)</label>
+										</div>
+										<div class="col-sm-12 col-md-9 col-lg-9">
+											{{ object.phone_number }}
+										</div>
+									</div>
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-3 col-lg-3">
+											<label>Phone (work)</label>
+										</div>
+										<div class="col-sm-12 col-md-9 col-lg-9">
+											None 
+										</div>
+									</div>
+
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-3 col-lg-3">
+											<label>Mobile</label>
+										</div>
+										<div class="col-sm-12 col-md-9 col-lg-9">
+											{{ object.mobile_number }}
+										</div>
+									</div>
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-3 col-lg-3">
+											<label>Email</label>
+										</div>
+										<div class="col-sm-12 col-md-9 col-lg-9">
+											{{ object.email }}
+										</div>
+									</div>
+
+
+									<div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-11 col-lg-11">
+											&nbsp;
+										</div>
+										<div class="col-sm-12 col-md-1 col-lg-1">
+											<a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_update" object.pk %}">Edit</a>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+						{% elif nav_details_companies == "active" %}
+						<div class="panel panel-default">
+							<div class="panel-heading" role="tab" id="title_heading">
+								<h3 class="panel-title">
+									<a role="button" data-toggle="collapse" href="#linked_person_collapse" aria-expanded="false" aria-controls="linked_person_collapse">
+										<span class="glyphicon glyphicon-plus"></span>
+										Companies
+									</a>
+								</h3>
+							</div>
+
+							<div class="panel-collapse collapse in" id="linked_person_collapse" role="tabpanel" aria-labelledby="linked_person_heading">
+								<div class="panel-body">
+									{% for co in organisations %}
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <div class="col-sm-12 col-md-3 col-lg-3">
-                                            <label>Name</label>
+                                            <label>{{ co.organisation.name }}</label>
                                         </div>
                                         <div class="col-sm-12 col-md-9 col-lg-9">
-                                            {{ object.first_name }} {{ object.last_name }}
+                                            {{ co.organisation.abn }}
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 col-md-12 col-lg-12">
-                                        <div class="col-sm-12 col-md-3 col-lg-3">
-                                            <label>Date of birth</label>
-                                        </div>
-                                        <div class="col-sm-12 col-md-9 col-lg-9">
-                                            {{ object.dob }}
-                                        </div>
-                                    </div>
+									{% endfor %}
+
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <div class="col-sm-12 col-md-11 col-lg-11">
                                             &nbsp;
                                         </div>
                                         <div class="col-sm-12 col-md-1 col-lg-1">
-                                            <a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_update" object.pk %}">Edit</a>
+                                            <a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_user_create" object.pk %}">Add Company</a>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% elif nav_details_identification == "active" %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="title_heading">
-                                <h3 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#cert_incorp_collapse" aria-expanded="false" aria-controls="cert_incorp_collapse">
-                                        <span class="glyphicon glyphicon-plus"></span>
-                                        Identification
-                                    </a>
-                                </h3>
-                            </div>
 
-                            <div class="panel-collapse collapse in" id="cert_incorp_collapse" role="tabpanel" aria-labelledby="cert_incorp_heading">
-                                <div class="panel-body">
-                                </div>
-                            </div>
-                        </div>
-                        {% elif nav_details_address == "active" %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="title_heading">
-                                <h3 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#address_details_collapse" aria-expanded="false" aria-controls="address_details_collapse">
-                                        <span class="glyphicon glyphicon-plus"></span>
-                                        Address Details
-                                    </a>
-                                </h3>
-                            </div>
+								</div>
+							</div>
+						</div>
+						{% endif %} 
+					</div>
 
-                            <div class="panel-collapse collapse in" id="address_details_collapse" role="tabpanel" aria-labelledby="address_details_heading">
-                                <div class="panel-body">
-
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-bordered table-condensed">
-                                            <tbody>
-                                                <tr>
-                                                    <th>Postal address</th>
-                                                    <td>{{ object.postal_address }}</td>
-                                                    {% if user_is_delegate %}
-                                                    <td>
-                                                        {% if object.postal_address %}
-                                                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.postal_address.pk %}">Update</a>
-                                                        {% else %}
-                                                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' object.pk 'postal' %}">Create</a>
-                                                        {% endif %}
-                                                    </td>
-                                                    {% endif %}
-                                                </tr>
-                                                <tr>
-                                                    <th>Billing address</th>
-                                                    <td>{{ object.billing_address }}</td>
-                                                    {% if user_is_delegate %}
-                                                    <td>
-                                                        {% if object.billing_address %}
-                                                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.billing_address.pk %}">Update</a>
-                                                        {% else %}
-                                                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' object.pk 'billing' %}">Create</a>
-                                                        {% endif %}
-                                                    </td>
-                                                    {% endif %}
-                                                </tr>
-                                                {% comment %}
-                                                {% for d in object.delegates.all %}
-                                                <tr>
-                                                    {% if forloop.first %}<th rowspan="{{ object.delegates.count }}">Delegated users</th>{% endif %}
-                                                    <td>
-                                                        {{ d.emailuser.get_full_name}}
-                                                    </td>
-                                                    {% if user_is_delegate %}
-                                                    <td>
-                                                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'organisation_unlink_delegate' object.pk d.emailuser.pk %}">Unlink</a>
-                                                    </td>
-                                                    {% endif %}
-                                                    <th></th>
-                                                </tr>
-                                                {% endfor %}
-                                                {% endcomment %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% elif nav_details_contactdetails == "active" %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="title_heading">
-                                <h3 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#contact_details_collapse" aria-expanded="false" aria-controls="contact_details_collapse">
-                                        <span class="glyphicon glyphicon-plus"></span>
-                                        Contact Details
-                                    </a>
-                                </h3>
-                            </div>
-
-                            <div class="panel-collapse collapse in" id="contact_details_collapse" role="tabpanel" aria-labelledby="contact_details_heading">
-                                <div class="panel-body">
-                                </div>
-                            </div>
-                        </div>
-                        {% elif nav_details_companies == "active" %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="title_heading">
-                                <h3 class="panel-title">
-                                    <a role="button" data-toggle="collapse" href="#linked_person_collapse" aria-expanded="false" aria-controls="linked_person_collapse">
-                                        <span class="glyphicon glyphicon-plus"></span>
-                                        Companies
-                                    </a>
-                                </h3>
-                            </div>
-
-                            <div class="panel-collapse collapse in" id="linked_person_collapse" role="tabpanel" aria-labelledby="linked_person_heading">
-                                <div class="panel-body">
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %} 
-                    </div>
-
-                    {% elif nav_other == "active" %}
-                    <div class="col-sm-12 col-md-9 col-lg-9">
-                        <ul class="nav nav-pills">
-                            <li role="presentation" class="{{ nav_other_applications }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Applications</a></li>
-                            <li role="presentation" class="{{ nav_other_approvals }}" ><a href="{% url "person_other_actions" object.pk "approvals" %}">Approvals</a></li>
-                            <li role="presentation" class="{{ nav_other_emergency }}" ><a href="{% url "person_other_actions" object.pk "emergency" %}">Emergency Works</a></li>
-                            <li role="presentation" class="{{ nav_other_clearance }}" ><a href="{% url "person_other_actions" object.pk "clearance" %}">Clearance of Conditions</a></li>
-                        </ul>
-                        <br>
-                    </div>
-                    <div class="col-sm-12 col-md-9 col-lg-10">
-                        <BR>
-                        {% if nav_other_applications == 'active' %}
-                            {% include "applications/person_other_applications.html" %}
-                        {% elif nav_other_approvals == 'active' %}
-                            {% include "applications/person_other_approvals.html" %}
-                        {% elif nav_other_emergency == 'active' %}
-                            {% include "applications/person_other_emergency.html" %}
-                        {% elif nav_other_clearance == 'active' %}
-                            {% include "applications/person_other_clearance.html" %}
-                        {% endif %}
-                     </div>
+					{% elif nav_other == "active" %}
+					<div class="col-sm-12 col-md-9 col-lg-9">
+						<ul class="nav nav-pills">
+							<li role="presentation" class="{{ nav_other_applications }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Applications</a></li>
+							<li role="presentation" class="{{ nav_other_approvals }}" ><a href="{% url "person_other_actions" object.pk "approvals" %}">Approvals</a></li>
+							<li role="presentation" class="{{ nav_other_emergency }}" ><a href="{% url "person_other_actions" object.pk "emergency" %}">Emergency Works</a></li>
+							<li role="presentation" class="{{ nav_other_clearance }}" ><a href="{% url "person_other_actions" object.pk "clearance" %}">Clearance of Conditions</a></li>
+						</ul>
+						<br>
+					</div>
+					<div class="col-sm-12 col-md-9 col-lg-10">
+						<BR>
+						{% if nav_other_applications == 'active' %}
+						{% include "applications/person_other_applications.html" %}
+						{% elif nav_other_approvals == 'active' %}
+						{% include "applications/person_other_approvals.html" %}
+						{% elif nav_other_emergency == 'active' %}
+						{% include "applications/person_other_emergency.html" %}
+						{% elif nav_other_clearance == 'active' %}
+						{% include "applications/person_other_clearance.html" %}
+						{% endif %}
+					</div>
 
 
 
-                        {% endif %}
-                        <p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+					{% endif %}
+					<p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
-    {% endblock %}
+{% endblock %}
