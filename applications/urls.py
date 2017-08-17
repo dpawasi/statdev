@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from applications import views
 
-
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
@@ -58,15 +57,26 @@ urlpatterns = [
     # URLs related to user account, address and organisation management.
     url(r'^search/$', views.SearchMenu.as_view(), name='search_list'),
     url(r'^search/person/$', views.SearchPersonList.as_view(), name='search_person'),
-    url(r'^search/company/$', views.SearchCompanyList.as_view(), name='search_company'),
+    url(r'^search/organisation/$', views.SearchCompanyList.as_view(), name='search_organisation'),
     url(r'^search/keyword/$', views.SearchKeywords.as_view(), name='search_keyword'),
     url(r'^search/reference/$', views.SearchReference.as_view(), name='search_reference'),
     url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
     url(r'^account/address/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
+    url(r'^person/details/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonDetails.as_view(), name='person_details_actions'),
+    url(r'^person/other/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonOther.as_view(), name='person_other_actions'),
     url(r'^organisations/$', views.OrganisationList.as_view(), name='organisation_list'),
     url(r'^organisations/create/$', views.OrganisationCreate.as_view(), name='organisation_create'),
+    url(r'^organisations/create/(?P<pk>\d+)/$', views.OrganisationUserCreate.as_view(), name='organisation_user_create'),
+    url(r'^organisations/details/(?P<pk>\d+)/$', views.OrganisationDetails.as_view(), name='organisation_details'),
+#    url(r'^organisations/other/(?P<pk>\d+)/$', views.OrganisationOther.as_view(), name='organisation_other'),
+    url(r'^organisations/other/(?P<pk>\d+)/(?P<action>\w+)/$', views.OrganisationOther.as_view(), name='organisation_other_actions'),
+    url(r'^organisations/details/(?P<pk>\d+)/(?P<action>\w+)/$', views.OrganisationDetails.as_view(), name='organisation_details_actions'),
+#    url(r'^organisations/other/(?P<pk>\d+)/applications/$', views.OrganisationOther.as_view(), name='organisation_other_applications'),
+#    url(r'^organisations/other/(?P<pk>\d+)/approvals/$', views.OrganisationOther.as_view(), name='organisation_other_approvals'),
+#    url(r'^organisations/other/(?P<pk>\d+)/emergency/$', views.OrganisationOther.as_view(), name='organisation_other_emergency'), 
+#   url(r'^organisations/other/(?P<pk>\d+)/clearance/$', views.OrganisationOther.as_view(), name='organisation_other_clearance'),
     url(r'^organisations/(?P<pk>\d+)/$', views.OrganisationDetail.as_view(), name='organisation_detail'),
     url(r'^organisations/(?P<pk>\d+)/update/$', views.OrganisationUpdate.as_view(), name='organisation_update'),
     url(r'^organisations/(?P<pk>\d+)/address/create/(?P<type>\w+)/$', views.OrganisationAddressCreate.as_view(), name='organisation_address_create'),

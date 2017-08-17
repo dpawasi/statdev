@@ -88,7 +88,7 @@ class Application(models.Model):
     APP_TYPE_CHOICES = Choices(
         (1, 'permit', ('Permit')),
         (2, 'licence', ('Licence/permit')),
-        (3, 'part5', ('Part 5 - New Application')),
+        (3, 'part5', ('Part 5')),
         (4, 'emergency', ('Emergency works')),
         (5, 'part5cr', ('Part 5 - Amendment Request')),
         (6, 'part5amend', ('Part 5 - Amendment Application')),

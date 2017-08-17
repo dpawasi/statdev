@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db import models
 from model_utils import Choices
 from applications.models import Application
+from ledger.accounts.models import Organisation
 
 @python_2_unicode_compatible
 class Approval(models.Model):
@@ -23,7 +24,8 @@ class Approval(models.Model):
 
      app_type = models.IntegerField(choices=Application.APP_TYPE_CHOICES)
      title = models.CharField(max_length=254)
-     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant_holder') 
+     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='applicant_holder')
+     organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
      application = models.ForeignKey(Application, on_delete=models.CASCADE,null=True, blank=True, related_name='application') 
      issue_date = models.DateField(null=True, blank=True, auto_now_add=True)
      start_date = models.DateField(null=True, blank=True)
