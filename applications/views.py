@@ -3964,7 +3964,16 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.EmailUserForm
 
     def get_object(self, queryset=None):
-        return self.request.user
+        if 'pk' in self.kwargs:
+            if self.request.user.groups.filter(name__in=['Processor']).exists():
+               user = EmailUser.objects.get(pk=self.kwargs['pk'])
+               return user
+            else:
+                messages.error(
+                  self.request, "Forbidden Access")
+                return HttpResponseRedirect("/")
+        else:
+            return self.request.user
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):

@@ -62,6 +62,7 @@ urlpatterns = [
     url(r'^search/reference/$', views.SearchReference.as_view(), name='search_reference'),
     url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
+    url(r'^account/update/(?P<pk>\d+)/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
     url(r'^account/address/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
     url(r'^person/details/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonDetails.as_view(), name='person_details_actions'),
