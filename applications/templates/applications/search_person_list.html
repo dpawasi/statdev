@@ -57,7 +57,7 @@
                     </td>
                     <td>{{ acc_obj.acc_row.date_joined|date:"d-M-Y" }}</td>
                     <td>
-                        <a class="btn btn-primary btn-sm" role="button" href="{% url "person_other_actions" acc_obj.acc_row.pk "applications" %}">View Person</a>
+                        <a class="btn btn-primary btn-sm" role="button" href="{% url "person_details_actions" acc_obj.acc_row.pk "personal" %}">View Person</a>
                     </td>
                 </tr>
                 {% endfor %}
