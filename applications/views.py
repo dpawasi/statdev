@@ -4483,6 +4483,9 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_contactdetails'] = "active"
              elif action == "linkedperson":
                  context['nav_details_linkedperson'] = "active"
+                 user = Organisation.objects.get(id=self.kwargs['pk'])
+                 context['linkedpersons'] = Delegate.objects.filter(organisation=user)
+
         return context
 
 
@@ -4963,15 +4966,13 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
         # Unlink the specified user from the organisation.
         org = self.get_organisation()
         user = EmailUser.objects.get(pk=self.kwargs['user_id'])
-        Delegate.objects.delete(email_user=user, organisation=org)
+        delegateorguser = Delegate.objects.get(email_user=user, organisation=org)
+        delegateorguser.delete()
+#        Delegate.objects.delete(email_user=user, organisation=org)
         messages.success(self.request, '{} has been removed as a delegate for {}.'.format(user, org.name))
         # Generate an action record:
         action = Action(content_object=org, user=self.request.user,
             action='Unlinked delegate access for {}'.format(user.get_full_name()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
-
-
-
-
 
