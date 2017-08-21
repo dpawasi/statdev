@@ -62,6 +62,7 @@ urlpatterns = [
     url(r'^search/reference/$', views.SearchReference.as_view(), name='search_reference'),
     url(r'^account/$', views.UserAccount.as_view(), name='user_account'),
     url(r'^account/update/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
+    url(r'^account/update/(?P<pk>\d+)/$', views.UserAccountUpdate.as_view(), name='user_account_update'),
     url(r'^account/address/create/(?P<type>\w+)/$', views.AddressCreate.as_view(), name='address_create'),
     url(r'^account/address/(?P<pk>\d+)/update/$', views.AddressUpdate.as_view(), name='address_update'),
     url(r'^person/details/(?P<pk>\d+)/(?P<action>\w+)/$', views.PersonDetails.as_view(), name='person_details_actions'),
@@ -82,5 +83,7 @@ urlpatterns = [
     url(r'^organisations/(?P<pk>\d+)/address/create/(?P<type>\w+)/$', views.OrganisationAddressCreate.as_view(), name='organisation_address_create'),
     url(r'^organisations/(?P<pk>\d+)/request-delegate-access/$', views.RequestDelegateAccess.as_view(), name='request_delegate_access'),
     url(r'^organisations/(?P<pk>\d+)/confirm-delegate-access/(?P<uid>[0-9A-Za-z]+)-(?P<token>.+)/$', views.ConfirmDelegateAccess.as_view(), name='confirm_delegate_access'),
-    url(r'^organisations/(?P<pk>\d+)/unlink-delegate/(?P<user_id>\w+)/$', views.UnlinkDelegate.as_view(), name='unlink_delegate')
+    url(r'^organisations/(?P<pk>\d+)/unlink-delegate/(?P<user_id>\w+)/$', views.UnlinkDelegate.as_view(), name='unlink_delegate'),
+    url(r'^organisations/(?P<pk>\d+)/contact/create/$', views.OrganisationContactCreate.as_view(), name='organisation_contact_create'),
+    url(r'^organisations/(?P<pk>\d+)/contact/update/$', views.OrganisationContactUpdate.as_view(), name='organisation_contact_update'),
 ]

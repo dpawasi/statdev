@@ -13,7 +13,7 @@ from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact)
 
 User = get_user_model()
 
@@ -1511,6 +1511,23 @@ class OrganisationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(OrganisationForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = 'Company name'
+        #self.fields['identification'].label = 'Certificate of incorporation'
+        #self.fields['identification'].help_text = 'Electronic copy of current certificate (e.g. image/PDF)'
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_organisation'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+class OrganisationContactForm(ModelForm):
+
+    class Meta:
+        model = OrganisationContact
+        fields = ['email', 'first_name','last_name','phone_number','mobile_number','fax_number', 'organisation']
+
+    def __init__(self, *args, **kwargs):
+        super(OrganisationContactForm, self).__init__(*args, **kwargs)
+        #self.fields['name'].label = 'Company name'
         #self.fields['identification'].label = 'Certificate of incorporation'
         #self.fields['identification'].help_text = 'Electronic copy of current certificate (e.g. image/PDF)'
         self.helper = BaseFormHelper(self)

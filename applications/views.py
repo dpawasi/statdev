@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -3964,7 +3964,16 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.EmailUserForm
 
     def get_object(self, queryset=None):
-        return self.request.user
+        if 'pk' in self.kwargs:
+            if self.request.user.groups.filter(name__in=['Processor']).exists():
+               user = EmailUser.objects.get(pk=self.kwargs['pk'])
+               return user
+            else:
+                messages.error(
+                  self.request, "Forbidden Access")
+                return HttpResponseRedirect("/")
+        else:
+            return self.request.user
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -4138,6 +4147,9 @@ class PersonDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_personal'] = "active"
              elif action == "identification":
                  context['nav_details_identification'] = "active"
+                 #context['person'] = EmailUser.objects.get(id=self.kwargs['pk'])
+                 
+
              elif action == "address":
                  context['nav_details_address'] = "active"
              elif action == "contactdetails":
@@ -4472,8 +4484,13 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_address'] = "active"
              elif action == "contactdetails":
                  context['nav_details_contactdetails'] = "active"
+                 org = Organisation.objects.get(id=self.kwargs['pk'])
+                 context['organisation_contacts'] = OrganisationContact.objects.filter(organisation=org)
              elif action == "linkedperson":
                  context['nav_details_linkedperson'] = "active"
+                 org = Organisation.objects.get(id=self.kwargs['pk'])
+                 context['linkedpersons'] = Delegate.objects.filter(organisation=org)
+
         return context
 
 
@@ -4778,6 +4795,63 @@ class OrganisationUpdate(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(self.get_success_url())
         return super(OrganisationUpdate, self).post(request, *args, **kwargs)
 
+class OrganisationContactCreate(LoginRequiredMixin, CreateView):
+    """A view to update an Organisation object.
+    """
+    model = OrganisationContact
+    form_class = apps_forms.OrganisationContactForm
+    template_name = 'applications/organisation_contact_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationContactCreate, self).get_context_data(**kwargs)
+        context['action'] = 'Create'
+        context['organisation'] = self.get_object().pk 
+        return context
+
+    def get_initial(self):
+        initial = super(OrganisationContactCreate, self).get_initial()
+        initial['organisation'] = self.get_object().pk
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk,'contactdetails')))
+        return super(OrganisationContactCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        # Assign the creating user as a delegate to the new organisation.
+        messages.success(self.request, 'New organisation contact created successfully!')
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk, 'contactdetails')))
+
+class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
+    """A view to update an Organisation object.
+    """
+    model = OrganisationContact
+    form_class = apps_forms.OrganisationContactForm
+    template_name = 'applications/organisation_contact_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationContactUpdate, self).get_context_data(**kwargs)
+        context['action'] = 'Update'
+        return context
+
+    def get_initial(self):
+        initial = super(OrganisationContactUpdate, self).get_initial()
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk,'contactdetails')))
+        return super(OrganisationContactUpdate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        # Assign the creating user as a delegate to the new organisation.
+        messages.success(self.request, 'New organisation contact created successfully!')
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk, 'contactdetails')))
+
+
 
 class OrganisationAddressCreate(AddressCreate):
     """A view to create a new address for an Organisation.
@@ -4954,15 +5028,13 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
         # Unlink the specified user from the organisation.
         org = self.get_organisation()
         user = EmailUser.objects.get(pk=self.kwargs['user_id'])
-        Delegate.objects.delete(email_user=user, organisation=org)
+        delegateorguser = Delegate.objects.get(email_user=user, organisation=org)
+        delegateorguser.delete()
+#        Delegate.objects.delete(email_user=user, organisation=org)
         messages.success(self.request, '{} has been removed as a delegate for {}.'.format(user, org.name))
         # Generate an action record:
         action = Action(content_object=org, user=self.request.user,
             action='Unlinked delegate access for {}'.format(user.get_full_name()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
-
-
-
-
 

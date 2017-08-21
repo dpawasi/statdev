@@ -10,13 +10,19 @@ def has_group(user):
             return True
     return False
 
+def has_staff(user):
+    if user.is_staff is True:
+        return True
+    else:
+        return False
+
 def template_context(request):
     """Pass extra context variables to every template.
     """
     context = {
         'project_version': settings.APPLICATION_VERSION_NO,
         'project_last_commit_date': settings.GIT_COMMIT_DATE,
-        'staff': has_group(request.user)
+        'staff': has_staff(request.user)
         #['Approver','Assessor','Director','Emergency','Executive','Processor']
     }
     return context
