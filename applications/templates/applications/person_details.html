@@ -48,7 +48,6 @@
 
 							<div class="panel-collapse collapse in" id="company_details_collapse" role="tabpanel" aria-labelledby="company_details_heading">
 								<div class="panel-body">
-
 									<div class="col-sm-12 col-md-12 col-lg-12">
 										<div class="col-sm-12 col-md-3 col-lg-3">
 											<label>Name</label>
@@ -89,6 +88,23 @@
 
 							<div class="panel-collapse collapse in" id="cert_incorp_collapse" role="tabpanel" aria-labelledby="cert_incorp_heading">
 								<div class="panel-body">
+
+									{% if object.identification %}
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+										<div class="col-sm-12 col-md-4 col-lg-2">
+															<label>Current Identification</label>	
+										</div>
+                                        <div class="col-sm-12 col-md-4 col-lg-6">
+                                            {{ object.identification }} 
+                                        </div>
+                                        <div class="col-sm-12 col-md-5 col-lg-4">
+                                            <A HREF=''><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
+                                        </div>
+                                    </div>
+									{% else %}
+											  <A HREF=''><img src='{% static "images/bin_blue.png" %}'>Add Identification</A>
+									{% endif %}
+
 								</div>
 							</div>
 						</div>
@@ -205,7 +221,7 @@
 											&nbsp;
 										</div>
 										<div class="col-sm-12 col-md-1 col-lg-1">
-											<a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_update" object.pk %}">Edit</a>
+											<a class="btn btn-primary btn-sm" role="button" href="{% url "user_account_update" object.pk %}">Edit</a>
 										</div>
 									</div>
 								</div>

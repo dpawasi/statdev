@@ -1,0 +1,9 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_content_inner %}
+
+<h1>{{ page_heading }}</h1>
+{% crispy form %}
+
+{% endblock %}
