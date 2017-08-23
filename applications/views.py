@@ -4065,7 +4065,6 @@ class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
 
     def get_initial(self):
         initial = super(OrganisationCertificateUpdate, self).get_initial()
-        print self.object.id
         org = self.get_object()
         #print org.identification
         if self.object.identification:
