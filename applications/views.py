@@ -29,7 +29,7 @@ from applications.views_sub import Application_Part5, Application_Emergency, App
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
-from ledger.accounts.models import EmailUser, Address, Organisation
+from ledger.accounts.models import EmailUser, Address, Organisation, Document
 from approvals.models import Approval
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -3905,8 +3905,6 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
             if 'registration-clear_multifileid-' + str(filelist.id) in form.data:
                  self.object.registration.remove(filelist)
 
-
-  
         if self.request.FILES.get('registration'):
             for f in self.request.FILES.getlist('registration'):
                 doc = Record()
@@ -3989,6 +3987,113 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
         #    self.obj.id_verified = None
         self.obj.save()
         return HttpResponseRedirect(reverse('user_account'))
+
+
+class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
+    form_class = apps_forms.UserFormIdentificationUpdate
+    #form_class = apps_forms.OrganisationCertificateForm
+  
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            if self.request.user.groups.filter(name__in=['Processor']).exists():
+               user = EmailUser.objects.get(pk=self.kwargs['pk'])
+               return user
+            else:
+                messages.error(
+                  self.request, "Forbidden Access")
+                return HttpResponseRedirect("/")
+        else:
+            return self.request.user
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(UserAccountIdentificationUpdate, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(UserAccountIdentificationUpdate, self).get_initial()
+        emailuser = self.get_object()
+
+        if emailuser.identification:
+           initial['identification'] = emailuser.identification.file
+        return initial
+
+    def form_valid(self, form):
+        """Override to set first_name and last_name on the EmailUser object.
+        """
+        self.obj = form.save(commit=False)
+        forms_data = form.cleaned_data
+
+        # If identification has been uploaded, then set the id_verified field to None.
+        # if 'identification' in data and data['identification']:
+        #    self.obj.id_verified = None
+        if self.request.POST.get('identification-clear'):
+            self.obj.identification = None
+
+        if self.request.FILES.get('identification'):
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.file = self.request.FILES['identification']
+            new_doc.save()
+            self.obj.identification = new_doc
+
+        self.obj.save()
+        return HttpResponseRedirect(reverse('person_details_actions', args=(self.obj.pk,'identification')))
+
+
+class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
+    model = Organisation
+    form_class = apps_forms.OrganisationCertificateForm
+
+#    def get_object(self, queryset=None):
+#        if 'pk' in self.kwargs:
+#            if self.request.user.groups.filter(name__in=['Processor']).exists():
+#                #user = EmailUser.objects.get(pk=self.kwargs['pk'])
+#               return self 
+#            else:
+#                messages.error(
+#                  self.request, "Forbidden Access")
+#                return HttpResponseRedirect("/")
+#        else:
+#            return self.request.user
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(OrganisationCertificateUpdate, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(OrganisationCertificateUpdate, self).get_initial()
+        print self.object.id
+        org = self.get_object()
+        #print org.identification
+        if self.object.identification:
+           initial['identification'] = self.object.identification.file
+        return initial
+
+    def form_valid(self, form):
+        """Override to set first_name and last_name on the EmailUser object.
+        """
+        self.obj = form.save(commit=False)
+        forms_data = form.cleaned_data
+
+        # If identification has been uploaded, then set the id_verified field to None.
+        # if 'identification' in data and data['identification']:
+        #    self.obj.id_verified = None
+        if self.request.POST.get('identification-clear'):
+            self.obj.identification = None
+
+        if self.request.FILES.get('identification'):
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.file = self.request.FILES['identification']
+            new_doc.save()
+            self.obj.identification = new_doc
+
+        self.obj.save()
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.obj.pk,'certofincorp')))
 
 
 class AddressCreate(LoginRequiredMixin, CreateView):
@@ -4164,6 +4269,39 @@ class PersonDetails(LoginRequiredMixin, DetailView):
 
         return context
 
+class PersonOrgDelete(LoginRequiredMixin, UpdateView):
+    model = Organisation 
+    form_class = apps_forms.PersonOrgDeleteForm
+    template_name = 'applications/referral_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        return super(PersonOrgDelete, self).get(request, *args, **kwargs)
+
+#    def get_context_data(self, **kwargs):
+#        context = super(ReferralDelete, self).get_context_data(**kwargs)
+#        context['referral'] = self.get_object()
+#        return context
+
+    def get_success_url(self, org_id):
+        return reverse('person_details_actions', args=(org_id,'companies'))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'companies')))
+        return super(PersonOrgDelete, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        org = self.get_object()
+        org_id = org.id
+        org.delete()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Organisation {} deleted'.format(org_id))
+        action.save()
+        return HttpResponseRedirect(self.get_success_url(self.pk))
+
 class PersonOther(LoginRequiredMixin, DetailView):
     model = EmailUser
     template_name = 'applications/person_details.html'
@@ -4194,6 +4332,7 @@ class PersonOther(LoginRequiredMixin, DetailView):
              if action == "applications":
                  user = EmailUser.objects.get(id=self.kwargs['pk'])
                  delegate = Delegate.objects.filter(email_user=user).values('id')
+
                  context['nav_other_applications'] = "active"
                  context['app'] = ''
 
@@ -4480,6 +4619,9 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_company'] = "active"
              elif action == "certofincorp":
                  context['nav_details_certofincorp'] = "active"
+                 org = Organisation.objects.get(id=self.kwargs['pk'])
+                 context['org'] = org
+
              elif action == "address":
                  context['nav_details_address'] = "active"
              elif action == "contactdetails":
@@ -4798,31 +4940,36 @@ class OrganisationUpdate(LoginRequiredMixin, UpdateView):
 class OrganisationContactCreate(LoginRequiredMixin, CreateView):
     """A view to update an Organisation object.
     """
-    model = OrganisationContact
+    #model = OrganisationContact
     form_class = apps_forms.OrganisationContactForm
     template_name = 'applications/organisation_contact_form.html'
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationContactCreate, self).get_context_data(**kwargs)
         context['action'] = 'Create'
-        context['organisation'] = self.get_object().pk 
+#        print self.get_object().pk
+#        context['organisation'] = self.get_object().pk 
         return context
 
     def get_initial(self):
         initial = super(OrganisationContactCreate, self).get_initial()
-        initial['organisation'] = self.get_object().pk
+        initial['organisation'] = self.kwargs['pk']
+        # print 'dsf dsaf dsa'
         return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk,'contactdetails')))
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'],'contactdetails')))
         return super(OrganisationContactCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.obj = form.save()
+        self.obj = form.save(commit=False)
+        org = Organisation.objects.get(id=self.kwargs['pk'])
+        self.obj.organisation = org
+        self.obj.save()
         # Assign the creating user as a delegate to the new organisation.
         messages.success(self.request, 'New organisation contact created successfully!')
-        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk, 'contactdetails')))
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'], 'contactdetails')))
 
 class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
     """A view to update an Organisation object.
@@ -4842,14 +4989,14 @@ class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk,'contactdetails')))
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().organisation.id,'contactdetails')))
         return super(OrganisationContactUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.obj = form.save()
         # Assign the creating user as a delegate to the new organisation.
         messages.success(self.request, 'New organisation contact created successfully!')
-        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk, 'contactdetails')))
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().organisation.id, 'contactdetails')))
 
 
 

@@ -3,7 +3,6 @@
 {% block page_content_inner %}
 
 <div class="panel panel-default">
-
 	<div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
 		<div class="panel-body">
 			<div class="row">
@@ -34,8 +33,8 @@
 					</div>
 
 					<div class="col-sm-8 col-md-9 col-lg-10">
-						{% if nav_details_personal == "active" %}
 
+						{% if nav_details_personal == "active" %}
 						<div class="panel panel-default">
 							<div class="panel-heading" role="tab" id="title_heading">
 								<h3 class="panel-title">
@@ -69,7 +68,7 @@
 											&nbsp;
 										</div>
 										<div class="col-sm-12 col-md-1 col-lg-1">
-											<a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_update" object.pk %}">Edit</a>
+											<a class="btn btn-primary btn-sm" role="button" href="{% url "user_account_update_admin" object.pk %}">Edit</a>
 										</div>
 									</div>
 								</div>
@@ -92,17 +91,17 @@
 									{% if object.identification %}
                                     <div class="col-sm-12 col-md-12 col-lg-12">
 										<div class="col-sm-12 col-md-4 col-lg-2">
-															<label>Current Identification</label>	
+												<label>Current Identification</label>	
 										</div>
                                         <div class="col-sm-12 col-md-4 col-lg-6">
                                             {{ object.identification }} 
                                         </div>
                                         <div class="col-sm-12 col-md-5 col-lg-4">
-                                            <A HREF=''><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
+                                            <A HREF='{% url "user_account_update_identification_admin" object.pk %}'><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
                                         </div>
                                     </div>
 									{% else %}
-											  <A HREF=''><img src='{% static "images/bin_blue.png" %}'>Add Identification</A>
+                                    <A HREF='{% url "user_account_update_identification_admin" object.pk %}'>Add Identification</A>
 									{% endif %}
 
 								</div>
@@ -221,7 +220,7 @@
 											&nbsp;
 										</div>
 										<div class="col-sm-12 col-md-1 col-lg-1">
-											<a class="btn btn-primary btn-sm" role="button" href="{% url "user_account_update" object.pk %}">Edit</a>
+											<a class="btn btn-primary btn-sm" role="button" href="{% url "user_account_update_admin" object.pk %}">Edit</a>
 										</div>
 									</div>
 								</div>

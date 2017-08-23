@@ -88,6 +88,22 @@
 
                             <div class="panel-collapse collapse in" id="cert_incorp_collapse" role="tabpanel" aria-labelledby="cert_incorp_heading">
                                 <div class="panel-body">
+
+                                    {% if org.identification %}
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        <div class="col-sm-12 col-md-4 col-lg-2">
+                                                <label>Current Certificate</label>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4 col-lg-6">
+                                            {{ org.identification }}
+                                        </div>
+                                        <div class="col-sm-12 col-md-5 col-lg-4">
+                                            <A HREF='{% url "organisation_update_identification_admin" org.id %}'><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <A HREF='{% url "organisation_update_identification_admin" org.id %}'>Add Certificate</A>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
