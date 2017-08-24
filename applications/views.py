@@ -18,7 +18,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from extra_views import ModelFormSetView
 from itertools import chain
 import pdfkit
-
+import re
 from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
@@ -535,47 +535,133 @@ class SearchKeywords(ListView):
     template_name = 'applications/search_keywords_list.html'
 
     def get_context_data(self, **kwargs):
-
         context = super(SearchKeywords, self).get_context_data(**kwargs)
+
         context['APP_TYPES'] = Application.APP_TYPE_CHOICES
         context['query_string'] = ''
 
         APP_TYPE_CHOICES = [{"key":"applications", "value":"Applications"},{"key":"approvals","value":"Approvals" },{"key":"emergency","value":"Emergency Works"},{"key":"compliance","value":"Compliance"}]
-        context['APP_TYPES'] = list(APP_TYPE_CHOICES)
 
+        app_list_filter = [1,2,3,4]
+        if "filter-applications" in self.request.GET:
+            app_list_filter.append([1])
+            app_list_filter.append([2])
+            app_list_filter.append([3])
+        if "filter-emergency" in self.request.GET:
+            app_list_filter.append(list[4])
+            print app_list_filter
+        context['APP_TYPES'] = list(APP_TYPE_CHOICES)
+        query_str_split = ''
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
             search_filter = Q()
-            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
-
-            orgs = []
-            for d in listorgs:
-                d.email_user.id
-                orgs.append(d.email_user.id)
-
+            search_filter_app = Q(app_type__in=app_list_filter)           
+           
+            # Applications: 
             for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+               search_filter = Q(pk__contains=se_wo)
+               search_filter |= Q(title__icontains=se_wo)
+               search_filter |= Q(description__icontains=se_wo)
+               search_filter |= Q(related_permits__icontains=se_wo)
+               search_filter |= Q(address__icontains=se_wo)
+               search_filter != Q(jetties__icontains=se_wo)
+               search_filter != Q(drop_off_pick_up__icontains=se_wo)
+               search_filter != Q(sullage_disposal__icontains=se_wo)
+               search_filter != Q(waste_disposal__icontains=se_wo)
+               search_filter != Q(refuel_location_method__icontains=se_wo)
+               search_filter != Q(berth_location__icontains=se_wo)
+               search_filter != Q(anchorage__icontains=se_wo)
+               search_filter != Q(operating_details__icontains=se_wo)
+               search_filter != Q(proposed_development_current_use_of_land__icontains=se_wo)
+               search_filter != Q(proposed_development_description__icontains=se_wo)
+                
             # Add Organsations Results , Will also filter out duplicates
-            search_filter |= Q(pk__in=orgs)
+            # search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = EmailUser.objects.filter(search_filter)
-        else:
-            listusers = EmailUser.objects.all()
+            apps = Application.objects.filter(search_filter_app & search_filter)
 
-        context['acc_list'] = []
-        for lu in listusers:
+
+            search_filter = Q()
+            for se_wo in query_str_split:
+                 search_filter = Q(pk__contains=se_wo)
+                 search_filter |= Q(title__icontains=se_wo)
+               
+            approvals = Approval.objects.filter(search_filter)
+
+        else:
+            apps = Application.objects.filter(app_type__in=[1,2,3,4])
+            approvals = Approval.objects.all()
+
+
+        context['apps_list'] = []
+        for lu in apps:
             row = {}
-            row['acc_row'] = lu
-            lu.organisations = []
-            lu.organisations = Delegate.objects.filter(email_user=lu.id)
-            #for o in lu.organisations:
-            #    print o.organisation
-            context['acc_list'].append(row)
+            print lu.description
+            lu.text_found = ''
+            if len(query_str_split) > 0:
+              for se_wo in query_str_split:
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.title)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.related_permits)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.address)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.description)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.jetties)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.drop_off_pick_up)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.sullage_disposal)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.waste_disposal)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.refuel_location_method)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.berth_location)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.anchorage)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.operating_details)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.proposed_development_current_use_of_land)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.proposed_development_description)
+
+            if lu.app_type in [1,2,3]:
+                lu.app_group = 'application'
+            elif lu.app_type in [4]:
+                lu.app_group = 'emergency'
+
+
+            row['row'] = lu
+            context['apps_list'].append(row)
+
+        for lu in approvals:
+            row = {}
+            lu.text_found = ''
+            if len(query_str_split) > 0:
+                for se_wo in query_str_split:
+                    lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.title)
+            lu.app_group = 'approval'
+            row['row'] = lu
+            context['apps_list'].append(row)
+
 
         if 'q' in self.request.GET and self.request.GET['q']:
             context['query_string'] = self.request.GET['q']
+
         return context
+
+    def slice_keyword(self,keyword,text_string):      
+
+        if text_string is None:
+            return ''
+        if len(text_string) < 1:
+            return ''
+        text_string = " "+ text_string.lower() + " " 
+        splitr= text_string.split(keyword.lower())
+        splitr_len = len(splitr)
+        text_found = ''
+        loopcount = 0
+        for t in splitr:
+            loopcount = loopcount + 1
+            text_found += t[-20:]
+            if loopcount > 1:
+                if loopcount == splitr_len:
+                    break
+            text_found += "<b>"+keyword+"</b>"
+        if len(text_found) > 2:
+            text_found = text_found + '...'
+        return text_found
 
 class SearchReference(ListView):
     model = Compliance

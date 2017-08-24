@@ -22,7 +22,7 @@
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-11 col-lg-11">
                         {% for applist in APP_TYPES %} 
-                          <input type='checkbox' value='{{ at.0 }}' id='app_type_selection-{{ at.0 }}' > {{ applist.value }} 
+                        <input type='checkbox'  name='filter-{{ applist.key }}' id='filter-{{ applist.key }}' > {{ applist.value }} 
                         {% endfor %}
                     </div>
                 </div>
@@ -43,29 +43,30 @@
         <table class="table table-striped table-bordered table-condensed">
             <thead>
                 <tr>
-                    <th>User Id</th>
-                    <th>First Name(s)</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Organisations</th>
-                    <th>Creation Date</th>
-                    <th>Actions</th>
+                    <th>Number</th>
+                    <th>Type</th>
+                    <th>Related Party</th>
+                    <th>Text Found</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
 
-                {% for acc_obj in acc_list %}
+                {% for row_obj in apps_list %}
                 <tr>
-                    <td><a href="">{{ acc_obj.acc_row.pk }}</a></td>
-                    <td>{{ acc_obj.acc_row.first_name }}</td>
-                    <td>{{ acc_obj.acc_row.last_name }}</td>
-                    <td>{{ acc_obj.acc_row.email }}</td>
-                    <td>
-                        {% for o in acc_obj.acc_row.organisations %}
-                            {{ o.organisation }}<BR>
-                        {% endfor %}
+                    <td><a href="">{% if row_obj.row.app_group == 'application' %}
+                                WP-
+                            {% elif row_obj.row.app_group == 'approval' %}
+                                AP-
+                            {% elif row_obj.row.app_group == 'emergency' %}
+                                EW-
+                            {% endif %}
+                     {{ row_obj.row.pk }}
+                    </a>
                     </td>
-                    <td>{{ acc_obj.acc_row.date_joined|date:"d-M-Y" }}</td>
+                    <td>{{ row_obj.row.get_app_type_display }}</td>
+                    <td>{{ row_obj.row.applicant.first_name }}</td>
+                    <td width='40%'>{{ row_obj.row.text_found|safe }}</td>
                     <td>
                     <a class="btn btn-primary btn-sm" role="button" href="">View Person</a>
                     </td>
