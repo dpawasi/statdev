@@ -903,6 +903,18 @@ class ReferralDeleteForm(Form):
         self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
+class PersonOrgDeleteForm(Form):
+    """Form is to allow a organisation to be unlinked from people 
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
+        super(ReferralDeleteForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_person_org_delete'
+        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
 class VesselDeleteForm(Form):
     """Form is to allow a referral to be reminded about the outstanding feedback
     """
@@ -1477,6 +1489,7 @@ class EmailUserForm(ModelForm):
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_emailuser_account_update'
         self.helper.attrs = {'novalidate': ''}
+
         # Define the form layout.
         self.helper.layout = Layout(
             'first_name', 'last_name', 'title', 'dob', 'phone_number', 'mobile_number', 'fax_number',
@@ -1485,6 +1498,53 @@ class EmailUserForm(ModelForm):
                 Submit('cancel', 'Cancel')
             )
         )
+
+
+class OrganisationCertificateForm(ModelForm):
+    identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    class Meta:
+        model = EmailUser 
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super(OrganisationCertificateForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_org_update'
+        self.helper.attrs = {'novalidate': ''}
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            'identification',
+            FormActions(
+                Submit('save', 'Save', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+class UserFormIdentificationUpdate(ModelForm):
+    identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    class Meta:
+        model = EmailUser
+        fields = ['id']
+        
+
+    def __init__(self, *args, **kwargs):
+        super(UserFormIdentificationUpdate, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_emailuser_account_update'
+        self.helper.attrs = {'novalidate': ''}
+        # Define the form layout.
+        self.helper.layout = Layout(
+            'identification',
+            FormActions(
+                Submit('save', 'Save', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
+
 
 
 class AddressForm(ModelForm):
@@ -1523,7 +1583,7 @@ class OrganisationContactForm(ModelForm):
 
     class Meta:
         model = OrganisationContact
-        fields = ['email', 'first_name','last_name','phone_number','mobile_number','fax_number', 'organisation']
+        fields = ['email', 'first_name','last_name','phone_number','mobile_number','fax_number']
 
     def __init__(self, *args, **kwargs):
         super(OrganisationContactForm, self).__init__(*args, **kwargs)

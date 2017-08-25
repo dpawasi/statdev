@@ -18,7 +18,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from extra_views import ModelFormSetView
 from itertools import chain
 import pdfkit
-
+import re
 from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
@@ -29,7 +29,7 @@ from applications.views_sub import Application_Part5, Application_Emergency, App
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
-from ledger.accounts.models import EmailUser, Address, Organisation
+from ledger.accounts.models import EmailUser, Address, Organisation, Document
 from approvals.models import Approval
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -482,7 +482,6 @@ class SearchPersonList(ListView):
         if 'q' in self.request.GET and self.request.GET['q']:
             context['query_string'] = self.request.GET['q']
 
-
         return context
 
 
@@ -535,72 +534,192 @@ class SearchKeywords(ListView):
     template_name = 'applications/search_keywords_list.html'
 
     def get_context_data(self, **kwargs):
-
         context = super(SearchKeywords, self).get_context_data(**kwargs)
+
         context['APP_TYPES'] = Application.APP_TYPE_CHOICES
         context['query_string'] = ''
 
-        APP_TYPE_CHOICES = [{"key":"applications", "value":"Applications"},{"key":"approvals","value":"Approvals" },{"key":"emergency","value":"Emergency Works"},{"key":"compliance","value":"Compliance"}]
-        context['APP_TYPES'] = list(APP_TYPE_CHOICES)
+        APP_TYPE_CHOICES = [{"key":"applications", "value":"Applications"},{"key":"approvals","value":"Approvals"},{"key":"emergency","value":"Emergency Works"},{"key":"compliance","value":"Compliance"}]
 
+        app_list_filter = []
+        context['app_type_checkboxes'] = {}
+        if len(self.request.GET) == 0:
+            context['app_type_checkboxes'] = {'applications': 'checked', 'approvals': 'checked', 'emergency': 'checked','compliance': 'checked'}
+
+        # print app_list_filter
+        if "filter-applications" in self.request.GET:
+            app_list_filter.append(1)
+            app_list_filter.append(2)
+            app_list_filter.append(3)
+            context['app_type_checkboxes']['applications'] = 'checked'
+
+            # print app_list_filter
+        if "filter-emergency" in self.request.GET:
+            app_list_filter.append(4)
+            context['app_type_checkboxes']['emergency'] = 'checked'
+        if "filter-approvals" in self.request.GET:
+            context['app_type_checkboxes']['approvals'] = 'checked'
+        if "filter-compliance" in self.request.GET:
+            context['app_type_checkboxes']['compliance'] = 'checked'
+
+            # print app_list_filter
+        context['APP_TYPES'] = list(APP_TYPE_CHOICES)
+        query_str_split = ''
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
             search_filter = Q()
-            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
-
-            orgs = []
-            for d in listorgs:
-                d.email_user.id
-                orgs.append(d.email_user.id)
-
+            search_filter_app = Q(app_type__in=app_list_filter) 
+           
+            # Applications: 
             for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
+               search_filter = Q(pk__contains=se_wo)
+               search_filter |= Q(title__icontains=se_wo)
+               search_filter |= Q(description__icontains=se_wo)
+               search_filter |= Q(related_permits__icontains=se_wo)
+               search_filter |= Q(address__icontains=se_wo)
+               search_filter |= Q(jetties__icontains=se_wo)
+               search_filter |= Q(drop_off_pick_up__icontains=se_wo)
+               search_filter |= Q(sullage_disposal__icontains=se_wo)
+               search_filter |= Q(waste_disposal__icontains=se_wo)
+               search_filter |= Q(refuel_location_method__icontains=se_wo)
+               search_filter |= Q(berth_location__icontains=se_wo)
+               search_filter |= Q(anchorage__icontains=se_wo)
+               search_filter |= Q(operating_details__icontains=se_wo)
+               search_filter |= Q(proposed_development_current_use_of_land__icontains=se_wo)
+               search_filter |= Q(proposed_development_description__icontains=se_wo)
+                
             # Add Organsations Results , Will also filter out duplicates
-            search_filter |= Q(pk__in=orgs)
+            # search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = EmailUser.objects.filter(search_filter)
-        else:
-            listusers = EmailUser.objects.all()
+           
+            apps = Application.objects.filter(search_filter_app & search_filter)
 
-        context['acc_list'] = []
-        for lu in listusers:
+            search_filter = Q()
+            for se_wo in query_str_split:
+                 search_filter = Q(pk__contains=se_wo)
+                 search_filter |= Q(title__icontains=se_wo)
+
+            approvals = []
+            if "filter-approvals" in self.request.GET:
+                 approvals = Approval.objects.filter(search_filter)
+
+            compliance = []
+            if "filter-compliance" in self.request.GET:
+                compliance = Compliance.objects.filter()
+
+
+        else:
+            #apps = Application.objects.filter(app_type__in=[1,2,3,4])
+            #approvals = Approval.objects.all()
+            apps = []
+            approvals = []
+            compliance = []
+
+
+        context['apps_list'] = []
+        for lu in apps:
             row = {}
-            row['acc_row'] = lu
-            lu.organisations = []
-            lu.organisations = Delegate.objects.filter(email_user=lu.id)
-            #for o in lu.organisations:
-            #    print o.organisation
-            context['acc_list'].append(row)
+            lu.text_found = ''
+            if len(query_str_split) > 0:
+              for se_wo in query_str_split:
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.title)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.related_permits)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.address)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.description)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.jetties)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.drop_off_pick_up)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.sullage_disposal)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.waste_disposal)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.refuel_location_method)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.berth_location)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.anchorage)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.operating_details)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.proposed_development_current_use_of_land)
+                lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.proposed_development_description)
+
+            if lu.app_type in [1,2,3]:
+                lu.app_group = 'application'
+            elif lu.app_type in [4]:
+                lu.app_group = 'emergency'
+
+
+            row['row'] = lu
+            context['apps_list'].append(row)
+
+        for lu in approvals:
+            row = {}
+            lu.text_found = ''
+            if len(query_str_split) > 0:
+                for se_wo in query_str_split:
+                    lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.title)
+            lu.app_group = 'approval'
+            row['row'] = lu
+            context['apps_list'].append(row)
+
+        for lu in compliance:
+            row = {}
+            lu.text_found = ''
+            if len(query_str_split) > 0:
+                for se_wo in query_str_split:
+                    lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.title)
+            lu.app_group = 'compliance'
+            row['row'] = lu
+            context['apps_list'].append(row)
 
         if 'q' in self.request.GET and self.request.GET['q']:
             context['query_string'] = self.request.GET['q']
+
         return context
+
+    def slice_keyword(self,keyword,text_string):      
+
+        if text_string is None:
+            return ''
+        if len(text_string) < 1:
+            return ''
+        text_string = " "+ text_string.lower() + " " 
+        splitr= text_string.split(keyword.lower())
+        splitr_len = len(splitr)
+        text_found = ''
+        loopcount = 0
+        for t in splitr:
+            loopcount = loopcount + 1
+            text_found += t[-20:]
+            if loopcount > 1:
+                if loopcount == splitr_len:
+                    break
+            text_found += "<b>"+keyword+"</b>"
+        if len(text_found) > 2:
+            text_found = text_found + '...'
+        return text_found
 
 class SearchReference(ListView):
     model = Compliance
     template_name = 'applications/search_reference_list.html'
 
     def get_context_data(self, **kwargs):
-
-        context = super(SearchReference, self).get_context_data(**kwargs)
+       #    def get(self, request, *args, **kwargs):
+        context = {} 
+        #context = super(SearchReference, self).get_context_data(**kwargs)
         context['query_string'] = ''
 
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
-            search_filter = Q()
-            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
-            orgs = []
-            for d in listorgs:
-                d.email_user.id
-                orgs.append(d.email_user.id)
 
-            for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
-            # Add Organsations Results , Will also filter out duplicates
-            search_filter |= Q(pk__in=orgs)
-            # Get all applicants
+            form_prefix = query_str[:3]
+            form_no = query_str.replace(form_prefix,'')
+            #print form_prefix 
+            #print form_no
+            search_filter = Q()
+            if form_prefix == 'EW-' or form_prefix == 'WO-':
+                application = Application.objects.filter(id=form_no)
+                #print application
+                messages.error(
+                         self.request, 'You are unable to issue this application!')
+
+                #                HttpResponseRedirect(reverse('application_detail',args=(application.id,)))                
             listusers = EmailUser.objects.filter(search_filter)
         else:
             listusers = EmailUser.objects.all()
@@ -3905,8 +4024,6 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
             if 'registration-clear_multifileid-' + str(filelist.id) in form.data:
                  self.object.registration.remove(filelist)
 
-
-  
         if self.request.FILES.get('registration'):
             for f in self.request.FILES.getlist('registration'):
                 doc = Record()
@@ -3989,6 +4106,112 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
         #    self.obj.id_verified = None
         self.obj.save()
         return HttpResponseRedirect(reverse('user_account'))
+
+
+class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
+    form_class = apps_forms.UserFormIdentificationUpdate
+    #form_class = apps_forms.OrganisationCertificateForm
+  
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            if self.request.user.groups.filter(name__in=['Processor']).exists():
+               user = EmailUser.objects.get(pk=self.kwargs['pk'])
+               return user
+            else:
+                messages.error(
+                  self.request, "Forbidden Access")
+                return HttpResponseRedirect("/")
+        else:
+            return self.request.user
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(UserAccountIdentificationUpdate, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(UserAccountIdentificationUpdate, self).get_initial()
+        emailuser = self.get_object()
+
+        if emailuser.identification:
+           initial['identification'] = emailuser.identification.file
+        return initial
+
+    def form_valid(self, form):
+        """Override to set first_name and last_name on the EmailUser object.
+        """
+        self.obj = form.save(commit=False)
+        forms_data = form.cleaned_data
+
+        # If identification has been uploaded, then set the id_verified field to None.
+        # if 'identification' in data and data['identification']:
+        #    self.obj.id_verified = None
+        if self.request.POST.get('identification-clear'):
+            self.obj.identification = None
+
+        if self.request.FILES.get('identification'):
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.file = self.request.FILES['identification']
+            new_doc.save()
+            self.obj.identification = new_doc
+
+        self.obj.save()
+        return HttpResponseRedirect(reverse('person_details_actions', args=(self.obj.pk,'identification')))
+
+
+class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
+    model = Organisation
+    form_class = apps_forms.OrganisationCertificateForm
+
+#    def get_object(self, queryset=None):
+#        if 'pk' in self.kwargs:
+#            if self.request.user.groups.filter(name__in=['Processor']).exists():
+#                #user = EmailUser.objects.get(pk=self.kwargs['pk'])
+#               return self 
+#            else:
+#                messages.error(
+#                  self.request, "Forbidden Access")
+#                return HttpResponseRedirect("/")
+#        else:
+#            return self.request.user
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('user_account'))
+        return super(OrganisationCertificateUpdate, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(OrganisationCertificateUpdate, self).get_initial()
+        org = self.get_object()
+        #print org.identification
+        if self.object.identification:
+           initial['identification'] = self.object.identification.file
+        return initial
+
+    def form_valid(self, form):
+        """Override to set first_name and last_name on the EmailUser object.
+        """
+        self.obj = form.save(commit=False)
+        forms_data = form.cleaned_data
+
+        # If identification has been uploaded, then set the id_verified field to None.
+        # if 'identification' in data and data['identification']:
+        #    self.obj.id_verified = None
+        if self.request.POST.get('identification-clear'):
+            self.obj.identification = None
+
+        if self.request.FILES.get('identification'):
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+            new_doc = Document()
+            new_doc.file = self.request.FILES['identification']
+            new_doc.save()
+            self.obj.identification = new_doc
+
+        self.obj.save()
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.obj.pk,'certofincorp')))
 
 
 class AddressCreate(LoginRequiredMixin, CreateView):
@@ -4164,6 +4387,39 @@ class PersonDetails(LoginRequiredMixin, DetailView):
 
         return context
 
+class PersonOrgDelete(LoginRequiredMixin, UpdateView):
+    model = Organisation 
+    form_class = apps_forms.PersonOrgDeleteForm
+    template_name = 'applications/referral_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        referral = self.get_object()
+        return super(PersonOrgDelete, self).get(request, *args, **kwargs)
+
+#    def get_context_data(self, **kwargs):
+#        context = super(ReferralDelete, self).get_context_data(**kwargs)
+#        context['referral'] = self.get_object()
+#        return context
+
+    def get_success_url(self, org_id):
+        return reverse('person_details_actions', args=(org_id,'companies'))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'companies')))
+        return super(PersonOrgDelete, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        org = self.get_object()
+        org_id = org.id
+        org.delete()
+        # Record an action on the referral's application:
+        action = Action(
+            content_object=ref.application, user=self.request.user,
+            action='Organisation {} deleted'.format(org_id))
+        action.save()
+        return HttpResponseRedirect(self.get_success_url(self.pk))
+
 class PersonOther(LoginRequiredMixin, DetailView):
     model = EmailUser
     template_name = 'applications/person_details.html'
@@ -4194,6 +4450,7 @@ class PersonOther(LoginRequiredMixin, DetailView):
              if action == "applications":
                  user = EmailUser.objects.get(id=self.kwargs['pk'])
                  delegate = Delegate.objects.filter(email_user=user).values('id')
+
                  context['nav_other_applications'] = "active"
                  context['app'] = ''
 
@@ -4480,6 +4737,9 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_company'] = "active"
              elif action == "certofincorp":
                  context['nav_details_certofincorp'] = "active"
+                 org = Organisation.objects.get(id=self.kwargs['pk'])
+                 context['org'] = org
+
              elif action == "address":
                  context['nav_details_address'] = "active"
              elif action == "contactdetails":
@@ -4798,31 +5058,36 @@ class OrganisationUpdate(LoginRequiredMixin, UpdateView):
 class OrganisationContactCreate(LoginRequiredMixin, CreateView):
     """A view to update an Organisation object.
     """
-    model = OrganisationContact
+    #model = OrganisationContact
     form_class = apps_forms.OrganisationContactForm
     template_name = 'applications/organisation_contact_form.html'
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationContactCreate, self).get_context_data(**kwargs)
         context['action'] = 'Create'
-        context['organisation'] = self.get_object().pk 
+#        print self.get_object().pk
+#        context['organisation'] = self.get_object().pk 
         return context
 
     def get_initial(self):
         initial = super(OrganisationContactCreate, self).get_initial()
-        initial['organisation'] = self.get_object().pk
+        initial['organisation'] = self.kwargs['pk']
+        # print 'dsf dsaf dsa'
         return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk,'contactdetails')))
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'],'contactdetails')))
         return super(OrganisationContactCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.obj = form.save()
+        self.obj = form.save(commit=False)
+        org = Organisation.objects.get(id=self.kwargs['pk'])
+        self.obj.organisation = org
+        self.obj.save()
         # Assign the creating user as a delegate to the new organisation.
         messages.success(self.request, 'New organisation contact created successfully!')
-        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk, 'contactdetails')))
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'], 'contactdetails')))
 
 class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
     """A view to update an Organisation object.
@@ -4842,14 +5107,14 @@ class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk,'contactdetails')))
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().organisation.id,'contactdetails')))
         return super(OrganisationContactUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.obj = form.save()
         # Assign the creating user as a delegate to the new organisation.
         messages.success(self.request, 'New organisation contact created successfully!')
-        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().pk, 'contactdetails')))
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().organisation.id, 'contactdetails')))
 
 
 
