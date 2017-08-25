@@ -482,7 +482,6 @@ class SearchPersonList(ListView):
         if 'q' in self.request.GET and self.request.GET['q']:
             context['query_string'] = self.request.GET['q']
 
-
         return context
 
 
@@ -540,23 +539,37 @@ class SearchKeywords(ListView):
         context['APP_TYPES'] = Application.APP_TYPE_CHOICES
         context['query_string'] = ''
 
-        APP_TYPE_CHOICES = [{"key":"applications", "value":"Applications"},{"key":"approvals","value":"Approvals" },{"key":"emergency","value":"Emergency Works"},{"key":"compliance","value":"Compliance"}]
+        APP_TYPE_CHOICES = [{"key":"applications", "value":"Applications"},{"key":"approvals","value":"Approvals"},{"key":"emergency","value":"Emergency Works"},{"key":"compliance","value":"Compliance"}]
 
-        app_list_filter = [1,2,3,4]
+        app_list_filter = []
+        context['app_type_checkboxes'] = {}
+        if len(self.request.GET) == 0:
+            context['app_type_checkboxes'] = {'applications': 'checked', 'approvals': 'checked', 'emergency': 'checked','compliance': 'checked'}
+
+        # print app_list_filter
         if "filter-applications" in self.request.GET:
-            app_list_filter.append([1])
-            app_list_filter.append([2])
-            app_list_filter.append([3])
+            app_list_filter.append(1)
+            app_list_filter.append(2)
+            app_list_filter.append(3)
+            context['app_type_checkboxes']['applications'] = 'checked'
+
+            # print app_list_filter
         if "filter-emergency" in self.request.GET:
-            app_list_filter.append(list[4])
-            print app_list_filter
+            app_list_filter.append(4)
+            context['app_type_checkboxes']['emergency'] = 'checked'
+        if "filter-approvals" in self.request.GET:
+            context['app_type_checkboxes']['approvals'] = 'checked'
+        if "filter-compliance" in self.request.GET:
+            context['app_type_checkboxes']['compliance'] = 'checked'
+
+            # print app_list_filter
         context['APP_TYPES'] = list(APP_TYPE_CHOICES)
         query_str_split = ''
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
             search_filter = Q()
-            search_filter_app = Q(app_type__in=app_list_filter)           
+            search_filter_app = Q(app_type__in=app_list_filter) 
            
             # Applications: 
             for se_wo in query_str_split:
@@ -565,39 +578,48 @@ class SearchKeywords(ListView):
                search_filter |= Q(description__icontains=se_wo)
                search_filter |= Q(related_permits__icontains=se_wo)
                search_filter |= Q(address__icontains=se_wo)
-               search_filter != Q(jetties__icontains=se_wo)
-               search_filter != Q(drop_off_pick_up__icontains=se_wo)
-               search_filter != Q(sullage_disposal__icontains=se_wo)
-               search_filter != Q(waste_disposal__icontains=se_wo)
-               search_filter != Q(refuel_location_method__icontains=se_wo)
-               search_filter != Q(berth_location__icontains=se_wo)
-               search_filter != Q(anchorage__icontains=se_wo)
-               search_filter != Q(operating_details__icontains=se_wo)
-               search_filter != Q(proposed_development_current_use_of_land__icontains=se_wo)
-               search_filter != Q(proposed_development_description__icontains=se_wo)
+               search_filter |= Q(jetties__icontains=se_wo)
+               search_filter |= Q(drop_off_pick_up__icontains=se_wo)
+               search_filter |= Q(sullage_disposal__icontains=se_wo)
+               search_filter |= Q(waste_disposal__icontains=se_wo)
+               search_filter |= Q(refuel_location_method__icontains=se_wo)
+               search_filter |= Q(berth_location__icontains=se_wo)
+               search_filter |= Q(anchorage__icontains=se_wo)
+               search_filter |= Q(operating_details__icontains=se_wo)
+               search_filter |= Q(proposed_development_current_use_of_land__icontains=se_wo)
+               search_filter |= Q(proposed_development_description__icontains=se_wo)
                 
             # Add Organsations Results , Will also filter out duplicates
             # search_filter |= Q(pk__in=orgs)
             # Get all applicants
+           
             apps = Application.objects.filter(search_filter_app & search_filter)
-
 
             search_filter = Q()
             for se_wo in query_str_split:
                  search_filter = Q(pk__contains=se_wo)
                  search_filter |= Q(title__icontains=se_wo)
-               
-            approvals = Approval.objects.filter(search_filter)
+
+            approvals = []
+            if "filter-approvals" in self.request.GET:
+                 approvals = Approval.objects.filter(search_filter)
+
+            compliance = []
+            if "filter-compliance" in self.request.GET:
+                compliance = Compliance.objects.filter()
+
 
         else:
-            apps = Application.objects.filter(app_type__in=[1,2,3,4])
-            approvals = Approval.objects.all()
+            #apps = Application.objects.filter(app_type__in=[1,2,3,4])
+            #approvals = Approval.objects.all()
+            apps = []
+            approvals = []
+            compliance = []
 
 
         context['apps_list'] = []
         for lu in apps:
             row = {}
-            print lu.description
             lu.text_found = ''
             if len(query_str_split) > 0:
               for se_wo in query_str_split:
@@ -635,6 +657,15 @@ class SearchKeywords(ListView):
             row['row'] = lu
             context['apps_list'].append(row)
 
+        for lu in compliance:
+            row = {}
+            lu.text_found = ''
+            if len(query_str_split) > 0:
+                for se_wo in query_str_split:
+                    lu.text_found += self.slice_keyword(" "+se_wo+" ", lu.title)
+            lu.app_group = 'compliance'
+            row['row'] = lu
+            context['apps_list'].append(row)
 
         if 'q' in self.request.GET and self.request.GET['q']:
             context['query_string'] = self.request.GET['q']
@@ -668,25 +699,27 @@ class SearchReference(ListView):
     template_name = 'applications/search_reference_list.html'
 
     def get_context_data(self, **kwargs):
-
-        context = super(SearchReference, self).get_context_data(**kwargs)
+       #    def get(self, request, *args, **kwargs):
+        context = {} 
+        #context = super(SearchReference, self).get_context_data(**kwargs)
         context['query_string'] = ''
 
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
-            search_filter = Q()
-            listorgs = Delegate.objects.filter(organisation__name__icontains=query_str)
-            orgs = []
-            for d in listorgs:
-                d.email_user.id
-                orgs.append(d.email_user.id)
 
-            for se_wo in query_str_split:
-                search_filter= Q(pk__contains=se_wo) | Q(email__icontains=se_wo) | Q(first_name__icontains=se_wo) | Q(last_name__icontains=se_wo)
-            # Add Organsations Results , Will also filter out duplicates
-            search_filter |= Q(pk__in=orgs)
-            # Get all applicants
+            form_prefix = query_str[:3]
+            form_no = query_str.replace(form_prefix,'')
+            print form_prefix 
+            print form_no
+            search_filter = Q()
+            if form_prefix == 'EW-' or form_prefix == 'WO-':
+                application = Application.objects.filter(id=form_no)
+                print application
+                messages.error(
+                         self.request, 'You are unable to issue this application!')
+
+                #                HttpResponseRedirect(reverse('application_detail',args=(application.id,)))                
             listusers = EmailUser.objects.filter(search_filter)
         else:
             listusers = EmailUser.objects.all()
