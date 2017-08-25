@@ -710,12 +710,12 @@ class SearchReference(ListView):
 
             form_prefix = query_str[:3]
             form_no = query_str.replace(form_prefix,'')
-            print form_prefix 
-            print form_no
+            #print form_prefix 
+            #print form_no
             search_filter = Q()
             if form_prefix == 'EW-' or form_prefix == 'WO-':
                 application = Application.objects.filter(id=form_no)
-                print application
+                #print application
                 messages.error(
                          self.request, 'You are unable to issue this application!')
 
