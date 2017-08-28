@@ -745,7 +745,7 @@ class SearchReference(ListView):
         context = {}
         # print 'test'
         context = super(SearchReference, self).get_context_data(**kwargs)
-        #context = template_context(self.request)
+        context = template_context(self.request)
         context['messages'] = messages.get_messages(self.request)
         context['query_string'] = ''
         context['form_prefix'] = ''
