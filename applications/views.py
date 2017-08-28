@@ -706,27 +706,47 @@ class SearchReference(ListView):
         #    print "YESS"
         #    print context['form_prefix']
         #    print context['form_no']
-
+#       form = form_class(request.POST)
         if len(context['form_prefix']) > 0:
             if context['form_no'] > 0:
                 if context['form_prefix'] == 'EW-' or context['form_prefix'] == 'WO-':
-                    return HttpResponseRedirect(reverse('application_detail', args=(context['form_no'],)))
+                    apps = Application.objects.filter(id=context['form_no'])
+                    if len(apps) > 0:
+                        return HttpResponseRedirect(reverse('application_detail', args=(context['form_no'],)))
+                    else:
+                        if context['form_prefix'] == 'EW-':
+                            messages.error(self.request, 'Emergency Works does not exist.')
+                        if context['form_prefix'] == 'WO-':
+                            messages.error(self.request, 'Application does not exist.')
+
+                        return HttpResponseRedirect(reverse('search_reference'))
                 if context['form_prefix'] == 'AP-':
-                    return HttpResponseRedirect(reverse('approval_detail', args=(context['form_no'],)))
+                        approval = Approval.objects.filter(id=context['form_no'])
+                        if len(approval) > 0:
+                            return HttpResponseRedirect(reverse('approval_detail', args=(context['form_no'],)))
+                        else:
+                            messages.error(self.request, 'Approval does not exist.')
+
                 if context['form_prefix'] == 'CO-':
-                    return HttpResponseRedirect(reverse('compliance_approval_detail', args=(context['form_no'],)))
+                    comp = Compliance.objects.filter(approval_id=context['form_no'])
+                    if len(comp) > 0:
+                        return HttpResponseRedirect(reverse('compliance_approval_detail', args=(context['form_no'],)))
+                    else:
+                        messages.error(self.request, 'Compliance does not exist.')
 
         # print self
+        #context['messages'] = self.messages
         template = get_template(self.template_name)
         context = RequestContext(self.request, context)
         return HttpResponse(template.render(context))
+
     def get_context_data(self, **kwargs):
         # def get(self, request, *args, **kwargs):
         context = {}
         # print 'test'
         context = super(SearchReference, self).get_context_data(**kwargs)
-        context = template_context(self.request)
-
+        #context = template_context(self.request)
+        context['messages'] = messages.get_messages(self.request)
         context['query_string'] = ''
         context['form_prefix'] = ''
         context['form_no'] = ''
