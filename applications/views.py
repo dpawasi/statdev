@@ -34,6 +34,10 @@ from approvals.models import Approval
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import math
+from django.shortcuts import redirect
+from django.template import RequestContext
+from django.template.loader import get_template
+from statdev.context_processors import template_context 
 
 class HomePage(LoginRequiredMixin, TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -698,44 +702,44 @@ class SearchReference(ListView):
     model = Compliance
     template_name = 'applications/search_reference_list.html'
 
-    def get_context_data(self, **kwargs):
-       #    def get(self, request, *args, **kwargs):
-        context = {} 
-        #context = super(SearchReference, self).get_context_data(**kwargs)
-        context['query_string'] = ''
+    def render_to_response(self, context):
+        #    print "YESS"
+        #    print context['form_prefix']
+        #    print context['form_no']
 
+        if len(context['form_prefix']) > 0:
+            if context['form_no'] > 0:
+                if context['form_prefix'] == 'EW-' or context['form_prefix'] == 'WO-':
+                    return HttpResponseRedirect(reverse('application_detail', args=(context['form_no'],)))
+                if context['form_prefix'] == 'AP-':
+                    return HttpResponseRedirect(reverse('approval_detail', args=(context['form_no'],)))
+                if context['form_prefix'] == 'CO-':
+                    return HttpResponseRedirect(reverse('compliance_approval_detail', args=(context['form_no'],)))
+
+        # print self
+        template = get_template(self.template_name)
+        context = RequestContext(self.request, context)
+        return HttpResponse(template.render(context))
+    def get_context_data(self, **kwargs):
+        # def get(self, request, *args, **kwargs):
+        context = {}
+        # print 'test'
+        context = super(SearchReference, self).get_context_data(**kwargs)
+        context = template_context(self.request)
+
+        context['query_string'] = ''
+        context['form_prefix'] = ''
+        context['form_no'] = ''
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
 
             form_prefix = query_str[:3]
             form_no = query_str.replace(form_prefix,'')
-            #print form_prefix 
-            #print form_no
-            search_filter = Q()
-            if form_prefix == 'EW-' or form_prefix == 'WO-':
-                application = Application.objects.filter(id=form_no)
-                #print application
-                messages.error(
-                         self.request, 'You are unable to issue this application!')
-
-                #                HttpResponseRedirect(reverse('application_detail',args=(application.id,)))                
-            listusers = EmailUser.objects.filter(search_filter)
-        else:
-            listusers = EmailUser.objects.all()
-
-        context['acc_list'] = []
-        for lu in listusers:
-            row = {}
-            row['acc_row'] = lu
-            lu.organisations = []
-            lu.organisations = Delegate.objects.filter(email_user=lu.id)
-            #for o in lu.organisations:
-            #    print o.organisation
-            context['acc_list'].append(row)
-
-        if 'q' in self.request.GET and self.request.GET['q']:
+            context['form_prefix'] = form_prefix
+            context['form_no'] = form_no
             context['query_string'] = self.request.GET['q']
+
         return context
 
 class ApplicationCreateEW(LoginRequiredMixin, CreateView):
