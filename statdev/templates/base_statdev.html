@@ -9,7 +9,6 @@
 {% block navbar_site_title %}
 <a class="navbar-brand" href="/">Statutory Development</a>
 <ul class='nav navbar-nav hidden-xs'>
-
     {% if staff == True %}
         <li class='hidden-sm' ><a href="{% url 'approval_list' %}" title="Applications">Approvals</a></li>
         <li class='hidden-sm' ><a href="{% url 'application_list' %}" title="Applications">Applications</a></li>
@@ -21,7 +20,6 @@
         <li class='hidden-sm' ><a href="" title="Contact Us">Contact Us</a></li> 
         <li class='hidden-sm' ><a href="" title="Further Information">Further Information</a></li>
     {% endif %}
-
 </ul>
 
 {% endblock navbar_site_title %}
@@ -39,6 +37,7 @@
 {% endif %}
 
 {% block navbar_auth %}
+{% if request.user.is_authenticated %}
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{% firstof user.get_full_name user.email %} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">
@@ -50,6 +49,7 @@
         <li><a href="{% url 'logout' %}" title="Log out">Log out</a></li>
     </ul>
 </li>
+{% endif %}
 {% endblock navbar_auth %}
 {% endblock navbar_links %}
 
