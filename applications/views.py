@@ -39,7 +39,7 @@ from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
 
-class HomePage(LoginRequiredMixin, TemplateView):
+class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
     template_name = 'applications/home_page.html'
 
@@ -115,7 +115,7 @@ class HomePageOLD(LoginRequiredMixin, TemplateView):
         return app_list
 
 
-class ApplicationApplicantChange(DetailView):
+class ApplicationApplicantChange(LoginRequiredMixin,DetailView):
 
     # form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/applicant_applicantsearch.html'
