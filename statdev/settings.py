@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     #'accounts',
     'applications',
     'actions',
-    'approvals'
+    'approvals',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -73,6 +73,11 @@ TEMPLATES = [
 ]
 WSGI_APPLICATION = 'statdev.wsgi.application'
 LOGIN_URL = 'login'
+
+AUTHENTICATION_BACKENDS = (
+     'social_core.backends.email.EmailAuth',
+     'django.contrib.auth.backends.ModelBackend',
+)
 LOGIN_REDIRECT_URL = 'home_page'
 STATIC_CONTEXT_VARS = {}
 APPLICATION_VERSION_NO = '0.3'
@@ -90,12 +95,43 @@ ALLOWED_UPLOAD_TYPES = [
     'text/plain'
 ]
 
+SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
+SOCIAL_AUTH_STORAGE = 'social_django.models.DjangoStorage'
+SOCIAL_AUTH_EMAIL_FORM_URL = '/ledger/'
+SOCIAL_AUTH_EMAIL_VALIDATION_FUNCTION = 'ledger.accounts.mail.send_validation'
+SOCIAL_AUTH_EMAIL_VALIDATION_URL = '/ledger/validation-sent/'
+SOCIAL_AUTH_PASSWORDLESS = True
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['first_name', 'last_name', 'email']
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'ledger.accounts.pipeline.lower_email_address',
+    'ledger.accounts.pipeline.logout_previous_session',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    # 'social.pipeline.mail.mail_validation',
+    'ledger.accounts.pipeline.mail_validation',
+    'ledger.accounts.pipeline.user_by_email',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    #'social_core.pipeline.user.user_details'
+)
 
 # Email settings
 EMAIL_HOST = env('EMAIL_HOST', 'email.host')
 EMAIL_PORT = env('EMAIL_PORT', 25)
 DEFAULT_FROM_EMAIL = 'DoNotReply@dpaw.wa.gov.au'
 
+# Email settings Ledger
+ADMINS = ('asi@dpaw.wa.gov.au',)
+EMAIL_HOST = env('EMAIL_HOST', 'email.host')
+EMAIL_PORT = env('EMAIL_PORT', 25)
+EMAIL_FROM = env('EMAIL_FROM', ADMINS[0])
+DEFAULT_FROM_EMAIL = EMAIL_FROM
 
 # Database configuration
 DATABASES = {'default': database.config()}

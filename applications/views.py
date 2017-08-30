@@ -4237,7 +4237,6 @@ class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
         self.obj.save()
         return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.obj.pk,'certofincorp')))
 
-
 class AddressCreate(LoginRequiredMixin, CreateView):
     """A view to create a new address for an EmailUser.
     """
@@ -4255,7 +4254,12 @@ class AddressCreate(LoginRequiredMixin, CreateView):
         context = super(AddressCreate, self).get_context_data(**kwargs)
         context['address_type'] = self.kwargs['type']
         context['action'] = 'Create'
-        context['principal'] = self.request.user.email
+        if 'userid' in self.kwargs:
+            print self.kwargs['userid']
+            user = EmailUser.objects.get(id=self.kwargs['userid'])
+            context['principal'] = user.email
+        else:
+            context['principal'] = self.request.user.email
         return context
 
     def post(self, request, *args, **kwargs):
@@ -4264,7 +4268,13 @@ class AddressCreate(LoginRequiredMixin, CreateView):
         return super(AddressCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        u = self.request.user
+        if 'userid' in self.kwargs:
+            u = EmailUser.objects.get(id=self.kwargs['userid'])
+            print "SAVING"
+            print self.kwargs['userid']
+        else:
+            u = self.request.user
+
         self.obj = form.save(commit=False)
         self.obj.user = u
         self.obj.save()
@@ -4274,8 +4284,14 @@ class AddressCreate(LoginRequiredMixin, CreateView):
         elif self.kwargs['type'] == 'billing':
             u.billing_address = self.obj
         u.save()
-        return HttpResponseRedirect(reverse('user_account'))
 
+        if 'userid' in self.kwargs:
+            if self.request.user.is_staff is True:
+                return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
+            else:
+                return HttpResponseRedirect(reverse('user_account'))
+        else:
+            return HttpResponseRedirect(reverse('user_account'))
 
 class AddressUpdate(LoginRequiredMixin, UpdateView):
     model = Address
@@ -4292,6 +4308,8 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
         # the user is a delegate for that org then they can change it.
         org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
         if Delegate.objects.filter(email_user=u, organisation__in=org_list).exists():
+            return super(AddressUpdate, self).get(request, *args, **kwargs)
+        elif u.is_staff is True: 
             return super(AddressUpdate, self).get(request, *args, **kwargs)
         else:
             messages.error(self.request, 'You cannot update this address!')
@@ -4314,7 +4332,12 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.success_url)
-        return super(AddressUpdate, self).post(request, *args, **kwargs)
+        if self.request.user.is_staff is True:
+            obj = self.get_object()
+            u = obj.user
+            return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
+        else:
+            return super(AddressUpdate, self).post(request, *args, **kwargs)
 
 
 class AddressDelete(LoginRequiredMixin, DeleteView):
@@ -4490,11 +4513,9 @@ class PersonOther(LoginRequiredMixin, DetailView):
 
                  context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
                  search_filter = Q(applicant=self.kwargs['pk']) | Q(organisation__in=delegate)
-
                  if 'searchaction' in self.request.GET and self.request.GET['searchaction']:
                       query_str = self.request.GET['q']
                    #   query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
-
                       if self.request.GET['apptype'] != '':
                           search_filter &= Q(app_type=int(self.request.GET['apptype']))
                       else:
@@ -4518,8 +4539,10 @@ class PersonOther(LoginRequiredMixin, DetailView):
                           query_str = self.request.GET['q']
                           query_str_split = query_str.split()
                           for se_wo in query_str_split:
-                              search_filter = Q(pk__contains=se_wo) | Q(title__contains=se_wo)
-                 applications = Application.objects.filter(search_filter)[:200]
+                              search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+
+#                 print Q(Q(state__in=APP_TYPE_CHOICES_IDS) & Q(search_filter)) 
+                 applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) )[:200]
 
                  usergroups = self.request.user.groups.all()
                  context['app_list'] = []
@@ -4677,6 +4700,8 @@ class PersonOther(LoginRequiredMixin, DetailView):
 
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
+                 if 'q' in self.request.GET and self.request.GET['q']:
+                      context['query_string'] = self.request.GET['q']
 
                  user = EmailUser.objects.get(id=self.kwargs['pk'])
                  delegate = Delegate.objects.filter(email_user=user).values('id')
@@ -4975,6 +5000,7 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
 
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
+                 context['query_string'] = self.request.GET['q']
                  search_filter = Q(organisation=self.kwargs['pk']) 
 
                  items = Compliance.objects.filter(applicant=self.kwargs['pk']).order_by('due_date')
