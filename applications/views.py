@@ -4255,7 +4255,6 @@ class AddressCreate(LoginRequiredMixin, CreateView):
         context['address_type'] = self.kwargs['type']
         context['action'] = 'Create'
         if 'userid' in self.kwargs:
-            print self.kwargs['userid']
             user = EmailUser.objects.get(id=self.kwargs['userid'])
             context['principal'] = user.email
         else:
@@ -4270,8 +4269,6 @@ class AddressCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         if 'userid' in self.kwargs:
             u = EmailUser.objects.get(id=self.kwargs['userid'])
-            print "SAVING"
-            print self.kwargs['userid']
         else:
             u = self.request.user
 
