@@ -76,7 +76,7 @@
                             {% endif %}
                     </td>
                     <td>{{ row_obj.row.get_app_type_display }}</td>
-                    <td>{{ row_obj.row.applicant.first_name }}</td>
+                    <td>{{ row_obj.row.applicant.first_name }} {{ row_obj.row.applicant.last_name }}</td>
                     <td width='40%'>{{ row_obj.row.text_found|safe }}</td>
                     <td>
                             {% if row_obj.row.app_group == 'application' %}

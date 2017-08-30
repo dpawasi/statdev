@@ -20,10 +20,17 @@
                 <div class="panel-body " style='background-color: #f7fcff'>
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <h2>Rivers and Estuaries system</h2>
+                        <form method="post" action="{% url "social:complete" backend="email" %}">
+
                         <div class="form-group required-form-field"><label class="control-label" for="id_email">Email</label><input class="form-control" id="id_email" maxlength="254" name="email" title="" type="email" required=""></div>
-                        <div id="submit-container">
-                            <button class="btn btn-primary pull-right">Submit</button>
-                        </div>
+
+
+                            {% csrf_token %}
+                            <div id="submit-container">
+								<button class="btn btn-primary pull-right">Submit</button>
+
+                            </div>
+                        </form>
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <BR>

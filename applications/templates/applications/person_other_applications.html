@@ -79,12 +79,13 @@
                             <th>Lodged on</th>
                             <th>Assignee</th>
                             <th>Payment status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for app_obj in app_list %}
                         <tr>
-                            <td><a href="">WO-{{ app_obj.app.pk }}</a></td>
+                            <td><a href="{% url 'application_detail' app_obj.app.pk %}">WO-{{ app_obj.app.pk }}</a></td>
 
                             <td>{{ app_obj.app.get_app_type_display }}</td>
                             <td>{{ app_obj.app.title }}</td>
@@ -94,6 +95,7 @@
                             <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                             <td>{{ app_obj.app.assignee.get_full_name }}</td>
                             <td></td>
+                            <td><a href="{% url 'application_detail' app_obj.app.pk %}" title="View">View</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

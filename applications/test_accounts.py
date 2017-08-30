@@ -62,6 +62,7 @@ class AccountsTest(StatDevTestCase):
     def test_user_address_update_post(self):
         address = mixer.blend(Address)
         self.user1.postal_address = address
+        self.user1.is_staff = False
         self.user1.save()
         url = reverse('address_update', args=[address.pk])
         self.client.post(
