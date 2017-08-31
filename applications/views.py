@@ -43,10 +43,12 @@ class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
     template_name = 'applications/home_page.html'
     def render_to_response(self, context):
-        if len(self.request.user.first_name) > 0:
-            donothing = ''
-        else:
-            return HttpResponseRedirect(reverse('first_login_info_steps', args=(self.request.user.id,1)))
+       
+        if self.request.user.is_authenticated:
+           if len(self.request.user.first_name) > 0:
+               donothing = ''
+           else:
+               return HttpResponseRedirect(reverse('first_login_info_steps', args=(self.request.user.id,1)))
 
         template = get_template(self.template_name)
         context = RequestContext(self.request, context)
