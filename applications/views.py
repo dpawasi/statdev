@@ -42,19 +42,35 @@ from statdev.context_processors import template_context
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
     template_name = 'applications/home_page.html'
+    def render_to_response(self, context):
+        if len(self.request.user.first_name) > 0:
+            donothing = ''
+        else:
+            return HttpResponseRedirect(reverse('first_login_info_steps', args=(self.request.user.id,1)))
+
+        template = get_template(self.template_name)
+        context = RequestContext(self.request, context)
+        return HttpResponse(template.render(context))
+
 
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
-        for i in Application.APP_TYPE_CHOICES:
-            if i[0] in [4,5,6,7,8,9,10,11]:
-               skip = 'yes'
-            else:
-               APP_TYPE_CHOICES.append(i)
-               APP_TYPE_CHOICES_IDS.append(i[0])
-        context['app_apptypes']= APP_TYPE_CHOICES
-        applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
+
+        # Have to manually populate when using render_to_response()
+        context['messages'] = messages.get_messages(self.request)
+        context['request'] = self.request
+        context['user']  = self.request.user
+
+        #for i in Application.APP_TYPE_CHOICES:
+        #    if i[0] in [4,5,6,7,8,9,10,11]:
+        #       skip = 'yes'
+        #    else:
+        #       APP_TYPE_CHOICES.append(i)
+        #       APP_TYPE_CHOICES_IDS.append(i[0])
+        #context['app_apptypes']= APP_TYPE_CHOICES
+        #applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
         #print applications
 
         return context
@@ -113,6 +129,119 @@ class HomePageOLD(LoginRequiredMixin, TemplateView):
                     row['may_assign_to_person'] = 'True'
             app_list.append(row)
         return app_list
+
+class FirstLoginInfo(LoginRequiredMixin,CreateView):
+
+    template_name = 'applications/firstlogin.html'
+    model = EmailUser
+    form_class = apps_forms.FirstLoginInfoForm
+
+    def get(self, request, *args, **kwargs):
+        return super(FirstLoginInfo, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(FirstLoginInfo, self).get_initial()
+        #initial['action'] = self.kwargs['action']
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(FirstLoginInfo, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        forms_data = form.cleaned_data
+        action = self.kwargs['action']
+        nextstep = ''
+        apply_on_behalf_of = 0
+
+        app = Application.objects.get(pk=self.object.pk)
+
+        return HttpResponseRedirect(success_url)
+
+class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
+
+    template_name = 'applications/firstlogin.html'
+    model = EmailUser
+    form_class = apps_forms.FirstLoginInfoForm
+
+    def get(self, request, *args, **kwargs):
+        return super(FirstLoginInfoSteps, self).get(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(FirstLoginInfoSteps, self).get_context_data(**kwargs)
+        step = self.kwargs['step']
+        if step == '1':
+            context['step1'] = 'active'
+            context['step2'] = 'disabled'
+            context['step3'] = 'disabled'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '2':
+            context['step2'] = 'active'
+            context['step3'] = 'disabled'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '3':
+            context['step3'] = 'active'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '4':
+            context['step4'] = 'active'
+            context['step5'] = 'disabled'
+        elif step == '5':
+            context['step5'] = 'active'
+
+        return context
+    def get_initial(self):
+        initial = super(FirstLoginInfoSteps, self).get_initial()
+        # initial['action'] = self.kwargs['action']
+        # print self.kwargs['step']
+        initial['step'] = self.kwargs['step']
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(FirstLoginInfoSteps, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save()
+        forms_data = form.cleaned_data
+        nextstep = 1
+#        action = self.kwargs['action']
+        step = self.kwargs['step']
+        if self.request.POST.get('prev-step'):
+            if step == '1':
+               nextstep = 1
+            elif step == '2':
+               nextstep = 1
+            elif step == '3':
+               nextstep = 2
+            elif step == '4':
+               nextstep = 3
+            elif step == '5':
+               nextstep = 4
+
+
+        else:
+            if step == '1':
+               nextstep = 2
+            elif step == '2':  
+               nextstep = 3
+            elif step == '3':
+               nextstep = 4
+            elif step == '4':
+               nextstep = 5
+            else:
+               nextstep = 6
+        
+        if nextstep == 6:
+           return HttpResponseRedirect(reverse('home_page'))
+        else:
+           return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.request.user.id, nextstep)))
 
 
 class ApplicationApplicantChange(LoginRequiredMixin,DetailView):

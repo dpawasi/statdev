@@ -67,7 +67,6 @@ class ApplicationApplyForm(ModelForm):
         user = kwargs.pop('user')
         super(ApplicationApplyForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-
         # delete internal option
         del self.fields['apply_on_behalf_of'].choices[4]
 
@@ -80,6 +79,64 @@ class ApplicationApplyForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
 
+class FirstLoginInfoForm(ModelForm):
+    identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    class Meta:
+        model = EmailUser 
+        fields = ['first_name','last_name','dob','identification','phone_number','mobile_number','email']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        # user = kwargs.pop('user')
+        super(FirstLoginInfoForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        step = self.initial['step']
+
+        # delete internal option
+        crispy_boxes = crispy_empty_box()
+        #  self.helper.form_show_labels = False
+        if step == '1':
+            crispy_boxes.append(crispy_box('person_details_collapse','person_details','Personal Details','first_name','last_name','dob'))
+            del self.fields['identification']
+            del self.fields['phone_number']
+            del self.fields['mobile_number']
+            del self.fields['email']
+        elif step == '2':
+            crispy_boxes.append(crispy_box('identification_collapse','identification_details','Identification','identification'))
+            del self.fields['first_name']
+            del self.fields['last_name']
+            del self.fields['dob']
+            del self.fields['phone_number']
+            del self.fields['mobile_number']
+            del self.fields['email']
+        elif step == '4':
+            crispy_boxes.append(crispy_box('contact_details_collapse','contact_details','Contact Details','phone_number','mobile_number','email'))
+            del self.fields['first_name']
+            del self.fields['last_name']
+            del self.fields['dob']
+            del self.fields['identification']
+        else:
+            del self.fields['first_name'] 
+            del self.fields['last_name']
+            del self.fields['dob']
+            del self.fields['identification']
+            del self.fields['phone_number']
+            del self.fields['mobile_number']
+            del self.fields['email']
+
+        self.helper.layout = Layout(crispy_boxes,)
+
+        self.helper.form_id = 'id_form_apply_application'
+        self.helper.attrs = {'novalidate': ''}
+        if step == '5':
+            self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            self.helper.add_input(Submit('Complete', 'Complete', css_class='btn-lg'))
+        else:
+            self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            self.helper.add_input(Submit('Next Step', 'Next Step', css_class='btn-lg'))
+
+ 
 
 class ApplicationApplyUpdateForm(ModelForm):
 

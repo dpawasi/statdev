@@ -4,7 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
 from django.contrib import messages
 from .models import EmailUser
-
+from django.core.urlresolvers import reverse
+from django.utils.http import urlquote_plus, urlencode
 
 class UserProfile(LoginRequiredMixin, DetailView):
     model = EmailUser
