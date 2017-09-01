@@ -198,8 +198,28 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         return context
     def get_initial(self):
         initial = super(FirstLoginInfoSteps, self).get_initial()
+        person = self.get_object()
         # initial['action'] = self.kwargs['action']
         # print self.kwargs['step']
+        step = self.kwargs['step']
+        if person.identification:
+            initial['identification'] = person.identification.file
+
+        if step == '3':
+            if self.object.postal_address is None:
+                initial['country'] = 'AU'
+                initial['state'] = 'WA'
+            else: 
+                postal_address = Address.objects.get(id=self.object.postal_address.id)
+                initial['line1'] = postal_address.line1
+                initial['line2'] = postal_address.line2
+                initial['line3'] = postal_address.line3
+                initial['locality'] = postal_address.locality
+                initial['state'] = postal_address.state
+                initial['country'] = postal_address.country
+                initial['postcode'] = postal_address.postcode
+
+
         initial['step'] = self.kwargs['step']
         return initial
 
@@ -210,11 +230,47 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         return super(FirstLoginInfoSteps, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save()
+        self.object = form.save(commit=False)
         forms_data = form.cleaned_data
+        step = self.kwargs['step']
+
+        if step == '3':
+            if self.object.postal_address is None:
+                postal_address = Address.objects.create(line1=forms_data['line1'],
+                                        line2=forms_data['line2'],
+                                        line3=forms_data['line3'],
+                                        locality=forms_data['locality'],
+                                        state=forms_data['state'],
+                                        country=forms_data['country'],
+                                        postcode=forms_data['postcode'],
+                                        user=self.object
+                                       )
+                self.object.postal_address = postal_address
+            else:
+               postal_address = Address.objects.get(id=self.object.postal_address.id)
+               postal_address.line1 = forms_data['line1']
+               postal_address.line2 = forms_data['line2']
+               postal_address.line3 = forms_data['line3']
+               postal_address.locality = forms_data['locality']
+               postal_address.state = forms_data['state']
+               postal_address.country = forms_data['country']
+               postal_address.postcode = forms_data['postcode']
+               postal_address.save()
+
+        # Upload New Files
+        if self.request.FILES.get('identification'):  # Uploaded new file.
+            doc = Document()
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+
+            doc.file = forms_data['identification']
+            doc.name = forms_data['identification'].name
+            doc.save()
+            self.object.identification = doc
+            
+        self.object.save()
         nextstep = 1
 #        action = self.kwargs['action']
-        step = self.kwargs['step']
         if self.request.POST.get('prev-step'):
             if step == '1':
                nextstep = 1
@@ -226,12 +282,10 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                nextstep = 3
             elif step == '5':
                nextstep = 4
-
-
         else:
             if step == '1':
                nextstep = 2
-            elif step == '2':  
+            elif step == '2':
                nextstep = 3
             elif step == '3':
                nextstep = 4
