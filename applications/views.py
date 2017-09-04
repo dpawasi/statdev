@@ -81,7 +81,7 @@ class HomePage(TemplateView):
                context = fl.get_clearance(self,self.request.user.id,context)
                context['home_nav_other_clearance'] = 'active'
             else:
-               print action
+               donothing ='' 
         #for i in Application.APP_TYPE_CHOICES:
         #    if i[0] in [4,5,6,7,8,9,10,11]:
         #       skip = 'yes'
