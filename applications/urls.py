@@ -3,6 +3,7 @@ from applications import views
 
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
+    url(r'^home/(?P<action>\w+)/$', views.HomePage.as_view(), name='home_page_tabs'),
     url(r'^first-login/$', views.FirstLoginInfo.as_view(), name='first_login_info'),
     url(r'^first-login/(?P<pk>\d+)/(?P<step>\d+)/$', views.FirstLoginInfoSteps.as_view(), name='first_login_info_steps'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),

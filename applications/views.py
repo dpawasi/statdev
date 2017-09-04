@@ -25,7 +25,7 @@ from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
     PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact)
 from applications.workflow import Flow
-from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check
+from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
@@ -54,17 +54,34 @@ class HomePage(TemplateView):
         context = RequestContext(self.request, context)
         return HttpResponse(template.render(context))
 
-
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
+        context = template_context(self.request)
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
 
         # Have to manually populate when using render_to_response()
         context['messages'] = messages.get_messages(self.request)
         context['request'] = self.request
-        context['user']  = self.request.user
+        context['user'] = self.request.user
+        fl = FormsList()
+        if 'action' in self.kwargs:
+           action = self.kwargs['action']
+        else:
+           action = ''
 
+        if self.request.user.is_authenticated: 
+            if action == '':
+               context = fl.get_application(self,self.request.user.id,context)
+               context['home_nav_other_applications'] = 'active'
+            elif action == 'approvals':
+               context = fl.get_approvals(self,self.request.user.id,context)
+               context['home_nav_other_approvals'] = 'active'
+            elif action == 'clearance': 
+               context = fl.get_clearance(self,self.request.user.id,context)
+               context['home_nav_other_clearance'] = 'active'
+            else:
+               print action
         #for i in Application.APP_TYPE_CHOICES:
         #    if i[0] in [4,5,6,7,8,9,10,11]:
         #       skip = 'yes'

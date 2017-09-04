@@ -24,16 +24,22 @@
 </div>
 
 
-
 <div class="col-sm-12 col-md-12 col-lg-12">
     <ul class="nav nav-tabs">
-        <li role="presentation" class="{{ nav_other_applications }}"><a href="">Applications</a></li>
-        <li role="presentation" class="active{{ nav_other_approvals }}" ><a href="">Approvals</a></li>
-        <li role="presentation" class="{{ nav_other_clearance }}" ><a href="">Clearance of Conditions</a></li>
+        <li role="presentation" class="{{ home_nav_other_applications }}"><a href="{% url "home_page" %}">Applications</a></li>
+        <li role="presentation" class="{{ home_nav_other_approvals }}" ><a href="{% url "home_page_tabs" "approvals" %}">Approvals</a></li>
+        <li role="presentation" class="{{ home_nav_other_clearance }}" ><a href="{% url "home_page_tabs" "clearance" %}">Clearance of Conditions</a></li>
     </ul>
     <br>
 </div>
 <div class="col-sm-12 col-md-12 col-lg-12" >
+    {% if home_nav_other_applications == 'active' %}
+        {% include "applications/person_other_applications.html" %}
+    {% elif home_nav_other_approvals == 'active' %}
+        {% include "applications/person_other_approvals.html" %}
+    {% elif home_nav_other_clearance == 'active' %}
+        {% include "applications/person_other_clearance.html" %}
+    {% endif %}
 </div>
 
 
