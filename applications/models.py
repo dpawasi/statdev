@@ -482,8 +482,8 @@ class OrganisationPending(models.Model):
     name = models.CharField(max_length=128, unique=True)
     abn = models.CharField(max_length=50, null=True, blank=True, verbose_name='ABN')
     status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_CHOICES.pending) 
-    #postal_address = models.ForeignKey(LedgerAddress, related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
-    #billing_address = models.ForeignKey(LedgerAddress, related_name='org_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
+    postal_address = models.ForeignKey(LedgerAddress, related_name='org_pending_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
+    billing_address = models.ForeignKey(LedgerAddress, related_name='org_pending_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return '{}: {}'. format(self.name,self.abn, self.status)

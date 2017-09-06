@@ -112,7 +112,7 @@ class CreateLinkCompanyForm(ModelForm):
         self.helper.form_id = 'id_form_apply_application'
         self.helper.attrs = {'novalidate': ''}
 #        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
-        if step == '3':
+        if step == '4':
             self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
             self.helper.add_input(Submit('Complete', 'Complete', css_class='btn-lg'))
         else:
