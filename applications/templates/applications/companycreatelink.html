@@ -1,0 +1,58 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block page_content_inner %}
+
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="panel panel-default">
+    <div class="panel-body ">
+        <div class="row">
+            <div class="col-xs-12">
+                <p style='font-size: 17px'>
+                Please take a moment to provide information about the company you would like to create or link.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="nav nav-pills nav-justified thumbnail">
+            <li class="{{ step1 }}"><a href="{% if step1 != 'disabled' %}{% url 'company_create_link' request.user.id '1' %}{% else %}#{% endif %}">
+                    <h4 class="list-group-item-heading">Step 1</h4>
+                    <p class="list-group-item-text">Company Details</p>
+                </a>
+            </li>
+            <li class="{{ step2 }}"><a href="{% if step2 != 'disabled' %}{% url 'company_create_link' request.user.id '2' %}{% else %}#{% endif %}">
+                    <h4 class="list-group-item-heading">Step 2</h4>
+                    <p class="list-group-item-text">Company Verification</p>
+                </a>
+            </li>
+            <li class="{{ step3 }}"><a href="{% if step3 != 'disabled' %}{% url 'company_create_link' request.user.id '3' %}{% else %}#{% endif %}">
+                    <h4 class="list-group-item-heading">Step 3</h4>
+                    <p class="list-group-item-text">Completed</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Action panel start -->
+    <div class="row">
+        {% if left_sidebar == 'yes' %}
+            {% include "applications/application_side_menu.html" %}
+        {% endif %}
+        <!-- Main panel start -->
+        <div class="col-sm-8 col-md-9 col-lg-10">
+
+            <h1 style='display:none'>{{ page_heading }}</h1>
+            {% crispy form %}
+            {% endblock %}
+
+        </div>
+    </div>
+</div>
+

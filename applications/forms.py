@@ -80,6 +80,48 @@ class ApplicationApplyForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
 
+class CreateLinkCompanyForm(ModelForm):
+    company_name = CharField(required=False,max_length=255)
+    abn = CharField(required=False,max_length=255)
+    pin1 = CharField(max_length=50, required=False)
+    pin2 = CharField(max_length=50, required=False)
+    identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    class Meta:
+        model = EmailUser
+        fields = ['first_name']
+    def __init__(self, *args, **kwargs):
+        super(CreateLinkCompanyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        step = self.initial['step']
+        #step = self.initial['step']
+        #self.fields['country'].required = False
+        del self.fields['first_name']
+        crispy_boxes = crispy_empty_box()
+
+        if step == '1':
+            crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Enter Company Information','company_name','abn' ))
+        elif step == '2':
+            #print self.request['POST'].get
+            #print Organisation.objects.get(abn=)
+            if self.initial['company_exists'] == 'yes':
+                crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2' ))
+            else:
+                crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'identification' ))
+        self.helper.layout = Layout(crispy_boxes,)
+        self.helper.form_id = 'id_form_apply_application'
+        self.helper.attrs = {'novalidate': ''}
+#        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
+        if step == '3':
+            self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            self.helper.add_input(Submit('Complete', 'Complete', css_class='btn-lg'))
+        else:
+            if int(step) > 1:
+                self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            self.helper.add_input(Submit('Next Step', 'Next Step', css_class='btn-lg'))
+
+
+
 class FirstLoginInfoForm(ModelForm):
     BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
     identification = FileField(required=False, max_length=128, widget=ClearableFileInput)

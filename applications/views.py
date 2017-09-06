@@ -236,7 +236,6 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                 initial['country'] = postal_address.country
                 initial['postcode'] = postal_address.postcode
 
-
         initial['step'] = self.kwargs['step']
         return initial
 
@@ -315,6 +314,109 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
            return HttpResponseRedirect(reverse('home_page'))
         else:
            return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.request.user.id, nextstep)))
+
+class CreateLinkCompany(LoginRequiredMixin,CreateView):
+
+    template_name = 'applications/companycreatelink.html'
+    model = EmailUser 
+    form_class = apps_forms.CreateLinkCompanyForm
+
+    def get(self, request, *args, **kwargs):
+        return super(CreateLinkCompany, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateLinkCompany, self).get_context_data(**kwargs)
+        step = self.kwargs['step']
+        if step == '1':
+            context['step1'] = 'active'
+            context['step2'] = 'disabled'
+            context['step3'] = 'disabled'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '2':
+            context['step2'] = 'active'
+            context['step3'] = 'disabled'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '3':
+            context['step3'] = 'active'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '4':
+            context['step4'] = 'active'
+            context['step5'] = 'disabled'
+        elif step == '5':
+            context['step5'] = 'active'
+        return context 
+
+    def get_initial(self):
+        initial = super(CreateLinkCompany, self).get_initial()
+        step = self.kwargs['step']
+        initial['step'] = self.kwargs['step']
+        initial['company_exists'] = ''
+        #print step
+        if step == '2':
+            #print "IMIN"
+
+        #    print self.request.POST['abn']
+            if self.request.POST.get('abn'):
+                #print 'tttt'
+                abn = self.request.POST.get('abn')
+                try: 
+                    company = Organisation.objects.get(abn=abn) #(abn=abn)\
+                            #print company.abn
+                    initial['company_exists'] = 'yes'
+                    #print initial['company_exists']
+                except Organisation.DoesNotExist:
+                    #print "NOT EXIST"
+                    initial['company_exists'] = 'no'
+                #print company.abn
+#                print self.request.POST.get('abn')
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(CreateLinkCompany, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        forms_data = form.cleaned_data
+        step = self.kwargs['step']
+
+        nextstep = 1
+        if self.request.POST.get('prev-step'):
+            if step == '1':
+               nextstep = 1
+            elif step == '2':
+               nextstep = 1
+            elif step == '3':
+               nextstep = 2
+            elif step == '4':
+               nextstep = 3
+            elif step == '5':
+               nextstep = 4
+        else:
+            if step == '1':
+               nextstep = 2
+            elif step == '2':
+               nextstep = 3
+            elif step == '3':
+               nextstep = 4
+            elif step == '4':
+               nextstep = 5
+            else:
+               nextstep = 6
+
+        if nextstep == 6:
+           return HttpResponseRedirect(reverse('home_page'))
+        else:
+           return HttpResponseRedirect(reverse('company_create_link',args=(self.request.user.id, nextstep)))
+
+
+        return HttpResponseRedirect(reverse('home_page'))
+
 
 
 class ApplicationApplicantChange(LoginRequiredMixin,DetailView):

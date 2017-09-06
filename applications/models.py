@@ -8,7 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from model_utils import Choices
 from django.contrib.auth.models import Group
 #from approvals.models import Approval
-from ledger.accounts.models import Organisation
+from ledger.accounts.models import Organisation, Address as LedgerAddress
 #from ledger.payments.models import Invoice
 
 
@@ -446,14 +446,14 @@ class Delegate(models.Model):
     """
     email_user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, on_delete=models.PROTECT)
     organisation = models.ForeignKey(Organisation, blank=False, on_delete=models.PROTECT)
-
+    
     def __str__(self):
         return '{}: {}'. format(self.email_user.email, self.organisation.name)
 
     class Meta:
         unique_together = ('email_user', 'organisation')
 
-
+@python_2_unicode_compatible
 class OrganisationContact(models.Model):
     """This model represents the contact people within the organisation for this application.
     """
@@ -467,6 +467,27 @@ class OrganisationContact(models.Model):
 
     def __str__(self):
         return '{}: {}'. format(self.first_name, self.last_name, self.email)
+
+
+@python_2_unicode_compatible
+class OrganisationPending(models.Model):
+    """This model represents the contact people within the organisation for this application.
+    """
+
+    STATUS_CHOICES = Choices(
+        (1, 'pending', ('Pending')),
+        (2, 'approve',('Approved')),
+    )
+
+    name = models.CharField(max_length=128, unique=True)
+    abn = models.CharField(max_length=50, null=True, blank=True, verbose_name='ABN')
+    status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_CHOICES.pending) 
+    #postal_address = models.ForeignKey(LedgerAddress, related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
+    #billing_address = models.ForeignKey(LedgerAddress, related_name='org_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return '{}: {}'. format(self.name,self.abn, self.status)
+
 
 
 @python_2_unicode_compatible

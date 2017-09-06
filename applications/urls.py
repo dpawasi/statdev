@@ -6,6 +6,7 @@ urlpatterns = [
     url(r'^home/(?P<action>\w+)/$', views.HomePage.as_view(), name='home_page_tabs'),
     url(r'^first-login/$', views.FirstLoginInfo.as_view(), name='first_login_info'),
     url(r'^first-login/(?P<pk>\d+)/(?P<step>\d+)/$', views.FirstLoginInfoSteps.as_view(), name='first_login_info_steps'),
+    url(r'^company-create-link/(?P<pk>\d+)/(?P<step>\d+)/$',views.CreateLinkCompany.as_view(), name='company_create_link'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
     url(r'^applications/apply/$', views.ApplicationApply.as_view(), name='application_apply'),
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
