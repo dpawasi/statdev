@@ -479,11 +479,12 @@ class OrganisationPending(models.Model):
         (2, 'approve',('Approved')),
     )
 
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=128,  null=True, blank=True)
     abn = models.CharField(max_length=50, null=True, blank=True, verbose_name='ABN')
     status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_CHOICES.pending) 
     postal_address = models.ForeignKey(LedgerAddress, related_name='org_pending_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
     billing_address = models.ForeignKey(LedgerAddress, related_name='org_pending_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
+    email_user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return '{}: {}'. format(self.name,self.abn, self.status)

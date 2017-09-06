@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -354,22 +354,21 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         step = self.kwargs['step']
         initial['step'] = self.kwargs['step']
         initial['company_exists'] = ''
-        #print step
+        if 'po_id' in self.kwargs:
+            po_id = self.kwargs['po_id']
+            if po_id:
+                 pending_org = OrganisationPending.objects.get(id=po_id)
+                 initial['company_name'] = pending_org.name
+                 initial['abn'] = pending_org.abn
+
         if step == '2':
-        #    print self.request.POST['abn']
-            if self.request.POST.get('abn'):
-                #print 'tttt'
-                abn = self.request.POST.get('abn')
-                try: 
+            if initial['abn']:
+                abn = initial['abn']
+                try:
                     company = Organisation.objects.get(abn=abn) #(abn=abn)\
-                            #print company.abn
                     initial['company_exists'] = 'yes'
-                    #print initial['company_exists']
                 except Organisation.DoesNotExist:
-                    #print "NOT EXIST"
                     initial['company_exists'] = 'no'
-                #print company.abn
-#                print self.request.POST.get('abn')
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -382,6 +381,28 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
         step = self.kwargs['step']
+        pending_org = None
+        if 'po_id' in self.kwargs:
+            po_id = self.kwargs['po_id']
+            if po_id:
+                pending_org = OrganisationPending.objects.get(id=po_id)
+
+        if step == '1':
+            abn = self.request.POST.get('abn')
+            company_name = self.request.POST.get('company_name')
+            if pending_org:
+                pending_org.name = company_name
+                pending_org.abn = abn
+                pending_org.save()
+            else:
+                pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
+#            try:
+#                company = Organisation.objects.get(abn=abn)
+#                initial['company_exists'] = 'yes'
+#            except Organisation.DoesNotExist:
+#                initial['company_exists'] = 'no'
+#                pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
+#                print pending_org
 
         nextstep = 1
         if self.request.POST.get('prev-step'):
@@ -410,11 +431,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         if nextstep == 6:
            return HttpResponseRedirect(reverse('home_page'))
         else:
-           return HttpResponseRedirect(reverse('company_create_link',args=(self.request.user.id, nextstep)))
-
-
+           if pending_org:
+              return HttpResponseRedirect(reverse('company_create_link_steps',args=(self.request.user.id, nextstep,pending_org.id)))
+           else:
+              return HttpResponseRedirect(reverse('company_create_link',args=(self.request.user.id,nextstep)))
         return HttpResponseRedirect(reverse('home_page'))
-
 
 
 class ApplicationApplicantChange(LoginRequiredMixin,DetailView):

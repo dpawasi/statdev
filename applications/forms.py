@@ -104,6 +104,7 @@ class CreateLinkCompanyForm(ModelForm):
         elif step == '2':
             #print self.request['POST'].get
             #print Organisation.objects.get(abn=)
+            #print self.initial['company_exists']
             if self.initial['company_exists'] == 'yes':
                 crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2' ))
             else:
