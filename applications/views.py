@@ -356,8 +356,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         initial['company_exists'] = ''
         #print step
         if step == '2':
-            #print "IMIN"
-
         #    print self.request.POST['abn']
             if self.request.POST.get('abn'):
                 #print 'tttt'
