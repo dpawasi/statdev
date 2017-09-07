@@ -327,6 +327,10 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateLinkCompany, self).get_context_data(**kwargs)
         step = self.kwargs['step']
+        if 'po_id' in self.kwargs:
+            context['po_id'] = self.kwargs['po_id']
+        else:
+            context['po_id'] = 0
         if step == '1':
             context['step1'] = 'active'
             context['step2'] = 'disabled'

@@ -101,6 +101,8 @@ class CreateLinkCompanyForm(ModelForm):
 
         if step == '1':
             crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Enter Company Information','company_name','abn' ))
+            self.fields['company_name'].required = True
+            self.fields['abn'].required = True
         elif step == '2':
             #print self.request['POST'].get
             #print Organisation.objects.get(abn=)
