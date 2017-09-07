@@ -1,9 +1,12 @@
 from __future__ import unicode_literals
 from applications.workflow import Flow
-from .models import Location, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application
+from .models import Location, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application, Delegate, Compliance
 from django.utils.safestring import SafeText
 from django.contrib.auth.models import Group
 from applications.validationchecks import Attachment_Extension_Check
+from ledger.accounts.models import EmailUser, Address, Organisation, Document
+from django.db.models import Q
+from approvals.models import Approval
 
 class Application_Part5():
 
@@ -295,6 +298,158 @@ class Referrals_Next_Action_Check():
         app.assignee = assignee
         app.save()
 
+
+
+class FormsList():
+
+    def get_application(self,self_view,userid,context):
+
+        user = EmailUser.objects.get(id=userid)
+        delegate = Delegate.objects.filter(email_user=user).values('id')
+
+        context['nav_other_applications'] = "active"
+        context['app'] = ''
+
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+                skip = 'yes'
+            else:
+                APP_TYPE_CHOICES.append(i)
+                APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes'] = APP_TYPE_CHOICES
+
+        context['app_appstatus'] = list(Application.APP_STATE_CHOICES)
+        search_filter = Q(applicant=userid) | Q(organisation__in=delegate)
+        if 'searchaction' in self_view.request.GET and self_view.request.GET['searchaction']:
+            query_str = self_view.request.GET['q']
+            if self_view.request.GET['apptype'] != '':
+                search_filter &= Q(app_type=int(self_view.request.GET['apptype']))
+            else:
+                end = ''
+
+
+            if self_view.request.GET['appstatus'] != '':
+                search_filter &= Q(state=int(self_view.request.GET['appstatus']))
+
+            context['query_string'] = self_view.request.GET['q']
+
+            if self_view.request.GET['apptype'] != '':
+                context['apptype'] = int(self_view.request.GET['apptype'])
+            if 'appstatus' in self_view.request.GET:
+                if self_view.request.GET['appstatus'] != '':
+                    context['appstatus'] = int(self_view.request.GET['appstatus'])
+
+            if 'q' in self_view.request.GET and self_view.request.GET['q']:
+                query_str = self_view.request.GET['q']
+                query_str_split = query_str.split()
+                for se_wo in query_str_split:
+                    search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+
+        applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) )[:200]
+
+        usergroups = self_view.request.user.groups.all()
+        context['app_list'] = []
+
+        for app in applications:
+             row = {}
+             row['may_assign_to_person'] = 'False'
+             row['app'] = app
+
+             if app.group is not None:
+                 if app.group in usergroups:
+                     row['may_assign_to_person'] = 'True'
+             context['app_list'].append(row)
+
+        return context
+
+    def get_approvals(self,self_view,userid,context):
+
+        user = EmailUser.objects.get(id=userid)
+        delegate = Delegate.objects.filter(email_user=user).values('id')
+
+        search_filter = Q(applicant=userid, status=1 ) | Q(organisation__in=delegate)
+
+        APP_TYPE_CHOICES = []
+        APP_TYPE_CHOICES_IDS = []
+        for i in Application.APP_TYPE_CHOICES:
+            if i[0] in [4,5,6,7,8,9,10,11]:
+                skip = 'yes'
+            else:
+                APP_TYPE_CHOICES.append(i)
+                APP_TYPE_CHOICES_IDS.append(i[0])
+        context['app_apptypes']= APP_TYPE_CHOICES
+
+
+        if 'action' in self_view.request.GET and self_view.request.GET['action']:
+
+            if self_view.request.GET['apptype'] != '':
+                search_filter &= Q(app_type=int(self_view.request.GET['apptype']))
+            else:
+                search_filter &= Q(app_type__in=APP_TYPE_CHOICES_IDS)
+
+            if self_view.request.GET['appstatus'] != '':
+                search_filter &= Q(status=int(self_view.request.GET['appstatus']))
+
+            context['query_string'] = self_view.request.GET['q']
+
+            if self_view.request.GET['apptype'] != '':
+                context['apptype'] = int(self_view.request.GET['apptype'])
+            if 'appstatus' in self_view.request.GET:
+                if self_view.request.GET['appstatus'] != '':
+                    context['appstatus'] = int(self_view.request.GET['appstatus'])
+
+                if 'q' in self_view.request.GET and self_view.request.GET['q']:
+                    query_str = self_view.request.GET['q']
+                    query_str_split = query_str.split()
+                    for se_wo in query_str_split:
+                        search_filter= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+        approval = Approval.objects.filter(search_filter)[:200]
+
+        context['app_list'] = []
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_appstatus'] = list(Approval.APPROVAL_STATE_CHOICES)
+
+        for app in approval:
+            row = {}
+            row['app'] = app
+            if app.applicant:
+                if app.applicant.id in context['app_applicants']:
+                    donothing = ''
+                else:
+                    context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
+                    context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name})
+
+            context['app_list'].append(row)
+
+        return context
+		
+    def get_clearance(self,self_view,userid,context):
+        context['nav_other_clearance'] = "active"
+        if 'q' in self_view.request.GET and self_view.request.GET['q']:
+            context['query_string'] = self_view.request.GET['q']
+
+        user = EmailUser.objects.get(id=userid)
+        delegate = Delegate.objects.filter(email_user=user).values('id')
+        search_filter = Q(applicant=userid) | Q(organisation__in=delegate)
+
+        items = Compliance.objects.filter(applicant=userid).order_by('due_date')
+
+        context['app_applicants'] = {}
+        context['app_applicants_list'] = []
+        context['app_apptypes'] = list(Application.APP_TYPE_CHOICES)
+
+        APP_STATUS_CHOICES = []
+        for i in Application.APP_STATE_CHOICES:
+           if i[0] in [1,11,16]:
+              APP_STATUS_CHOICES.append(i)
+
+        context['app_appstatus'] = list(APP_STATUS_CHOICES)
+        context['compliance'] = items
+
+        return context
 
 
 

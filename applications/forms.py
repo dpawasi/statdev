@@ -14,7 +14,8 @@ from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
     PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact)
-
+from django_countries.fields import CountryField
+from django_countries.data import COUNTRIES
 User = get_user_model()
 
 class BaseFormHelper(FormHelper):
@@ -79,12 +80,66 @@ class ApplicationApplyForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
 
-class FirstLoginInfoForm(ModelForm):
+class CreateLinkCompanyForm(ModelForm):
+    company_name = CharField(required=False,max_length=255)
+    abn = CharField(required=False,max_length=255)
+    pin1 = CharField(max_length=50, required=False)
+    pin2 = CharField(max_length=50, required=False)
     identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
+        model = EmailUser
+        fields = ['first_name']
+    def __init__(self, *args, **kwargs):
+        super(CreateLinkCompanyForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        step = self.initial['step']
+        #step = self.initial['step']
+        #self.fields['country'].required = False
+        del self.fields['first_name']
+        crispy_boxes = crispy_empty_box()
+
+        if step == '1':
+            crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Enter Company Information','company_name','abn' ))
+            self.fields['company_name'].required = True
+            self.fields['abn'].required = True
+        elif step == '2':
+            #print self.request['POST'].get
+            #print Organisation.objects.get(abn=)
+            #print self.initial['company_exists']
+            if self.initial['company_exists'] == 'yes':
+                crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2' ))
+            else:
+                crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'identification' ))
+        self.helper.layout = Layout(crispy_boxes,)
+        self.helper.form_id = 'id_form_apply_application'
+        self.helper.attrs = {'novalidate': ''}
+#        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
+        if step == '4':
+            self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            self.helper.add_input(Submit('Complete', 'Complete', css_class='btn-lg'))
+        else:
+            if int(step) > 1:
+                self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            self.helper.add_input(Submit('Next Step', 'Next Step', css_class='btn-lg'))
+
+
+
+class FirstLoginInfoForm(ModelForm):
+    BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
+    identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    line1 = CharField(required=False,max_length=255)
+    line2 = CharField(required=False, max_length=255)
+    line3 = CharField(required=False, max_length=255)
+    locality = CharField(required=False, max_length=255)
+    state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
+    country = ChoiceField( sorted(COUNTRIES.items())) 
+    postcode = CharField(required=False, max_length=10)
+    manage_permits = ChoiceField(label='Do you manage licences, permits or Part 5 on behalf of a company?', required=False,choices=BOOL_CHOICES, widget=RadioSelect(attrs={'class':'radio-inline'}))
+
+    class Meta:
         model = EmailUser 
-        fields = ['first_name','last_name','dob','identification','phone_number','mobile_number','email']
+        fields = ['first_name','last_name','dob','phone_number','mobile_number','email']
 
     def __init__(self, *args, **kwargs):
         # User must be passed in as a kwarg.
@@ -92,30 +147,66 @@ class FirstLoginInfoForm(ModelForm):
         super(FirstLoginInfoForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
         step = self.initial['step']
-
+        self.fields['country'].required = False
         # delete internal option
         crispy_boxes = crispy_empty_box()
         #  self.helper.form_show_labels = False
+
         if step == '1':
             crispy_boxes.append(crispy_box('person_details_collapse','person_details','Personal Details','first_name','last_name','dob'))
+            self.fields['first_name'].required = True
+            self.fields['last_name'].required = True
+            self.fields['dob'].required = True
+
             del self.fields['identification']
             del self.fields['phone_number']
             del self.fields['mobile_number']
             del self.fields['email']
         elif step == '2':
             crispy_boxes.append(crispy_box('identification_collapse','identification_details','Identification','identification'))
+            self.fields['identification'].required = True
             del self.fields['first_name']
             del self.fields['last_name']
             del self.fields['dob']
             del self.fields['phone_number']
             del self.fields['mobile_number']
             del self.fields['email']
-        elif step == '4':
-            crispy_boxes.append(crispy_box('contact_details_collapse','contact_details','Contact Details','phone_number','mobile_number','email'))
+        elif step == '3':
+            crispy_boxes.append(crispy_box('address_collapse','address_details','Address','line1','line2','line3','locality','postcode','state','country'))
+            self.fields['line1'].required = True
+            self.fields['line2'].required = True
+            self.fields['line3'].required = True
+            self.fields['locality'].required = True
+            self.fields['postcode'].required = True
+            self.fields['state'].required = True
+            self.fields['country'].required = True
+
             del self.fields['first_name']
             del self.fields['last_name']
             del self.fields['dob']
             del self.fields['identification']
+            del self.fields['phone_number']
+            del self.fields['mobile_number']
+            del self.fields['email']
+        elif step == '4':
+            crispy_boxes.append(crispy_box('contact_details_collapse','contact_details','Contact Details','phone_number','mobile_number','email'))
+            self.fields['phone_number'].required = True
+            self.fields['mobile_number'].required = True
+            self.fields['email'].required = True
+
+            del self.fields['first_name']
+            del self.fields['last_name']
+            del self.fields['dob']
+            del self.fields['identification']
+        elif step == '5':
+            crispy_boxes.append(crispy_box('company_details_collapse','company_details','Company Details','manage_permits'))
+            del self.fields['first_name']
+            del self.fields['last_name']
+            del self.fields['dob']
+            del self.fields['identification']
+            del self.fields['phone_number']
+            del self.fields['mobile_number']
+            del self.fields['email']
         else:
             del self.fields['first_name'] 
             del self.fields['last_name']
@@ -133,7 +224,8 @@ class FirstLoginInfoForm(ModelForm):
             self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
             self.helper.add_input(Submit('Complete', 'Complete', css_class='btn-lg'))
         else:
-            self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
+            if int(step) > 1:
+                self.helper.add_input(Submit('Prev Step', 'Prev Step', css_class='btn-lg'))
             self.helper.add_input(Submit('Next Step', 'Next Step', css_class='btn-lg'))
 
  

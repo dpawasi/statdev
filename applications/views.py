@@ -23,9 +23,9 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending)
 from applications.workflow import Flow
-from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check
+from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
 from applications.utils import get_query
@@ -54,17 +54,34 @@ class HomePage(TemplateView):
         context = RequestContext(self.request, context)
         return HttpResponse(template.render(context))
 
-
     def get_context_data(self, **kwargs):
         context = super(HomePage, self).get_context_data(**kwargs)
+        context = template_context(self.request)
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
 
         # Have to manually populate when using render_to_response()
         context['messages'] = messages.get_messages(self.request)
         context['request'] = self.request
-        context['user']  = self.request.user
+        context['user'] = self.request.user
+        fl = FormsList()
+        if 'action' in self.kwargs:
+           action = self.kwargs['action']
+        else:
+           action = ''
 
+        if self.request.user.is_authenticated: 
+            if action == '':
+               context = fl.get_application(self,self.request.user.id,context)
+               context['home_nav_other_applications'] = 'active'
+            elif action == 'approvals':
+               context = fl.get_approvals(self,self.request.user.id,context)
+               context['home_nav_other_approvals'] = 'active'
+            elif action == 'clearance': 
+               context = fl.get_clearance(self,self.request.user.id,context)
+               context['home_nav_other_clearance'] = 'active'
+            else:
+               donothing ='' 
         #for i in Application.APP_TYPE_CHOICES:
         #    if i[0] in [4,5,6,7,8,9,10,11]:
         #       skip = 'yes'
@@ -198,8 +215,27 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         return context
     def get_initial(self):
         initial = super(FirstLoginInfoSteps, self).get_initial()
+        person = self.get_object()
         # initial['action'] = self.kwargs['action']
         # print self.kwargs['step']
+        step = self.kwargs['step']
+        if person.identification:
+            initial['identification'] = person.identification.file
+
+        if step == '3':
+            if self.object.postal_address is None:
+                initial['country'] = 'AU'
+                initial['state'] = 'WA'
+            else: 
+                postal_address = Address.objects.get(id=self.object.postal_address.id)
+                initial['line1'] = postal_address.line1
+                initial['line2'] = postal_address.line2
+                initial['line3'] = postal_address.line3
+                initial['locality'] = postal_address.locality
+                initial['state'] = postal_address.state
+                initial['country'] = postal_address.country
+                initial['postcode'] = postal_address.postcode
+
         initial['step'] = self.kwargs['step']
         return initial
 
@@ -210,11 +246,47 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         return super(FirstLoginInfoSteps, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save()
+        self.object = form.save(commit=False)
         forms_data = form.cleaned_data
+        step = self.kwargs['step']
+
+        if step == '3':
+            if self.object.postal_address is None:
+                postal_address = Address.objects.create(line1=forms_data['line1'],
+                                        line2=forms_data['line2'],
+                                        line3=forms_data['line3'],
+                                        locality=forms_data['locality'],
+                                        state=forms_data['state'],
+                                        country=forms_data['country'],
+                                        postcode=forms_data['postcode'],
+                                        user=self.object
+                                       )
+                self.object.postal_address = postal_address
+            else:
+               postal_address = Address.objects.get(id=self.object.postal_address.id)
+               postal_address.line1 = forms_data['line1']
+               postal_address.line2 = forms_data['line2']
+               postal_address.line3 = forms_data['line3']
+               postal_address.locality = forms_data['locality']
+               postal_address.state = forms_data['state']
+               postal_address.country = forms_data['country']
+               postal_address.postcode = forms_data['postcode']
+               postal_address.save()
+
+        # Upload New Files
+        if self.request.FILES.get('identification'):  # Uploaded new file.
+            doc = Document()
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+
+            doc.file = forms_data['identification']
+            doc.name = forms_data['identification'].name
+            doc.save()
+            self.object.identification = doc
+            
+        self.object.save()
         nextstep = 1
 #        action = self.kwargs['action']
-        step = self.kwargs['step']
         if self.request.POST.get('prev-step'):
             if step == '1':
                nextstep = 1
@@ -226,12 +298,10 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                nextstep = 3
             elif step == '5':
                nextstep = 4
-
-
         else:
             if step == '1':
                nextstep = 2
-            elif step == '2':  
+            elif step == '2':
                nextstep = 3
             elif step == '3':
                nextstep = 4
@@ -244,6 +314,132 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
            return HttpResponseRedirect(reverse('home_page'))
         else:
            return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.request.user.id, nextstep)))
+
+class CreateLinkCompany(LoginRequiredMixin,CreateView):
+
+    template_name = 'applications/companycreatelink.html'
+    model = EmailUser 
+    form_class = apps_forms.CreateLinkCompanyForm
+
+    def get(self, request, *args, **kwargs):
+        return super(CreateLinkCompany, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateLinkCompany, self).get_context_data(**kwargs)
+        step = self.kwargs['step']
+        if 'po_id' in self.kwargs:
+            context['po_id'] = self.kwargs['po_id']
+        else:
+            context['po_id'] = 0
+        if step == '1':
+            context['step1'] = 'active'
+            context['step2'] = 'disabled'
+            context['step3'] = 'disabled'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '2':
+            context['step2'] = 'active'
+            context['step3'] = 'disabled'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '3':
+            context['step3'] = 'active'
+            context['step4'] = 'disabled'
+            context['step5'] = 'disabled'
+        elif step == '4':
+            context['step4'] = 'active'
+            context['step5'] = 'disabled'
+        elif step == '5':
+            context['step5'] = 'active'
+        return context 
+
+    def get_initial(self):
+        initial = super(CreateLinkCompany, self).get_initial()
+        step = self.kwargs['step']
+        initial['step'] = self.kwargs['step']
+        initial['company_exists'] = ''
+        if 'po_id' in self.kwargs:
+            po_id = self.kwargs['po_id']
+            if po_id:
+                 pending_org = OrganisationPending.objects.get(id=po_id)
+                 initial['company_name'] = pending_org.name
+                 initial['abn'] = pending_org.abn
+
+        if step == '2':
+            if initial['abn']:
+                abn = initial['abn']
+                try:
+                    company = Organisation.objects.get(abn=abn) #(abn=abn)\
+                    initial['company_exists'] = 'yes'
+                except Organisation.DoesNotExist:
+                    initial['company_exists'] = 'no'
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(CreateLinkCompany, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        forms_data = form.cleaned_data
+        step = self.kwargs['step']
+        pending_org = None
+        if 'po_id' in self.kwargs:
+            po_id = self.kwargs['po_id']
+            if po_id:
+                pending_org = OrganisationPending.objects.get(id=po_id)
+
+        if step == '1':
+            abn = self.request.POST.get('abn')
+            company_name = self.request.POST.get('company_name')
+            if pending_org:
+                pending_org.name = company_name
+                pending_org.abn = abn
+                pending_org.save()
+            else:
+                pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
+#            try:
+#                company = Organisation.objects.get(abn=abn)
+#                initial['company_exists'] = 'yes'
+#            except Organisation.DoesNotExist:
+#                initial['company_exists'] = 'no'
+#                pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
+#                print pending_org
+
+        nextstep = 1
+        if self.request.POST.get('prev-step'):
+            if step == '1':
+               nextstep = 1
+            elif step == '2':
+               nextstep = 1
+            elif step == '3':
+               nextstep = 2
+            elif step == '4':
+               nextstep = 3
+            elif step == '5':
+               nextstep = 4
+        else:
+            if step == '1':
+               nextstep = 2
+            elif step == '2':
+               nextstep = 3
+            elif step == '3':
+               nextstep = 4
+            elif step == '4':
+               nextstep = 5
+            else:
+               nextstep = 6
+
+        if nextstep == 6:
+           return HttpResponseRedirect(reverse('home_page'))
+        else:
+           if pending_org:
+              return HttpResponseRedirect(reverse('company_create_link_steps',args=(self.request.user.id, nextstep,pending_org.id)))
+           else:
+              return HttpResponseRedirect(reverse('company_create_link',args=(self.request.user.id,nextstep)))
+        return HttpResponseRedirect(reverse('home_page'))
 
 
 class ApplicationApplicantChange(LoginRequiredMixin,DetailView):
