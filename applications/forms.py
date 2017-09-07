@@ -87,9 +87,26 @@ class CreateLinkCompanyForm(ModelForm):
     pin2 = CharField(max_length=50, required=False)
     identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
+    postal_line1 = CharField(required=False,max_length=255)
+    postal_line2 = CharField(required=False, max_length=255)
+    postal_line3 = CharField(required=False, max_length=255)
+    postal_locality = CharField(required=False, max_length=255)
+    postal_state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
+    postal_country = ChoiceField(sorted(COUNTRIES.items()), required=False)
+    postal_postcode = CharField(required=False, max_length=10)
+
+    billing_line1 = CharField(required=False,max_length=255)
+    billing_line2 = CharField(required=False, max_length=255)
+    billing_line3 = CharField(required=False, max_length=255)
+    billing_locality = CharField(required=False, max_length=255)
+    billing_state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
+    billing_country = ChoiceField(sorted(COUNTRIES.items()), required=False)
+    billing_postcode = CharField(required=False, max_length=10)
+
     class Meta:
         model = EmailUser
         fields = ['first_name']
+
     def __init__(self, *args, **kwargs):
         super(CreateLinkCompanyForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
@@ -108,9 +125,15 @@ class CreateLinkCompanyForm(ModelForm):
             #print Organisation.objects.get(abn=)
             #print self.initial['company_exists']
             if self.initial['company_exists'] == 'yes':
-                crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2' ))
+                crispy_boxes.append(crispy_box('pins_collapse','form_pins','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2' ))
             else:
-                crispy_boxes.append(crispy_box('company_create_link_collapse','form_company_create_link','Please Enter Pins',crispy_h3("Please enter company pins?"),'identification' ))
+                crispy_boxes.append(crispy_box('ident_collapse','form_ident','Please Identification',crispy_h3("Please provide company identification?"),'identification' ))
+        elif step == '3':
+			crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_state','postal_country','postal_postcode'))
+			crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_state','billing_country','billing_postcode'))
+        elif step == '4':
+            crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.  This will place your request in a queue pending approval.')))
+
         self.helper.layout = Layout(crispy_boxes,)
         self.helper.form_id = 'id_form_apply_application'
         self.helper.attrs = {'novalidate': ''}

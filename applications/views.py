@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -311,7 +311,13 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                nextstep = 6
         
         if nextstep == 6:
-           return HttpResponseRedirect(reverse('home_page'))
+           print forms_data['manage_permits']
+           if forms_data['manage_permits'] == 'True':
+               messages.success(self.request, 'Registration is now complete. Please now complete the company form.')
+               return HttpResponseRedirect(reverse('company_create_link', args=(self.request.user.id,'1')))
+           else:
+               messages.success(self.request, 'Registration is now complete.')
+               return HttpResponseRedirect(reverse('home_page'))
         else:
            return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.request.user.id, nextstep)))
 
@@ -373,6 +379,31 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                     initial['company_exists'] = 'yes'
                 except Organisation.DoesNotExist:
                     initial['company_exists'] = 'no'
+                    if pending_org.identification:
+                        initial['identification'] = pending_org.identification.upload
+        if step == '3':
+            if pending_org.postal_address is not None:
+                postal_address = Address.objects.get(id=pending_org.postal_address.id)
+                billing_address = Address.objects.get(id=pending_org.billing_address.id)
+                initial['postal_line1'] = postal_address.line1
+                initial['postal_line2'] = postal_address.line2
+                initial['postal_line3'] = postal_address.line3
+                initial['postal_locality'] = postal_address.locality
+                initial['postal_state'] = postal_address.state
+                initial['postal_country'] = postal_address.country
+                initial['postal_postcode'] = postal_address.postcode
+
+            if pending_org.billing_address is not None:
+                initial['billing_line1'] = billing_address.line1
+                initial['billing_line2'] = billing_address.line2
+                initial['billing_line3'] = billing_address.line3
+                initial['billing_locality'] = billing_address.locality
+                initial['billing_state'] = billing_address.state
+                initial['billing_country'] = billing_address.country
+                initial['billing_postcode'] = billing_address.postcode
+       
+
+ 
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -386,6 +417,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         forms_data = form.cleaned_data
         step = self.kwargs['step']
         pending_org = None
+
         if 'po_id' in self.kwargs:
             po_id = self.kwargs['po_id']
             if po_id:
@@ -400,6 +432,66 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org.save()
             else:
                 pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
+
+        if step == '2':
+            doc = Record()
+            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                raise ValidationError('Identification contains and unallowed attachment extension.')
+
+            doc.upload = forms_data['identification']
+            doc.name = forms_data['identification'].name
+            doc.save()
+            pending_org.identification = doc
+            pending_org.save()
+
+        if step == '3':
+            if pending_org.postal_address is None or pending_org.billing_address is None:
+                postal_address = Address.objects.create(line1=forms_data['postal_line1'],
+                                                        line2=forms_data['postal_line2'],
+                                                        line3=forms_data['postal_line3'],
+                                                        locality=forms_data['postal_locality'],
+                                                        state=forms_data['postal_state'],
+                                                        country=forms_data['postal_country'],
+                                                        postcode=forms_data['postal_postcode']
+                        )
+                billing_address = Address.objects.create(line1=forms_data['billing_line1'],
+                                                        line2=forms_data['billing_line2'],
+                                                        line3=forms_data['billing_line3'],
+                                                        locality=forms_data['billing_locality'],
+                                                        state=forms_data['billing_state'],
+                                                        country=forms_data['billing_country'],
+                                                        postcode=forms_data['billing_postcode']
+                        )
+                pending_org.postal_address = postal_address
+                pending_org.billing_address = billing_address
+                pending_org.save()
+            else:
+                postal_address = Address.objects.get(id=pending_org.postal_address.id)
+                billing_address = Address.objects.get(id=pending_org.billing_address.id)
+   
+                postal_address.line1=forms_data['postal_line1']
+                postal_address.line2=forms_data['postal_line2']
+                postal_address.line3=forms_data['postal_line3']
+                postal_address.locality=forms_data['postal_locality']
+                postal_address.state=forms_data['postal_state']
+                postal_address.country=forms_data['postal_country']
+                postal_address.postcode=forms_data['postal_postcode']
+                postal_address.save()
+
+                billing_address.line1=forms_data['billing_line1']
+                billing_address.line2=forms_data['billing_line2']
+                billing_address.line3=forms_data['billing_line3']
+                billing_address.locality=forms_data['billing_locality']
+                billing_address.state=forms_data['billing_state']
+                billing_address.country=forms_data['billing_country']
+                billing_address.postcode=forms_data['postal_postcode']
+                billing_address.save()
+
+
+				
+ 
+
+            #pending_org.identification 
 #            try:
 #                company = Organisation.objects.get(abn=abn)
 #                initial['company_exists'] = 'yes'
