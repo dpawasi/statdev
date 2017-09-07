@@ -497,6 +497,7 @@ class OrganisationExtras(models.Model):
     organisation = models.ForeignKey(Organisation, blank=False, null=True, on_delete=models.PROTECT)
     pin1 = models.CharField(max_length=50, null=True, blank=True)
     pin2 = models.CharField(max_length=50, null=True, blank=True)
+    identification = models.ForeignKey(Record, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return '{}: {}'. format(self.organisation)
