@@ -376,9 +376,16 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 abn = initial['abn']
                 try:
                     company = Organisation.objects.get(abn=abn) #(abn=abn)\
+                    companyextras = OrganisationExtras.objects.get(id=company.id)
                     initial['company_exists'] = 'yes'
                 except Organisation.DoesNotExist:
                     initial['company_exists'] = 'no'
+
+#                    try: 
+                        #                        companyextras = OrganisationExtras.objects.get(id=company.id)
+ #                   except OrganisationExtras.DoesNotExist:
+  #                      initial['company_exists'] = 'no'
+
                     if pending_org.identification:
                         initial['identification'] = pending_org.identification.upload
         if step == '3':
@@ -392,6 +399,9 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 initial['postal_state'] = postal_address.state
                 initial['postal_country'] = postal_address.country
                 initial['postal_postcode'] = postal_address.postcode
+            else:
+                initial['postal_state'] = 'WA'
+                initial['postal_country'] = 'AU'
 
             if pending_org.billing_address is not None:
                 initial['billing_line1'] = billing_address.line1
@@ -401,6 +411,9 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 initial['billing_state'] = billing_address.state
                 initial['billing_country'] = billing_address.country
                 initial['billing_postcode'] = billing_address.postcode
+            else:
+                initial['billing_state'] = 'WA'
+                initial['billing_country'] = 'AU'
        
 
  
@@ -434,15 +447,16 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
 
         if step == '2':
-            doc = Record()
-            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
-                raise ValidationError('Identification contains and unallowed attachment extension.')
+            if forms_data['identification']:
+               doc = Record()
+               if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+                   raise ValidationError('Identification contains and unallowed attachment extension.')
 
-            doc.upload = forms_data['identification']
-            doc.name = forms_data['identification'].name
-            doc.save()
-            pending_org.identification = doc
-            pending_org.save()
+               doc.upload = forms_data['identification']
+               doc.name = forms_data['identification'].name
+               doc.save()
+               pending_org.identification = doc
+               pending_org.save()
 
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:

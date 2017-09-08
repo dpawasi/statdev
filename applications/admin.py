@@ -1,7 +1,7 @@
 from django.contrib.admin import register, ModelAdmin
 from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
-    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact)
+    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact, OrganisationPending)
 
 
 @register(Record)
@@ -63,16 +63,13 @@ class ComplianceAdmin(ModelAdmin):
     list_display = ('__str__', 'applicant', 'approval_id','assignee', 'status', 'submit_date', 'approve_date','due_date')
     search_fields = ('applicant__email', 'assignee__email', 'compliance', 'comments')
 
-
 @register(Delegate)
 class DelegateAdmin(ModelAdmin):
     pass
 
-
 @register(ApplicationInvoice)
 class ApplicationInvoiceAdmin(ModelAdmin):
     pass
-
 
 @register(Communication)
 class CommunicationAdmin(ModelAdmin):
@@ -84,9 +81,14 @@ class CraftAdmin(ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
-
 @register(OrganisationContact)
 class CommunicationAdmin(ModelAdmin):
     list_display = ('email','first_name','last_name','phone_number','mobile_number','fax_number')
     search_fields = ('email','first_name','last_name','phone_number','mobile_number','fax_number')
+
+@register(OrganisationPending)
+class OrganisationPending(ModelAdmin):
+    list_display = ('name','abn','identification','postal_address','billing_address')
+    search_fields = ('name','abn','identification','postal_address','billing_address')
+
 
