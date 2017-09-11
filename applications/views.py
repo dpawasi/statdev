@@ -878,6 +878,44 @@ class SearchMenu(ListView):
         context = super(SearchMenu, self).get_context_data(**kwargs)
         return context
 
+class OrganisationAccessRequest(ListView):
+    model = OrganisationPending
+    template_name = 'applications/organisation_pending.html'
+
+    def get_queryset(self):
+        qs = super(OrganisationAccessRequest, self).get_queryset()
+        # Did we pass in a search string? If so, filter the queryset and return
+        # it.
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            # Replace single-quotes with double-quotes
+            query_str = query_str.replace("'", r'"')
+            # Filter by pk, title, applicant__email, organisation__name,
+            # assignee__email
+            query = get_query(
+                query_str, ['pk'])
+            qs = qs.filter(query).distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationAccessRequest, self).get_context_data(**kwargs)
+
+        context['orgs_pending'] = OrganisationPending.objects.all()
+    #    print context['orgs_pending']
+        return context
+
+
+class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
+    model = OrganisationPending
+    template_name = 'applications/organisation_pending_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationAccessRequestView, self).get_context_data(**kwargs)
+        app = self.get_object()
+        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        return context
+
+
 class SearchPersonList(ListView):
     model = Compliance
     template_name = 'applications/search_person_list.html'
