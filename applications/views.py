@@ -311,7 +311,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                nextstep = 6
         
         if nextstep == 6:
-           print forms_data['manage_permits']
+            #print forms_data['manage_permits']
            if forms_data['manage_permits'] == 'True':
                messages.success(self.request, 'Registration is now complete. Please now complete the company form.')
                return HttpResponseRedirect(reverse('company_create_link', args=(self.request.user.id,'1')))
