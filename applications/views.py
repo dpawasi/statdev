@@ -905,6 +905,20 @@ class OrganisationAccessRequest(ListView):
         return context
 
 
+class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
+    model = OrganisationPending
+    template_name = 'applications/organisation_pending.html'
+
+    def get_queryset(self):
+        qs = super(OrganisationAccessRequest, self).get_queryset()
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str = query_str.replace("'", r'"')
+            query = get_query(
+                    query_str, ['pk'])
+            qs = qs.filter(query).distinct()
+        return qs
+
 class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     model = OrganisationPending
     template_name = 'applications/organisation_pending_view.html'
