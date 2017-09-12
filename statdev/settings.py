@@ -94,7 +94,7 @@ ALLOWED_UPLOAD_TYPES = [
     'text/csv',
     'text/plain'
 ]
-
+USER_FIELDS = ['email']
 SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
 SOCIAL_AUTH_STORAGE = 'social_django.models.DjangoStorage'
 SOCIAL_AUTH_EMAIL_FORM_URL = '/ledger/'
