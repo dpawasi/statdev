@@ -1,1 +1,169 @@
-iiii
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <br/>
+    </div>
+    <!-- Action panel start -->
+    <div class="row">
+        {% include "applications/application_side_menu.html" %}
+
+        <!--- remove everything eblow this tag to the end tag if everything has been moved -->
+        <div class="col-sm-4 col-md-3 col-lg-2"  style='display: none'>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Actions</h3>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
+                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
+                        {% if may_assign_emergency %}<li><a href="{% url 'application_assign' object.pk 'assign_emergency' %}">Assign</a></li>{% endif %}
+                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
+                        <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
+                        {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Submission</h3>
+                </div>
+                <div class="panel-body">
+                    <h4>Submitted by:</h4>
+                    <p>
+                        {% if object.applicant.first_name %}{{ object.applicant.first_name }} {{ object.applicant.last_name }}
+                        {% else %}{{ object.applicant.email }}
+                        {% endif %}
+                    </p>
+                    <h4>Lodged on</h4>
+                    <p>{{ object.submit_date|date:"d-M-Y" }}</p>
+                    {% comment %}
+                    <br />
+                    <h4>Lodgement  Date   Action</h4>
+                    {% endcomment %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Workflow</h3>
+                </div>
+                <div class="panel-body">
+                    <h4>Status:</h4>
+                    <p>{{ object.get_state_display }}</p>
+                    <h4>Assigned to:</h4>
+                    {% if object.assignee %}
+                        <p>
+                        {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
+                        {% else %}{{ object.assignee.email }}
+                        {% endif %}
+                        </p>
+                    {% else %}
+                        <p>--</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- remove all above to beginning of this tag if everything been moved -->
+
+        <!-- Main panel start -->
+        <div class="col-sm-8 col-md-9 col-lg-10">
+            <!-- Holder panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#holder_collapse">
+                    <h3 class="panel-title">
+                        Company Access Request 
+                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in" id="holder_collapse">
+                    <div class="panel-body">
+                        <div class="col-sm-8 col-md-6 col-lg-4">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Company<label>
+                                </div>
+                                <div class="col-sm-12 col-md-6 col-lg-8">
+                                        {{ object.name }}
+                                </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-6 col-lg-4"> 
+                                    <label>ABN</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                        {{ object.abn }}
+                                     </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Certificate of Incorportation</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                        {{ object.identification }}
+                                     </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Phone (home)</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                        {{ object.email_user.phone_number }}
+                                     </div>
+                                </div>
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Phone (work)</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                     </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Mobile</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                            {{ object.email_user.mobile_number }}
+                                     </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-6 col-lg-4">
+                                    <label>Email</label>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-8">
+                                        {{ object.email_user.email }}
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_access_requests_change" object.pk 'approve' %}">Approve</a> <a class="btn btn-primary btn-sm" role="button" href="{% url "organisation_access_requests_change" object.pk 'decline' %}">Decline</a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock page_content_inner %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    $(function() {
+        $('.collapse').on('shown.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+        }).on('hidden.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+        });
+    });
+</script>
+{% endblock extra_js %}

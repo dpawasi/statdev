@@ -477,6 +477,7 @@ class OrganisationPending(models.Model):
     STATUS_CHOICES = Choices(
         (1, 'pending', ('Pending')),
         (2, 'approve',('Approved')),
+        (3, 'decline', ('Declined'))
     )
 
     name = models.CharField(max_length=128,  null=True, blank=True)

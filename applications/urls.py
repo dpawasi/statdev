@@ -96,7 +96,7 @@ urlpatterns = [
     url(r'^organisations/(?P<pk>\d+)/contact/create/$', views.OrganisationContactCreate.as_view(), name='organisation_contact_create'),
     url(r'^organisations/(?P<pk>\d+)/contact/update/$', views.OrganisationContactUpdate.as_view(), name='organisation_contact_update'),
     url(r'^organisations/update-dentification/(?P<pk>\d+)/$', views.OrganisationCertificateUpdate.as_view(), name='organisation_update_identification_admin'),
-    url(r'^organisations/access-requests/$', views.OrganisationAccessRequest.as_view(), name='organisation_access_requests'),
+    url(r'^organisations/access-requests/(?P<pk>\d+)/(?P<action>\w+)/$', views.OrganisationAccessRequestUpdate.as_view(), name='organisation_access_requests_change'),
     url(r'^organisations/access-requests/(?P<pk>\d+)/$', views.OrganisationAccessRequestView.as_view(), name='organisation_access_requests_view'),
-
+    url(r'^organisations/access-requests/$', views.OrganisationAccessRequest.as_view(), name='organisation_access_requests'),
 ]

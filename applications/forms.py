@@ -13,7 +13,7 @@ from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending)
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
 User = get_user_model()
@@ -186,7 +186,15 @@ class FirstLoginInfoForm(ModelForm):
             del self.fields['mobile_number']
             del self.fields['email']
         elif step == '2':
-            crispy_boxes.append(crispy_box('identification_collapse','identification_details','Identification','identification'))
+            identification_img = None
+            if  'identification' in self.initial:
+                 id_name = self.initial['identification']
+                 att_ext = str(id_name)[-4:].lower()
+                 if att_ext in ['.png','.jpg']:
+                     identification_img = HTML("<label for='id_identification' class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2 requiredField'>Identification Image<span class='asteriskField'>*</span> </label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><img style='max-width: 400px;' src='/media/"+str(self.initial['identification'])+"' ></div>")
+
+
+            crispy_boxes.append(crispy_box('identification_collapse','identification_details','Identification','identification',identification_img))
             self.fields['identification'].required = True
             del self.fields['first_name']
             del self.fields['last_name']
@@ -197,8 +205,8 @@ class FirstLoginInfoForm(ModelForm):
         elif step == '3':
             crispy_boxes.append(crispy_box('address_collapse','address_details','Address','line1','line2','line3','locality','postcode','state','country'))
             self.fields['line1'].required = True
-            self.fields['line2'].required = True
-            self.fields['line3'].required = True
+            self.fields['line2'].required = False
+            self.fields['line3'].required = False 
             self.fields['locality'].required = True
             self.fields['postcode'].required = True
             self.fields['state'].required = True
@@ -366,6 +374,26 @@ class CommunicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         # Add labels for fields
         #self.fields['app_type'].label = "Application Type"
+
+class OrganisationAccessRequestForm(ModelForm):
+    details = CharField(required=False, widget=Textarea, help_text='Details for communication log.')
+
+    class Meta:
+        model = OrganisationPending
+        fields = ['status','details']
+
+    def __init__(self, *args, **kwargs):
+        super(OrganisationAccessRequestForm, self).__init__(*args, **kwargs)
+
+        self.fields['status'].widget.attrs['disabled'] = True
+        self.fields['status'].required = False
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_communication'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Confirm', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+
+        
 
 class ApplicationWebPublishForm(ModelForm):
 
