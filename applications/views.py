@@ -276,7 +276,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         # Upload New Files
         if self.request.FILES.get('identification'):  # Uploaded new file.
             doc = Document()
-            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+            if Attachment_Extension_Check('single', forms_data['identification'], ['.jpg','.png','.pdf']) is False:
                 raise ValidationError('Identification contains and unallowed attachment extension.')
 
             doc.file = forms_data['identification']
@@ -415,8 +415,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 initial['billing_state'] = 'WA'
                 initial['billing_country'] = 'AU'
        
-
- 
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -900,17 +898,26 @@ class OrganisationAccessRequest(ListView):
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequest, self).get_context_data(**kwargs)
 
-        context['orgs_pending'] = OrganisationPending.objects.all()
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str = query_str.replace("'", r'"')
+            query = get_query(
+                    query_str, ['pk'])
+            context['orgs_pending'] = OrganisationPending.objects.filter(query)
+        else:
+            context['orgs_pending'] = OrganisationPending.objects.all()
+
     #    print context['orgs_pending']
         return context
 
 
 class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
+    form_class = apps_forms.OrganisationAccessRequestForm
     model = OrganisationPending
-    template_name = 'applications/organisation_pending.html'
+    template_name = 'applications/organisation_pending_update.html'
 
     def get_queryset(self):
-        qs = super(OrganisationAccessRequest, self).get_queryset()
+        qs = super(OrganisationAccessRequestUpdate, self).get_queryset()
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str = query_str.replace("'", r'"')
@@ -919,6 +926,40 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             qs = qs.filter(query).distinct()
         return qs
 
+    def get_initial(self):
+        initial = super(OrganisationAccessRequestUpdate, self).get_initial()
+        status = self.kwargs['action']
+        if status == 'approve':
+            initial['status'] = 2
+        if status == 'decline':
+            initial['status'] = 3
+
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs['pk']
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('organisation_access_requests_view', args=(pk,) ))
+        return super(OrganisationAccessRequestUpdate, self).post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+         context = super(OrganisationAccessRequestUpdate, self).get_context_data(**kwargs)
+         return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        forms_data = form.cleaned_data
+        status = self.kwargs['action']
+        if status == 'approve':
+            self.object.status = 2
+        elif status == 'decline':
+            self.object.status = 3
+
+        self.object.save()
+
+        success_url = reverse('organisation_access_requests')
+        return HttpResponseRedirect(success_url)
+
 class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     model = OrganisationPending
     template_name = 'applications/organisation_pending_view.html'
@@ -926,9 +967,8 @@ class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequestView, self).get_context_data(**kwargs)
         app = self.get_object()
-        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+#        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         return context
-
 
 class SearchPersonList(ListView):
     model = Compliance
