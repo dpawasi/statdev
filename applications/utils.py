@@ -36,3 +36,6 @@ def get_query(query_string, search_fields):
         else:
             query = query & or_query
     return query
+
+def random_generator(size=12, chars=string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))

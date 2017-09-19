@@ -28,7 +28,7 @@ from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
-from applications.utils import get_query
+from applications.utils import get_query, random_generator
 from ledger.accounts.models import EmailUser, Address, Organisation, Document
 from approvals.models import Approval
 from datetime import datetime, timedelta
@@ -188,6 +188,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
 
     def get(self, request, *args, **kwargs):
         return super(FirstLoginInfoSteps, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(FirstLoginInfoSteps, self).get_context_data(**kwargs)
         step = self.kwargs['step']
@@ -364,6 +365,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         step = self.kwargs['step']
         initial['step'] = self.kwargs['step']
         initial['company_exists'] = ''
+
         if 'po_id' in self.kwargs:
             po_id = self.kwargs['po_id']
             if po_id:
@@ -447,7 +449,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         if step == '2':
             if forms_data['identification']:
                doc = Record()
-               if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+               if Attachment_Extension_Check('single', forms_data['identification'], ['.pdf','.png','.jpg']) is False:
                    raise ValidationError('Identification contains and unallowed attachment extension.')
 
                doc.upload = forms_data['identification']
@@ -678,8 +680,8 @@ class ApplicationList(ListView):
                 else:
                     context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
                     context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
-            # end of creation
 
+            # end of creation
             if app.group is not None:
                 if app.group in usergroups:
                     row['may_assign_to_person'] = 'True'
@@ -884,6 +886,7 @@ class OrganisationAccessRequest(ListView):
         qs = super(OrganisationAccessRequest, self).get_queryset()
         # Did we pass in a search string? If so, filter the queryset and return
         # it.
+
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             # Replace single-quotes with double-quotes
@@ -933,7 +936,6 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             initial['status'] = 2
         if status == 'decline':
             initial['status'] = 3
-
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -943,14 +945,38 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
         return super(OrganisationAccessRequestUpdate, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-         context = super(OrganisationAccessRequestUpdate, self).get_context_data(**kwargs)
-         return context
+        context = super(OrganisationAccessRequestUpdate, self).get_context_data(**kwargs)
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
         status = self.kwargs['action']
+
+
         if status == 'approve':
+
+      #      print self.object.name
+      #      print self.object.abn
+      #      print self.object.identification
+     #       print self.object.postal_address
+     #       print self.object.billing_address
+
+            new_org = Organisation.objects.create(name=self.object.name,
+                                                  abn=self.object.abn,
+                                                  identification=None,
+                                                  postal_address=self.object.postal_address,
+                                                  billing_address=self.object.billing_address
+                                                 )
+
+            OrganisationExtras.objects.create(organisation=new_org,
+                                              pin1=random_generator(),
+                                              pin2=random_generator(),
+                                              identification=None
+                                             )
+
+            # random_generator
+            #OrganisationExtras.objects.create()
             self.object.status = 2
         elif status == 'decline':
             self.object.status = 3
@@ -5277,8 +5303,6 @@ class PersonOther(LoginRequiredMixin, DetailView):
 
         return context
 
-
-
 class OrganisationDetails(LoginRequiredMixin, DetailView):
     model = Organisation
     template_name = 'applications/organisation_details.html'
@@ -5310,7 +5334,6 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_certofincorp'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
                  context['org'] = org
-
              elif action == "address":
                  context['nav_details_address'] = "active"
              elif action == "contactdetails":
@@ -5321,6 +5344,7 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_linkedperson'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
                  context['linkedpersons'] = Delegate.objects.filter(organisation=org)
+                 context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
 
         return context
 
