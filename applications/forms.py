@@ -102,6 +102,8 @@ class CreateLinkCompanyForm(ModelForm):
     billing_state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
     billing_country = ChoiceField(sorted(COUNTRIES.items()), required=False)
     billing_postcode = CharField(required=False, max_length=10)
+    company_exists = CharField(required=False,widget=HiddenInput()) 
+    company_id = CharField(required=False,max_length=255,widget=HiddenInput())
 
     class Meta:
         model = EmailUser
@@ -125,9 +127,13 @@ class CreateLinkCompanyForm(ModelForm):
             #print Organisation.objects.get(abn=)
             #print self.initial['company_exists']
             if self.initial['company_exists'] == 'yes':
-                crispy_boxes.append(crispy_box('pins_collapse','form_pins','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2' ))
+                crispy_boxes.append(crispy_box('pins_collapse','form_pins','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2','company_exists','company_id' ))
+                self.fields['pin1'].required = True
+                self.fields['pin2'].required = True
             else:
-                crispy_boxes.append(crispy_box('ident_collapse','form_ident','Please Identification',crispy_h3("Please provide company identification?"),'identification' ))
+                self.fields['identification'].required = True
+                crispy_boxes.append(crispy_box('ident_collapse','form_ident','Certificate of Incorporation',crispy_h3("Please provide certificate of incorporation?"),'identification' ))
+                self.fields['identification'].label = "Incorporation Certificate"
         elif step == '3':
             crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_state','postal_country','postal_postcode'))
             crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_state','billing_country','billing_postcode'))
@@ -223,7 +229,8 @@ class FirstLoginInfoForm(ModelForm):
             crispy_boxes.append(crispy_box('contact_details_collapse','contact_details','Contact Details','phone_number','mobile_number','email'))
             self.fields['phone_number'].required = True
             self.fields['mobile_number'].required = True
-            self.fields['email'].required = True
+            self.fields['email'].required = False
+            self.fields['email'].disabled = True
 
             del self.fields['first_name']
             del self.fields['last_name']

@@ -377,9 +377,18 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             if initial['abn']:
                 abn = initial['abn']
                 try:
-                    company = Organisation.objects.get(abn=abn) #(abn=abn)\
-                    companyextras = OrganisationExtras.objects.get(id=company.id)
-                    initial['company_exists'] = 'yes'
+                    if Organisation.objects.filter(abn=abn).exists():
+                       company = Organisation.objects.get(abn=abn) #(abn=abn)
+                       if OrganisationExtras.objects.filter(organisation=company.id).exists():
+
+                          companyextras = OrganisationExtras.objects.get(organisation=company.id)
+                          initial['company_id'] = company.id
+                          initial['company_exists'] = 'yes'
+                       else:
+                          initial['company_exists'] = 'no'
+                    else:
+                       initial['company_exists'] = 'no' 
+
                 except Organisation.DoesNotExist:
                     initial['company_exists'] = 'no'
 
@@ -447,16 +456,34 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
 
         if step == '2':
-            if forms_data['identification']:
-               doc = Record()
-               if Attachment_Extension_Check('single', forms_data['identification'], ['.pdf','.png','.jpg']) is False:
-                   raise ValidationError('Identification contains and unallowed attachment extension.')
+            company_exists = forms_data['company_exists']
+            if company_exists == 'yes':
+                print "COMP"
+                company_id = forms_data['company_id']
+                pin1 = forms_data['pin1']
+                pin2 = forms_data['pin2']
+                print pin1,pin2
+                print forms_data['company_id']
+                print self.kwargs['po_id']
+            
+                res = OrganisationExtras.objects.filter(organisation_id=company_id)
+                print res
+                #,id=company_id)
+                print "YESYY"
+                print forms_data['pin1']
+                print forms_data['pin2']
 
-               doc.upload = forms_data['identification']
-               doc.name = forms_data['identification'].name
-               doc.save()
-               pending_org.identification = doc
-               pending_org.save()
+            else:
+                if forms_data['identification']:
+                   doc = Record()
+                   if Attachment_Extension_Check('single', forms_data['identification'], ['.pdf','.png','.jpg']) is False:
+                       raise ValidationError('Identification contains and unallowed attachment extension.')
+
+                   doc.upload = forms_data['identification']
+                   doc.name = forms_data['identification'].name
+                   doc.save()
+                   pending_org.identification = doc
+                   pending_org.save()
 
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:
@@ -1064,9 +1091,11 @@ class SearchCompanyList(ListView):
             # Add Organsations Results , Will also filter out duplicates
             #search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
+#            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
+            listusers = OrganisationExtras.objects.filter(organisation__name__icontains=query_str)
         else:
-            listusers = Delegate.objects.all()
+            #            listusers = Delegate.objects.all()
+            listusers = OrganisationExtras.objects.all()
 
         context['acc_list'] = []
         for lu in listusers:
@@ -5344,7 +5373,8 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_linkedperson'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
                  context['linkedpersons'] = Delegate.objects.filter(organisation=org)
-                 context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
+                 if OrganisationExtras.objects.filter(organisation=org.id).exists():
+                    context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
 
         return context
 
@@ -5546,7 +5576,11 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
 
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
-                 context['query_string'] = self.request.GET['q']
+                 context['query_string'] = ''
+
+                 if 'q' in self.request.GET:
+                     context['query_string'] = self.request.GET['q']
+
                  search_filter = Q(organisation=self.kwargs['pk']) 
 
                  items = Compliance.objects.filter(applicant=self.kwargs['pk']).order_by('due_date')

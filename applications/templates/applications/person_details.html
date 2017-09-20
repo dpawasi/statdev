@@ -245,7 +245,7 @@
                                 {% for co in organisations %}
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <div class="col-sm-12 col-md-3 col-lg-3">
-                                        <label>{{ co.organisation.name }}</label>
+                                        <label><A HREF='{% url "organisation_details_actions" co.organisation.id "company" %}'>{{ co.organisation.name }}</A></label>
                                     </div>
                                     <div class="col-sm-12 col-md-4 col-lg-4">
                                         {{ co.organisation.abn }}
