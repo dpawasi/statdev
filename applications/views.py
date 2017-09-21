@@ -212,8 +212,8 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
             context['step5'] = 'disabled'
         elif step == '5':
             context['step5'] = 'active'
-
         return context
+
     def get_initial(self):
         initial = super(FirstLoginInfoSteps, self).get_initial()
         person = self.get_object()
@@ -358,6 +358,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             context['step5'] = 'disabled'
         elif step == '5':
             context['step5'] = 'active'
+        context['messages'] = messages.get_messages(self.request)
         return context 
 
     def get_initial(self):
@@ -372,6 +373,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                  pending_org = OrganisationPending.objects.get(id=po_id)
                  initial['company_name'] = pending_org.name
                  initial['abn'] = pending_org.abn
+                 initial['pin1'] = pending_org.pin1
+                 initial['pin2'] = pending_org.pin2
 
         if step == '2':
             if initial['abn']:
@@ -380,7 +383,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                     if Organisation.objects.filter(abn=abn).exists():
                        company = Organisation.objects.get(abn=abn) #(abn=abn)
                        if OrganisationExtras.objects.filter(organisation=company.id).exists():
-
                           companyextras = OrganisationExtras.objects.get(organisation=company.id)
                           initial['company_id'] = company.id
                           initial['company_exists'] = 'yes'
@@ -429,6 +431,23 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         return initial
 
     def post(self, request, *args, **kwargs):
+        #messages.error(self.request, 'Invalid Pins ')
+        print request.path
+        step = self.kwargs['step']
+        if step == '2':
+            company_exists = request.POST['company_exists']
+            company_id = request.POST['company_id']
+    
+            pin1 = request.POST['pin1']
+            pin2 = request.POST['pin2']
+
+            comp = Organisation.objects.get(id=company_id)
+            if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
+                messages.error(self.request, 'Company Pins Correct')
+            else:
+                messages.error(self.request, 'Incorrect Company Pins')
+                return HttpResponseRedirect(request.path)
+
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
             return HttpResponseRedirect(app.get_absolute_url())
@@ -448,6 +467,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         if step == '1':
             abn = self.request.POST.get('abn')
             company_name = self.request.POST.get('company_name')
+
             if pending_org:
                 pending_org.name = company_name
                 pending_org.abn = abn
@@ -458,20 +478,25 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         if step == '2':
             company_exists = forms_data['company_exists']
             if company_exists == 'yes':
-                print "COMP"
+                # print "COMP"
                 company_id = forms_data['company_id']
                 pin1 = forms_data['pin1']
                 pin2 = forms_data['pin2']
-                print pin1,pin2
-                print forms_data['company_id']
-                print self.kwargs['po_id']
-            
-                res = OrganisationExtras.objects.filter(organisation_id=company_id)
-                print res
+
+                comp = Organisation.objects.get(id=company_id)
+
+                if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
+                    pending_org.pin1 = pin1
+                    pending_org.pin2 = pin2
+                    pending_org.save()
+
+                else:
+                    print "INCORR"
+
                 #,id=company_id)
-                print "YESYY"
-                print forms_data['pin1']
-                print forms_data['pin2']
+                # print "YESYY"
+                # print forms_data['pin1']
+                # print forms_data['pin2']
 
             else:
                 if forms_data['identification']:
@@ -565,7 +590,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             else:
                nextstep = 6
 
-        if nextstep == 6:
+        if nextstep == 5:
+           messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
            return HttpResponseRedirect(reverse('home_page'))
         else:
            if pending_org:
@@ -979,7 +1005,6 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
         status = self.kwargs['action']
-
 
         if status == 'approve':
 
