@@ -28,7 +28,7 @@ from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from applications.validationchecks import Attachment_Extension_Check
-from applications.utils import get_query
+from applications.utils import get_query, random_generator
 from ledger.accounts.models import EmailUser, Address, Organisation, Document
 from approvals.models import Approval
 from datetime import datetime, timedelta
@@ -188,6 +188,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
 
     def get(self, request, *args, **kwargs):
         return super(FirstLoginInfoSteps, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(FirstLoginInfoSteps, self).get_context_data(**kwargs)
         step = self.kwargs['step']
@@ -211,8 +212,8 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
             context['step5'] = 'disabled'
         elif step == '5':
             context['step5'] = 'active'
-
         return context
+
     def get_initial(self):
         initial = super(FirstLoginInfoSteps, self).get_initial()
         person = self.get_object()
@@ -357,6 +358,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             context['step5'] = 'disabled'
         elif step == '5':
             context['step5'] = 'active'
+        context['messages'] = messages.get_messages(self.request)
         return context 
 
     def get_initial(self):
@@ -364,20 +366,31 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         step = self.kwargs['step']
         initial['step'] = self.kwargs['step']
         initial['company_exists'] = ''
+
         if 'po_id' in self.kwargs:
             po_id = self.kwargs['po_id']
             if po_id:
                  pending_org = OrganisationPending.objects.get(id=po_id)
                  initial['company_name'] = pending_org.name
                  initial['abn'] = pending_org.abn
+                 initial['pin1'] = pending_org.pin1
+                 initial['pin2'] = pending_org.pin2
 
         if step == '2':
             if initial['abn']:
                 abn = initial['abn']
                 try:
-                    company = Organisation.objects.get(abn=abn) #(abn=abn)\
-                    companyextras = OrganisationExtras.objects.get(id=company.id)
-                    initial['company_exists'] = 'yes'
+                    if Organisation.objects.filter(abn=abn).exists():
+                       company = Organisation.objects.get(abn=abn) #(abn=abn)
+                       if OrganisationExtras.objects.filter(organisation=company.id).exists():
+                          companyextras = OrganisationExtras.objects.get(organisation=company.id)
+                          initial['company_id'] = company.id
+                          initial['company_exists'] = 'yes'
+                       else:
+                          initial['company_exists'] = 'no'
+                    else:
+                       initial['company_exists'] = 'no' 
+
                 except Organisation.DoesNotExist:
                     initial['company_exists'] = 'no'
 
@@ -418,6 +431,23 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         return initial
 
     def post(self, request, *args, **kwargs):
+        #messages.error(self.request, 'Invalid Pins ')
+        #print request.path
+        step = self.kwargs['step']
+        if step == '2':
+            company_exists = request.POST['company_exists']
+            company_id = request.POST['company_id']
+    
+            pin1 = request.POST['pin1']
+            pin2 = request.POST['pin2']
+
+            comp = Organisation.objects.get(id=company_id)
+            if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
+                messages.error(self.request, 'Company Pins Correct')
+            else:
+                messages.error(self.request, 'Incorrect Company Pins')
+                return HttpResponseRedirect(request.path)
+
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
             return HttpResponseRedirect(app.get_absolute_url())
@@ -437,6 +467,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         if step == '1':
             abn = self.request.POST.get('abn')
             company_name = self.request.POST.get('company_name')
+
             if pending_org:
                 pending_org.name = company_name
                 pending_org.abn = abn
@@ -445,16 +476,39 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
 
         if step == '2':
-            if forms_data['identification']:
-               doc = Record()
-               if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
-                   raise ValidationError('Identification contains and unallowed attachment extension.')
+            company_exists = forms_data['company_exists']
+            if company_exists == 'yes':
+                # print "COMP"
+                company_id = forms_data['company_id']
+                pin1 = forms_data['pin1']
+                pin2 = forms_data['pin2']
 
-               doc.upload = forms_data['identification']
-               doc.name = forms_data['identification'].name
-               doc.save()
-               pending_org.identification = doc
-               pending_org.save()
+                comp = Organisation.objects.get(id=company_id)
+
+                if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
+                    pending_org.pin1 = pin1
+                    pending_org.pin2 = pin2
+                    pending_org.save()
+
+                #else:
+                    #print "INCORR"
+
+                #,id=company_id)
+                # print "YESYY"
+                # print forms_data['pin1']
+                # print forms_data['pin2']
+
+            else:
+                if forms_data['identification']:
+                   doc = Record()
+                   if Attachment_Extension_Check('single', forms_data['identification'], ['.pdf','.png','.jpg']) is False:
+                       raise ValidationError('Identification contains and unallowed attachment extension.')
+
+                   doc.upload = forms_data['identification']
+                   doc.name = forms_data['identification'].name
+                   doc.save()
+                   pending_org.identification = doc
+                   pending_org.save()
 
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:
@@ -536,7 +590,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             else:
                nextstep = 6
 
-        if nextstep == 6:
+        if nextstep == 5:
+           messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
            return HttpResponseRedirect(reverse('home_page'))
         else:
            if pending_org:
@@ -678,8 +733,8 @@ class ApplicationList(ListView):
                 else:
                     context['app_applicants'][app.applicant.id] = app.applicant.first_name + ' ' + app.applicant.last_name
                     context['app_applicants_list'].append({"id": app.applicant.id, "name": app.applicant.first_name + ' ' + app.applicant.last_name  })
-            # end of creation
 
+            # end of creation
             if app.group is not None:
                 if app.group in usergroups:
                     row['may_assign_to_person'] = 'True'
@@ -884,6 +939,7 @@ class OrganisationAccessRequest(ListView):
         qs = super(OrganisationAccessRequest, self).get_queryset()
         # Did we pass in a search string? If so, filter the queryset and return
         # it.
+
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             # Replace single-quotes with double-quotes
@@ -933,7 +989,6 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             initial['status'] = 2
         if status == 'decline':
             initial['status'] = 3
-
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -943,14 +998,37 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
         return super(OrganisationAccessRequestUpdate, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-         context = super(OrganisationAccessRequestUpdate, self).get_context_data(**kwargs)
-         return context
+        context = super(OrganisationAccessRequestUpdate, self).get_context_data(**kwargs)
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
         status = self.kwargs['action']
+
         if status == 'approve':
+
+      #      print self.object.name
+      #      print self.object.abn
+      #      print self.object.identification
+     #       print self.object.postal_address
+     #       print self.object.billing_address
+
+            new_org = Organisation.objects.create(name=self.object.name,
+                                                  abn=self.object.abn,
+                                                  identification=None,
+                                                  postal_address=self.object.postal_address,
+                                                  billing_address=self.object.billing_address
+                                                 )
+
+            OrganisationExtras.objects.create(organisation=new_org,
+                                              pin1=random_generator(),
+                                              pin2=random_generator(),
+                                              identification=None
+                                             )
+
+            # random_generator
+            #OrganisationExtras.objects.create()
             self.object.status = 2
         elif status == 'decline':
             self.object.status = 3
@@ -1038,9 +1116,11 @@ class SearchCompanyList(ListView):
             # Add Organsations Results , Will also filter out duplicates
             #search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
+#            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
+            listusers = OrganisationExtras.objects.filter(organisation__name__icontains=query_str)
         else:
-            listusers = Delegate.objects.all()
+            #            listusers = Delegate.objects.all()
+            listusers = OrganisationExtras.objects.all()
 
         context['acc_list'] = []
         for lu in listusers:
@@ -4853,7 +4933,10 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.success_url)
+            #return HttpResponseRedirect(self.success_url)
+            obj = self.get_object()
+            u = obj.user
+            return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
         if self.request.user.is_staff is True:
             obj = self.get_object()
             u = obj.user
@@ -5277,8 +5360,6 @@ class PersonOther(LoginRequiredMixin, DetailView):
 
         return context
 
-
-
 class OrganisationDetails(LoginRequiredMixin, DetailView):
     model = Organisation
     template_name = 'applications/organisation_details.html'
@@ -5310,7 +5391,6 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_certofincorp'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
                  context['org'] = org
-
              elif action == "address":
                  context['nav_details_address'] = "active"
              elif action == "contactdetails":
@@ -5321,6 +5401,8 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  context['nav_details_linkedperson'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
                  context['linkedpersons'] = Delegate.objects.filter(organisation=org)
+                 if OrganisationExtras.objects.filter(organisation=org.id).exists():
+                    context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
 
         return context
 
@@ -5522,7 +5604,11 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
 
              elif action == "clearance":
                  context['nav_other_clearance'] = "active"
-                 context['query_string'] = self.request.GET['q']
+                 context['query_string'] = ''
+
+                 if 'q' in self.request.GET:
+                     context['query_string'] = self.request.GET['q']
+
                  search_filter = Q(organisation=self.kwargs['pk']) 
 
                  items = Compliance.objects.filter(applicant=self.kwargs['pk']).order_by('due_date')

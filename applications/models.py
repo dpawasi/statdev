@@ -490,6 +490,9 @@ class OrganisationPending(models.Model):
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='org_pending_assignee')
     company_exists = models.BooleanField(default=False)
     submit_date = models.DateField(auto_now_add=True, null=True, blank=True)
+    pin1 = models.CharField(max_length=50, null=True, blank=True)
+    pin2 = models.CharField(max_length=50, null=True, blank=True)
+
 
     def __str__(self):
         return '{}: {}'. format(self.name,self.abn, self.status)
@@ -497,13 +500,13 @@ class OrganisationPending(models.Model):
 
 @python_2_unicode_compatible
 class OrganisationExtras(models.Model):
-    organisation = models.ForeignKey(Organisation, blank=False, null=True, on_delete=models.PROTECT)
+    organisation = models.ForeignKey(Organisation, blank=False, null=True, on_delete=models.PROTECT, related_name='organisation_extras_org_id')
     pin1 = models.CharField(max_length=50, null=True, blank=True)
     pin2 = models.CharField(max_length=50, null=True, blank=True)
-    identification = models.ForeignKey(Record, null=True, blank=True, on_delete=models.SET_NULL)
+    identification = models.ForeignKey(Record, null=True, blank=True, on_delete=models.SET_NULL, related_name='organisation_extras_org_identification')
 
     def __str__(self):
-        return '{}: {}'. format(self.organisation)
+        return '{}: {}'. format(self.pk,self.organisation.name,)
 
 
 @python_2_unicode_compatible

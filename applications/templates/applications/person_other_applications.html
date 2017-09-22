@@ -83,8 +83,10 @@
                             <th>Company</th>
                             <th>Status</th>
                             <th>Lodged on</th>
+                            {% if staff == True %}
                             <th>Assignee</th>
                             <th>Payment status</th>
+                            {% endif %}
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -99,8 +101,10 @@
                             <td>{{ app_obj.app.organisation }}</td>
                             <td>{{ app_obj.app.get_state_display }}</td>
                             <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
+                            {% if staff == True %}
                             <td>{{ app_obj.app.assignee.get_full_name }}</td>
                             <td></td>
+                            {% endif %}
                             <td><a href="{% url 'application_detail' app_obj.app.pk %}" title="View">View</a></td>
                         </tr>
                         {% endfor %}

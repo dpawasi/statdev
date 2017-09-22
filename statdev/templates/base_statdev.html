@@ -41,8 +41,8 @@
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{% firstof user.get_full_name user.email %} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">
-        <li><a href="{% url 'user_account'%}">My personal details</a></li>
-        <li><a href="{% url 'organisation_list' %}" title="My Companies">My Companies</a></li>
+        <li><a href="{% url "person_details_actions" user.pk "personal" %}">My personal details</a></li>
+        <li><a href="{% url "person_details_actions" user.pk "companies" %}" title="My Companies">My Companies</a></li>
         {% if user.is_superuser %}
         <li><a href="{% url 'admin:index' %}" title="Administration">Administration</a></li>
         {% endif %}

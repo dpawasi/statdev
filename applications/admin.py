@@ -1,7 +1,7 @@
 from django.contrib.admin import register, ModelAdmin
 from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
-    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact, OrganisationPending)
+    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact, OrganisationPending, OrganisationExtras)
 
 
 @register(Record)
@@ -91,4 +91,8 @@ class OrganisationPending(ModelAdmin):
     list_display = ('name','abn','identification','postal_address','billing_address')
     search_fields = ('name','abn','identification','postal_address','billing_address')
 
+@register(OrganisationExtras)
+class OrganisationExtras(ModelAdmin):
+    list_display = ('organisation','pin1','pin2')
+    search_fields = ('organisation','pin1','pin2')
 
