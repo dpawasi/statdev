@@ -5,8 +5,8 @@
 <link rel="stylesheet" type="text/css" href="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
 <link rel="stylesheet" type="text/css" href="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/css/dataTables.bootstrap.css">
 {% endblock %}
-
 {% block navbar_site_title %}
+
 <a class="navbar-brand" href="/">Statutory Development</a>
 <ul class='nav navbar-nav hidden-xs'>
     {% if staff == True %}
@@ -42,7 +42,9 @@
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{% firstof user.get_full_name user.email %} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">
         <li><a href="{% url "person_details_actions" user.pk "personal" %}">My personal details</a></li>
+        {% if staff == False %}
         <li><a href="{% url "person_details_actions" user.pk "companies" %}" title="My Companies">My Companies</a></li>
+        {% endif %}
         {% if user.is_superuser %}
         <li><a href="{% url 'admin:index' %}" title="Administration">Administration</a></li>
         {% endif %}

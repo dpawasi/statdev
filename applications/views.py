@@ -358,6 +358,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             context['step5'] = 'disabled'
         elif step == '5':
             context['step5'] = 'active'
+
         context['messages'] = messages.get_messages(self.request)
         return context 
 
@@ -402,51 +403,78 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                     if pending_org.identification:
                         initial['identification'] = pending_org.identification.upload
         if step == '3':
-            if pending_org.postal_address is not None:
-                postal_address = Address.objects.get(id=pending_org.postal_address.id)
-                billing_address = Address.objects.get(id=pending_org.billing_address.id)
-                initial['postal_line1'] = postal_address.line1
-                initial['postal_line2'] = postal_address.line2
-                initial['postal_line3'] = postal_address.line3
-                initial['postal_locality'] = postal_address.locality
-                initial['postal_state'] = postal_address.state
-                initial['postal_country'] = postal_address.country
-                initial['postal_postcode'] = postal_address.postcode
-            else:
-                initial['postal_state'] = 'WA'
-                initial['postal_country'] = 'AU'
+            if pending_org.pin1 and pending_org.pin2:
+               if Organisation.objects.filter(abn=pending_org.abn).exists():
+                   company = Organisation.objects.get(abn=pending_org.abn)
+                   if OrganisationExtras.objects.filter(organisation=company, pin1=pending_org.pin1,pin2=pending_org.pin2).exists():
+                       initial['postal_line1'] = company.postal_address.line1
+                       initial['postal_line2'] = company.postal_address.line2
+                       initial['postal_line3'] = company.postal_address.line3
+                       initial['postal_locality'] = company.postal_address.locality
+                       initial['postal_state'] = company.postal_address.state
+                       initial['postal_country'] = company.postal_address.country
+                       initial['postal_postcode'] = company.postal_address.postcode
 
-            if pending_org.billing_address is not None:
-                initial['billing_line1'] = billing_address.line1
-                initial['billing_line2'] = billing_address.line2
-                initial['billing_line3'] = billing_address.line3
-                initial['billing_locality'] = billing_address.locality
-                initial['billing_state'] = billing_address.state
-                initial['billing_country'] = billing_address.country
-                initial['billing_postcode'] = billing_address.postcode
+                       initial['billing_line1'] = company.billing_address.line1
+                       initial['billing_line2'] = company.billing_address.line2
+                       initial['billing_line3'] = company.billing_address.line3
+                       initial['billing_locality'] = company.billing_address.locality
+                       initial['billing_state'] = company.billing_address.state
+                       initial['billing_country'] = company.billing_address.country
+                       initial['billing_postcode'] = company.billing_address.postcode
+
             else:
-                initial['billing_state'] = 'WA'
-                initial['billing_country'] = 'AU'
-       
+               if pending_org.postal_address is not None:
+                   postal_address = Address.objects.get(id=pending_org.postal_address.id)
+                   billing_address = Address.objects.get(id=pending_org.billing_address.id)
+                   initial['postal_line1'] = postal_address.line1
+                   initial['postal_line2'] = postal_address.line2
+                   initial['postal_line3'] = postal_address.line3
+                   initial['postal_locality'] = postal_address.locality
+                   initial['postal_state'] = postal_address.state
+                   initial['postal_country'] = postal_address.country
+                   initial['postal_postcode'] = postal_address.postcode
+               else:
+                   initial['postal_state'] = 'WA'
+                   initial['postal_country'] = 'AU'
+
+               if pending_org.billing_address is not None:
+                   initial['billing_line1'] = billing_address.line1
+                   initial['billing_line2'] = billing_address.line2
+                   initial['billing_line3'] = billing_address.line3
+                   initial['billing_locality'] = billing_address.locality
+                   initial['billing_state'] = billing_address.state
+                   initial['billing_country'] = billing_address.country
+                   initial['billing_postcode'] = billing_address.postcode
+               else:
+                  initial['billing_state'] = 'WA'
+                  initial['billing_country'] = 'AU'
+
         return initial
 
     def post(self, request, *args, **kwargs):
         #messages.error(self.request, 'Invalid Pins ')
         #print request.path
+
         step = self.kwargs['step']
         if step == '2':
-            company_exists = request.POST['company_exists']
-            company_id = request.POST['company_id']
-    
-            pin1 = request.POST['pin1']
-            pin2 = request.POST['pin2']
 
-            comp = Organisation.objects.get(id=company_id)
-            if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
-                messages.error(self.request, 'Company Pins Correct')
-            else:
-                messages.error(self.request, 'Incorrect Company Pins')
-                return HttpResponseRedirect(request.path)
+            company_exists = 'no'
+            if 'company_exists' in request.POST:
+                company_exists = request.POST['company_exists']
+
+                if company_exists == 'yes':
+                   company_id = request.POST['company_id']
+    
+                   pin1 = request.POST['pin1']
+                   pin2 = request.POST['pin2']
+
+                   comp = Organisation.objects.get(id=company_id)
+                   if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
+                       messages.error(self.request, 'Company Pins Correct')
+                   else:
+                       messages.error(self.request, 'Incorrect Company Pins')
+                       return HttpResponseRedirect(request.path)
 
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
@@ -456,6 +484,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
+        pk = self.kwargs['pk']
         step = self.kwargs['step']
         pending_org = None
 
@@ -473,7 +502,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org.abn = abn
                 pending_org.save()
             else:
-                pending_org = OrganisationPending.objects.create(name=company_name,abn=abn)
+                user = EmailUser.objects.get(pk=pk)
+                pending_org = OrganisationPending.objects.create(name=company_name,abn=abn,email_user=user)
 
         if step == '2':
             company_exists = forms_data['company_exists']
@@ -488,7 +518,10 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
                     pending_org.pin1 = pin1
                     pending_org.pin2 = pin2
+                    #pending_org.company_exists = True
                     pending_org.save()
+
+                    
 
                 #else:
                     #print "INCORR"
@@ -508,6 +541,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                    doc.name = forms_data['identification'].name
                    doc.save()
                    pending_org.identification = doc
+                   #pending_org.company_exists = False
                    pending_org.save()
 
         if step == '3':
@@ -591,6 +625,12 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                nextstep = 6
 
         if nextstep == 5:
+           print pending_org.company_exists
+           if pending_org.company_exists == 'yes':
+               pending_org.status = 2
+               comp = Organisation.objects.get(abn=pending_org.abn)
+               Delegate.objects.create(email_user=pending_org.email_user,organisation=comp)
+
            messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
            return HttpResponseRedirect(reverse('home_page'))
         else:
