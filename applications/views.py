@@ -432,7 +432,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
 
     def post(self, request, *args, **kwargs):
         #messages.error(self.request, 'Invalid Pins ')
-        print request.path
+        #print request.path
         step = self.kwargs['step']
         if step == '2':
             company_exists = request.POST['company_exists']
@@ -490,8 +490,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                     pending_org.pin2 = pin2
                     pending_org.save()
 
-                else:
-                    print "INCORR"
+                #else:
+                    #print "INCORR"
 
                 #,id=company_id)
                 # print "YESYY"
@@ -4933,7 +4933,10 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.success_url)
+            #return HttpResponseRedirect(self.success_url)
+            obj = self.get_object()
+            u = obj.user
+            return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
         if self.request.user.is_staff is True:
             obj = self.get_object()
             u = obj.user
