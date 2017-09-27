@@ -81,7 +81,6 @@
                             <th>Type</th>
                             <th>Title</th>
                             <th>Applicant</th>
-                            <th>Company</th>
                             <th>Status</th>
                             <th>Lodged on</th>
                             {% if staff == True %}
@@ -98,8 +97,12 @@
 
                             <td>{{ app_obj.app.get_app_type_display }}</td>
                             <td>{{ app_obj.app.title }}</td>
-                            <td>{{ app_obj.app.applicant.get_full_name }}</td>
-                            <td>{{ app_obj.app.organisation }}</td>
+                            <td>{% if app_obj.app.organisation %}
+                                 {{ app_obj.app.organisation }}
+                                {% else %}
+                                 {{ app_obj.app.applicant.get_full_name }}
+                                {% endif %}
+                            </td>
                             <td>{{ app_obj.app.get_state_display }}</td>
                             <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                             {% if staff == True %}

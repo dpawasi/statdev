@@ -400,8 +400,9 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
  #                   except OrganisationExtras.DoesNotExist:
   #                      initial['company_exists'] = 'no'
 
-                    if pending_org.identification:
-                        initial['identification'] = pending_org.identification.upload
+            if pending_org.identification:
+                initial['identification'] = pending_org.identification.upload
+
         if step == '3':
             if pending_org.pin1 and pending_org.pin2:
                if Organisation.objects.filter(abn=pending_org.abn).exists():
@@ -458,7 +459,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
 
         step = self.kwargs['step']
         if step == '2':
-
             company_exists = 'no'
             if 'company_exists' in request.POST:
                 company_exists = request.POST['company_exists']
@@ -471,10 +471,18 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
 
                    comp = Organisation.objects.get(id=company_id)
                    if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
-                       messages.error(self.request, 'Company Pins Correct')
+                       messages.success(self.request, 'Company Pins Correct')
                    else:
                        messages.error(self.request, 'Incorrect Company Pins')
                        return HttpResponseRedirect(request.path)
+
+            else:
+                if 'identification' in request.FILES:
+                   if Attachment_Extension_Check('single', request.FILES['identification'], ['.pdf','.png','.jpg']) is False:
+                      messages.error(self.request,'Identification contains and unallowed attachment extension.')
+                      return HttpResponseRedirect(request.path)
+
+
 
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
@@ -518,7 +526,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
                     pending_org.pin1 = pin1
                     pending_org.pin2 = pin2
-                    #pending_org.company_exists = True
+                    pending_org.company_exists = True
                     pending_org.save()
 
                     
@@ -541,9 +549,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                    doc.name = forms_data['identification'].name
                    doc.save()
                    pending_org.identification = doc
-                   #pending_org.company_exists = False
+                   pending_org.company_exists = False
                    pending_org.save()
-
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:
                 postal_address = Address.objects.create(line1=forms_data['postal_line1'],
@@ -625,11 +632,12 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                nextstep = 6
 
         if nextstep == 5:
-           print pending_org.company_exists
-           if pending_org.company_exists == 'yes':
+           # print pending_org.company_exists
+           if pending_org.company_exists == True: 
                pending_org.status = 2
                comp = Organisation.objects.get(abn=pending_org.abn)
                Delegate.objects.create(email_user=pending_org.email_user,organisation=comp)
+               print "Approved" 
 
            messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
            return HttpResponseRedirect(reverse('home_page'))
@@ -4847,8 +4855,14 @@ class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
 #            return self.request.user
 
     def post(self, request, *args, **kwargs):
+        if 'identification' in request.FILES:
+            if Attachment_Extension_Check('single', request.FILES['identification'], ['.pdf','.png','.jpg']) is False:
+               messages.error(self.request,'You have added and unallowed attachment extension.')
+               return HttpResponseRedirect(request.path)
+
+
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('user_account'))
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'],'certofincorp')))
         return super(OrganisationCertificateUpdate, self).post(request, *args, **kwargs)
 
     def get_initial(self):
@@ -4857,6 +4871,7 @@ class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
         #print org.identification
         if self.object.identification:
            initial['identification'] = self.object.identification.file
+           
         return initial
 
     def form_valid(self, form):
@@ -4927,13 +4942,13 @@ class AddressCreate(LoginRequiredMixin, CreateView):
             u.billing_address = self.obj
         u.save()
 
-        if 'userid' in self.kwargs:
-            if self.request.user.is_staff is True:
-                return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
-            else:
-                return HttpResponseRedirect(reverse('user_account'))
-        else:
-            return HttpResponseRedirect(reverse('user_account'))
+#        if 'userid' in self.kwargs:
+            #    if self.request.user.is_staff is True:
+        return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
+        #    else:
+        #        return HttpResponseRedirect(reverse('user_account'))
+ #       else:
+  #          return HttpResponseRedirect(reverse('user_account'))
 
 class AddressUpdate(LoginRequiredMixin, UpdateView):
     model = Address
@@ -4976,13 +4991,28 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
             #return HttpResponseRedirect(self.success_url)
             obj = self.get_object()
             u = obj.user
-            return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
+            print u
+            if 'org_id' in self.kwargs:
+                return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['org_id'],'address')))
+            else:
+                return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
         if self.request.user.is_staff is True:
             obj = self.get_object()
             u = obj.user
             return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
         else:
             return super(AddressUpdate, self).post(request, *args, **kwargs)
+
+
+    def form_valid(self, form):
+        self.obj = form.save()
+        obj = self.get_object()
+        u = obj.user
+
+        if 'org_id' in self.kwargs:
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['org_id'],'address')))
+        else:
+            return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
 
 
 class AddressDelete(LoginRequiredMixin, DeleteView):
@@ -5784,7 +5814,7 @@ class OrganisationContactCreate(LoginRequiredMixin, CreateView):
         self.obj.organisation = org
         self.obj.save()
         # Assign the creating user as a delegate to the new organisation.
-        messages.success(self.request, 'New organisation contact created successfully!')
+        messages.success(self.request, 'Organisation contact created successfully!')
         return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'], 'contactdetails')))
 
 class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
@@ -5811,7 +5841,7 @@ class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.obj = form.save()
         # Assign the creating user as a delegate to the new organisation.
-        messages.success(self.request, 'New organisation contact created successfully!')
+        messages.success(self.request, 'Organisation contact updated successfully!')
         return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.get_object().organisation.id, 'contactdetails')))
 
 
