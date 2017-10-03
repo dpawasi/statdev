@@ -6,7 +6,7 @@
         <h5>Communications</h5>
         <p><a href="{% url 'application_comms' object.pk %}">Show</a> | <a href="{% url 'application_comms_create' object.pk %}">Add Entry</a></p>
         <hr />
-        <h5>Actions</h5>
+        <h5>Workflow</h5>
         {# TODO: hide the Actions dropdown when no actions can be performed #}
         <ul>
         {% if workflow_actions %}
@@ -78,7 +78,7 @@
 
         </ul>
 
-        <h5>Form Options</h5>
+        <h5>Actions</h5>
         <ul>
         {% if workflow_actions %} 
 
@@ -104,7 +104,7 @@
 
         <ul>
             {% if may_assign_to_person == "True" %}
-            <li><a href="{% url 'application_assign_person' object.pk %}">{% if object.assignee != None %} Reassign to Person{% else %}Assign Person{% endif %}</a></li>
+            <li><a href="{% url 'application_assign_person' object.pk %}">{% if object.assignee != None %} Reassign{% else %}Assign Person{% endif %}</a></li>
             {% endif %}
         </ul>
     </div>

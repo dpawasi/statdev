@@ -31,9 +31,6 @@
             <input type="submit" name="search-applicants" value="Search Applicants" class="btn btn-primary btn-lg" id="submit-id-assign">
         </div>
 
-
-
-
     </form>
 </div>
 
@@ -57,7 +54,7 @@
 
                 {% for acc_obj in acc_list %}
                 <tr>
-                    <td><a href="">{{ acc_obj.acc_row.pk }}</a></td>
+                    <td>{{ acc_obj.acc_row.pk }}</td>
                     <td>{{ acc_obj.acc_row.first_name }}</td>
                     <td>{{ acc_obj.acc_row.last_name }}</td>
                     <td>{{ acc_obj.acc_row.email }}</td>

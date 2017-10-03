@@ -564,7 +564,7 @@
                 "state" : "3"
             },
             {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
                 "state": "4"
@@ -685,7 +685,7 @@
         },
         "actions": [
             {
-                "title": "Approve to Manager/s",
+                "title": "Send to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
                 "state": "5",
@@ -804,7 +804,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
                 "state": "4"

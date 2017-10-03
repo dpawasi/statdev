@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -38,6 +38,7 @@ from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
+import json
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -637,7 +638,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                pending_org.status = 2
                comp = Organisation.objects.get(abn=pending_org.abn)
                Delegate.objects.create(email_user=pending_org.email_user,organisation=comp)
-               print "Approved" 
+               #print "Approved" 
 
            messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
            return HttpResponseRedirect(reverse('home_page'))
@@ -1074,6 +1075,9 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
                                               pin2=random_generator(),
                                               identification=None
                                              )
+
+
+            Delegate.objects.create(email_user=self.object.email_user,organisation=new_org)
 
             # random_generator
             #OrganisationExtras.objects.create()
@@ -1819,6 +1823,30 @@ class ApplicationDetailPDF(ApplicationDetail):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationUpdate, self).post(request, *args, **kwargs)
 
+class AccountActions(DetailView):
+    model = EmailUser 
+    template_name = 'applications/account_actions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountActions, self).get_context_data(**kwargs)
+        obj = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+            content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
+        return context
+
+class OrganisationActions(DetailView):
+    model = Organisation
+    template_name = 'applications/organisation_actions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationActions, self).get_context_data(**kwargs)
+        obj = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+            content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
+        return context
+
 
 class ApplicationActions(DetailView):
     model = Application
@@ -1833,7 +1861,7 @@ class ApplicationActions(DetailView):
         return context
 
 class ApplicationComms(DetailView):
-    model = Communication 
+    model = Application 
     template_name = 'applications/application_comms.html'
 
     def get_context_data(self, **kwargs):
@@ -1891,6 +1919,132 @@ class ApplicationCommsCreate(CreateView):
         # If this is not an Emergency Works set the applicant as current user
         success_url = reverse('application_comms', args=(app_id,))
         return HttpResponseRedirect(success_url)
+
+class AccountComms(DetailView):
+    model = EmailUser
+    template_name = 'applications/account_comms.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountComms, self).get_context_data(**kwargs)
+        u = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['communications'] = CommunicationAccount.objects.filter(user=u.pk).order_by('-created')
+        return context
+
+
+class AccountCommsCreate(CreateView):
+    model = CommunicationAccount
+    form_class = apps_forms.CommunicationAccountCreateForm
+    template_name = 'applications/application_comms_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountCommsCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new account communication' 
+        return context
+
+    def get_initial(self):
+        initial = {}
+        initial['application'] = self.kwargs['pk']
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(AccountCommsCreate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(AccountCommsCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        user_id = self.kwargs['pk']
+
+        user = EmailUser.objects.get(id=user_id)
+        self.object.user = user
+        self.object.save()
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents attached contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
+        self.object.save()
+        # If this is not an Emergency Works set the applicant as current user
+        success_url = reverse('account_comms', args=(user_id,))
+        return HttpResponseRedirect(success_url)
+
+#CommunicationOrganisation
+
+class OrganisationComms(DetailView):
+    model = Organisation
+    template_name = 'applications/organisation_comms.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationComms, self).get_context_data(**kwargs)
+        org = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['communications'] = CommunicationOrganisation.objects.filter(org=org.pk).order_by('-created')
+        return context
+
+
+class OrganisationCommsCreate(CreateView):
+    model = CommunicationOrganisation
+    form_class = apps_forms.CommunicationOrganisationCreateForm
+    template_name = 'applications/organisation_comms_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationCommsCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new organisation communication'
+	context['org_id'] = self.kwargs['pk']
+        return context
+
+    def get_initial(self):
+        initial = {}
+        initial['org_id'] = self.kwargs['pk']
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(OrganisationCommsCreate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(OrganisationCommsCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        org_id = self.kwargs['pk']
+
+        org = Organisation.objects.get(id=org_id)
+        self.object.org_id = org.id
+        self.object.save()
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents attached contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
+        self.object.save()
+        # If this is not an Emergency Works set the applicant as current user
+        success_url = reverse('organisation_comms', args=(org_id,))
+        return HttpResponseRedirect(success_url)
+
 
 class ApplicationChange(LoginRequiredMixin, CreateView):
     """This view is for changes or ammendents to existing applications
@@ -3954,7 +4108,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
-            return HttpResponseRedirect(app.get_absolute_url())
+            
         return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -4753,7 +4907,6 @@ class UserAccount(LoginRequiredMixin, DetailView):
         context['organisations'] = [i.organisation for i in Delegate.objects.filter(email_user=self.request.user)]
         return context
 
-
 class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.EmailUserForm
 
@@ -4771,7 +4924,8 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('user_account'))
+#            return HttpResponseRedirect(reverse('user_account'))
+	    return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'personal')))     
         return super(UserAccountUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -4782,8 +4936,19 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
         #if 'identification' in data and data['identification']:
         #    self.obj.id_verified = None
         self.obj.save()
-        return HttpResponseRedirect(reverse('user_account'))
+#        return HttpResponseRedirect(reverse('user_account'))
+        # Record an action on the application:
+#        print self.object.all()
+#        print serializers.serialize('json', self.object)
+#        from django.core import serializers
+#        forms_data = form.cleaned_data
+#        print serializers.serialize('json', [ forms_data ])
 
+        action = Action(
+            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.change, user=self.request.user,
+            action='Updated Personal Details')
+        action.save()
+        return HttpResponseRedirect(reverse('person_details_actions', args=(self.obj.pk,'personal')))
 
 class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.UserFormIdentificationUpdate
@@ -4835,6 +5000,12 @@ class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
             self.obj.identification = new_doc
 
         self.obj.save()
+
+        action = Action(
+            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.change, user=self.request.user,
+            action='Updated Identification')
+        action.save()
+
         return HttpResponseRedirect(reverse('person_details_actions', args=(self.obj.pk,'identification')))
 
 
@@ -4944,6 +5115,11 @@ class AddressCreate(LoginRequiredMixin, CreateView):
 
 #        if 'userid' in self.kwargs:
             #    if self.request.user.is_staff is True:
+        action = Action(
+           content_object=u, category=Action.ACTION_CATEGORY_CHOICES.change, user=self.request.user,
+           action='New '+self.kwargs['type']+' address created')
+        action.save()
+
         return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
         #    else:
         #        return HttpResponseRedirect(reverse('user_account'))
@@ -4983,6 +5159,7 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
         if u.billing_address == address:
             context['action'] = 'Update billing'
             context['principal'] = u.email
+        print 'OPEN'
         # TODO: include context for Organisation addresses.
         return context
 
@@ -4991,27 +5168,38 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
             #return HttpResponseRedirect(self.success_url)
             obj = self.get_object()
             u = obj.user
-            print u
+            
             if 'org_id' in self.kwargs:
                 return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['org_id'],'address')))
             else:
                 return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
-        if self.request.user.is_staff is True:
-            obj = self.get_object()
-            u = obj.user
-            return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
-        else:
-            return super(AddressUpdate, self).post(request, *args, **kwargs)
+        #if self.request.user.is_staff is True:
+        #    obj = self.get_object()
+        #    u = obj.user
+        #    return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
+        #else:
+        return super(AddressUpdate, self).post(request, *args, **kwargs)
 
 
     def form_valid(self, form):
         self.obj = form.save()
         obj = self.get_object()
         u = obj.user
-
+        print 'tesdfasf'
         if 'org_id' in self.kwargs:
+            org =Organisation.objects.get(id= self.kwargs['org_id'])
+	    action = Action(
+                content_object=org, category=Action.ACTION_CATEGORY_CHOICES.change, user=self.request.user,
+                action='Organisation address updated')
+            action.save()
             return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['org_id'],'address')))
+
         else:
+            action = Action(
+                content_object=u, category=Action.ACTION_CATEGORY_CHOICES.change, user=self.request.user,
+                action='Person address updated')
+            action.save()
+
             return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
 
 

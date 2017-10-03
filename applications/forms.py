@@ -13,7 +13,7 @@ from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation)
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
 User = get_user_model()
@@ -381,6 +381,59 @@ class CommunicationCreateForm(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
         # Add labels for fields
         #self.fields['app_type'].label = "Application Type"
+
+class CommunicationOrganisationCreateForm(ModelForm):
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+
+    class Meta:
+        model = CommunicationOrganisation
+        fields = ['comms_to','comms_from','subject','comms_type','details','records','details']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        #application = kwargs.pop('application')
+        super(CommunicationOrganisationCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['comms_to'].required = True
+        self.fields['comms_from'].required = True
+        self.fields['subject'].required = True
+        self.fields['comms_type'].required = True
+
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_communication'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Create', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Add labels for fields
+        #self.fields['app_type'].label = "Application Type"
+
+class CommunicationAccountCreateForm(ModelForm):
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+
+    class Meta:
+        model = CommunicationAccount 
+        fields = ['comms_to','comms_from','subject','comms_type','details','records','details']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        #application = kwargs.pop('application')
+        super(CommunicationAccountCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['comms_to'].required = True
+        self.fields['comms_from'].required = True
+        self.fields['subject'].required = True
+        self.fields['comms_type'].required = True
+
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_communication'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Create', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Add labels for fields
+        #self.fields['app_type'].label = "Application Type"
+
 
 class OrganisationAccessRequestForm(ModelForm):
     details = CharField(required=False, widget=Textarea, help_text='Details for communication log.')

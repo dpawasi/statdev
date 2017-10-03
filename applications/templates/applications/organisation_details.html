@@ -20,9 +20,8 @@
                         <BR>
                     </div>
 
-                    {% include "applications/application_side_menu.html" %}
                     {% if nav_details == "active" %}
-
+                 	{% include "applications/organisation_side_menu.html" %}
                     <div class="col-sm-12 col-md-9 col-lg-9">
                         <ul class="nav nav-pills">
                             <li role="presentation" class="{{ nav_details_company }}"><a href="{% url "organisation_details_actions" object.pk "company" %}">Company Details</a></li>

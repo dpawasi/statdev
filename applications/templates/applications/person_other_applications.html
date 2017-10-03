@@ -121,7 +121,12 @@
 
     <script>
 function loadTable() {
-    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 10});
+    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 10,
+ "aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 6 ] }
+       ]
+
+});
 }
 window.onload= function() {
     loadTable();

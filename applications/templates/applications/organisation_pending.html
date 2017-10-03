@@ -139,13 +139,17 @@
         </div>
     </div>
 </div>
-
 <script>
-function loadApprovalTable() {
-    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25});
+function loadTable() {
+    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
+"aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 6 ] }
+       ]
+
+});
 }
 window.onload= function() {
-    loadApprovalTable();
+    loadTable();
 }
 </script>
 

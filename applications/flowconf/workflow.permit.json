@@ -170,13 +170,13 @@
                 "state" : "3"
             },
             {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
                 "state": "4"
             },
             {
-                "title": "Return to form creator",
+                "title": "Return to submitter",
                 "route": "1",
                 "routegroup":"creator",
                 "state": "15"
@@ -273,7 +273,7 @@
         },
         "actions": [
             {
-                "title": "Approve to Manager/s",
+                "title": "Send to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
                 "state": "5",
@@ -378,7 +378,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
                 "state": "4"

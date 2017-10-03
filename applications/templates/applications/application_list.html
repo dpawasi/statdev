@@ -120,7 +120,7 @@
                                 <th>Lodged on</th>
                                 <th>Assignee</th>
                                 <th>Payment status</th>
-                                <th>Actions</th>
+                                <th class="nosort">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -159,10 +159,15 @@
 
     </div>
 </div>
-
+iiiiiiiii
 <script>
 function loadApprovalTable() {
-    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25});
+    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
+ "aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 9 ] }
+       ] 
+
+});
 }
 window.onload= function() {
     loadApprovalTable();

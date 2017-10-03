@@ -438,6 +438,47 @@ class Communication(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
+class CommunicationAccount(models.Model):
+    """This model represents the communication model
+    """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none)
+    details = models.TextField(blank=True, null=True)
+    records = models.ManyToManyField(Record, blank=True, related_name='account_communication_docs')
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(auto_now_add=True)
+
+class CommunicationOrganisation(models.Model):
+    """This model represents the communication model
+    """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+    )
+
+    org = models.ForeignKey(Organisation, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none)
+    details = models.TextField(blank=True, null=True)
+    records = models.ManyToManyField(Record, blank=True, related_name='org_communication_docs')
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(auto_now_add=True)
+
+
 @python_2_unicode_compatible
 class Delegate(models.Model):
     """This model represents the delegation of authority for an EmailUser to
