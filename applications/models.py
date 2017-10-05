@@ -222,6 +222,7 @@ class Application(models.Model):
     supporting_info_demonstrate_compliance_trust_policies = models.ForeignKey(Record, null=True, blank=True, related_name='supporting_info_demonstrate_compliance_trust_policies')
     type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
     number_of_crafts  = models.IntegerField(null=True, blank=True)
+    route_status = models.CharField(null=True, blank=True, default=1, max_length=256)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -425,6 +426,7 @@ class Communication(models.Model):
         (1, 'phone', ('Phone')),
         (2, 'email', ('Email')),
         (3, 'mail', ('Mail')),
+        (4, 'system', ('System'))
     )
 
     application = models.ForeignKey(Application, on_delete=models.PROTECT)

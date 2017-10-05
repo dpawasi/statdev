@@ -85,6 +85,9 @@
                             <th>Lodged on</th>
                             {% if staff == True %}
                             <th>Assignee</th>
+			    {% endif %}
+			    <th>Submitter</th>
+                             {% if staff == True %}
                             <th>Payment status</th>
                             {% endif %}
                             <th>Action</th>
@@ -107,6 +110,9 @@
                             <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                             {% if staff == True %}
                             <td>{{ app_obj.app.assignee.get_full_name }}</td>
+			     {% endif %}
+				<td>{{ app_obj.app.submitted_by.get_full_name }}</td>
+			{% if staff == True %} 
                             <td></td>
                             {% endif %}
                             <td><a href="{% url 'application_detail' app_obj.app.pk %}" title="View">View</a></td>
@@ -123,7 +129,7 @@
 function loadTable() {
     $('#application-table').dataTable({searching: false, paging: true, "pageLength": 10,
  "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ 6 ] }
+          { 'bSortable': false, 'aTargets': [ {% if staff == True %}9{% else %}7{% endif %} ] }
        ]
 
 });

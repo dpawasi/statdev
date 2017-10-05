@@ -38,7 +38,7 @@
 
 <div class="row">
     <div class="col-xs-12">
-        <table class="table table-striped table-bordered table-condensed">
+        <table class="table table-striped table-bordered table-condensed" id="search-applicant-table">
             <thead>
                 <tr>
                     <th>User Id</th>
@@ -75,4 +75,13 @@
 </div>
 </div>
 </div>
+
+<script>
+  function loadTable() {
+      $('#search-applicant-table').dataTable({searching: false, paging: true, "pageLength": 10});  }
+  window.onload= function() {
+      loadTable();
+  }
+</script>
+
 {% endblock %}

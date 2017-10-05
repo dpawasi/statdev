@@ -1,9 +1,9 @@
 {
    "options": { 
-      "steps": { "Step 1": ["Title","Proposed Commerical Acts or Activities","Choose Vessel or Craft","Proposal Details","Other Documents","Landowner Consent" ],
-                 "Step 2": ["Add Vessel or Crafts"],
-                 "Step 3": ["Checklist"],
-                 "Step 4": ["Lodge Application"] 
+      "steps": { "Step 1": [{"title":"Applicant","anchor":"form_applicant"},{"title":"Title","anchor":"form_title"},{"title":"Proposed Commerical Acts or Activities","anchor":"form_summary"},{"title":"Choose Vessel or Craft","anchor":"form_vessel_or_crafts_view"},{"title":"Proposal Details","anchor":"form_proposal_details"},{"title":"Other Documents","anchor":"form_other_documents"},{"title":"Landowner Consent","anchor":"form_land_owner_consent"},{"title":"Deed", "anchor": "form_deed"} ],
+                 "Step 2": [{"title":"Add Vessel or Crafts","anchor":""}],
+                 "Step 3": [{"title":"Checklist","anchor":""}],
+                 "Step 4": [{"title":"Lodge Application","anchor":""}] 
         }
    },
    "1": {

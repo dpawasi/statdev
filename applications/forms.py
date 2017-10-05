@@ -616,7 +616,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             del self.fields['applicant']
 
         if check_fields_exist(self.fields,['title']) is True:
-             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+             #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title',))
 
         if check_fields_exist(self.fields,['description']) is True:
@@ -765,7 +765,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
 
 
         if check_fields_exist(self.fields,['title']) is True:
-            self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+            #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
 
         # Location 
@@ -903,7 +903,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
         # Title Box
         if check_fields_exist(self.fields,['title']) is True:
-             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+             #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
 
         # Certificate of Title Information
@@ -1270,8 +1270,8 @@ class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
-    records = FileField(required=False, max_length=128, widget=ClearableFileInput)
-
+    #records = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
     class Meta:
         model = Application
         fields = ['id','details','records']

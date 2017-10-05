@@ -29,10 +29,9 @@
                     <td>{{ communication.subject }}</td>
                     <td>{{ communication.details }}</td>
                     <td>
-						{% if communication.record.exists %}
-                        {% for doc in communication.records %}
-							
-                            <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+			{% if communication.records.exists %}
+                        {% for doc in communication.records.all %}
+                            <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.upload }}'>{{ doc.name }}</A></div>
                         {% endfor %}
                         {% endif %}
                         </td>

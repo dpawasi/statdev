@@ -736,7 +736,8 @@ class ApplicationList(ListView):
 
         if 'action' in self.request.GET and self.request.GET['action']:
             query_str = self.request.GET['q']
-            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str)
+            query_obj = Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str) | Q(organisation__name__icontains=query_str) | Q(assignee__email__icontains=query_str) | Q(description__icontains=query_str) | Q(related_permits__icontains=query_str) | Q(jetties__icontains=query_str) | Q(drop_off_pick_up__icontains=query_str) | Q(sullage_disposal__icontains=query_str) | Q(waste_disposal__icontains=query_str) | Q(refuel_location_method__icontains=query_str) | Q(berth_location__icontains=query_str) | Q(anchorage__icontains=query_str) | Q(operating_details__icontains=query_str) | Q(proposed_development_description__icontains=query_str)
+
             if self.request.GET['apptype'] != '':
                 query_obj &= Q(app_type=int(self.request.GET['apptype']))
             else:
@@ -2897,6 +2898,13 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         app.assignee = None
         app.save()
 
+        # this get uses the new route id to get title of new route and updates the route_status.
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        app.route_status = flow.json_obj[app.routeid]['title']
+        app.save()
+
+
         # Generate a 'lodge' action:
         action = Action(
             content_object=app, category=Action.ACTION_CATEGORY_CHOICES.lodge,
@@ -3048,7 +3056,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         if action is "creator":
             if flowcontext['may_assign_to_creator'] != "True":
-                messages.error(self.request, 'This application cannot be reassign, Unknown Error')
+                messages.error(self.request, 'This application cannot be reassigned, Unknown Error')
                 return HttpResponseRedirect(app.get_absolute_url())
         else:
             # nextroute = flow.getNextRoute(action,app.routeid,"part5")
@@ -3098,16 +3106,17 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         action = self.kwargs['action']
 
         # Upload New Files
-        doc = None
-        if self.request.FILES.get('document'):  # Uploaded new file.
-            doc = Record()
-            doc.upload = forms_data['document']
-            doc.name = forms_data['document'].name
-            doc.save()
-
+        #doc = None
+        #if self.request.FILES.get('records'):  # Uploaded new file.
+        #    doc = Record()
+        #    doc.upload = forms_data['records']
+        #    doc.name = forms_data['records'].name
+        #    doc.save()
+        #print doc
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
+	FriendlyGroupList = flow.FriendlyGroupList()
         flow.get(workflowtype)
         assessed_by = None
 
@@ -3135,15 +3144,38 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         self.object.state = route["state"]
         self.object.group = groupassignment
         self.object.assignee = assignee
+	self.object.save()
+	
+
+	# this get uses the new route id to get title of new route and updates the route_status.
+	workflowtype = flow.getWorkFlowTypeFromApp(self.object)
+	flow.get(workflowtype)
+	self.object.route_status = flow.json_obj[self.object.routeid]['title']
         self.object.save()
 
         comms = Communication()
         comms.application = app
+        comms.comms_from = str(self.request.user.email)
+        comms.comms_to = FriendlyGroupList['grouplink'][action]
+        comms.subject = route["title"]
         comms.details = forms_data['details']
         comms.state = route["state"]
+        comms.comms_type = 4
         comms.save()
-        if doc:
-            comms.records.add(doc)
+
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
+                raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.name = f.name
+                doc.save()
+                comms.records.add(doc)
+#        if doc:
+#            comms.records.add(doc)
 
         emailcontext = {}
         emailcontext['app'] = self.object
@@ -3356,13 +3388,17 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
         if self.request.user != app.assignee:
             sendHtmlEmail([app.assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
+        
 
         # Record an action on the application:
         action = Action(
             content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
             action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
         action.save()
-        return HttpResponseRedirect(self.get_success_url())
+        if self.request.user != app.assignee:
+            return HttpResponseRedirect(reverse('application_list'))
+	else:
+            return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
         initial = super(ApplicationAssignPerson, self).get_initial()
@@ -4054,11 +4090,29 @@ class WebPublish(LoginRequiredMixin, UpdateView):
 
         if publish_type in 'documents':
             self.object.publish_documents = current_date
+            action = Action(
+               content_object=self.object, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.publish,
+               action='Publish Documents')
+            action.save()
+
         elif publish_type in 'draft':
+            action = Action(
+               content_object=self.object, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.publish,
+               action='Publish Draft')
+            action.save()  
+
             self.object.publish_draft_report = current_date
         elif publish_type in 'final':
+	    action = Action(
+               content_object=self.object, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.publish,
+               action='Publish Final')
+            action.save()
             self.object.publish_final_report = current_date
         elif publish_type in 'determination':
+	    action = Action(
+               content_object=self.object, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.publish,
+               action='Publish Determination')
+            action.save()
             self.object.publish_determination_report = current_date
 
         return super(WebPublish, self).form_valid(form)
@@ -4108,6 +4162,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())    
             
         return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
 
@@ -4347,6 +4402,11 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
                 doc.upload = f
                 doc.save()
                 self.object.published_document = doc
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        action = Action(
+            content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+            action='Publish New Web Documents for Doc ID: {}'.format(self.kwargs['docid']))
+        action.save()
         return super(WebsitePublicationChange, self).form_valid(form)
 
 

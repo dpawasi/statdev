@@ -1,7 +1,6 @@
 {
     "options": {
-        "steps": { "Step 1": ["Applicant","Title","Certificate of Title Information","River Reserve Lease - section 29","River Reserve Lease - section 32","Details of Proposed Development","Landowner Consent","Deed"],
-                   "Step 2": ["Checklist"]
+        "steps": { "": [{"title":"Applicant","anchor":"form_applicant"},{"title":"Title","anchor":"form_title"},{"title":"Certificate of Title Information","anchor":"form_certificate"},{"title":"River Reserve Lease - section 29","anchor":"form_riverleasesection29"},{"title":"River Reserve Lease - section 32","anchor":"form_riverleasesection32"},{"title": "Details of Proposed Development", "anchor":"form_proposed_development"},{"title":"Landowner Consent","anchor":"form_land_owner_consent"},{"title":"Deed", "anchor": "form_deed"}]
         }
     },
     "1": {
