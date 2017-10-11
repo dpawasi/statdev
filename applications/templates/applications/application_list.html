@@ -71,10 +71,10 @@
                                 <select class="select form-control" id="id_appstatus" name="appstatus">
                                     <option value="" selected="selected">All</option>
                                     {% for at in app_appstatus %}
-                                    {% if appstatus == at.0 %}
-                                    <option selected value="{{ at.0 }}">{{ at.1 }}</option>
+                                    {% if appstatus == at %}
+                                    <option selected value="{{ at }}">{{ at}}</option>
                                     {% else %}
-                                    <option value="{{ at.0 }}">{{ at.1 }}</option>
+                                    <option value="{{ at }}">{{ at }}</option>
                                     {% endif %}
                                     {% endfor %}
                                 </select>
@@ -136,7 +136,7 @@
                                 {% endif %}
 
 				</td>
-                                <td>{{ app_obj.app.get_state_display }}</td>
+                                <td>{{ app_obj.app.route_status }}</td>
                                 <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.assignee.get_full_name }}</td>
 				<td>{{ app_obj.app.submitted_by.get_full_name }}</td>

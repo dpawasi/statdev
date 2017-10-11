@@ -38,7 +38,7 @@
                     "route": "1.1",
                     "routegroup":"lodge",
                     "routeurl": "application_update",
-                    "required" : [],
+                    "required" : ["title","description","vessel_or_craft_details","purpose","proposed_commence","proposed_end","max_participants","proposed_location","address","location_route_access","jetty_dot_approval","drop_off_pick_up", "beverage", "byo_alcohol","sullage_disposal","waste_disposal","refuel_location_method","berth_location","anchorage","operating_details","cert_survey","cert_public_liability_insurance","risk_mgmt_plan","safety_mgmt_procedures","brochures_itineries_adverts","other_relevant_documents","land_owner_consent","deed" ],
                     "state": "15"
                 },
                 {
@@ -48,7 +48,7 @@
                     "route": "1.2",
                     "routegroup":"lodge",
                     "routeurl": "application_update",
-                    "required" : [],
+                    "required" :["title","description","vessel_or_craft_details","purpose","proposed_commence","proposed_end","max_participants","proposed_location","address","location_route_access","jetty_dot_approval","drop_off_pick_up", "beverage", "byo_alcohol","sullage_disposal","waste_disposal","refuel_location_method","berth_location","anchorage","operating_details","cert_survey","cert_public_liability_insurance","risk_mgmt_plan","safety_mgmt_procedures","brochures_itineries_adverts","other_relevant_documents","land_owner_consent","deed" ], 
                     "state": "15"
                 },
                 {
@@ -57,7 +57,7 @@
                     "fieldoperator":"equals",
                     "route": "3.1",
                     "routeurl": "application_update",
-                    "required" : [],
+                    "required" : ["title","description","vessel_or_craft_details","purpose","proposed_commence","proposed_end","max_participants","proposed_location","address","location_route_access","jetty_dot_approval","drop_off_pick_up", "beverage", "byo_alcohol","sullage_disposal","waste_disposal","refuel_location_method","berth_location","anchorage","operating_details","cert_survey","cert_public_liability_insurance","risk_mgmt_plan","safety_mgmt_procedures","brochures_itineries_adverts","other_relevant_documents","land_owner_consent","deed" ],
                     "state": "15"
                 }
                 ]

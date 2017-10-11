@@ -141,13 +141,6 @@
         },
         "actions": [
             {
-                "title": "Send to Admin Officer - Wait 21 days",
-                "route": "2.1",
-                "routegroup": "admin",
-                "state": "2",
-                "required": []
-            },
-            {
                 "title": "Send to Assessor",
                 "route": "3",
                 "routegroup": "assess",
@@ -1238,14 +1231,6 @@
             "publish_publication_feedback_final" : "True"
         },
         "actions": [
-			 {
-                "title": "Send to Admin Officer (Public) - Wait 21 Days",
-                "route": "13.1",
-                "routegroup": "admin",
-                "state": "2",
-                "required": []
-
-            },
             {
                 "title": "Send to Assessor (Public)",
                 "route": "14",

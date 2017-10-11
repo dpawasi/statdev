@@ -15,8 +15,9 @@
 					<tr>
 						<th>Number</th>
 						<th>Condition</th>
-						<th>Source</th>
-						<th>Status</th>
+						<th>Recur Pattern</th>
+						<th>Recur Freq</th>
+						<th>Due Date</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -25,8 +26,9 @@
 					<tr>
 						<td>{{ cond.pk }}</td>
 						<td>{{ cond.condition }}</td>
-						<td>{% if cond.referral %}{{ cond.referral.referee }}{% else %}P&W{% endif %}</td>
-						<td>{{ cond.get_status_display }}</td>
+						<td>{{ cond.recur_pattern }}</td>
+						<td>{{ cond.recur_freq }}</td>
+						<td>{{ cond.due_date|date:"d-M-Y" }}</td>
 						<td>
                             {% if workflow_actions or condactions %}
 							    {% if may_update_condition == "True" %}

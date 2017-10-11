@@ -58,7 +58,7 @@
                 "title": "Lodge Application",
                 "route": "2",
                 "routegroup":"lodge",
-                "required": []
+                "required": ["title","proposed_commence","cost","project_no","related_permits","description","supporting_info_demonstrate_compliance_trust_policies","land_owner_consent","deed"]
             }
         ],
         "formcomponent": {

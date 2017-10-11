@@ -20,22 +20,22 @@
 <div class="row">
     <div class="col-xs-12">
         <ul class="nav nav-pills nav-justified thumbnail">
-            <li class="{{ step1 }}"><a href="{% if step1 != 'disabled' and step1 != 'active' %}{% url 'company_create_link_steps' request.user.id '1' po_id %}{% else %}#{% endif %}">
+            <li class="{{ step1 }}"><a href="{% if step1 != 'disabled' and step1 != 'active' %}{% url 'company_create_link_steps' user_id '1' po_id %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 1</h4>
                     <p class="list-group-item-text">Company Details</p>
                 </a>
             </li>
-            <li class="{{ step2 }}"><a href="{% if step2 != 'disabled' %}{% url 'company_create_link_steps' request.user.id '2' po_id %}{% else %}#{% endif %}">
+            <li class="{{ step2 }}"><a href="{% if step2 != 'disabled' %}{% url 'company_create_link_steps' user_id '2' po_id %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 2</h4>
                     <p class="list-group-item-text">Company Verification</p>
                 </a>
             </li>
-            <li class="{{ step3 }}"><a href="{% if step3 != 'disabled' %}{% url 'company_create_link_steps' request.user.id '3' po_id %}{% else %}#{% endif %}">
+            <li class="{{ step3 }}"><a href="{% if step3 != 'disabled' %}{% url 'company_create_link_steps' user_id '3' po_id %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 3</h4>
                     <p class="list-group-item-text">Address Details</p>
                 </a>
             </li>
-            <li class="{{ step4 }}"><a href="{% if step4 != 'disabled' %}{% url 'company_create_link_steps' request.user.id '4' po_id %}{% else %}#{% endif %}">
+            <li class="{{ step4 }}"><a href="{% if step4 != 'disabled' %}{% url 'company_create_link_steps' user_id '4' po_id %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 4</h4>
                     <p class="list-group-item-text">Completed</p>
                 </a>

@@ -80,6 +80,28 @@ class ApplicationApplyForm(ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
 
+class CreateAccountForm(ModelForm):
+
+    class Meta:
+        model = EmailUser 
+        fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        super(CreateAccountForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        # delete internal option
+        crispy_boxes = crispy_empty_box()
+        #self.helper.form_show_labels = False
+
+        self.fields['email'].label = "Email Address:"
+        crispy_boxes.append(crispy_box('new_account_collapse','form_new_account','Please enter email address','email' ))
+        self.helper.layout = Layout(crispy_boxes,)
+
+        self.helper.form_id = 'id_form_new_account'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
+
 class CreateLinkCompanyForm(ModelForm):
     company_name = CharField(required=False,max_length=255)
     abn = CharField(required=False,max_length=255)
@@ -594,6 +616,13 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
 
+        self.fields['title'].required = False
+        self.fields['jetty_dot_approval'].required = False
+        self.fields['vessel_or_craft_details'].required = False
+        self.fields['food'].required = False
+	self.fields['beverage'].required = False
+	self.fields['byo_alcohol'].required = False
+
 
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
@@ -732,7 +761,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['description'].label = "Description of works, acts or activities"
 
 #       self.fields['records'].label = "Attach more detailed descripton, maps or plans"
-      
+        self.fields['title'].required = False      
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
                 del self.fields[fielditem]
@@ -860,6 +889,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
+        self.fields['title'].required = False
+        self.fields['river_lease_require_river_lease'].required = False
+        self.fields['river_lease_reserve_licence'].required = False
 
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
@@ -1338,7 +1370,7 @@ class AssignApplicantForm(ModelForm):
     class Meta:
         model = Application
         #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
-        fields = ['applicant','organisation']
+        fields = ['applicant']
 
     def __init__(self, *args, **kwargs):
         super(AssignApplicantForm, self).__init__(*args, **kwargs)
@@ -1352,8 +1384,8 @@ class AssignApplicantForm(ModelForm):
         self.fields['applicant'].required = True
         self.fields['applicant'].disabled = True
      
-        user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
-        self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+        #user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
+        #self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
 
         # Define the form layout.
         self.helper.layout = Layout(
@@ -1366,6 +1398,44 @@ class AssignApplicantForm(ModelForm):
                 Submit('cancel', 'Cancel')
             )
         )
+
+
+class AssignApplicantFormCompany(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['organisation']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignApplicantFormCompany, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+
+        organisation = self.initial['organisation']
+        self.fields['organisation'].queryset = Organisation.objects.filter(pk=organisation)
+        self.fields['organisation'].required = True
+        self.fields['organisation'].disabled = True
+
+#        user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
+ #       self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'applicant',
+            'organisation',
+            FormActions(
+                Submit('assign', 'Change Applicant', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
 
 class AssignCustomerForm(ModelForm):
     """A form for assigning an application back to the customer.
