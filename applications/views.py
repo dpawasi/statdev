@@ -710,7 +710,7 @@ class ApplicationApplicantCompanyChange(LoginRequiredMixin,DetailView):
             list_orgs = OrganisationExtras.objects.filter(organisation__name__icontains=query_str)
 #, organisation__postal_address__icontains=query_str)
         else:
-	    list_orgs = OrganisationExtras.objects.all()
+            list_orgs = OrganisationExtras.objects.all()
 
         context['item_list'] = []
         for lu in list_orgs:
