@@ -2420,7 +2420,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['deed'] = app.deed.upload
         if app.river_lease_scan_of_application:
             initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
-	if app.supporting_info_demonstrate_compliance_trust_policies:
+        if app.supporting_info_demonstrate_compliance_trust_policies:
             initial['supporting_info_demonstrate_compliance_trust_policies'] = app.supporting_info_demonstrate_compliance_trust_policies.upload
 
 
