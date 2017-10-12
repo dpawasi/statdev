@@ -2920,7 +2920,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
                                     messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
                                     error_messages = True
                     if error_messages is True:
-		        return HttpResponseRedirect(app.get_absolute_url()+'update/')
+                        return HttpResponseRedirect(app.get_absolute_url()+'update/')
                     donothing = ""
             else:
                 messages.error(self.request, 'This application has no matching routes.')
