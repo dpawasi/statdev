@@ -1,9 +1,9 @@
 {
    "options": { 
-      "steps": { "Step 1": ["Title","Proposed Commerical Acts or Activities","Choose Vessel or Craft","Proposal Details","Other Documents","Landowner Consent" ],
-                 "Step 2": ["Add Vessel or Crafts"],
-                 "Step 3": ["Checklist"],
-                 "Step 4": ["Lodge Application"] 
+      "steps": { "Step 1": [{"title":"Applicant","anchor":"form_applicant"},{"title":"Title","anchor":"form_title"},{"title":"Proposed Commerical Acts or Activities","anchor":"form_summary"},{"title":"Choose Vessel or Craft","anchor":"form_vessel_or_crafts_view"},{"title":"Proposal Details","anchor":"form_proposal_details"},{"title":"Other Documents","anchor":"form_other_documents"},{"title":"Landowner Consent","anchor":"form_land_owner_consent"},{"title":"Deed", "anchor": "form_deed"} ],
+                 "Step 2": [{"title":"Add Vessel or Crafts","anchor":""}],
+                 "Step 3": [{"title":"Checklist","anchor":""}],
+                 "Step 4": [{"title":"Lodge Application","anchor":""}] 
         }
    },
    "1": {
@@ -38,7 +38,7 @@
                     "route": "1.1",
                     "routegroup":"lodge",
                     "routeurl": "application_update",
-                    "required" : [],
+                    "required" : ["title","description","vessel_or_craft_details","purpose","proposed_commence","proposed_end","max_participants","proposed_location","address","location_route_access","jetty_dot_approval","drop_off_pick_up", "beverage", "byo_alcohol","sullage_disposal","waste_disposal","refuel_location_method","berth_location","anchorage","operating_details","cert_survey","cert_public_liability_insurance","risk_mgmt_plan","safety_mgmt_procedures","brochures_itineries_adverts","other_relevant_documents","land_owner_consent","deed" ],
                     "state": "15"
                 },
                 {
@@ -48,7 +48,7 @@
                     "route": "1.2",
                     "routegroup":"lodge",
                     "routeurl": "application_update",
-                    "required" : [],
+                    "required" :["title","description","vessel_or_craft_details","purpose","proposed_commence","proposed_end","max_participants","proposed_location","address","location_route_access","jetty_dot_approval","drop_off_pick_up", "beverage", "byo_alcohol","sullage_disposal","waste_disposal","refuel_location_method","berth_location","anchorage","operating_details","cert_survey","cert_public_liability_insurance","risk_mgmt_plan","safety_mgmt_procedures","brochures_itineries_adverts","other_relevant_documents","land_owner_consent","deed" ], 
                     "state": "15"
                 },
                 {
@@ -57,7 +57,7 @@
                     "fieldoperator":"equals",
                     "route": "3.1",
                     "routeurl": "application_update",
-                    "required" : [],
+                    "required" : ["title","description","vessel_or_craft_details","purpose","proposed_commence","proposed_end","max_participants","proposed_location","address","location_route_access","jetty_dot_approval","drop_off_pick_up", "beverage", "byo_alcohol","sullage_disposal","waste_disposal","refuel_location_method","berth_location","anchorage","operating_details","cert_survey","cert_public_liability_insurance","risk_mgmt_plan","safety_mgmt_procedures","brochures_itineries_adverts","other_relevant_documents","land_owner_consent","deed" ],
                     "state": "15"
                 }
                 ]
@@ -564,7 +564,7 @@
                 "state" : "3"
             },
             {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
                 "state": "4"
@@ -685,7 +685,7 @@
         },
         "actions": [
             {
-                "title": "Approve to Manager/s",
+                "title": "Send to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
                 "state": "5",
@@ -804,7 +804,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
                 "state": "4"

@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row">
         <h1>Communication for {{ object.application.get_app_type_display }} - {{ object.pk }}</h1>
-        <p><a href="{% url 'application_detail' object.pk %}">Return to application details</a></p>
+        <p><a href="{% url "person_details_actions" object.pk "personal" %}">Return to account details</a></p>
         <h2>communication log</h2>
         <table class="table table-bordered table-striped">
             <thead>
@@ -29,9 +29,10 @@
                     <td>{{ communication.subject }}</td>
                     <td>{{ communication.details }}</td>
                     <td>
-			{% if communication.records.exists %}
-                        {% for doc in communication.records.all %}
-                            <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.upload }}'>{{ doc.name }}</A></div>
+						{% if communication.record.exists %}
+                        {% for doc in communication.records %}
+							
+                            <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
                         {% endfor %}
                         {% endif %}
                         </td>
@@ -39,7 +40,7 @@
                 {% endfor %}
          {% endif %}
         </table>
-        <p><a href="{% url 'application_detail' object.pk %}">Return to application details</a></p>
+        <p><a href="{% url "person_details_actions" object.pk "personal" %}">Return to account details</a></p>
     </div>
 </div>
 {% endblock page_content_inner %}

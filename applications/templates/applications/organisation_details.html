@@ -20,9 +20,8 @@
                         <BR>
                     </div>
 
-                    {% include "applications/application_side_menu.html" %}
                     {% if nav_details == "active" %}
-
+                 	{% include "applications/organisation_side_menu.html" %}
                     <div class="col-sm-12 col-md-9 col-lg-9">
                         <ul class="nav nav-pills">
                             <li role="presentation" class="{{ nav_details_company }}"><a href="{% url "organisation_details_actions" object.pk "company" %}">Company Details</a></li>
@@ -177,7 +176,7 @@
                                                 <div class="col-sm-12 col-md-2 col-lg-2">
 
                                                     {% if object.postal_address %}
-                                                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.postal_address.pk %}">Edit</a>
+                                                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_change' object.postal_address.pk object.pk %}">Edit</a>
                                                     {% else %}
                                                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' object.pk 'postal' %}">Edit</a>
                                                     {% endif %}
@@ -239,7 +238,7 @@
                                                 </div>
                                                 <div class="col-sm-12 col-md-2 col-lg-2">
                                                     {% if object.billing_address %}
-                                                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'address_update' object.billing_address.pk %}">Edit</a>
+                                                    <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_change' object.billing_address.pk object.pk %}">Edit</a>
                                                     {% else %}
                                                     <a class="btn btn-primary btn-sm" role="button" href="{% url 'organisation_address_create' object.pk 'billing' %}">Edit</a>
                                                     {% endif %}

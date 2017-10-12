@@ -1,0 +1,46 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<div class="container-fluid">
+    <div class="row">
+        <h1>{{ object.first_name }} {{ object.last_name }} action log - (ID: {{ object.pk }})</h1>
+        <p><a href="{% url 'person_details_actions' object.pk 'personal' %}">Return to account details</a></p>
+        <h2>Action/communication log</h2>
+        {% if actions %}
+        <table id='action-log-table' class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Date & time</th>
+                    <th>Category</th>
+                    <th>User</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for action in actions %}
+                <tr>
+                    <td>{{ action.timestamp|date:"d-M-Y H:i" }}</td>
+                    <td>{% if action.category %}{{ action.get_category_display }}{% endif %}</td>
+                    <td>{% if action.user %}{{ action.user.get_full_name }}{% else %}System{% endif %}</td>
+                    <td>{{ action.action }}</td>
+                </tr>
+                {% endfor %}
+        </table>
+        <p><a href="{% url 'person_details_actions' object.pk 'personal' %}">Return to account details</a></p>
+        {% else %}
+        <p>No actions recorded.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function loadTableGrid() {
+        $('#action-log-table').dataTable({searching: true, paging: true, "pageLength": 25});
+}
+window.onload= function() {
+        loadTableGrid();
+}
+</script>
+
+
+{% endblock page_content_inner %}

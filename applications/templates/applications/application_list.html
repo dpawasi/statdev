@@ -71,10 +71,10 @@
                                 <select class="select form-control" id="id_appstatus" name="appstatus">
                                     <option value="" selected="selected">All</option>
                                     {% for at in app_appstatus %}
-                                    {% if appstatus == at.0 %}
-                                    <option selected value="{{ at.0 }}">{{ at.1 }}</option>
+                                    {% if appstatus == at %}
+                                    <option selected value="{{ at }}">{{ at}}</option>
                                     {% else %}
-                                    <option value="{{ at.0 }}">{{ at.1 }}</option>
+                                    <option value="{{ at }}">{{ at }}</option>
                                     {% endif %}
                                     {% endfor %}
                                 </select>
@@ -115,12 +115,12 @@
                                 <th>Type</th>
                                 <th>Title</th>
                                 <th>Applicant</th>
-                                <th>Company</th>
                                 <th>Status</th>
                                 <th>Lodged on</th>
                                 <th>Assignee</th>
+				<th>Submitter</th>
                                 <th>Payment status</th>
-                                <th>Actions</th>
+                                <th class="nosort">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -129,11 +129,17 @@
                                 <td><a href="{% url 'application_detail' app_obj.app.pk %}">WO-{{ app_obj.app.pk }}</a></td>
                                 <td>{{ app_obj.app.get_app_type_display }}</td>
                                 <td>{{ app_obj.app.title }}</td>
-                                <td>{{ app_obj.app.applicant.get_full_name }}</td>
-                                <td>{{ app_obj.app.organisation }}</td>
-                                <td>{{ app_obj.app.get_state_display }}</td>
+                                <td>{% if app_obj.app.organisation %}
+                                 {{ app_obj.app.organisation }}
+                                {% else %}
+                                 {{ app_obj.app.applicant.get_full_name }}
+                                {% endif %}
+
+				</td>
+                                <td>{{ app_obj.app.route_status }}</td>
                                 <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.assignee.get_full_name }}</td>
+				<td>{{ app_obj.app.submitted_by.get_full_name }}</td>
                                 <td></td>
                                 <td>
                                      <ul class="nav navbar-nav">
@@ -162,7 +168,12 @@
 
 <script>
 function loadApprovalTable() {
-    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25});
+    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
+ "aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 9 ] }
+       ] 
+
+});
 }
 window.onload= function() {
     loadApprovalTable();

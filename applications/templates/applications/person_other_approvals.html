@@ -64,7 +64,7 @@
 
                 </form>
             </div>
-
+            <hr>
             <div class="row">
                 <div class="col-xs-12">
                     <BR>
@@ -79,6 +79,7 @@
                                 <th>Start Date</th>
                                 <th>Expiry Date</th>
                                 <th>Approval</th>
+				<th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -93,6 +94,19 @@
                                 <td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
                                 <td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
+				<td>
+
+                                                                        <ul class="nav navbar-nav">
+                                                                                <li class="dropdown">
+                                                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
+                                                                                        <ul class="dropdown-menu" role="menu">
+                                                                                        </ul>
+                                                                                </li>
+                                                                        </ul>
+
+
+
+</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -105,7 +119,12 @@
     <script>
 
     function loadTable() {
-        $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25});
+        $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,
+		 "aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 7 ] }
+       ]
+
+});
     }
 
     window.onload= function() {

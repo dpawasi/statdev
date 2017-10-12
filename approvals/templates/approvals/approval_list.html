@@ -168,11 +168,17 @@
 		</div>
 	</div>
 </div>
-
 <script>
 
 function loadApprovalTable() { 
-    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25});
+    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,
+ "aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 8 ] }
+       ]
+
+
+
+});
 }
 
 window.onload= function() {

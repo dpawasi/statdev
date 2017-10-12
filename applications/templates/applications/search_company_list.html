@@ -48,7 +48,7 @@
 
                     {% for acc_obj in acc_list %}
                     <tr>
-                        <td><a href="">{{ acc_obj.acc_row.organisation.id }}</a></td>
+                        <td><a href="{% url "organisation_details_actions" acc_obj.acc_row.organisation.id "company" %}">{{ acc_obj.acc_row.organisation.id }}</a></td>
                         <td>{{ acc_obj.acc_row.organisation.name }}</td>
                         <td>{{ acc_obj.acc_row.organisation.abn }}</td>
                         <td>{{ acc_obj.acc_row.organisation.postal_address }}</td>

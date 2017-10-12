@@ -17,9 +17,8 @@
                         </ul>
                         <BR>
                     </div>
-
-                    {% include "applications/application_side_menu.html" %}
                     {% if nav_details == "active" %}
+			{% include "applications/person_side_menu.html" %}
 
                     <div class="col-sm-12 col-md-9 col-lg-9">
                         <ul class="nav nav-pills">
@@ -173,6 +172,7 @@
                             </div>
                         </div>
                     </div>
+
                     {% elif nav_details_contactdetails == "active" %}
                     <div class="panel panel-default">
                         <div class="panel-heading" role="tab" id="title_heading">
@@ -242,6 +242,10 @@
 
                         <div class="panel-collapse collapse in" id="linked_person_collapse" role="tabpanel" aria-labelledby="linked_person_heading">
                             <div class="panel-body">
+                                {% if staff == False %}
+                                <a class="btn btn-primary pull-right" href="{% url "company_create_link" object.pk "1" %}">New Company</a>
+                                {% endif %}
+                                {% if organisations|length > 0 %} 
                                 {% for co in organisations %}
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <div class="col-sm-12 col-md-3 col-lg-3">
@@ -254,6 +258,10 @@
                                     </div>
                                 </div>
                                 {% endfor %}
+                                {% else %}
+                                        You have no company linked
+
+                                {% endif %}
 
 
                             </div>
@@ -263,7 +271,10 @@
                 </div>
 
                 {% elif nav_other == "active" %}
-                <div class="col-sm-12 col-md-9 col-lg-9">
+		{% include "applications/person_side_menu_applications.html" %}
+		<div class="col-sm-12 col-md-9 col-lg-10">
+
+                <div class="col-sm-12 col-md-12 col-lg-12">
                     <ul class="nav nav-pills">
                         <li role="presentation" class="{{ nav_other_applications }}"><a href="{% url "person_other_actions" object.pk "applications" %}">Applications</a></li>
                         <li role="presentation" class="{{ nav_other_approvals }}" ><a href="{% url "person_other_actions" object.pk "approvals" %}">Approvals</a></li>
@@ -272,7 +283,7 @@
                     </ul>
                     <br>
                 </div>
-                <div class="col-sm-12 col-md-9 col-lg-10">
+                <div class="col-sm-12 col-md-12 col-lg-12">
                     <BR>
                     {% if nav_other_applications == 'active' %}
                     {% include "applications/person_other_applications.html" %}
@@ -284,7 +295,7 @@
                     {% include "applications/person_other_clearance.html" %}
                     {% endif %}
                 </div>
-
+		</div>
 
 
                 {% endif %}

@@ -222,6 +222,7 @@ class Application(models.Model):
     supporting_info_demonstrate_compliance_trust_policies = models.ForeignKey(Record, null=True, blank=True, related_name='supporting_info_demonstrate_compliance_trust_policies')
     type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
     number_of_crafts  = models.IntegerField(null=True, blank=True)
+    route_status = models.CharField(null=True, blank=True, default=1, max_length=256)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -425,6 +426,7 @@ class Communication(models.Model):
         (1, 'phone', ('Phone')),
         (2, 'email', ('Email')),
         (3, 'mail', ('Mail')),
+        (4, 'system', ('System'))
     )
 
     application = models.ForeignKey(Application, on_delete=models.PROTECT)
@@ -434,6 +436,47 @@ class Communication(models.Model):
     comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none )
     details = models.TextField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True, related_name='communication_docs')
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(auto_now_add=True)
+
+
+class CommunicationAccount(models.Model):
+    """This model represents the communication model
+    """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none)
+    details = models.TextField(blank=True, null=True)
+    records = models.ManyToManyField(Record, blank=True, related_name='account_communication_docs')
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(auto_now_add=True)
+
+class CommunicationOrganisation(models.Model):
+    """This model represents the communication model
+    """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+    )
+
+    org = models.ForeignKey(Organisation, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none)
+    details = models.TextField(blank=True, null=True)
+    records = models.ManyToManyField(Record, blank=True, related_name='org_communication_docs')
     state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
     created = models.DateTimeField(auto_now_add=True)
 

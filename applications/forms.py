@@ -13,7 +13,7 @@ from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation)
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
 User = get_user_model()
@@ -77,6 +77,28 @@ class ApplicationApplyForm(ModelForm):
         self.helper.layout = Layout(crispy_boxes,)
 
         self.helper.form_id = 'id_form_apply_application'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
+
+class CreateAccountForm(ModelForm):
+
+    class Meta:
+        model = EmailUser 
+        fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        super(CreateAccountForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper()
+        # delete internal option
+        crispy_boxes = crispy_empty_box()
+        #self.helper.form_show_labels = False
+
+        self.fields['email'].label = "Email Address:"
+        crispy_boxes.append(crispy_box('new_account_collapse','form_new_account','Please enter email address','email' ))
+        self.helper.layout = Layout(crispy_boxes,)
+
+        self.helper.form_id = 'id_form_new_account'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
 
@@ -382,6 +404,59 @@ class CommunicationCreateForm(ModelForm):
         # Add labels for fields
         #self.fields['app_type'].label = "Application Type"
 
+class CommunicationOrganisationCreateForm(ModelForm):
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+
+    class Meta:
+        model = CommunicationOrganisation
+        fields = ['comms_to','comms_from','subject','comms_type','details','records','details']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        #application = kwargs.pop('application')
+        super(CommunicationOrganisationCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['comms_to'].required = True
+        self.fields['comms_from'].required = True
+        self.fields['subject'].required = True
+        self.fields['comms_type'].required = True
+
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_communication'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Create', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Add labels for fields
+        #self.fields['app_type'].label = "Application Type"
+
+class CommunicationAccountCreateForm(ModelForm):
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+
+    class Meta:
+        model = CommunicationAccount 
+        fields = ['comms_to','comms_from','subject','comms_type','details','records','details']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        #application = kwargs.pop('application')
+        super(CommunicationAccountCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['comms_to'].required = True
+        self.fields['comms_from'].required = True
+        self.fields['subject'].required = True
+        self.fields['comms_type'].required = True
+
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_communication'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Create', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Add labels for fields
+        #self.fields['app_type'].label = "Application Type"
+
+
 class OrganisationAccessRequestForm(ModelForm):
     details = CharField(required=False, widget=Textarea, help_text='Details for communication log.')
 
@@ -541,6 +616,13 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
 
+        self.fields['title'].required = False
+        self.fields['jetty_dot_approval'].required = False
+        self.fields['vessel_or_craft_details'].required = False
+        self.fields['food'].required = False
+        self.fields['beverage'].required = False
+        self.fields['byo_alcohol'].required = False
+
 
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
@@ -563,7 +645,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             del self.fields['applicant']
 
         if check_fields_exist(self.fields,['title']) is True:
-             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+             #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title',))
 
         if check_fields_exist(self.fields,['description']) is True:
@@ -679,7 +761,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['description'].label = "Description of works, acts or activities"
 
 #       self.fields['records'].label = "Attach more detailed descripton, maps or plans"
-      
+        self.fields['title'].required = False      
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
                 del self.fields[fielditem]
@@ -712,7 +794,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
 
 
         if check_fields_exist(self.fields,['title']) is True:
-            self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+            #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
             crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
 
         # Location 
@@ -807,6 +889,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicationPart5Form, self).__init__(*args, **kwargs)
+        self.fields['title'].required = False
+        self.fields['river_lease_require_river_lease'].required = False
+        self.fields['river_lease_reserve_licence'].required = False
 
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
@@ -850,7 +935,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
         # Title Box
         if check_fields_exist(self.fields,['title']) is True:
-             self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
+             #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
 
         # Certificate of Title Information
@@ -1217,8 +1302,8 @@ class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
-    records = FileField(required=False, max_length=128, widget=ClearableFileInput)
-
+    #records = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
     class Meta:
         model = Application
         fields = ['id','details','records']
@@ -1285,7 +1370,7 @@ class AssignApplicantForm(ModelForm):
     class Meta:
         model = Application
         #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
-        fields = ['applicant','organisation']
+        fields = ['applicant']
 
     def __init__(self, *args, **kwargs):
         super(AssignApplicantForm, self).__init__(*args, **kwargs)
@@ -1299,8 +1384,8 @@ class AssignApplicantForm(ModelForm):
         self.fields['applicant'].required = True
         self.fields['applicant'].disabled = True
      
-        user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
-        self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+        #user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
+        #self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
 
         # Define the form layout.
         self.helper.layout = Layout(
@@ -1313,6 +1398,44 @@ class AssignApplicantForm(ModelForm):
                 Submit('cancel', 'Cancel')
             )
         )
+
+
+class AssignApplicantFormCompany(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['organisation']
+
+    def __init__(self, *args, **kwargs):
+        super(AssignApplicantFormCompany, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+
+        organisation = self.initial['organisation']
+        self.fields['organisation'].queryset = Organisation.objects.filter(pk=organisation)
+        self.fields['organisation'].required = True
+        self.fields['organisation'].disabled = True
+
+#        user_orgs = [d.pk for d in Delegate.objects.filter(email_user=applicant)]
+ #       self.fields['organisation'].queryset = Organisation.objects.filter(pk__in=user_orgs)
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'applicant',
+            'organisation',
+            FormActions(
+                Submit('assign', 'Change Applicant', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
 
 class AssignCustomerForm(ModelForm):
     """A form for assigning an application back to the customer.

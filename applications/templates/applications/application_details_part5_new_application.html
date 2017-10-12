@@ -570,10 +570,10 @@
                                 </div>
                                 <div class="col-lg-9">
                                     {% if object.document_new_draft %}
-                                            <A HREF='/media/{{ object.document_new_draft.upload }}'>Assessment Report Version 2.PDF</A>
+                                            <A HREF='/media/{{ object.document_new_draft.upload }}' target="_draft_report_part_5" >Assessment Report Version 2.PDF</A>
                                     {% else %}
                                     {% if object.document_draft %}
-                                    <A HREF='/media/{{ object.document_draft.upload }}'>Assessment Report.PDF</A>
+                                    <A HREF='/media/{{ object.document_draft.upload }}' target="_draft_report_part_5" >Assessment Report.PDF</A>
                                     {% else %}
                                     No Attachment
                                     {% endif %}

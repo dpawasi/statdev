@@ -7,7 +7,7 @@
         <h4>{{ wo.0 }}</h4>
         <ul style='list-style-type: square;'>
               {% for wof in wo.1 %}
-                     <li><h5>{{ wof }}</h5></li>
+                     <li><h5><A HREF="#{{ wof.anchor }}">{{ wof.title }}</A></h5></li>
               {% endfor %}
         </ul>
         {% endfor %}

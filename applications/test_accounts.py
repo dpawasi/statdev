@@ -45,7 +45,7 @@ class AccountsTest(StatDevTestCase):
         self.assertFalse(self.user1.billing_address)
         self.client.post(
             reverse('address_create', args=['billing']),
-            {'line1': '1 Test Street', 'locality': 'Perth', 'country': 'AU', 'postcode': '6000'}
+            {'line1': '1 Test Street', 'locality': 'Perth', 'country': 'AU', 'postcode': '6000','user':self.user1}
         )
         self.assertTrue(Address.objects.exists())
         user = User.objects.get(pk=self.user1.pk)
@@ -64,6 +64,8 @@ class AccountsTest(StatDevTestCase):
         self.user1.postal_address = address
         self.user1.is_staff = False
         self.user1.save()
+        address.user = self.user1
+        address.save()
         url = reverse('address_update', args=[address.pk])
         self.client.post(
             url,

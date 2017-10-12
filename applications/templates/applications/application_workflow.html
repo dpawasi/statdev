@@ -4,18 +4,24 @@
     </div>
     <div class="panel-body">
         <h4>Status:</h4>
-        <p>{{ object.get_state_display }}</p>
+
+        <p style='display: none' >{{ object.get_state_display }}</p>
+	<p>With {{ object.route_status }}</p>
+	<div style='display: none'>
         <h4>Assigned Group:</h4>
         <p>
             {% if object.group %}
                {{ object.group  }}
             {% endif %}
         </p>
+	</div>
         <h4>Assigned to:</h4>
         {% if object.assignee %}
         <p>
-        {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
-        {% else %}{{ object.assignee.email }}
+        {% if object.assignee.first_name %}
+		{{ object.assignee.first_name }} {{ object.assignee.last_name }}
+        {% else %}
+		{{ object.assignee.email }}
         {% endif %}
         </p>
         {% else %}

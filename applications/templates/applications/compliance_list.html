@@ -81,7 +81,13 @@
     </div>
     <script>
 function loadTable() {
-    $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 7, "desc" ]]});
+    $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 7, "desc" ]],
+ "aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 8 ] }
+       ]
+
+
+});
 }
 window.onload= function() {
     loadTable();

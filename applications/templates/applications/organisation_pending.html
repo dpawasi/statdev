@@ -121,7 +121,7 @@
                         <tbody>
                             {% for item_obj in orgs_pending %}
                             <tr>
-                                <td><a href="">{{ item_obj.pk }}</a></td>
+                                <td><a href="{% url "organisation_access_requests_view" item_obj.pk %}">{{ item_obj.pk }}</a></td>
                                 <td>{{ item_obj.name }}</td>
                                 <td>{{ item_obj.email_user.get_full_name }}</td>
                                 <td>{{ item_obj.get_status_display }} </td>
@@ -139,13 +139,17 @@
         </div>
     </div>
 </div>
-
 <script>
-function loadApprovalTable() {
-    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25});
+function loadTable() {
+    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
+"aoColumnDefs": [
+          { 'bSortable': false, 'aTargets': [ 6 ] }
+       ]
+
+});
 }
 window.onload= function() {
-    loadApprovalTable();
+    loadTable();
 }
 </script>
 

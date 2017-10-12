@@ -108,15 +108,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Admin Officer - Wait 21 days",
-                "route": "2.1",
-                "routegroup": "admin",
-                "state": "2",
-                "required": []
-            },
-
-            {
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4",
@@ -134,7 +126,7 @@
 
             },
             {
-                "title": "Assign to Form Creator",
+                "title": "Return to Submitter",
                 "route": "1",
                 "routegroup": "creator",
                 "state": "3",
@@ -234,7 +226,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Admin Officer",
+                "title": "Send to Admin Officer",
                 "route": "2",
                 "routegroup": "admin",
                 "state": "2",
@@ -307,7 +299,7 @@
         },
         "actions": [
             {
-                "title": "Approve to Manager/s",
+                "title": "Send to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
                 "state": "5",
@@ -439,7 +431,7 @@
         },
         "actions": [
 			{
-                "title": "Assign to Assessor",
+                "title": "Send to Assessor",
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4"
@@ -747,14 +739,14 @@
         },
         "actions": [
             {
-                "title": "Assign to Assessor (Determination)",
+                "title": "Send to Assessor (Determination)",
                 "route": "19",
                 "routegroup": "assess",
                 "state": "4",
                 "required":["publish_final_report","document_final_signed"]
             },
             {
-                "title": "Assign to Admin Officer - Wait 21 Days",
+                "title": "Send to Admin Officer - Wait 21 Days",
                 "route": "18.1",
                 "routegroup": "admin",
                 "state": "2",
@@ -868,7 +860,7 @@
         },
         "actions": [
             {
-                "title": "Assign to Admin Officer - Expired",
+                "title": "Send to Admin Officer - Expired",
                 "route": "18",
                 "routegroup": "admin",
                 "state": "2",
@@ -982,7 +974,7 @@
                 "state": "2"
             },
             {
-                "title": "Approve to Manager (Determination)",
+                "title": "Send to Manager (Determination)",
                 "route": "20",
                 "routegroup": "manager",
                 "state": "5",
@@ -1345,14 +1337,14 @@
         },
         "actions": [
             {
-                "title": "Assign to Admin Officer (Finalisation) - Publish",
+                "title": "Send to Admin Officer (Finalisation) - Publish",
                 "route": "24",
                 "routegroup": "admin",
                 "state": "2",
                 "required" : ["document_determination_approved","publish_determination_report"]
             },
 			{
-                "title": "Assign to Assessor (Determination)",
+                "title": "Send to Assessor (Determination)",
                 "route": "19",
                 "routegroup": "assess",
                 "state": "4",

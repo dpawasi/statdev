@@ -353,6 +353,16 @@ class Flow():
             val = DefaultGroups['grouplink'][g]
             DefaultGroups['group'][val] = g
         return DefaultGroups
+    def FriendlyGroupList(self):
+        DefaultGroups = {'grouplink': {}, 'group': {}}
+        DefaultGroups['grouplink']['admin'] = 'Admin Officer'
+        DefaultGroups['grouplink']['assess'] = 'Assessor'
+        DefaultGroups['grouplink']['manager'] = 'Manager'
+        DefaultGroups['grouplink']['director'] = 'Director'
+        DefaultGroups['grouplink']['exec'] = 'Executive'
+        DefaultGroups['grouplink']['referral'] = 'Referee'
+        DefaultGroups['grouplink']['emergency'] = 'Emergency'
+        return DefaultGroups
 
     def getWorkFlowTypeFromApp(self,app):
         workflowtype = ''

@@ -19,27 +19,27 @@
 <div class="row">
     <div class="col-xs-12">
         <ul class="nav nav-pills nav-justified thumbnail">
-            <li class="{{ step1 }}"><a href="{% if step1 != 'disabled' %}{% url 'first_login_info_steps' request.user.id '1' %}{% else %}#{% endif %}">
+            <li class="{{ step1 }}"><a href="{% if step1 != 'disabled' %}{% url 'first_login_info_steps' object.pk '1' %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 1</h4>
                     <p class="list-group-item-text">Personal Details</p>
                 </a>
             </li>
-            <li class="{{ step2 }}"><a href="{% if step2 != 'disabled' %}{% url 'first_login_info_steps' request.user.id '2' %}{% else %}#{% endif %}">
+            <li class="{{ step2 }}"><a href="{% if step2 != 'disabled' %}{% url 'first_login_info_steps' object.pk '2' %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 2</h4>
                     <p class="list-group-item-text">Identification</p>
                 </a>
             </li>
-            <li class="{{ step3 }}"><a href="{% if step3 != 'disabled' %}{% url 'first_login_info_steps' request.user.id '3' %}{% else %}#{% endif %}">
+            <li class="{{ step3 }}"><a href="{% if step3 != 'disabled' %}{% url 'first_login_info_steps' object.pk '3' %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 3</h4>
                     <p class="list-group-item-text">Address Details</p>
                 </a>
             </li>
-            <li class="{{ step4 }}"><a href="{% if step4 != 'disabled' %}{% url 'first_login_info_steps' request.user.id '4' %}{% else %}#{% endif %}">
+            <li class="{{ step4 }}"><a href="{% if step4 != 'disabled' %}{% url 'first_login_info_steps' object.pk '4' %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 4</h4>
                     <p class="list-group-item-text">Contact Details</p>
                 </a>
             </li>
-            <li class="{{ step5 }}"><a href="{% if step5 != 'disabled' %}{% url 'first_login_info_steps' request.user.id '5' %}{% else %}#{% endif %}">
+            <li class="{{ step5 }}"><a href="{% if step5 != 'disabled' %}{% url 'first_login_info_steps' object.pk '5' %}{% else %}#{% endif %}">
                     <h4 class="list-group-item-heading">Step 5</h4>
                     <p class="list-group-item-text">Company</p>
                 </a>
