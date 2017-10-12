@@ -620,8 +620,8 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['jetty_dot_approval'].required = False
         self.fields['vessel_or_craft_details'].required = False
         self.fields['food'].required = False
-	self.fields['beverage'].required = False
-	self.fields['byo_alcohol'].required = False
+        self.fields['beverage'].required = False
+        self.fields['byo_alcohol'].required = False
 
 
         for fielditem in self.initial["fieldstatus"]:
