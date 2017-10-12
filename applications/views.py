@@ -599,7 +599,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 billing_address.save()
 
 
-				
+
  
 
             #pending_org.identification 
@@ -3199,7 +3199,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
-	FriendlyGroupList = flow.FriendlyGroupList()
+        FriendlyGroupList = flow.FriendlyGroupList()
         flow.get(workflowtype)
         assessed_by = None
 
@@ -3227,13 +3227,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         self.object.state = route["state"]
         self.object.group = groupassignment
         self.object.assignee = assignee
-	self.object.save()
-	
+        self.object.save()
 
-	# this get uses the new route id to get title of new route and updates the route_status.
-	workflowtype = flow.getWorkFlowTypeFromApp(self.object)
-	flow.get(workflowtype)
-	self.object.route_status = flow.json_obj[self.object.routeid]['title']
+
+        # this get uses the new route id to get title of new route and updates the route_status.
+        workflowtype = flow.getWorkFlowTypeFromApp(self.object)
+        flow.get(workflowtype)
+        self.object.route_status = flow.json_obj[self.object.routeid]['title']
         self.object.save()
 
         comms = Communication()
@@ -3479,7 +3479,7 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         action.save()
         if self.request.user != app.assignee:
             return HttpResponseRedirect(reverse('application_list'))
-	else:
+        else:
             return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
@@ -3517,8 +3517,8 @@ class ApplicationAssignApplicantCompany(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=True)
-	self.object.applicant = None
-	self.object.save()
+        self.object.applicant = None
+        self.object.save()
 
         app = self.object
 
@@ -4238,14 +4238,14 @@ class WebPublish(LoginRequiredMixin, UpdateView):
             action.save()  
 
             self.object.publish_draft_report = current_date
-        elif publish_type in 'final':
-	    action = Action(
+        elif publish_type in 'final': 
+            action = Action(
                content_object=self.object, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.publish,
                action='Publish Final')
             action.save()
             self.object.publish_final_report = current_date
         elif publish_type in 'determination':
-	    action = Action(
+            action = Action(
                content_object=self.object, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.publish,
                action='Publish Determination')
             action.save()
@@ -5121,7 +5121,7 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
 #            return HttpResponseRedirect(reverse('user_account'))
-	    return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'personal')))     
+             return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'personal')))     
         return super(UserAccountUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -5382,7 +5382,7 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
         u = obj.user
         if 'org_id' in self.kwargs:
             org =Organisation.objects.get(id= self.kwargs['org_id'])
-	    action = Action(
+            action = Action(
                 content_object=org, category=Action.ACTION_CATEGORY_CHOICES.change, user=self.request.user,
                 action='Organisation address updated')
             action.save()
