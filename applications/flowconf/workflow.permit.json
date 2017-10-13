@@ -91,7 +91,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_change_application_applicant" :"True"
+                "may_change_application_applicant" :"True",
+		"may_view_action_log": "True"
 
             },
             "Assessor": {
@@ -298,7 +299,8 @@
                 "may_submit_approval": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+		"may_view_action_log": "True"
             },
             "Approver": {
                 "may_update": "True",
@@ -401,7 +403,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+		"may_view_action_log": "True"
 
             },
             "Assessor": {
@@ -502,6 +505,9 @@
             }
         },
         "groupaccess": {
+	    "Processor" : {
+		"may_view_action_log": "True"
+	    },
             "Approver": {
                 "may_update": "False",
                 "may_lodge":"True",
@@ -587,7 +593,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+		"may_view_action_log": "True"
 
             },
             "Assessor": {
@@ -678,7 +685,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+		"may_view_action_log": "True"
 
             },
             "Assessor": {
@@ -769,7 +777,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+		"may_view_action_log": "True"
 
             },
             "Assessor": {

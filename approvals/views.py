@@ -1,15 +1,17 @@
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, UpdateView, DetailView
+from django.views.generic import ListView, UpdateView, DetailView, CreateView
 from django.core.urlresolvers import reverse
-from .models import Approval as ApprovalModel 
+from .models import Approval as ApprovalModel, CommunicationApproval 
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from applications.utils import get_query
 from . import forms as apps_forms
 from actions.models import Action
 from django.contrib.contenttypes.models import ContentType
-from applications.models import Application
+from applications.models import Application,Record
+from applications.validationchecks import Attachment_Extension_Check
+from django.http import HttpResponse, HttpResponseRedirect
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -167,10 +169,9 @@ class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
 
         return super(ApprovalStatusChange, self).form_valid(form)
 
-
 class ApprovalActions(DetailView):
     model = ApprovalModel
-    template_name = 'applications/application_actions.html'
+    template_name = 'approvals/approvals_actions.html'
 
     def get_context_data(self, **kwargs):
         context = super(ApprovalActions, self).get_context_data(**kwargs)
@@ -179,5 +180,68 @@ class ApprovalActions(DetailView):
         context['actions'] = Action.objects.filter(
             content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
+
+class ApprovalCommsCreate(CreateView):
+    model = CommunicationApproval
+    form_class = apps_forms.CommunicationCreateForm
+    template_name = 'applications/application_comms_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApprovalCommsCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new communication'
+        return context
+
+    def get_initial(self):
+        initial = {}
+        initial['application'] = self.kwargs['pk']
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(ApprovalCommsCreate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ApprovalCommsCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        app_id = self.kwargs['pk']
+
+        approval = ApprovalModel.objects.get(id=app_id)
+        self.object.approval = approval
+        self.object.save()
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents attached contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
+        self.object.save()
+        # If this is not an Emergency Works set the applicant as current user
+        print app_id
+        success_url = reverse('approvals_comms', args=(app_id,))
+        return HttpResponseRedirect(success_url)
+
+
+class ApprovalComms(DetailView):
+    model = ApprovalModel 
+    template_name = 'approvals/approval_comms.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ApprovalComms, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['communications'] = CommunicationApproval.objects.filter(approval_id=app.pk).order_by('-created')
+        return context
+
 
 

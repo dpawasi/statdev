@@ -1,0 +1,45 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+<div class="container-fluid">
+    <div class="row">
+        <h1>Communication for {{ object.application.get_app_type_display }} - {{ object.pk }}</h1>
+        <p><a href="{% url 'approval_detail' object.pk %}">Return to approval details</a></p>
+        <h2>communication log</h2>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Date & time</th>
+                    <th>Comms Type</th>
+                    <th>To</th>
+                    <th>From</th>
+                    <th>Subject</th>
+                    <th>Details</th>
+                    <th>Documents</th>
+                </tr>
+            </thead>
+         {% if communications.exists %}
+            <tbody>
+                {% for communication in communications %}
+                <tr>
+                    <td>{{ communication.created|date:"d-M-Y H:i" }}</td>
+                    <td>{{ communication.get_comms_type_display }}</td>
+                    <td>{{ communication.comms_to }}</td>
+                    <td>{{ communication.comms_from }}</td>
+                    <td>{{ communication.subject }}</td>
+                    <td>{{ communication.details }}</td>
+                    <td>
+			{% if communication.records.exists %}
+                        {% for doc in communication.records.all %}
+                            <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.upload }}'>{{ doc.name }}</A></div>
+                        {% endfor %}
+                        {% endif %}
+                        </td>
+                </tr>
+                {% endfor %}
+         {% endif %}
+        </table>
+        <p><a href="{% url 'approval_detail' object.pk %}">Return to approval details</a></p>
+    </div>
+</div>
+{% endblock page_content_inner %}

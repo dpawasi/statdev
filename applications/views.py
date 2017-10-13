@@ -311,18 +311,36 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                nextstep = 5
             else:
                nextstep = 6
-        
+
+        app_id = None
+        if 'application_id' in self.kwargs:  
+            app_id = self.kwargs['application_id']
+
+      
         if nextstep == 6:
             #print forms_data['manage_permits']
            if forms_data['manage_permits'] == 'True':
                messages.success(self.request, 'Registration is now complete. Please now complete the company form.')
                #return HttpResponseRedirect(reverse('company_create_link', args=(self.request.user.id,'1')))
-               return HttpResponseRedirect(reverse('company_create_link', args=(self.object.pk,'1')))
+               if app_id is None:
+                   return HttpResponseRedirect(reverse('company_create_link', args=(self.object.pk,'1')))
+               else:
+                   return HttpResponseRedirect(reverse('company_create_link_application', args=(self.object.pk,'1',app_id))) 
            else:
                messages.success(self.request, 'Registration is now complete.')
-               return HttpResponseRedirect(reverse('home_page'))
+               if app_id is None:
+                   return HttpResponseRedirect(reverse('home_page'))
+               else:
+                   if self.request.user.is_staff is True:
+                       app = Application.objects.get(id=app_id)
+                       app.applicant = self.object
+                       app.save() 
+                   return HttpResponseRedirect(reverse('application_update', args=(app_id,)))
         else:
-           return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.object.pk, nextstep)))
+           if app_id is None:
+              return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.object.pk, nextstep)))
+           else:
+              return HttpResponseRedirect(reverse('first_login_info_steps_application',args=(self.object.pk, nextstep, app_id)))
 
 class CreateLinkCompany(LoginRequiredMixin,CreateView):
 
@@ -555,6 +573,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                    pending_org.identification = doc
                    pending_org.company_exists = False
                    pending_org.save()
+
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:
                 postal_address = Address.objects.create(line1=forms_data['postal_line1'],
@@ -635,6 +654,10 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             else:
                nextstep = 6
 
+        app_id = None
+        if 'application_id' in self.kwargs:
+            app_id = self.kwargs['application_id']
+
         if nextstep == 5:
            # print pending_org.company_exists
            if pending_org.company_exists == True: 
@@ -642,16 +665,30 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                comp = Organisation.objects.get(abn=pending_org.abn)
                Delegate.objects.create(email_user=pending_org.email_user,organisation=comp)
                #print "Approved" 
+               messages.success(self.request, 'Your company has now been linked.')
+           else:
+              if self.request.user.is_staff is True:
+                 donothing ='dsaf' 
+              else:
+                 messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
 
-           messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
-           return HttpResponseRedirect(reverse('home_page'))
+           if app_id is None:
+               return HttpResponseRedirect(reverse('home_page'))
+           else:
+               return HttpResponseRedirect(reverse('organisation_access_requests_change_applicant', args=(pending_org.id,'approve',app_id)))
         else:
            if pending_org:
               #return HttpResponseRedirect(reverse('company_create_link_steps',args=(self.request.user.id, nextstep,pending_org.id)))
-              return HttpResponseRedirect(reverse('company_create_link_steps',args=(pk, nextstep,pending_org.id)))
+              if app_id is None:
+                 return HttpResponseRedirect(reverse('company_create_link_steps',args=(pk, nextstep,pending_org.id)))
+              else:
+                 return HttpResponseRedirect(reverse('company_create_link_steps_application',args=(pk, nextstep,pending_org.id,app_id)))
            else:
-              return HttpResponseRedirect(reverse('company_create_link',args=(pk,nextstep)))
-              
+              if app_id is None:
+                 return HttpResponseRedirect(reverse('company_create_link',args=(pk,nextstep)))
+              else:
+                 return HttpResponseRedirect(reverse('company_create_link_application',args=(pk,nextstep,app_id)))
+ 
         return HttpResponseRedirect(reverse('home_page'))
 
 
@@ -1080,6 +1117,9 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
         status = self.kwargs['action']
+        app_id = None
+        if 'application_id' in self.kwargs:
+            app_id = self.kwargs['application_id']
 
         if status == 'approve':
 
@@ -1104,6 +1144,12 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
 
 
             Delegate.objects.create(email_user=self.object.email_user,organisation=new_org)
+            if self.request.user.is_staff is True:
+              if app_id:
+                 app = Application.objects.get(id=app_id)
+                 app.organisation = new_org   
+                 app.save()
+
 
             # random_generator
             #OrganisationExtras.objects.create()
@@ -1112,8 +1158,12 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             self.object.status = 3
 
         self.object.save()
+        
+        if app_id is None:
+            success_url = reverse('organisation_access_requests')
+        else:
+            success_url = reverse('application_update',args=(app_id,))
 
-        success_url = reverse('organisation_access_requests')
         return HttpResponseRedirect(success_url)
 
 class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
@@ -1559,7 +1609,13 @@ class CreateAccount(LoginRequiredMixin, CreateView):
         self.object.save()
         # If this is not an Emergency Works set the applicant as current user
 #        success_url = reverse('first_login_info', args=(self.object.pk,1))
-        success_url = "/first-login/"+str(self.object.pk)+"/1/"
+        app_id = None
+        if 'application_id'  in self.kwargs:
+            app_id = self.kwargs['application_id']
+        if app_id is None:
+            success_url = "/first-login/"+str(self.object.pk)+"/1/"
+        else:
+            success_url = "/first-login/"+str(self.object.pk)+"/1/"+str(app_id)+"/"
         return HttpResponseRedirect(success_url)
 
 class ApplicationApply(LoginRequiredMixin, CreateView):

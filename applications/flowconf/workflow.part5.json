@@ -83,7 +83,8 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_assign_to_creator": "False",
-                "may_change_application_applicant" :"True"
+                "may_change_application_applicant" :"True",
+		"may_view_action_log": "True"
 
             }
         },

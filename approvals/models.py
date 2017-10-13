@@ -47,5 +47,26 @@ class Approval(models.Model):
         return self.name
 
 
+class CommunicationApproval(models.Model):
+    """This model represents the communication model
+    """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+        (4, 'system', ('System'))
+    )
+
+    approval = models.ForeignKey(Approval, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none )
+    details = models.TextField(blank=True, null=True)
+    records = models.ManyToManyField(Record, blank=True, related_name='communication_approvals_docs')
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(auto_now_add=True)
+
  
 
