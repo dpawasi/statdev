@@ -29,8 +29,12 @@
                     </h3>
                 </div>
                 <div class="panel-collapse collapse {{ collapse.applicant }}" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
-                    <div class="panel-body">
-                        {% include "applications/applicant_snippet.html" %}
+                   <div class="panel-body">
+	            {% if object.organisation %}
+			   {% include "applications/organisation_update_snippet.html" %}
+	            {% else %}
+                       	{% include "applications/applicant_snippet.html" %}
+		    {% endif %}
                     </div>
                 </div>
             </div>

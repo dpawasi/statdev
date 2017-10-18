@@ -2358,7 +2358,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial = super(ApplicationUpdate, self).get_initial()
         initial['application_id'] = self.kwargs['pk']
 
+        
         app = self.get_object()
+        initial['organisation'] = app.organisation
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
         if app.routeid is None:
             app.routeid = 1
@@ -2512,7 +2514,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         """
         forms_data = form.cleaned_data
         self.object = form.save(commit=False)
-        # ToDO remove dupes of this line below..   doesn't need to be called
+        # ToDO remove dupes of this line below. doesn't need to be called
         # multiple times
         application = Application.objects.get(id=self.object.id)
 
@@ -2988,7 +2990,8 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         return super(ApplicationLodge, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('application_list')
+        #return reverse('application_list')
+        return reverse('home_page')
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):

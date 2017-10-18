@@ -633,6 +633,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                 self.fields[fielditem].required = True
 
         crispy_boxes = crispy_empty_box()
+        organisation = self.initial['organisation']
 
         if check_fields_exist(self.fields,['applicant']) is True:
             self.fields['applicant'].disabled = True
@@ -641,7 +642,15 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                 changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
             else: 
                 changeapplicantbutton = HTML('')
-            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
+
+
+            if organisation is not None:
+               applicant_info = HTML('{% include "applications/organisation_update_snippet.html" %}')
+            else:
+               applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')
+
+
+            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', applicant_info,changeapplicantbutton))
             del self.fields['applicant']
 
         if check_fields_exist(self.fields,['title']) is True:
@@ -776,14 +785,28 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
       
         crispy_boxes = crispy_empty_box()
         #self.fields['applicant'].disabled = True
+        organisation = self.initial['organisation']
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
         else:
             changeapplicantbutton = HTML('')
+
+        if organisation is not None:
+            applicant_info = HTML('{% include "applications/organisation_update_snippet.html" %}')
+        else:
+            applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')
+
+
+        if organisation is not None:
+            applicant_info = HTML('{% include "applications/organisation_update_snippet.html" %}')
+        else:
+            applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')        
+
+#       if 'applicant' in self.fields:
+        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', applicant_info,changeapplicantbutton))
         if 'applicant' in self.fields:
-            crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
-            del self.fields['applicant']
+           del self.fields['applicant']
 
 
 #        if self.initial["may_change_application_applicant"] == "True":
@@ -924,12 +947,20 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #        else:
 #            changeapplicantbutton = HTML('')
 #        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant','applicant', changeapplicantbutton))
+        organisation = self.initial['organisation']
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
         else:
             changeapplicantbutton = HTML('')
-        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', HTML('{% include "applications/applicant_update_snippet.html" %}'),changeapplicantbutton))
+
+        if organisation is not None:
+            applicant_info = HTML('{% include "applications/organisation_update_snippet.html" %}')
+        else:
+            applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')
+
+
+        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', applicant_info, changeapplicantbutton))
         del self.fields['applicant']
 
 
