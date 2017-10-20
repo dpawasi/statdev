@@ -227,7 +227,7 @@ class ApprovalCommsCreate(CreateView):
                 self.object.records.add(doc)
         self.object.save()
         # If this is not an Emergency Works set the applicant as current user
-        print app_id
+        #print app_id
         success_url = reverse('approvals_comms', args=(app_id,))
         return HttpResponseRedirect(success_url)
 
