@@ -52,7 +52,7 @@ class ApplicationPart5(ModelForm):
             applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')
 
         crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', applicant_info))
-      	del self.fields['applicant'] 
+        del self.fields['applicant'] 
 
 
         crispy_boxes.append(crispy_box('title_collapse','form_title','Title',HTML('{% include "public/title.html" %}')))
