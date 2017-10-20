@@ -1,0 +1,28 @@
+{% extends "base_statdev.html" %}
+{% load crispy_forms_tags %}
+{% load static %} 
+{% block page_content_inner %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 col-md-6 col-lg-6">
+        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+	</div>
+	<div class="col-sm-6 col-md-6 col-lg-6">
+		<h1 class='pull-right'>Lodged on {{ object.submit_date }}</h1>
+	</div>
+        <br />
+    </div>
+    <!-- Action panel start -->
+    <div class="row">
+        <!-- Main panel start -->
+        <div class="col-sm-12 col-md-12 col-lg-12">
+
+            <h1 style='display:none'>{{ page_heading }}</h1>
+            {% crispy form %}
+            {% endblock %}
+
+        </div>
+    </div>
+</div>

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'applications',
     'actions',
     'approvals',
+    'public'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

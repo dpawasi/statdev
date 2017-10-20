@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^logout/$', logout, name='logout', kwargs={'template_name': 'logged_out.html'}),
     url(r'^', include('applications.urls')),
     url(r'^', include('approvals.urls')),
+    url(r'^', include('public.urls')),
     url(r'^ledger/', include('ledger.accounts.urls', namespace='accounts')),
     url(r'^ledger/', include('social_django.urls', namespace='social')),
     #url(r'^', include('approvals.urls'))
