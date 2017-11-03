@@ -61,16 +61,22 @@ class HomePage(TemplateView):
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
 
+        context['referee'] = 'no'
+        referee = Group.objects.get(name='Referee')
+        if referee in self.request.user.groups.all():
+            context['referee'] = 'yes'
+
         # Have to manually populate when using render_to_response()
         context['messages'] = messages.get_messages(self.request)
         context['request'] = self.request
         context['user'] = self.request.user
+
         fl = FormsList()
         if 'action' in self.kwargs:
            action = self.kwargs['action']
         else:
            action = ''
-
+  
         if self.request.user.is_authenticated: 
             if action == '':
                context = fl.get_application(self,self.request.user.id,context)
@@ -81,6 +87,18 @@ class HomePage(TemplateView):
             elif action == 'clearance': 
                context = fl.get_clearance(self,self.request.user.id,context)
                context['home_nav_other_clearance'] = 'active'
+            elif action == 'referrals':
+               context['home_nav_other_referral'] = 'active'
+
+               if 'q' in self.request.GET and self.request.GET['q']:
+                    query_str = self.request.GET['q']
+                    query_str_split = query_str.split()
+                    search_filter = Q()
+                    for se_wo in query_str_split:
+                         search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+
+               context['items'] = Referral.objects.filter(referee=self.request.user)
+
             else:
                donothing ='' 
         #for i in Application.APP_TYPE_CHOICES:
@@ -1123,11 +1141,11 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
 
         if status == 'approve':
 
-      #      print self.object.name
-      #      print self.object.abn
-      #      print self.object.identification
-     #       print self.object.postal_address
-     #       print self.object.billing_address
+        #      print self.object.name
+        #      print self.object.abn
+        #      print self.object.identification
+        #       print self.object.postal_address
+        #       print self.object.billing_address
 
             new_org = Organisation.objects.create(name=self.object.name,
                                                   abn=self.object.abn,
@@ -2112,6 +2130,119 @@ class OrganisationComms(DetailView):
         # TODO: define a GenericRelation field on the Application model.
         context['communications'] = CommunicationOrganisation.objects.filter(org=org.pk).order_by('-created')
         return context
+
+class ReferralList(ListView):
+    model = Application
+    template_name = 'applications/referral_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralList, self).get_context_data(**kwargs)
+
+        if 'q' in self.request.GET and self.request.GET['q']:
+            query_str = self.request.GET['q']
+            query_str_split = query_str.split()
+            search_filter = Q()
+            for se_wo in query_str_split:
+                  search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+
+
+        context['items'] = Referral.objects.filter(referee=self.request.user)
+        return context
+
+class ReferralConditions(UpdateView):
+    """A view for updating a referrals condition feedback.
+    """
+    model = Application
+    form_class = apps_forms.ApplicationReferralConditionsPart5
+    template_name = 'public/application_form.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+        user = Referral.objects.filter(referee=self.request.user)
+        return super(ReferralConditions, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferralConditions, self).get_context_data(**kwargs)
+        app_id = self.kwargs['pk']
+        context['page_heading'] = 'Application for new Part 5 - '+app_id
+        context['left_sidebar'] = 'yes'
+        #context['action'] = self.kwargs['action']
+        app = self.get_object()
+        return context
+
+    def get_initial(self):
+        initial = super(ReferralConditions, self).get_initial()
+        app = self.get_object()
+
+        # print self.request.user.email
+
+	referral = Referral.objects.get(application=app,referee=self.request.user)
+        #print referral.feedback
+
+        initial['application_id'] = self.kwargs['pk']
+        initial['organisation'] = app.organisation
+        initial['referral_email'] = referral.referee.email
+        initial['referral_name'] = referral.referee.first_name + ' ' + referral.referee.last_name
+
+        initial['proposed_conditions'] = referral.proposed_conditions
+        initial['comments'] = referral.feedback
+        initial['response_date'] = referral.response_date
+
+        multifilelist = []
+        a1 = referral.records.all()
+        for b1 in a1:
+            fileitem = {}
+            fileitem['fileid'] = b1.id
+            fileitem['path'] = b1.upload.name
+            multifilelist.append(fileitem)
+
+        initial['records'] = multifilelist
+
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            app = Application.objects.get(id=kwargs['pk'])
+            if app.state == app.APP_STATE_CHOICES.new:
+                app.delete()
+                return HttpResponseRedirect(reverse('application_list'))
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ReferralConditions, self).post(request, *args, **kwargs)
+
+
+    def form_valid(self, form):
+        """Override form_valid to set the state to draft is this is a new application.
+        """
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=False)
+        app_id = self.kwargs['pk']
+        #action = self.kwargs['action']
+        status=None
+        application = Application.objects.get(id=app_id)
+        referral = Referral.objects.get(application_id=app_id,referee=self.request.user)
+        referral.feedback = forms_data['comments'] 
+        referral.proposed_conditions = forms_data['proposed_conditions']
+        referral.response_date = date.today() 
+
+        records = referral.records.all()
+        for la_co in records:
+            if 'records-clear_multifileid-' + str(la_co.id) in form.data:
+                referral.records.remove(la_co)
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents attached contains and unallowed attachment extension.')
+
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                referral.records.add(doc)
+
+        referral.save()
+
+        return HttpResponseRedirect('/')
 
 
 class OrganisationCommsCreate(CreateView):
@@ -3230,6 +3361,12 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
+    def get_initial(self):
+        initial = super(ApplicationAssignNextAction, self).get_initial()
+        initial['action'] = self.kwargs['action'] 
+        return initial
+
+# action = self.kwargs['action']
     def get_form_class(self):
         return apps_forms.ApplicationAssignNextAction
 

@@ -21,12 +21,13 @@ class PublicApplicationsList(TemplateView):
         context['action'] = action
         search = None
         query_obj = None
+
         if action == 'draft':
             query_obj = Q(publish_documents__isnull=False,publish_draft_report__isnull=True) & Q(app_type__in=[3])
         elif action == 'final':
             query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False,publish_final_report__isnull=True) & Q(app_type__in=[3])
         elif action == 'determination':
-            query_obj = Q(publish_documents__isnull=False) & Q(publish_draft_report__isnull=False) & Q(publish_final_report__isnull=True) & Q(app_type__in=[3])
+            query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False, publish_final_report__isnull=False,publish_determination_report__isnull=True ) & Q(app_type__in=[3])
         else:
             query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False,publish_final_report__isnull=False) & Q(app_type__in=[3])
             #query_obj = Q(publish_documents__isnull=False) & Q(app_type__in=[3])
@@ -45,7 +46,6 @@ class PublicApplicationsList(TemplateView):
 class PublicApplicationFeedback(UpdateView):
     """A view for updating a draft (non-lodged) application.
     """
-
     model = Application
     form_class = apps_forms.ApplicationPart5
     template_name = 'public/application_form.html'
@@ -97,6 +97,7 @@ class PublicApplicationFeedback(UpdateView):
              status='final' 
         elif action == 'determination':
              status=='determination'
+
         # ToDO remove dupes of this line below. doesn't need to be called
         # multiple times
         pfcreate = PublicationFeedback.objects.create(application=application,
@@ -110,8 +111,6 @@ class PublicApplicationFeedback(UpdateView):
                                                       comments=forms_data['comments'],
                                                       status=status
  
-
-
 	)
 
 

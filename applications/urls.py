@@ -57,6 +57,8 @@ urlpatterns = [
     url(r'^referrals/(?P<pk>\d+)/resend/$', views.ReferralResend.as_view(), name='referral_resend'),
     url(r'^referrals/(?P<pk>\d+)/remind/$', views.ReferralRemind.as_view(), name='referral_remind'),
     url(r'^referrals/(?P<pk>\d+)/delete/$', views.ReferralDelete.as_view(), name='referral_delete'),
+    url(r'^referrals/list/$',views.ReferralList.as_view(), name='referral_list'),
+    url(r'^referrals/(?P<pk>\d+)/view/$',views.ReferralConditions.as_view(), name='referral_conditions'),
     url(r'^condition/(?P<pk>\d+)/update/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/update/(?P<action>\w+)/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/delete/$', views.ConditionDelete.as_view(), name='condition_delete'),
@@ -116,5 +118,6 @@ urlpatterns = [
     url(r'^organisations/access-requests/$', views.OrganisationAccessRequest.as_view(), name='organisation_access_requests'),
     url(r'^organisations/(?P<pk>\d+)/comms-create/$', views.OrganisationCommsCreate.as_view(), name='organisation_comms_create'),
     url(r'^organisations/(?P<pk>\d+)/comms/$', views.OrganisationComms.as_view(), name='organisation_comms'),
+    
 
 ]

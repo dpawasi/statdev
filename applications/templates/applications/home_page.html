@@ -24,6 +24,9 @@
         <li role="presentation" class="{{ home_nav_other_applications }}"><a href="{% url "home_page" %}">Applications</a></li>
         <li role="presentation" class="{{ home_nav_other_approvals }}" ><a href="{% url "home_page_tabs" "approvals" %}">Approvals</a></li>
         <li role="presentation" class="{{ home_nav_other_clearance }}" ><a href="{% url "home_page_tabs" "clearance" %}">Clearance of Conditions</a></li>
+	{% if referee == 'yes' %}
+	<li role="presentation" class="{{ home_nav_other_referral }}" ><a href="{% url "home_page_tabs" "referrals" %}">Referrals</a></li>
+	{% endif %}
     </ul>
     <br>
 </div>
@@ -34,6 +37,8 @@
         {% include "applications/person_other_approvals.html" %}
     {% elif home_nav_other_clearance == 'active' %}
         {% include "applications/person_other_clearance.html" %}
+    {% elif home_nav_other_referral == 'active' %}
+	{% include "applications/referral_applications.html" %}
     {% endif %}
 </div>
 

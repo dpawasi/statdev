@@ -223,6 +223,7 @@ class Application(models.Model):
     type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
     number_of_crafts  = models.IntegerField(null=True, blank=True)
     route_status = models.CharField(null=True, blank=True, default=1, max_length=256)
+    sumbitter_comment = models.TextField(null=True, blank=True, default=1, max_length=256)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -333,6 +334,7 @@ class Referral(models.Model):
     expire_date = models.DateField(blank=True, null=True, editable=False)
     response_date = models.DateField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
+    proposed_conditions = models.TextField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True)
     status = models.IntegerField(choices=REFERRAL_STATUS_CHOICES, default=REFERRAL_STATUS_CHOICES.referred)
 

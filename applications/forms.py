@@ -9,11 +9,12 @@ from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField
 from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6
+from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
     PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation)
+#from ajax_upload.widgets import AjaxClearableFileInput
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
 User = get_user_model()
@@ -1131,6 +1132,7 @@ class ApplicationEmergencyForm(ModelForm):
 class ApplicationLodgeForm(Form):
     """A basic form to submit a request to lodge an application.
     """
+
     def __init__(self, *args, **kwargs):
         kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
         super(ApplicationLodgeForm, self).__init__(*args, **kwargs)
@@ -1143,6 +1145,49 @@ class ApplicationLodgeForm(Form):
                 Submit('cancel', 'Cancel')
             )
         )
+
+class ApplicationReferralConditionsPart5(ModelForm):
+
+    comments = CharField(required=False,max_length=255, widget=Textarea)
+    proposed_conditions = CharField(required=False,max_length=255, widget=Textarea)
+    records = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'})) 
+    #records = FileField(required=False, max_length=128, widget=AjaxClearableFileInput())
+
+    class Meta:
+        model = Application
+        fields = ['applicant']
+
+    def __init__(self, *args, **kwargs):
+
+        # User must be passed in as a kwarg.
+        super(ApplicationReferralConditionsPart5, self).__init__(*args, **kwargs)
+        crispy_boxes = crispy_empty_box()
+        crispy_boxes.append(crispy_box('read_this_collapse','form_read_this','Read This',HTML('{% include "public/read_this_snipplet.html" %}')))
+
+        organisation = self.initial['organisation']
+        if organisation is not None:
+            applicant_info = HTML('{% include "applications/organisation_update_snippet.html" %}')
+        else:
+            applicant_info = HTML('{% include "applications/applicant_update_snippet.html" %}')
+
+        crispy_boxes.append(crispy_box('applicant_collapse','form_applicant','Applicant', applicant_info))
+        del self.fields['applicant']
+
+
+        crispy_boxes.append(crispy_box('title_collapse','form_title','Title',HTML('{% include "public/title.html" %}')))
+#        crispy_boxes.append(crispy_box('river_licence_collapse','river_licence_title','River Licence',HTML('{% include "public/river_reserve_licence_snippet.html" %}')))
+        crispy_boxes.append(HTML('{% include "public/river_reserve_licence_snippet.html" %}'))
+        crispy_boxes.append(HTML('{% include "public/details_of_proposed_develeopment_snipplet.html" %}'))
+
+        if self.initial['response_date'] is None:
+            crispy_boxes.append(crispy_box('feedback_collapse','form_feecback','Feedback',crispy_para(self.initial['referral_name'] + ' (' + self.initial['referral_email'] + ') '),'comments','proposed_conditions','records',Submit('submitfeedback', 'Submit', css_class='btn-lg')))
+        else:
+            crispy_boxes.append(crispy_box('feedback_completed_collapse','form_completed_feecback','Feedback Completed',crispy_para_with_label('Comments',self.initial['comments']),crispy_para_with_label('Proposed Conditions',self.initial['proposed_conditions'])))
+
+        self.helper = BaseFormHelper()
+        self.helper.layout = Layout(crispy_boxes,)
+        self.helper.form_id = 'id_form_create_application'
+        self.helper.attrs = {'novalidate': ''}
 
 
 class ReferralForm(ModelForm):
@@ -1333,11 +1378,14 @@ class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
+    sumbitter_comment = CharField(required=False, widget=Textarea, help_text='Reason to show to submitter')
     #records = FileField(required=False, max_length=128, widget=ClearableFileInput)
     records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+   
     class Meta:
         model = Application
-        fields = ['id','details','records']
+        fields = ['id','details','sumbitter_comment','records']
+
     def __init__(self, *args, **kwargs):
         super(ApplicationAssignNextAction, self).__init__(*args, **kwargs)
 
@@ -1346,9 +1394,14 @@ class ApplicationAssignNextAction(ModelForm):
         self.helper.form_id = 'id_form_assigngroup_application'
         self.helper.attrs = {'novalidate': ''}
 
+	submitter_input = None
+        if self.initial['action'] != 'creator':
+            del self.fields['sumbitter_comment']
+#            submitter_input = 'sumbitter_comment'
+
         self.helper.layout = Layout(
             HTML('<p>Application Next Action</p>'),
-            'details','records',
+            'details','sumbitter_comment','records',
             FormActions(
                 Submit('assign', 'Assign', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
@@ -1680,7 +1733,7 @@ class ApplicationEmergencyIssueForm(ModelForm):
     #])
 
     #    holder = CharField(required=False)
-#    abn = CharField(required=False)
+    #    abn = CharField(required=False)
 
     class Meta:
         model = Application
