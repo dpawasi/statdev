@@ -93,3 +93,6 @@ def crispy_button(helper,stepid,steplabel):
     helper.add_input(Submit(stepid, steplabel, css_class='btn-lg'))
     return helper
 
+def crispy_alert(message):
+
+    return HTML("<div class=\"alert alert-danger\" role=\"alert\"><span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\"></span><span class=\"sr-only\">Error:</span>&nbsp;&nbsp;"+message+"</div>")

@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField
 from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6
+from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6, crispy_alert
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -787,6 +787,9 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         crispy_boxes = crispy_empty_box()
         #self.fields['applicant'].disabled = True
         organisation = self.initial['organisation']
+
+	if 'sumbitter_comment' in self.initial: 
+             crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))

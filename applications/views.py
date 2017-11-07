@@ -2488,7 +2488,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
         initial['application_id'] = self.kwargs['pk']
-
         
         app = self.get_object()
         initial['organisation'] = app.organisation
@@ -2520,7 +2519,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         initial["workflow"] = flowcontent
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
-
+	initial['sumbitter_comment'] = app.sumbitter_comment
 
 #       flow = Flow()
         #workflow = flow.get()
@@ -3408,7 +3407,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         else:
             assignee = None
             assessed_by = self.request.user 
-            
             groupassignment = Group.objects.get(name=DefaultGroups['grouplink'][action])
 
         route = flow.getNextRouteObj(action, app.routeid, workflowtype)
@@ -3435,7 +3433,10 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms = Communication()
         comms.application = app
         comms.comms_from = str(self.request.user.email)
-        comms.comms_to = FriendlyGroupList['grouplink'][action]
+	if action == 'creator': 
+           comms.comms_to = "Form Creator"
+        else:
+           comms.comms_to = FriendlyGroupList['grouplink'][action] 
         comms.subject = route["title"]
         comms.details = forms_data['details']
         comms.state = route["state"]
