@@ -407,7 +407,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
 
         initial['step'] = self.kwargs['step']
         initial['company_exists'] = ''
-
+        pending_org = None
         if 'po_id' in self.kwargs:
             po_id = self.kwargs['po_id']
             if po_id:
@@ -418,7 +418,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                  initial['pin2'] = pending_org.pin2
 
         if step == '2':
-            if initial['abn']:
+            if 'abn' in initial:
                 abn = initial['abn']
                 try:
                     if Organisation.objects.filter(abn=abn).exists():
@@ -439,9 +439,9 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                         #                        companyextras = OrganisationExtras.objects.get(id=company.id)
  #                   except OrganisationExtras.DoesNotExist:
   #                      initial['company_exists'] = 'no'
-
-            if pending_org.identification:
-                initial['identification'] = pending_org.identification.upload
+            if pending_org is not None:
+                if pending_org.identification:
+                    initial['identification'] = pending_org.identification.upload
 
         if step == '3':
             if pending_org.pin1 and pending_org.pin2:
@@ -689,11 +689,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                  donothing ='dsaf' 
               else:
                  messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
-
-           if app_id is None:
-               return HttpResponseRedirect(reverse('home_page'))
-           else:
-               return HttpResponseRedirect(reverse('organisation_access_requests_change_applicant', args=(pending_org.id,'approve',app_id)))
+           if self.request.user.groups.filter(name__in=['Processor']).exists():
+               if app_id is None:
+                   return HttpResponseRedirect(reverse('home_page'))
+               else:
+                   return HttpResponseRedirect(reverse('organisation_access_requests_change_applicant', args=(pending_org.id,'approve',app_id)))
         else:
            if pending_org:
               #return HttpResponseRedirect(reverse('company_create_link_steps',args=(self.request.user.id, nextstep,pending_org.id)))
@@ -1069,17 +1069,18 @@ class OrganisationAccessRequest(ListView):
         qs = super(OrganisationAccessRequest, self).get_queryset()
         # Did we pass in a search string? If so, filter the queryset and return
         # it.
-
-        if 'q' in self.request.GET and self.request.GET['q']:
-            query_str = self.request.GET['q']
-            # Replace single-quotes with double-quotes
-            query_str = query_str.replace("'", r'"')
-            # Filter by pk, title, applicant__email, organisation__name,
-            # assignee__email
-            query = get_query(
-                query_str, ['pk'])
-            qs = qs.filter(query).distinct()
-        return qs
+        if self.request.user.groups.filter(name__in=['Processor']).exists():
+           
+            if 'q' in self.request.GET and self.request.GET['q']:
+                query_str = self.request.GET['q']
+                # Replace single-quotes with double-quotes
+                query_str = query_str.replace("'", r'"')
+                # Filter by pk, title, applicant__email, organisation__name,
+                # assignee__email
+                query = get_query(
+                    query_str, ['pk'])
+                qs = qs.filter(query).distinct()
+                return qs
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequest, self).get_context_data(**kwargs)
@@ -4000,6 +4001,57 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
 
+class ComplianceAssignPerson(LoginRequiredMixin, UpdateView):
+    """A view to allow an application applicant to be assigned to a person
+    """
+    model = Compliance 
+
+    def get(self, request, *args, **kwargs):
+        app = self.get_object()
+        if app.group is None:
+            messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationAssignPerson, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        # Return the specified form class
+        return apps_forms.AssignPersonForm
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ComplianceAssignPerson, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=True)
+        app = self.object
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        DefaultGroups = flow.groupList()
+        flow.get(workflowtype)
+        emailcontext = {'person': app.assignee}
+        emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+        if self.request.user != app.assignee:
+            sendHtmlEmail([app.assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
+
+        # Record an action on the application:
+#        action = Action(
+#            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+#            action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
+#        action.save()
+        if self.request.user != app.assignee:
+            return HttpResponseRedirect(reverse('application_list'))
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+    def get_initial(self):
+        initial = super(ComplianceAssignPerson, self).get_initial()
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        initial['assigngroup'] = app.group
+        return initial
 
 class ReferralComplete(LoginRequiredMixin, UpdateView):
     """A view to allow a referral to be marked as 'completed'.
