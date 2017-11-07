@@ -788,7 +788,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         #self.fields['applicant'].disabled = True
         organisation = self.initial['organisation']
 
-	if 'sumbitter_comment' in self.initial: 
+        if 'sumbitter_comment' in self.initial: 
              crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
 
         if self.initial["may_change_application_applicant"] == "True":
@@ -1397,7 +1397,7 @@ class ApplicationAssignNextAction(ModelForm):
         self.helper.form_id = 'id_form_assigngroup_application'
         self.helper.attrs = {'novalidate': ''}
 
-	submitter_input = None
+        submitter_input = None
         if self.initial['action'] != 'creator':
             del self.fields['sumbitter_comment']
 #            submitter_input = 'sumbitter_comment'
