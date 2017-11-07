@@ -10,7 +10,7 @@ from applications.widgets import ClearableMultipleFileInput
 from multiupload.fields import MultiFileField
 
 from ledger.accounts.models import EmailUser, Address, Organisation
-from .models import Approval
+from .models import Approval, CommunicationApproval
 
 User = get_user_model()
 
@@ -94,4 +94,29 @@ class ApprovalChangeStatus(ModelForm):
 
         # Limit the organisation queryset unless the user is a superuser.
 
+class CommunicationCreateForm(ModelForm):
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+
+    class Meta:
+        model = CommunicationApproval
+        fields = ['comms_to','comms_from','subject','comms_type','details','records','details']
+
+    def __init__(self, *args, **kwargs):
+        # User must be passed in as a kwarg.
+        user = kwargs.pop('user')
+        #application = kwargs.pop('application')
+        super(CommunicationCreateForm, self).__init__(*args, **kwargs)
+
+        self.fields['comms_to'].required = True
+        self.fields['comms_from'].required = True
+        self.fields['subject'].required = True
+        self.fields['comms_type'].required = True
+
+        self.helper = BaseFormHelper()
+        self.helper.form_id = 'id_form_create_communication'
+        self.helper.attrs = {'novalidate': ''}
+        self.helper.add_input(Submit('save', 'Create', css_class='btn-lg'))
+        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # Add labels for fields
+        #self.fields['app_type'].label = "Application Type"
 

@@ -6,4 +6,6 @@ urlpatterns = [
                   url(r'^approvals/(?P<pk>\d+)/$', views.ApprovalDetails.as_view(), name='approval_detail'),
                   url(r'^approvals/(?P<pk>\d+)/change/(?P<status>\w+)/$', views.ApprovalStatusChange.as_view(), name='approval_status_change'),
                   url(r'^approvals/(?P<pk>\d+)/actions/$', views.ApprovalActions.as_view(), name='approval_actions'),
+                  url(r'^approvals/(?P<pk>\d+)/comms-create/$', views.ApprovalCommsCreate.as_view(), name='approvals_comms_create'),
+                  url(r'^approvals/(?P<pk>\d+)/comms/$', views.ApprovalComms.as_view(), name='approvals_comms'),
               ]

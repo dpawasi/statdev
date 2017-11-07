@@ -53,6 +53,9 @@ def crispy_empty_box():
 def crispy_para(paragraph):
     return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>"+paragraph+"</strong></div></div>")
 
+def crispy_para_with_label(label,paragraph):
+    return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'>"+label+"</label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'>"+paragraph+"</div></div>")
+
 def crispy_para_no_label(paragraph):
     return HTML("<div class='form-group'><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>"+paragraph+"</strong></div></div>")
 
@@ -90,3 +93,6 @@ def crispy_button(helper,stepid,steplabel):
     helper.add_input(Submit(stepid, steplabel, css_class='btn-lg'))
     return helper
 
+def crispy_alert(message):
+
+    return HTML("<div class=\"alert alert-danger\" role=\"alert\"><span class=\"glyphicon glyphicon-exclamation-sign\" aria-hidden=\"true\"></span><span class=\"sr-only\">Error:</span>&nbsp;&nbsp;"+message+"</div>")

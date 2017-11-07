@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'applications',
     'actions',
     'approvals',
+    'public',
+#    'ajax_upload'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

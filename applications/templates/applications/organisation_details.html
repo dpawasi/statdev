@@ -359,6 +359,8 @@
                                                     <label><img src='{% static "images/person.png" %}'> {{ co.email_user.first_name }} {{ co.email_user.last_name }}</label>
                                                 </div>
                                                 <div class="col-sm-12 col-md-5 col-lg-5">
+
+							<A HREF='{% url 'unlink_delegate' co.id co.email_user.id %}'><IMG SRC='{% static "images/bin_blue.png" %}' title="Remove"></A>
                                                 </div>
                                             </div>
                                             {% endfor %}

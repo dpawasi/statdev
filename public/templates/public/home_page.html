@@ -1,0 +1,40 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12 col-md-8 col-lg-8">
+                <div class="col-lg-12">
+                    <h1>Welcome to the Rivers and Esturies online application system dashboard.</h1>
+                </div>
+                <div class="col-lg-12">
+                    <p>Here you can access your existing approvals, view any applications in progress, lodge new applications or submit information required to clear conditions of your approvals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-12">
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="{{ home_nav_other_applications }}"><a href="{% url "public_application_list" "drafts" %}">Part 5 Drafts</a></li>
+        <li role="presentation" class="{{ home_nav_other_approvals }}" ><a href="{% url "public_application_list" "final" %}">Part 5 Final</a></li>
+        <li role="presentation" class="{{ home_nav_other_clearance }}" ><a href="{% url "public_application_list" "determination" %}">Part 5 Detmination</a></li>
+    </ul>
+    <br>
+</div>
+<div class="col-sm-12 col-md-12 col-lg-12" >
+     {% include "public/applications.html" %}
+
+    {% if public_nav_applications == 'active' %}
+        {% include "public/applications.html" %}
+    {% elif public_nav_approvals == 'active' %}
+        {% include "public/approvals.html" %}
+    {% elif public_nav_emergency == 'active' %}
+        {% include "public/emergency.html" %}
+    {% endif %}
+</div>
+
+{% endblock %}

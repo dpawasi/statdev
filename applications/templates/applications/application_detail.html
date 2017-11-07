@@ -32,16 +32,14 @@
                     <div class="panel-body">
                         {# TODO: applicant details should only be visible to internal users. #}
                         <div class="row">
-                            {% include "applications/applicant_snippet.html" %}
+				                    {% if object.organisation %}
+                           {% include "applications/organisation_update_snippet.html" %}
+                    {% else %}
+                        {% include "applications/applicant_snippet.html" %}
+                    {% endif %}
+
+
                         </div>
-                        {% if object.organisation %}
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <h4>Company:</h4>
-                                <p>{{ object.organisation.name }}{% if object.organisation.abn %} (ABN: {{ object.organisation.abn }}){% endif %}</p>
-                            </div>
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>

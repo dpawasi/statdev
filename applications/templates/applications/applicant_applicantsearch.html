@@ -80,7 +80,7 @@
             </tbody>
         </table>
 	{% else %}
-		{% url "create_account_form" %}
+		<A class="btn btn-primary btn-sm" role="button" HREF='{% url "create_account_form_application" object.pk %}'>Create Applicant</A>
 	{% endif%}
 	
     </div>
