@@ -693,7 +693,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                if app_id is None:
                    return HttpResponseRedirect(reverse('home_page'))
                else:
-                   print 'tesadf adsf'
                    return HttpResponseRedirect(reverse('organisation_access_requests_change_applicant', args=(pending_org.id,'approve',app_id)))
         else:
            if pending_org:
