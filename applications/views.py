@@ -2519,7 +2519,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         initial["workflow"] = flowcontent
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
-	initial['sumbitter_comment'] = app.sumbitter_comment
+        initial['sumbitter_comment'] = app.sumbitter_comment
 
 #       flow = Flow()
         #workflow = flow.get()
@@ -3433,7 +3433,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms = Communication()
         comms.application = app
         comms.comms_from = str(self.request.user.email)
-	if action == 'creator': 
+        if action == 'creator': 
            comms.comms_to = "Form Creator"
         else:
            comms.comms_to = FriendlyGroupList['grouplink'][action] 
