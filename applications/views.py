@@ -269,6 +269,9 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         self.object = form.save(commit=False)
         forms_data = form.cleaned_data
         step = self.kwargs['step']
+        app_id = None
+        if 'application_id' in self.kwargs:
+            app_id = self.kwargs['application_id']
 
         if step == '3':
             if self.object.postal_address is None:
@@ -292,6 +295,14 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                postal_address.country = forms_data['country']
                postal_address.postcode = forms_data['postcode']
                postal_address.save()
+
+        if step == '4':
+            if len(self.object.mobile_number) == 0 and len(self.object.phone_number) == 0:
+                messages.error(self.request,"Please complete at least one phone number")
+                if app_id is None:
+                   return HttpResponseRedirect(reverse('first_login_info_steps',args=(self.object.pk, step)))
+                else:
+                   return HttpResponseRedirect(reverse('first_login_info_steps_application',args=(self.object.pk, step, app_id))) 
 
         # Upload New Files
         if self.request.FILES.get('identification'):  # Uploaded new file.
@@ -330,11 +341,8 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
             else:
                nextstep = 6
 
-        app_id = None
-        if 'application_id' in self.kwargs:  
-            app_id = self.kwargs['application_id']
-
-      
+     
+ 
         if nextstep == 6:
             #print forms_data['manage_permits']
            if forms_data['manage_permits'] == 'True':
@@ -1148,6 +1156,8 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
         #       print self.object.postal_address
         #       print self.object.billing_address
 
+            doc_identification = Record(id=self.object.identification.id)
+
             new_org = Organisation.objects.create(name=self.object.name,
                                                   abn=self.object.abn,
                                                   identification=None,
@@ -1158,7 +1168,7 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             OrganisationExtras.objects.create(organisation=new_org,
                                               pin1=random_generator(),
                                               pin2=random_generator(),
-                                              identification=None
+                                              identification=doc_identification
                                              )
 
 
@@ -1701,6 +1711,12 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationApplyUpdate, self).get_initial()
         initial['action'] = self.kwargs['action']
+#        initial['organisations_list'] = list(i.organisation for i in Delegate.objects.filter(email_user=self.request.user))
+        initial['organisations_list'] = []
+        row = () 
+        for i in Delegate.objects.filter(email_user=self.request.user):
+            initial['organisations_list'].append((i.organisation.id,i.organisation.name))
+
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -1715,6 +1731,7 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
         action = self.kwargs['action']
         nextstep = ''
         apply_on_behalf_of = 0
+
         if 'apply_on_behalf_of' in forms_data:
             apply_on_behalf_of = forms_data['apply_on_behalf_of']
         if action == 'new':
@@ -1965,6 +1982,16 @@ class AccountActions(DetailView):
     model = EmailUser 
     template_name = 'applications/account_actions.html'
 
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(AccountActions, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(AccountActions, self).get_context_data(**kwargs)
         obj = self.get_object()
@@ -1977,18 +2004,39 @@ class OrganisationActions(DetailView):
     model = Organisation
     template_name = 'applications/organisation_actions.html'
 
+    def get(self, request, *args, **kwargs):
+	context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from view this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationActions, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(OrganisationActions, self).get_context_data(**kwargs)
+
         obj = self.get_object()
         # TODO: define a GenericRelation field on the Application model.
         context['actions'] = Action.objects.filter(
-            content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
+             content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
         return context
 
 
 class ApplicationActions(DetailView):
     model = Application
     template_name = 'applications/application_actions.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ApplicationActions, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationActions, self).get_context_data(**kwargs)
@@ -5455,7 +5503,7 @@ class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
 
 
 class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
-    model = Organisation
+    model = OrganisationExtras
     form_class = apps_forms.OrganisationCertificateForm
 
 #    def get_object(self, queryset=None):
@@ -5486,7 +5534,7 @@ class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
         org = self.get_object()
         #print org.identification
         if self.object.identification:
-           initial['identification'] = self.object.identification.file
+           initial['identification'] = self.object.identification.upload
            
         return initial
 
@@ -5503,15 +5551,15 @@ class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
             self.obj.identification = None
 
         if self.request.FILES.get('identification'):
-            if Attachment_Extension_Check('single', forms_data['identification'], None) is False:
+            if Attachment_Extension_Check('single', forms_data['identification'], ['.pdf','.png','.jpg']) is False:
                 raise ValidationError('Identification contains and unallowed attachment extension.')
-            new_doc = Document()
-            new_doc.file = self.request.FILES['identification']
+            new_doc = Record()
+            new_doc.upload = self.request.FILES['identification']
             new_doc.save()
             self.obj.identification = new_doc
 
         self.obj.save()
-        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.obj.pk,'certofincorp')))
+        return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.obj.organisation.pk,'certofincorp')))
 
 class AddressCreate(LoginRequiredMixin, CreateView):
     """A view to create a new address for an EmailUser.
@@ -6091,6 +6139,9 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
              elif action == "certofincorp":
                  context['nav_details_certofincorp'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
+  		 if OrganisationExtras.objects.filter(organisation=org.id).exists():
+                     context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
+                     print context['org_extras'].identification
                  context['org'] = org
              elif action == "address":
                  context['nav_details_address'] = "active"

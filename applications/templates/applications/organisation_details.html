@@ -22,7 +22,9 @@
 
                     {% if nav_details == "active" %}
                  	{% include "applications/organisation_side_menu.html" %}
-                    <div class="col-sm-12 col-md-9 col-lg-9">
+		    <div class="col-sm-12 col-md-10 col-lg-10">
+
+                    <div class="col-sm-12 col-md-12 col-lg-12">
                         <ul class="nav nav-pills">
                             <li role="presentation" class="{{ nav_details_company }}"><a href="{% url "organisation_details_actions" object.pk "company" %}">Company Details</a></li>
                             <li role="presentation" class="{{ nav_details_certofincorp }}" ><a href="{% url "organisation_details_actions" object.pk "certofincorp" %}">Certificate of Incorportion</a></li>
@@ -33,7 +35,7 @@
                         <br>
                     </div>
 
-                    <div class="col-sm-8 col-md-9 col-lg-10">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
                         {% if nav_details_company == "active" %}
                         <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="title_heading">
@@ -88,20 +90,21 @@
                             <div class="panel-collapse collapse in" id="cert_incorp_collapse" role="tabpanel" aria-labelledby="cert_incorp_heading">
                                 <div class="panel-body">
 
-                                    {% if org.identification %}
+                                    {% if org_extras.identification %}
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                         <div class="col-sm-12 col-md-4 col-lg-2">
                                                 <label>Current Certificate</label>
                                         </div>
                                         <div class="col-sm-12 col-md-4 col-lg-6">
-                                            {{ org.identification }}
+					   
+                                            <A HREF='/media/{{ org_extras.identification.upload }}'>{{ org_extras.identification.upload }}</A>
                                         </div>
                                         <div class="col-sm-12 col-md-5 col-lg-4">
-                                            <A HREF='{% url "organisation_update_identification_admin" org.id %}'><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
+                                            <A HREF='{% url "organisation_update_identification_admin" org_extras.id %}'><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
                                         </div>
                                     </div>
                                     {% else %}
-                                    <A HREF='{% url "organisation_update_identification_admin" org.id %}'>Add Certificate</A>
+                                    <A HREF='{% url "organisation_update_identification_admin" org_extras.id %}'>Add Certificate</A>
                                     {% endif %}
                                 </div>
                             </div>
@@ -390,17 +393,29 @@
                             </ul>
                             <br>
                         </div>
-                        <div class="col-sm-12 col-md-9 col-lg-10">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
                             <BR>
-                            {% if nav_other_applications == 'active' %}
-                            {% include "applications/organisation_other_applications.html" %}
-                            {% elif nav_other_approvals == 'active' %}
-                            {% include "applications/organisation_other_approvals.html" %}
-                            {% elif nav_other_emergency == 'active' %}
-                            {% include "applications/organisation_other_emergency.html" %}
-                            {% elif nav_other_clearance == 'active' %}
-                            {% include "applications/organisation_other_clearance.html" %}
-                            {% endif %}
+
+			    {% if admin_staff == True %}
+                	            {% if nav_other_applications == 'active' %}
+        	                	    {% include "applications/organisation_other_applications.html" %}
+	                            {% elif nav_other_approvals == 'active' %}
+                		            {% include "applications/organisation_other_approvals.html" %}
+	                            {% elif nav_other_emergency == 'active' %}
+        		                    {% include "applications/organisation_other_emergency.html" %}
+                	            {% elif nav_other_clearance == 'active' %}
+	                	            {% include "applications/organisation_other_clearance.html" %}
+	                            {% endif %}
+			    {% else %}
+				    {% if nav_other_applications == 'active' %}
+					{% include "applications/organisation_other_applications.html" %}
+				    {% elif nav_other_approvals == 'active' %}
+					{% include "applications/organisation_other_approvals.html" %}
+				    {% elif nav_other_clearance == 'active' %}
+                                            {% include "applications/organisation_other_clearance.html" %}
+                                    {% endif %}
+			    {% endif %}
+
                         </div>
 
                         {% endif %}
@@ -410,4 +425,5 @@
             </div>
         </div>
     </div>
+</div>
     {% endblock %}

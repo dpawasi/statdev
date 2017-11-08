@@ -13,7 +13,7 @@ from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, c
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation,OrganisationExtras)
 #from ajax_upload.widgets import AjaxClearableFileInput
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
@@ -185,7 +185,7 @@ class FirstLoginInfoForm(ModelForm):
     line3 = CharField(required=False, max_length=255)
     locality = CharField(required=False, max_length=255)
     state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
-    country = ChoiceField( sorted(COUNTRIES.items())) 
+    country = ChoiceField(sorted(COUNTRIES.items())) 
     postcode = CharField(required=False, max_length=10)
     manage_permits = ChoiceField(label='Do you manage licences, permits or Part 5 on behalf of a company?', required=False,choices=BOOL_CHOICES, widget=RadioSelect(attrs={'class':'radio-inline'}))
 
@@ -250,8 +250,8 @@ class FirstLoginInfoForm(ModelForm):
             del self.fields['email']
         elif step == '4':
             crispy_boxes.append(crispy_box('contact_details_collapse','contact_details','Contact Details','phone_number','mobile_number','email'))
-            self.fields['phone_number'].required = True
-            self.fields['mobile_number'].required = True
+            self.fields['phone_number'].required = False 
+            self.fields['mobile_number'].required = False 
             self.fields['email'].required = False
             self.fields['email'].disabled = True
 
@@ -301,7 +301,7 @@ class ApplicationApplyUpdateForm(ModelForm):
                          'caption-1':'Apply for permit to carry out works, actor activities within the Riverpark', 
                          'caption-3':'Apply for development approval in accordance with Part 5 of the <b>Swan and Canning Rivers Management Act</B>' } 
                 ))
-    organisation = ModelChoiceField(queryset=Organisation.objects.all(), empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
+    organisation = ModelChoiceField(queryset=None, empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
 
     # Indivdual & Company
     applicant_company_given_names = CharField(max_length=256, required=False)
@@ -327,6 +327,7 @@ class ApplicationApplyUpdateForm(ModelForm):
         # print Application.APP_APPLY_ON
 
         action = self.initial['action']
+        self.fields['organisation'].choices = self.initial['organisations_list']
         if action == 'new':
             crispy_boxes = crispy_empty_box()
             self.helper.form_show_labels = False
@@ -1921,7 +1922,7 @@ class OrganisationCertificateForm(ModelForm):
     identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
-        model = EmailUser 
+        model = OrganisationExtras
         fields = ['id']
 
     def __init__(self, *args, **kwargs):

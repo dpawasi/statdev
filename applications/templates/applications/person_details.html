@@ -19,8 +19,9 @@
                     </div>
                     {% if nav_details == "active" %}
 			{% include "applications/person_side_menu.html" %}
+			<div class="col-sm-12 col-md-10 col-lg-10">
 
-                    <div class="col-sm-12 col-md-9 col-lg-9">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
                         <ul class="nav nav-pills">
                             <li role="presentation" class="{{ nav_details_personal }}"><a href="{% url "person_details_actions" object.pk "personal" %}">Personal Details</a></li>
                             <li role="presentation" class="{{ nav_details_identification }}" ><a href="{% url "person_details_actions" object.pk "identification" %}">Identification</a></li>
@@ -31,7 +32,7 @@
                         <br>
                     </div>
 
-                    <div class="col-sm-8 col-md-9 col-lg-10">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
 
                         {% if nav_details_personal == "active" %}
                         <div class="panel panel-default">
@@ -303,6 +304,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 </div>
 

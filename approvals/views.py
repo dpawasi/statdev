@@ -12,6 +12,8 @@ from django.contrib.contenttypes.models import ContentType
 from applications.models import Application,Record
 from applications.validationchecks import Attachment_Extension_Check
 from django.http import HttpResponse, HttpResponseRedirect
+from statdev.context_processors import template_context
+from django.contrib import messages
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -172,6 +174,16 @@ class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
 class ApprovalActions(DetailView):
     model = ApprovalModel
     template_name = 'approvals/approvals_actions.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ApprovalActions, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApprovalActions, self).get_context_data(**kwargs)
