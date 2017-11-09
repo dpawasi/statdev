@@ -2007,7 +2007,7 @@ class OrganisationActions(DetailView):
     template_name = 'applications/organisation_actions.html'
 
     def get(self, request, *args, **kwargs):
-	context_processor = template_context(self.request)
+        context_processor = template_context(self.request)
         admin_staff = context_processor['admin_staff']
         if admin_staff == True:
            donothing =""
