@@ -119,6 +119,9 @@ class ApprovalDetails(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
+        context_processor = template_context(self.request)
+        context['admin_staff'] = context_processor['admin_staff']
+
         return context
 
 class ApprovalStatusChange(LoginRequiredMixin,UpdateView):

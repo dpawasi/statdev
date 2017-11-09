@@ -499,6 +499,14 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                   initial['billing_state'] = 'WA'
                   initial['billing_country'] = 'AU'
 
+        if step == '4':
+            initial['company_exists'] = 'no'
+            if pending_org.pin1 and pending_org.pin2:
+               if Organisation.objects.filter(abn=pending_org.abn).exists():
+                    initial['company_exists'] = 'yes'
+ 
+
+
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -516,6 +524,8 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
     
                    pin1 = request.POST['pin1']
                    pin2 = request.POST['pin2']
+                   pin1 = pin1.replace(" ", "")
+                   pin2 = pin2.replace(" ", "")
 
                    comp = Organisation.objects.get(id=company_id)
                    if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
@@ -2012,7 +2022,7 @@ class OrganisationActions(DetailView):
         if admin_staff == True:
            donothing =""
         else:
-           messages.error(self.request, 'Forbidden from view this page.')
+           messages.error(self.request, 'Forbidden from viewing this page.')
            return HttpResponseRedirect("/")
         return super(OrganisationActions, self).get(request, *args, **kwargs)
 
@@ -2051,6 +2061,16 @@ class ApplicationActions(DetailView):
 class ApplicationComms(DetailView):
     model = Application 
     template_name = 'applications/application_comms.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ApplicationComms, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationComms, self).get_context_data(**kwargs)
@@ -2111,6 +2131,16 @@ class ApplicationCommsCreate(CreateView):
 class AccountComms(DetailView):
     model = EmailUser
     template_name = 'applications/account_comms.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(AccountComms, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(AccountComms, self).get_context_data(**kwargs)
@@ -2174,6 +2204,16 @@ class AccountCommsCreate(CreateView):
 class OrganisationComms(DetailView):
     model = Organisation
     template_name = 'applications/organisation_comms.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationComms, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationComms, self).get_context_data(**kwargs)

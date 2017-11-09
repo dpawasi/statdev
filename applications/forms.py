@@ -161,7 +161,11 @@ class CreateLinkCompanyForm(ModelForm):
             crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_state','postal_country','postal_postcode'))
             crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_state','billing_country','billing_postcode'))
         elif step == '4':
-            crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.  This will place your request in a queue pending approval.')))
+            print self.initial['company_exists']
+            if self.initial['company_exists'] == 'yes':
+                  crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.')))
+            else:
+                  crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.  This will place your request in a queue pending approval.')))
 
         self.helper.layout = Layout(crispy_boxes,)
         self.helper.form_id = 'id_form_apply_application'
