@@ -6181,7 +6181,7 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
              elif action == "certofincorp":
                  context['nav_details_certofincorp'] = "active"
                  org = Organisation.objects.get(id=self.kwargs['pk'])
-  		 if OrganisationExtras.objects.filter(organisation=org.id).exists():
+                 if OrganisationExtras.objects.filter(organisation=org.id).exists():
                      context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
                      print context['org_extras'].identification
                  context['org'] = org
