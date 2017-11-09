@@ -568,9 +568,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 company_id = forms_data['company_id']
                 pin1 = forms_data['pin1']
                 pin2 = forms_data['pin2']
+                pin1 = pin1.replace(" ", "")
+                pin2 = pin2.replace(" ", "")
 
                 comp = Organisation.objects.get(id=company_id)
-
+           
                 if OrganisationExtras.objects.filter(organisation=comp, pin1=pin1,pin2=pin2).exists():
                     pending_org.pin1 = pin1
                     pending_org.pin2 = pin2
@@ -6679,11 +6681,21 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
 
     def get(self, request, *args, **kwargs):
         # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
         org = self.get_organisation()
-        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
-        if not delegates.exists():
-            messages.error(self.request, 'You are not authorised to unlink a delegated user for {}'.format(org.name))
-            return HttpResponseRedirect(self.get_success_url())
+        delegates = Delegate.objects.filter(email_user_id=self.kwargs['user_id'], organisation=org)
+        print delegates
+        if request.user.id == int(self.kwargs['user_id']):
+       	   donothing = ""
+        else:
+           if admin_staff is True:
+               donothing = ""
+           else:
+               messages.error(self.request, 'You are not authorised to unlink a delegated user for {}'.format(org.name))
+               return HttpResponseRedirect(self.get_success_url())
+
         return super(UnlinkDelegate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -6692,7 +6704,7 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
         return context
 
     def get_success_url(self):
-        return reverse('organisation_detail', args=(self.get_organisation().pk,))
+        return reverse('organisation_details_actions', args=(self.get_organisation().pk,'linkedperson'))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
