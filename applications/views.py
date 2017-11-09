@@ -6183,7 +6183,6 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
                  org = Organisation.objects.get(id=self.kwargs['pk'])
                  if OrganisationExtras.objects.filter(organisation=org.id).exists():
                      context['org_extras'] = OrganisationExtras.objects.get(organisation=org.id)
-                     print context['org_extras'].identification
                  context['org'] = org
              elif action == "address":
                  context['nav_details_address'] = "active"
