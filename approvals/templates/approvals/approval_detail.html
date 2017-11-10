@@ -17,10 +17,12 @@
 		<!--- remove everything eblow this tag to the end tag if everything has been moved -->
 		<div class="col-sm-4 col-md-3 col-lg-2"  style='display: none'>
 			<div class="panel panel-default">
+
 				<div class="panel-heading">
 					<h3 class="panel-title">Actions</h3>
 				</div>
 				<div class="panel-body">
+
 					<ul>
 						{% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
 						{% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}

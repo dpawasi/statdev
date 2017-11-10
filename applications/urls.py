@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
     url(r'^applications/create-emergency-works/$', views.ApplicationCreateEW.as_view(), name='application_create_ew'),
     url(r'^applications/(?P<pk>\d+)/$', views.ApplicationDetail.as_view(), name='application_detail'),
+    url(r'^applications/(?P<pk>\d+)/discard/$', views.ApplicationDiscard.as_view(), name='application_discard'),
     url(r'^applications/(?P<pk>\d+)/apply/(?P<action>\w+)/$', views.ApplicationApplyUpdate.as_view(), name='application_apply_form'),
     url(r'^applications/(?P<pk>\d+)/pdf/$', views.ApplicationDetailPDF.as_view(), name='application_detail_pdf'),
     url(r'^applications/(?P<pk>\d+)/actions/$', views.ApplicationActions.as_view(), name='application_actions'),

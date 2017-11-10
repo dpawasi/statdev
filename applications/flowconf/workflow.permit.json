@@ -1,8 +1,8 @@
 {
     "options": {
-        "steps": { "Step 1": ["Applicant","Title","Location","Other Information","Description","Landowner Consent","Deed"],
-                   "Step 2": ["Checklist"]
+        "steps": { "": [{"title":"Applicant","anchor":"form_applicant"},{"title":"Title","anchor":"form_title"},{"title":"Location","anchor":"form_location"},{"title":"Other Information","anchor":"form_other_information"},{"title":"Description","anchor":"form_description"},{"title":"Landowner Consent","anchor":"form_land_owner_consent"},{"title":"Deed", "anchor": "form_deed"}]
         }
+
     },
     "1": {
         "title": "Form Lodgement (Permit)",
@@ -180,7 +180,7 @@
                 "title": "Return to submitter",
                 "route": "1",
                 "routegroup":"creator",
-                "state": "15"
+                "state": "1"
             }
         ],
         "formcomponent": {

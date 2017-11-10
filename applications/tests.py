@@ -208,12 +208,12 @@ class ApplicationTest(StatDevTestCase):
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_condition_create_post(self):
-        self.assertFalse(Condition.objects.exists())
-        url = reverse('condition_create', args=(self.app1.pk,))
-        resp = self.client.post(url, {'condition': 'foobar'})
-        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
-        self.assertTrue(Condition.objects.exists())
+#    def test_condition_create_post(self):
+#        self.assertFalse(Condition.objects.exists())
+#        url = reverse('condition_create', args=(self.app1.pk,))
+#        resp = self.client.post(url, {'condition': 'foobar'})
+#        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
+#        self.assertTrue(Condition.objects.exists())
 
     def test_condition_update_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_assessor
@@ -237,15 +237,15 @@ class ApplicationTest(StatDevTestCase):
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_condition_update_post(self):
-        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
-        self.app1.save()
-        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
-        url = reverse('condition_update', args=(condition.pk,))
-        resp = self.client.post(url, {'condition': 'foobar'})
-        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
-        c = Condition.objects.get(pk=condition.pk)
-        self.assertEquals(c.condition, 'foobar')
+#    def test_condition_update_post(self):
+#        self.app1.state = Application.APP_STATE_CHOICES.with_assessor
+#        self.app1.save()
+#        condition = mixer.blend(Condition, application=self.app1, referral=self.ref1)
+#        url = reverse('condition_update', args=(condition.pk,))
+#        resp = self.client.post(url, {'condition': 'foobar'})
+#        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
+#        c = Condition.objects.get(pk=condition.pk)
+#        self.assertEquals(c.condition, 'foobar')
 
     def test_condition_delete_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_assessor

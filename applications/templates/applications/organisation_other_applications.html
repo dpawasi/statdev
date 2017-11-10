@@ -83,9 +83,11 @@
                     <tbody>
                         {% for app_obj in app_list %}
                         <tr>
-                            <td><a href="">WO-{{ app_obj.app.pk }}</a></td>
+                            <td><a href="{% url 'application_detail' app_obj.app.pk %}">WO-{{ app_obj.app.pk }}</a></td>
 
-                            <td>{{ app_obj.app.get_app_type_display }}</td>
+                            <td>{{ app_obj.app.get_app_type_display }}
+
+			</td>
                             <td>{{ app_obj.app.title }}</td>
                             <td>{% if app_obj.app.organisation %}
                                     {{ app_obj.app.organisation }}
@@ -93,7 +95,27 @@
                                     {{ app_obj.app.applicant.get_full_name }}
                                 {% endif %}
                             </td>
-                            <td>{{ app_obj.app.get_state_display }}</td>
+                            <td>
+
+                                 {% if staff == True %}
+                                        {{ app_obj.app.get_state_display }}
+                                 {% else %}
+                                     {% if app_obj.app.state == 1 %}
+                                         {{ app_obj.app.get_state_display }}
+                                     {% elif app_obj.app.state == 8 %}
+                                         {{ app_obj.app.get_state_display }}
+                                     {% elif  app_obj.app.state == 10 %}
+                                        {{ app_obj.app.get_state_display }}
+                                     {% else %}
+                                        Submitted
+                                     {% endif %}
+                                {% endif %}
+
+
+
+
+
+				</td>
                             <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                             <td>{{ app_obj.app.assignee.get_full_name }}</td>
                             <td></td>

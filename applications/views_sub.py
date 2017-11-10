@@ -347,7 +347,7 @@ class FormsList():
                 for se_wo in query_str_split:
                     search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
 
-        applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) )[:200]
+        applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) ).exclude(state=17)[:200]
 
         usergroups = self_view.request.user.groups.all()
         context['app_list'] = []

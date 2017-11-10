@@ -13,7 +13,7 @@ from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, c
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation,OrganisationExtras)
 #from ajax_upload.widgets import AjaxClearableFileInput
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
@@ -161,7 +161,10 @@ class CreateLinkCompanyForm(ModelForm):
             crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_state','postal_country','postal_postcode'))
             crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_state','billing_country','billing_postcode'))
         elif step == '4':
-            crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.  This will place your request in a queue pending approval.')))
+            if self.initial['company_exists'] == 'yes':
+                  crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.')))
+            else:
+                  crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.  This will place your request in a queue pending approval.')))
 
         self.helper.layout = Layout(crispy_boxes,)
         self.helper.form_id = 'id_form_apply_application'
@@ -185,7 +188,7 @@ class FirstLoginInfoForm(ModelForm):
     line3 = CharField(required=False, max_length=255)
     locality = CharField(required=False, max_length=255)
     state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
-    country = ChoiceField( sorted(COUNTRIES.items())) 
+    country = ChoiceField(sorted(COUNTRIES.items())) 
     postcode = CharField(required=False, max_length=10)
     manage_permits = ChoiceField(label='Do you manage licences, permits or Part 5 on behalf of a company?', required=False,choices=BOOL_CHOICES, widget=RadioSelect(attrs={'class':'radio-inline'}))
 
@@ -250,8 +253,8 @@ class FirstLoginInfoForm(ModelForm):
             del self.fields['email']
         elif step == '4':
             crispy_boxes.append(crispy_box('contact_details_collapse','contact_details','Contact Details','phone_number','mobile_number','email'))
-            self.fields['phone_number'].required = True
-            self.fields['mobile_number'].required = True
+            self.fields['phone_number'].required = False 
+            self.fields['mobile_number'].required = False 
             self.fields['email'].required = False
             self.fields['email'].disabled = True
 
@@ -301,7 +304,7 @@ class ApplicationApplyUpdateForm(ModelForm):
                          'caption-1':'Apply for permit to carry out works, actor activities within the Riverpark', 
                          'caption-3':'Apply for development approval in accordance with Part 5 of the <b>Swan and Canning Rivers Management Act</B>' } 
                 ))
-    organisation = ModelChoiceField(queryset=Organisation.objects.all(), empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
+    organisation = ModelChoiceField(queryset=None, empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
 
     # Indivdual & Company
     applicant_company_given_names = CharField(max_length=256, required=False)
@@ -327,6 +330,7 @@ class ApplicationApplyUpdateForm(ModelForm):
         # print Application.APP_APPLY_ON
 
         action = self.initial['action']
+        self.fields['organisation'].choices = self.initial['organisations_list']
         if action == 'new':
             crispy_boxes = crispy_empty_box()
             self.helper.form_show_labels = False
@@ -787,9 +791,9 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         crispy_boxes = crispy_empty_box()
         #self.fields['applicant'].disabled = True
         organisation = self.initial['organisation']
-
-        if 'sumbitter_comment' in self.initial: 
-             crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
+        if 'sumbitter_comment' in self.initial:
+             if len(self.initial['sumbitter_comment']) > 1:
+                 crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
@@ -1487,6 +1491,33 @@ class AssignApplicantForm(ModelForm):
         )
 
 
+class ApplicationDiscardForm(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationDiscardForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Are  you sure you want to delete this application.</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('discard', 'Discard', css_class='btn-lg'),
+                Submit('Back', 'Back')
+            )
+        )
+
+
 class AssignApplicantFormCompany(ModelForm):
     """A form for assigning or change the applicant on application.
     """
@@ -1921,7 +1952,7 @@ class OrganisationCertificateForm(ModelForm):
     identification = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     class Meta:
-        model = EmailUser 
+        model = OrganisationExtras
         fields = ['id']
 
     def __init__(self, *args, **kwargs):

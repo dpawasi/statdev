@@ -124,7 +124,8 @@ class Application(models.Model):
         (13, 'with_exec', ('With Executive')),
         (14, 'completed', ('Completed')),
         (15, 'creator', ('Form Creator')),
-        (16, 'current', ('Current'))
+        (16, 'current', ('Current')),
+        (17, 'discard', ('Deleted'))
     )
 
     APP_LOCATION_CHOICES = Choices(
@@ -223,7 +224,7 @@ class Application(models.Model):
     type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
     number_of_crafts  = models.IntegerField(null=True, blank=True)
     route_status = models.CharField(null=True, blank=True, default=1, max_length=256)
-    sumbitter_comment = models.TextField(null=True, blank=True, default=1, max_length=256)
+    sumbitter_comment = models.TextField(null=True, blank=True, default='', max_length=256)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(
@@ -479,6 +480,26 @@ class CommunicationOrganisation(models.Model):
     comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none)
     details = models.TextField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True, related_name='org_communication_docs')
+    state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
+    created = models.DateTimeField(auto_now_add=True)
+
+class CommunicationCompliance(models.Model):
+    """This model represents the communication model
+    """
+    COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'phone', ('Phone')),
+        (2, 'email', ('Email')),
+        (3, 'mail', ('Mail')),
+    )
+
+    compliance = models.ForeignKey(Compliance, on_delete=models.PROTECT)
+    comms_to = models.CharField(max_length=256, null=True, blank=True)
+    comms_from = models.CharField(max_length=256, null=True, blank=True)
+    subject = models.CharField(max_length=256, null=True, blank=True)
+    comms_type = models.IntegerField(choices=COMM_TYPE, default=COMM_TYPE.none)
+    details = models.TextField(blank=True, null=True)
+    records = models.ManyToManyField(Record, blank=True, related_name='compliance_communication_docs')
     state = models.IntegerField(blank=True, null=True)  # move to foreign key once APP_STATE_CHOICES becomes a model
     created = models.DateTimeField(auto_now_add=True)
 

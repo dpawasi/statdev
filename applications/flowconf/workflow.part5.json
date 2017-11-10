@@ -159,7 +159,7 @@
                 "title": "Return to Submitter",
                 "route": "1",
                 "routegroup": "creator",
-                "state": "3",
+                "state": "1",
                 "required": []
             }
 

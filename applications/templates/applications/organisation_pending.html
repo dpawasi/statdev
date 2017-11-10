@@ -29,24 +29,6 @@
                         <!-- RES -->
                         <div class="col-sm-12 col-lg-3">
                             <div class="col-sm-12 col-lg-12">
-                                <label>Type:</label>
-                            </div>
-                            <div class="col-sm-12 col-lg-12">
-                                <select class="select form-control" id="id_apptype" name="apptype">
-                                    <option value="" >All</option>
-                                    {% for at in app_apptypes %}
-                                    {% if apptype == at.0 %}
-                                    <option selected="selected" value="{{ at.0 }}">{{ at.1 }}</option>
-                                    {% else %}
-                                    <option value="{{ at.0 }}">{{ at.1 }}</option>
-                                    {% endif %}
-
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-lg-3">
-                            <div class="col-sm-12 col-lg-12">
                                 <label>Applicant:</label>
                             </div>
                             <div class="col-sm-12 col-lg-12">
@@ -128,7 +110,11 @@
                                 <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.assignee.get_full_name }}</td>
                                 <td>
-                                    <a class="btn btn-primary pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">View</a> 
+				    {% if item_obj.status == 1 %}
+                                    <a class="btn btn-info pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">Process</a> 
+				    {% else %}
+					<a class="btn btn-primary pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">View</a>
+ 				    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

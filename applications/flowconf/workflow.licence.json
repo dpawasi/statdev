@@ -571,10 +571,10 @@
                 "state": "4"
             },
             {
-                "title": "Return to form creator",
+                "title": "Return to submitter",
                 "route": "1",
                 "routegroup":"creator",
-                "state": "15"
+                "state": "1"
             }
         ],
         "formcomponent": {
