@@ -196,24 +196,24 @@ class ApplicationTest(StatDevTestCase):
         new_ref = Referral.objects.get(referee=self.user1.pk)
         self.assertTrue(new_ref.expire_date)  # Check that expire_date is set.
 
-#    def test_condition_create_get(self):
-#        self.app1.state = Application.APP_STATE_CHOICES.with_admin
-#        self.app1.save()
-#        url = reverse('condition_create', args=(self.app1.pk,))
-#        resp = self.client.get(url)
-#        self.assertEquals(resp.status_code, 200)
+    def test_condition_create_get(self):
+        self.app1.state = Application.APP_STATE_CHOICES.with_admin
+        self.app1.save()
+        url = reverse('condition_create', args=(self.app1.pk,))
+        resp = self.client.get(url)
+        self.assertEquals(resp.status_code, 200)
 
     def test_condition_create_get_redirect(self):
         url = reverse('condition_create', args=(self.app1.pk,))
         resp = self.client.get(url)
         self.assertRedirects(resp, self.app1.get_absolute_url())
 
-    def test_condition_create_post(self):
-        self.assertFalse(Condition.objects.exists())
-        url = reverse('condition_create', args=(self.app1.pk,))
-        resp = self.client.post(url, {'condition': 'foobar'})
-        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
-        self.assertTrue(Condition.objects.exists())
+#    def test_condition_create_post(self):
+#        self.assertFalse(Condition.objects.exists())
+#        url = reverse('condition_create', args=(self.app1.pk,))
+#        resp = self.client.post(url, {'condition': 'foobar'})
+#        self.assertRedirects(resp, self.app1.get_absolute_url()+'update/')
+#        self.assertTrue(Condition.objects.exists())
 
     def test_condition_update_get(self):
         self.app1.state = Application.APP_STATE_CHOICES.with_assessor
