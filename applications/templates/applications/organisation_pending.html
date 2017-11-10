@@ -29,24 +29,6 @@
                         <!-- RES -->
                         <div class="col-sm-12 col-lg-3">
                             <div class="col-sm-12 col-lg-12">
-                                <label>Type:</label>
-                            </div>
-                            <div class="col-sm-12 col-lg-12">
-                                <select class="select form-control" id="id_apptype" name="apptype">
-                                    <option value="" >All</option>
-                                    {% for at in app_apptypes %}
-                                    {% if apptype == at.0 %}
-                                    <option selected="selected" value="{{ at.0 }}">{{ at.1 }}</option>
-                                    {% else %}
-                                    <option value="{{ at.0 }}">{{ at.1 }}</option>
-                                    {% endif %}
-
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-lg-3">
-                            <div class="col-sm-12 col-lg-12">
                                 <label>Applicant:</label>
                             </div>
                             <div class="col-sm-12 col-lg-12">

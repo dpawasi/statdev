@@ -1241,9 +1241,9 @@ class SearchPersonList(ListView):
             # Add Organsations Results , Will also filter out duplicates
             search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = EmailUser.objects.filter(search_filter)
+            listusers = EmailUser.objects.filter(search_filter)[:200]
         else:
-            listusers = EmailUser.objects.all()       
+            listusers = EmailUser.objects.all().order_by('-id')[:200]       
 
         context['acc_list'] = []
         for lu in listusers:
@@ -1286,10 +1286,10 @@ class SearchCompanyList(ListView):
             #search_filter |= Q(pk__in=orgs)
             # Get all applicants
 #            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
-            listusers = OrganisationExtras.objects.filter(organisation__name__icontains=query_str)
+            listusers = OrganisationExtras.objects.filter(organisation__name__icontains=query_str)[:200]
         else:
             #            listusers = Delegate.objects.all()
-            listusers = OrganisationExtras.objects.all()
+            listusers = OrganisationExtras.objects.all().order_by('-id')[:200]
 
         context['acc_list'] = []
         for lu in listusers:
@@ -1461,6 +1461,8 @@ class SearchKeywords(ListView):
         splitr_len = len(splitr)
         text_found = ''
         loopcount = 0
+        if splitr_len < 2:
+           return ''
         for t in splitr:
             loopcount = loopcount + 1
             text_found += t[-20:]
@@ -1494,20 +1496,32 @@ class SearchReference(ListView):
                             messages.error(self.request, 'Application does not exist.')
 
                         return HttpResponseRedirect(reverse('search_reference'))
-                if context['form_prefix'] == 'AP-':
+                elif context['form_prefix'] == 'AP-':
                         approval = Approval.objects.filter(id=context['form_no'])
                         if len(approval) > 0:
                             return HttpResponseRedirect(reverse('approval_detail', args=(context['form_no'],)))
                         else:
                             messages.error(self.request, 'Approval does not exist.')
 
-                if context['form_prefix'] == 'CO-':
+                elif context['form_prefix'] == 'CO-':
                     comp = Compliance.objects.filter(approval_id=context['form_no'])
                     if len(comp) > 0:
                         return HttpResponseRedirect(reverse('compliance_approval_detail', args=(context['form_no'],)))
                     else:
                         messages.error(self.request, 'Compliance does not exist.')
+                else:
+                   messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix are EW- WO- AP- CO-')
+                   return HttpResponseRedirect(reverse('search_reference'))
 
+            else:
+                 messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix are EW- WO- AP- CO-')
+                 return HttpResponseRedirect(reverse('search_reference'))
+               
+
+
+#        if context['form_prefix'] == 'EW-' or context['form_prefix'] == 'WO-' or) > 0:
+ #              messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix EW- WO- AP- CO-')
+#               return HttpResponseRedirect(reverse('search_reference'))
         # print self
         #context['messages'] = self.messages
         template = get_template(self.template_name)
@@ -1701,7 +1715,7 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
         self.object.submitted_by = self.request.user
         self.object.assignee = self.request.user
         self.object.submit_date = date.today()
-        self.object.state = self.object.APP_STATE_CHOICES.new
+        self.object.state = self.object.APP_STATE_CHOICES.draft
         self.object.save()
 
         apply_on_behalf_of = forms_data['apply_on_behalf_of']
@@ -2611,6 +2625,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial["workflow"] = flowcontent
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
         initial['sumbitter_comment'] = app.sumbitter_comment
+        initial['state'] = app.state
 
 #       flow = Flow()
         #workflow = flow.get()
@@ -4005,6 +4020,68 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+class ApplicationDiscard(LoginRequiredMixin, UpdateView):
+    """Allows and applicant to discard the application.
+    """
+    model = Application
+
+    def get(self, request, *args, **kwargs):
+        app = self.get_object()
+
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if app.state == 1:
+           if request.user.id == app.assignee.id:
+               donothing = ""
+           elif admin_staff is True:
+               donothing = ""
+           else:
+               messages.error(self.request, 'Sorry you are not authorised')
+               return HttpResponseRedirect(self.get_success_url())
+        else:
+           messages.error(self.request, 'Sorry you are not authorised')
+           return HttpResponseRedirect(self.get_success_url())        
+        #if app.group is None:
+        #    messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
+        #    return HttpResponseRedirect(app.get_absolute_url())
+        return super(ApplicationDiscard, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        # Return the specified form class
+        return apps_forms.ApplicationDiscardForm
+
+
+    def get_success_url(self):
+        return reverse('home_page')
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ApplicationDiscard, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.state = 17
+        self.object.save()
+
+        # Record an action on the application:
+	
+        action = Action(
+           content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+               action='Application Discard')
+        action.save()
+	messages.success(self.request, "Your application has been discard")
+        return HttpResponseRedirect(self.get_success_url(self.kwargs['pk']))
+
+    def get_initial(self):
+        initial = super(ApplicationDiscard, self).get_initial()
+        app = self.get_object()
+        return initial
+
+
+
+
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
     """
@@ -5059,7 +5136,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         """Override to redirect to the condition's parent application detail view.
         """
-        return reverse('application_update', args=(self.object.application.pk,))
+        return reverse('application_detail', args=(self.object.application.pk,))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
@@ -5162,7 +5239,7 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
                 action='Condition {} updated (status: {})'.format(self.object.pk, self.object.get_status_display()))
             action.save()
         self.object.save()
-        return HttpResponseRedirect(self.object.application.get_absolute_url()+'update/')
+        return HttpResponseRedirect(self.object.application.get_absolute_url()+'')
 
 
 class ConditionDelete(LoginRequiredMixin, DeleteView):
@@ -6725,7 +6802,6 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
 
         org = self.get_organisation()
         delegates = Delegate.objects.filter(email_user_id=self.kwargs['user_id'], organisation=org)
-        print delegates
         if request.user.id == int(self.kwargs['user_id']):
        	   donothing = ""
         else:

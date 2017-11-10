@@ -58,11 +58,11 @@
 
                 {% for item_obj in item_list %}
                 <tr>
-                    <td>{{ item_obj.item_row.pk }}</td>
+                    <td>{{ item_obj.item_row.organisation.id }}    </td>
                     <td>{{ item_obj.item_row.organisation.name }}</td>
 		     <td>{{ item_obj.item_row.organisation.billing_address }}</td>
                     <td>
-                    <a class="btn btn-primary btn-sm" role="button" href="{% url "application_assign_applicant_company" object.pk item_obj.item_row.pk %}">Select Applicant</a>
+                    <a class="btn btn-primary btn-sm" role="button" href="{% url "application_assign_applicant_company" object.pk item_obj.item_row.organisation.id %}">Select Applicant</a>
                     </td>
                 </tr>
                 {% endfor %}

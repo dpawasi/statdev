@@ -161,7 +161,6 @@ class CreateLinkCompanyForm(ModelForm):
             crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_state','postal_country','postal_postcode'))
             crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_state','billing_country','billing_postcode'))
         elif step == '4':
-            print self.initial['company_exists']
             if self.initial['company_exists'] == 'yes':
                   crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.')))
             else:
@@ -792,9 +791,9 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         crispy_boxes = crispy_empty_box()
         #self.fields['applicant'].disabled = True
         organisation = self.initial['organisation']
-
-        if 'sumbitter_comment' in self.initial: 
-             crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
+        if 'sumbitter_comment' in self.initial:
+             if len(self.initial['sumbitter_comment']) > 1:
+                 crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
@@ -1488,6 +1487,33 @@ class AssignApplicantForm(ModelForm):
             FormActions(
                 Submit('assign', 'Change Applicant', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
+            )
+        )
+
+
+class ApplicationDiscardForm(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super(ApplicationDiscardForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Are  you sure you want to delete this application.</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('discard', 'Discard', css_class='btn-lg'),
+                Submit('Back', 'Back')
             )
         )
 
