@@ -4066,12 +4066,11 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
         self.object.save()
 
         # Record an action on the application:
-	
         action = Action(
            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
                action='Application Discard')
         action.save()
-	messages.success(self.request, "Your application has been discard")
+        messages.success(self.request, "Your application has been discard")
         return HttpResponseRedirect(self.get_success_url(self.kwargs['pk']))
 
     def get_initial(self):
@@ -6803,7 +6802,7 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
         org = self.get_organisation()
         delegates = Delegate.objects.filter(email_user_id=self.kwargs['user_id'], organisation=org)
         if request.user.id == int(self.kwargs['user_id']):
-       	   donothing = ""
+           donothing = ""
         else:
            if admin_staff is True:
                donothing = ""
