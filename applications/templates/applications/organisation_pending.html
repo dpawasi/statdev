@@ -16,12 +16,6 @@
     <div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
         <div class="panel-body">
 
-            {% if may_create %}
-            <div class="col-sm-12 col-lg-12">
-                <a class="btn btn-primary pull-right" role="button" href="{% url 'application_apply' %}">Create a new application</a>
-            </div>
-            {% endif %}
-
             <div class="row">
                 <form action="" method="get">
                     <div class="col-sm-12 col-lg-12">
@@ -34,12 +28,12 @@
                             <div class="col-sm-12 col-lg-12">
                                 <select class="select form-control" id="id_applicant" name="applicant">
                                     <option value="" selected="selected">All</option>
-                                    {% for person in object.all %}
-                                    {% if applicant == person.id %}
-                                    <option selected="selected" value="{{ person.id }}">{{ person.name }}</option>
-                                    {% else %}
-                                    <option value="{{ person.id }}">{{ person.name }}</option>                                
-                                    {% endif %}
+                                    {% for person in orgs_pending_applicants %}
+					{% if applicant == person.email_user %}
+                                    <option selected="selected" value="{{ person.email_user }}">{{ person.email_user__first_name }} {{person.email_user__last_name }}</option>
+					{% else %}
+						<option value="{{ person.email_user }}">{{ person.email_user__first_name }} {{person.email_user__last_name }} {{ applicant }} {{ person.email_user }}</option>
+					{% endif %}
                                     {% endfor %}
                                 </select>
                             </div>
@@ -49,10 +43,11 @@
                             <div class="col-sm-12 col-lg-12">
                                 <label>Status:</label>
                             </div>
+
                             <div class="col-sm-12 col-lg-12">
                                 <select class="select form-control" id="id_appstatus" name="appstatus">
                                     <option value="" selected="selected">All</option>
-                                    {% for at in app_appstatus %}
+                                    {% for at in orgs_pending_status %}
                                     {% if appstatus == at.0 %}
                                     <option selected value="{{ at.0 }}">{{ at.1 }}</option>
                                     {% else %}

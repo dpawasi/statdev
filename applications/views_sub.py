@@ -305,7 +305,7 @@ class FormsList():
     def get_application(self,self_view,userid,context):
 
         user = EmailUser.objects.get(id=userid)
-        delegate = Delegate.objects.filter(email_user=user).values('id')
+        delegate = Delegate.objects.filter(email_user=user).values('organisation__id')
 
         context['nav_other_applications'] = "active"
         context['app'] = ''
@@ -345,10 +345,11 @@ class FormsList():
                 query_str = self_view.request.GET['q']
                 query_str_split = query_str.split()
                 for se_wo in query_str_split:
-                    search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
+                    search_filter &= Q(Q(pk__icontains=se_wo) | Q(title__icontains=se_wo))
 
-        applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) ).exclude(state=17)[:200]
-
+        print search_filter
+#        applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) ).exclude(state=17)[:200]
+        applications = Application.objects.filter(Q(search_filter) ).exclude(state=17)[:200]
         usergroups = self_view.request.user.groups.all()
         context['app_list'] = []
 

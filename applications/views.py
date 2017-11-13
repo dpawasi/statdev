@@ -1085,6 +1085,16 @@ class OrganisationAccessRequest(ListView):
     model = OrganisationPending
     template_name = 'applications/organisation_pending.html'
 
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationAccessRequest, self).get(request, *args, **kwargs)
+
     def get_queryset(self):
         qs = super(OrganisationAccessRequest, self).get_queryset()
         # Did we pass in a search string? If so, filter the queryset and return
@@ -1104,17 +1114,36 @@ class OrganisationAccessRequest(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequest, self).get_context_data(**kwargs)
-
+        context['orgs_pending_status'] = OrganisationPending.STATUS_CHOICES
+        context['orgs_pending_applicants'] = OrganisationPending.objects.all().values('email_user','email_user__first_name','email_user__last_name').distinct('email_user')
+        query = Q()
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str = query_str.replace("'", r'"')
-            query = get_query(
-                    query_str, ['pk'])
-            context['orgs_pending'] = OrganisationPending.objects.filter(query)
-        else:
-            context['orgs_pending'] = OrganisationPending.objects.all()
+            query &= Q(Q(name__icontains=query_str) | Q(abn__icontains=query_str))
 
-    #    print context['orgs_pending']
+
+        if 'applicant' in self.request.GET:
+            if self.request.GET['applicant'] != '':
+                query  |= Q(email_user=self.request.GET['applicant'])
+        if 'appstatus' in self.request.GET:
+            if self.request.GET['appstatus'] != '':
+                query  &= Q(status=self.request.GET['appstatus'])
+
+        context['orgs_pending'] = OrganisationPending.objects.filter(query)[:200]
+
+
+        if 'applicant' in self.request.GET:
+           if self.request.GET['applicant'] != '':
+               context['applicant'] = int(self.request.GET['applicant'])
+
+	if 'appstatus' in self.request.GET:
+           if self.request.GET['appstatus'] != '':
+               context['appstatus'] = int(self.request.GET['appstatus'])
+        context['query_string'] = ''
+        if 'q' in self.request.GET and self.request.GET['q']:
+            context['query_string'] = self.request.GET['q']
+
         return context
 
 
@@ -5968,7 +5997,7 @@ class PersonOther(LoginRequiredMixin, DetailView):
              # Navbar
              if action == "applications":
                  user = EmailUser.objects.get(id=self.kwargs['pk'])
-                 delegate = Delegate.objects.filter(email_user=user).values('id')
+                 delegate = Delegate.objects.filter(email_user=user).values('organisation__id')
 
                  context['nav_other_applications'] = "active"
                  context['app'] = ''
