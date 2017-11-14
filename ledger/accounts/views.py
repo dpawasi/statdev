@@ -6,6 +6,8 @@ from django.contrib import messages
 from .models import EmailUser
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote_plus, urlencode
+from django.contrib.auth.views import logout as logout_django
+from django.http import HttpResponse, HttpResponseRedirect
 
 class UserProfile(LoginRequiredMixin, DetailView):
     model = EmailUser
@@ -51,3 +53,9 @@ def token_login(request, token, email):
         urlencode({'verification_code': token, 'email': email})
     )
     return redirect(redirect_url)
+
+
+def logoutUser(request):
+   logout_django(request)
+   messages.success(request,"Successfully Logged out")
+   return HttpResponseRedirect('/')

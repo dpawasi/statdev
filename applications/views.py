@@ -1538,12 +1538,32 @@ class SearchReference(ListView):
                         return HttpResponseRedirect(reverse('compliance_approval_detail', args=(context['form_no'],)))
                     else:
                         messages.error(self.request, 'Compliance does not exist.')
+
+                elif context['form_prefix'] == 'AC-':
+                    person = EmailUser.objects.filter(id=context['form_no'])
+                    if len(person) > 0:
+                        return HttpResponseRedirect(reverse('person_details_actions', args=(context['form_no'],'personal')))
+                    else:
+                        messages.error(self.request, 'Person account does not exist.')
+
+                elif context['form_prefix'] == 'OG-':
+                    org = Organisation.objects.filter(id=context['form_no'])
+                    if len(org) > 0:
+                        return HttpResponseRedirect(reverse('organisation_details_actions', args=(context['form_no'],'company')))
+                    else:
+                        messages.error(self.request, 'Organisation does not exist.')
+                elif context['form_prefix'] == 'AR-':
+                    org_pend = OrganisationPending.objects.filter(id=context['form_no'])
+                    if len(org_pend) > 0:
+                        return HttpResponseRedirect(reverse('organisation_access_requests_view', args=(context['form_no'])))
+                    else:
+                        messages.error(self.request, 'Company Access Request does not exist.')
                 else:
-                   messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix are EW- WO- AP- CO-')
+                   messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix are EW- WO- AP- CO- AC- OG- AR-')
                    return HttpResponseRedirect(reverse('search_reference'))
 
             else:
-                 messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix are EW- WO- AP- CO-')
+                 messages.error(self.request, 'Invalid Prefix Provided,  Valid Prefix are EW- WO- AP- CO- AC- OG- AR-')
                  return HttpResponseRedirect(reverse('search_reference'))
                
 
@@ -5550,11 +5570,27 @@ class UserAccount(LoginRequiredMixin, DetailView):
 class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.EmailUserForm
 
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        elif self.request.user.id == int(self.kwargs['pk']):
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden Access.')
+           return HttpResponseRedirect("/")
+        return super(UserAccountUpdate, self).get(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             if self.request.user.groups.filter(name__in=['Processor']).exists():
                user = EmailUser.objects.get(pk=self.kwargs['pk'])
                return user
+            elif self.request.user.id == int(self.kwargs['pk']):
+                user = EmailUser.objects.get(pk=self.kwargs['pk'])
+                return user
             else:
                 messages.error(
                   self.request, "Forbidden Access")
