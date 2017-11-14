@@ -326,6 +326,7 @@ class Referral(models.Model):
         (2, 'responded', ('Responded')),
         (3, 'recalled', ('Recalled')),
         (4, 'expired', ('Expired')),
+        (5, 'with_admin',('With Admin'))
     )
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     referee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -337,7 +338,7 @@ class Referral(models.Model):
     feedback = models.TextField(blank=True, null=True)
     proposed_conditions = models.TextField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True)
-    status = models.IntegerField(choices=REFERRAL_STATUS_CHOICES, default=REFERRAL_STATUS_CHOICES.referred)
+    status = models.IntegerField(choices=REFERRAL_STATUS_CHOICES, default=REFERRAL_STATUS_CHOICES.with_admin)
 
     class Meta:
         unique_together = ('application', 'referee')

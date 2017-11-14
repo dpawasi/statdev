@@ -3496,6 +3496,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         if action == 'referral':
             app_refs = Referral.objects.filter(application=app).count()
+            Referral.objects.filter(application=app).update(status=Referral.REFERRAL_STATUS_CHOICES.referred)
             if app_refs == 0:
                 messages.error(self.request, 'Unable to complete action as you have no referrals! ')
                 return HttpResponseRedirect(app.get_absolute_url())
