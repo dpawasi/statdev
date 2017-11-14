@@ -94,7 +94,7 @@
                                             <label>Current Identification</label>	
                                         </div>
                                         <div class="col-sm-12 col-md-4 col-lg-6">
-                                            {{ object.identification }} 
+                                            <A HREF='/media/{{ object.identification.file }}'>{{ object.identification }}</A>
                                         </div>
                                         <div class="col-sm-12 col-md-5 col-lg-4">
                                             <A HREF='{% url "user_account_update_identification_admin" object.pk %}'><img src='{% static "images/bin_blue.png" %}'>Remove & Provide New ID</A>
