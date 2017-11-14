@@ -98,7 +98,7 @@
                         <tbody>
                             {% for item_obj in orgs_pending %}
                             <tr>
-                                <td><a href="{% url "organisation_access_requests_view" item_obj.pk %}">{{ item_obj.pk }}</a></td>
+                                <td><a href="{% url "organisation_access_requests_view" item_obj.pk %}">AR-{{ item_obj.pk }}</a></td>
                                 <td>{{ item_obj.name }}</td>
                                 <td>{{ item_obj.email_user.get_full_name }}</td>
                                 <td>{{ item_obj.get_status_display }} </td>
