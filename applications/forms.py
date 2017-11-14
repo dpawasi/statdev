@@ -304,7 +304,7 @@ class ApplicationApplyUpdateForm(ModelForm):
                          'caption-1':'Apply for permit to carry out works, actor activities within the Riverpark', 
                          'caption-3':'Apply for development approval in accordance with Part 5 of the <b>Swan and Canning Rivers Management Act</B>' } 
                 ))
-    organisation = ModelChoiceField(queryset=None, empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
+    #organisation = ModelChoiceField(queryset=None, empty_label=None, widget=RadioSelect(attrs={'class':'radio-inline'}))
 
     # Indivdual & Company
     applicant_company_given_names = CharField(max_length=256, required=False)
@@ -358,13 +358,19 @@ class ApplicationApplyUpdateForm(ModelForm):
             crispy_boxes = crispy_empty_box()
             crispy_boxes.append(crispy_box('apply_for_collapse','form_apply_for','Apply for',crispy_h3("Do you want to apply for"),'app_type',crispy_para_no_label("Unsure which application you require Click Here")))
         else:
+            apply_on_behalf_of = self.initial['apply_on_behalf_of']
             del self.fields['app_type']
             del self.fields['apply_on_behalf_of']
 
-            apply_on_behalf_of = self.initial['apply_on_behalf_of']
+            del self.fields['applicant_company_given_names']
+            del self.fields['applicant_company_surname']
+            del self.fields['applicant_company_dob']
+            del self.fields['applicant_company_email']
+            del self.fields['applicant_company']
+            del self.fields['applicant_abn']
+
             if apply_on_behalf_of == 3:
                 del self.fields['organisation']
-
                 crispy_boxes = crispy_empty_box()
                 crispy_boxes.append(crispy_box('on_behalf_indivdual_collapse','form_on_behalf_indivdual','Apply on behalf of indivdual',crispy_h3("Please Complete:"),'applicant_company_given_names','applicant_company_surname','applicant_company_dob','applicant_company_email'))
                 self.helper.layout = Layout(crispy_boxes,)
@@ -381,7 +387,6 @@ class ApplicationApplyUpdateForm(ModelForm):
         self.helper.form_id = 'id_form_apply_application'
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('Continue', 'Continue', css_class='btn-lg'))
-
 
 class CommunicationCreateForm(ModelForm):
     records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
