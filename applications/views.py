@@ -1137,7 +1137,7 @@ class OrganisationAccessRequest(ListView):
            if self.request.GET['applicant'] != '':
                context['applicant'] = int(self.request.GET['applicant'])
 
-	if 'appstatus' in self.request.GET:
+        if 'appstatus' in self.request.GET:
            if self.request.GET['appstatus'] != '':
                context['appstatus'] = int(self.request.GET['appstatus'])
         context['query_string'] = ''
