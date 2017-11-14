@@ -5589,7 +5589,7 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
                user = EmailUser.objects.get(pk=self.kwargs['pk'])
                return user
             elif self.request.user.id == int(self.kwargs['pk']):
-		user = EmailUser.objects.get(pk=self.kwargs['pk'])
+                user = EmailUser.objects.get(pk=self.kwargs['pk'])
                 return user
             else:
                 messages.error(
