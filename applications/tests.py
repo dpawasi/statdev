@@ -67,7 +67,7 @@ class StatDevTestCase(TestCase):
         self.app2 = mixer.blend(
             Application, app_type=Application.APP_TYPE_CHOICES.licence,
             state=Application.APP_STATE_CHOICES.draft, assignee=self.user3,routeid=3.1)
-        self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21)
+        self.ref1 = mixer.blend(Referral, application=self.app1, referee=self.referee, period=21, status=Referral.REFERRAL_STATUS_CHOICES.referred)
 
 
 class ApplicationTest(StatDevTestCase):
