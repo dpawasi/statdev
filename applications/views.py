@@ -1243,6 +1243,7 @@ class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequestView, self).get_context_data(**kwargs)
         app = self.get_object()
+        context['org'] = Organisation.objects.get(abn=app.abn)
 #        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         return context
 
