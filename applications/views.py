@@ -504,7 +504,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
             if pending_org.pin1 and pending_org.pin2:
                if Organisation.objects.filter(abn=pending_org.abn).exists():
                     initial['company_exists'] = 'yes'
- 
 
 
         return initial
@@ -704,6 +703,7 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                Delegate.objects.create(email_user=pending_org.email_user,organisation=comp)
                #print "Approved" 
                messages.success(self.request, 'Your company has now been linked.')
+               pending_org.save()
            else:
               if self.request.user.is_staff is True:
                  donothing ='dsaf' 
@@ -1243,6 +1243,7 @@ class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequestView, self).get_context_data(**kwargs)
         app = self.get_object()
+        context['org'] = Organisation.objects.get(abn=app.abn)
 #        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         return context
 
