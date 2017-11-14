@@ -116,7 +116,7 @@
                                 <th>Title</th>
                                 <th>Applicant</th>
                                 <th>Status</th>
-                                <th>Lodged on</th>
+                                <th  data-sorter="shortDate" data-date-format="dd-mmm-yyyy" >Lodged on</th>
                                 <th>Assignee</th>
 				<th>Submitter</th>
                                 <th>Payment status</th>
@@ -165,14 +165,12 @@
 
     </div>
 </div>
-
 <script>
 function loadApprovalTable() {
     $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
- "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ 9 ] }
-       ] 
-
+     columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { 'bSortable': false, 'aTargets':  9 }
+     ] 
 });
 }
 window.onload= function() {
