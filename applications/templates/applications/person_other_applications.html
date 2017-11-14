@@ -162,9 +162,12 @@
     <script>
 function loadTable() {
     $('#application-table').dataTable({searching: false, paging: true, "pageLength": 10,
- "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ {% if staff == True %}9{% else %}7{% endif %} ] }
-       ]
+     columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { 'bSortable': false, 'aTargets':  {% if staff == True %}9{% else %}7{% endif %} }
+     ]
+// "aoColumnDefs": [
+//          { 'bSortable': false, 'aTargets': [ {% if staff == True %}9{% else %}7{% endif %} ] }
+//       ]
 
 });
 }
