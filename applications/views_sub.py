@@ -347,7 +347,6 @@ class FormsList():
                 for se_wo in query_str_split:
                     search_filter &= Q(Q(pk__icontains=se_wo) | Q(title__icontains=se_wo))
 
-        print search_filter
 #        applications = Application.objects.filter(Q(app_type__in=APP_TYPE_CHOICES_IDS) & Q(search_filter) ).exclude(state=17)[:200]
         applications = Application.objects.filter(Q(search_filter) ).exclude(state=17)[:200]
         usergroups = self_view.request.user.groups.all()
@@ -426,7 +425,7 @@ class FormsList():
             context['app_list'].append(row)
 
         return context
-		
+
     def get_clearance(self,self_view,userid,context):
         context['nav_other_clearance'] = "active"
         if 'q' in self_view.request.GET and self_view.request.GET['q']:
