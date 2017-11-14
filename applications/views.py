@@ -1807,7 +1807,6 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
         action = self.kwargs['action']
         nextstep = ''
         apply_on_behalf_of = 0
-
         if 'apply_on_behalf_of' in forms_data:
             apply_on_behalf_of = forms_data['apply_on_behalf_of']
         if action == 'new':
@@ -1815,10 +1814,8 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
                nextstep = 'apptype'
             else:
                nextstep = 'info'
-
         elif action == 'info':
             nextstep = 'apptype'
-
         app = Application.objects.get(pk=self.object.pk)
         if action == 'apptype':
             if self.request.user.groups.filter(name__in=['Processor']).exists():
