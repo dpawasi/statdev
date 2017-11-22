@@ -90,7 +90,7 @@
                                 <th>Company</th>
                                 <th>Applicant</th>
                                 <th>Status</th>
-                                <th>Lodge On</th>
+                                <th>Lodged On</th>
                                 <th>Assigned to</th>
                                 <th>Action</th>
                             </tr>
@@ -102,8 +102,8 @@
                                 <td>{{ item_obj.name }}</td>
                                 <td>{{ item_obj.email_user.get_full_name }}</td>
                                 <td>{{ item_obj.get_status_display }} </td>
-                                <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
-                                <td>{{ app_obj.app.assignee.get_full_name }}</td>
+                                <td>{{ item_obj.submit_date|date:"d-M-Y" }}</td>
+                                <td>{{ item_obj.app.assignee.get_full_name }}</td>
                                 <td>
 				    {% if item_obj.status == 1 %}
                                     <a class="btn btn-info pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">Process</a> 

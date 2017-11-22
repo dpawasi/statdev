@@ -113,18 +113,18 @@ class CreateLinkCompanyForm(ModelForm):
     postal_line1 = CharField(required=False,max_length=255)
     postal_line2 = CharField(required=False, max_length=255)
     postal_line3 = CharField(required=False, max_length=255)
-    postal_locality = CharField(required=False, max_length=255)
+    postal_locality = CharField(required=False, max_length=255, label='Town/Suburb')
+    postal_postcode = CharField(required=False, max_length=10)
     postal_state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
     postal_country = ChoiceField(sorted(COUNTRIES.items()), required=False)
-    postal_postcode = CharField(required=False, max_length=10)
 
     billing_line1 = CharField(required=False,max_length=255)
     billing_line2 = CharField(required=False, max_length=255)
     billing_line3 = CharField(required=False, max_length=255)
-    billing_locality = CharField(required=False, max_length=255)
+    billing_locality = CharField(required=False, max_length=255, label='Town/Suburb')
+    billing_postcode = CharField(required=False, max_length=10)
     billing_state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
     billing_country = ChoiceField(sorted(COUNTRIES.items()), required=False)
-    billing_postcode = CharField(required=False, max_length=10)
     company_exists = CharField(required=False,widget=HiddenInput()) 
     company_id = CharField(required=False,max_length=255,widget=HiddenInput())
 
@@ -158,8 +158,8 @@ class CreateLinkCompanyForm(ModelForm):
                 crispy_boxes.append(crispy_box('ident_collapse','form_ident','Certificate of Incorporation',crispy_h3("Please provide certificate of incorporation?"),'identification' ))
                 self.fields['identification'].label = "Incorporation Certificate"
         elif step == '3':
-            crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_state','postal_country','postal_postcode'))
-            crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_state','billing_country','billing_postcode'))
+            crispy_boxes.append(crispy_box('postal_information_collapse','form_postal_informtion','Enter Postal Information','postal_line1','postal_line2','postal_line3','postal_locality','postal_postcode','postal_state','postal_country'))
+            crispy_boxes.append(crispy_box('billing_information_collapse','form_billing_information','Enter Billing Information','billing_line1','billing_line2','billing_line3','billing_locality','billing_postcode','billing_state','billing_country'))
         elif step == '4':
             if self.initial['company_exists'] == 'yes':
                   crispy_boxes.append(crispy_box('company_complete_collapse','form_complete_company','Complete',crispy_para_no_label('To complete your company access request, please click complete.')))
@@ -186,10 +186,10 @@ class FirstLoginInfoForm(ModelForm):
     line1 = CharField(required=False,max_length=255)
     line2 = CharField(required=False, max_length=255)
     line3 = CharField(required=False, max_length=255)
-    locality = CharField(required=False, max_length=255)
+    locality = CharField(required=False, max_length=255, label='Town/Suburb')
+    postcode = CharField(required=False, max_length=10)
     state = ChoiceField(required=False, choices=Address.STATE_CHOICES)
     country = ChoiceField(sorted(COUNTRIES.items())) 
-    postcode = CharField(required=False, max_length=10)
     manage_permits = ChoiceField(label='Do you manage licences, permits or Part 5 on behalf of a company?', required=False,choices=BOOL_CHOICES, widget=RadioSelect(attrs={'class':'radio-inline'}))
 
     class Meta:
@@ -2008,6 +2008,8 @@ class AddressForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AddressForm, self).__init__(*args, **kwargs)
+
+        self.fields['locality'].label = 'Town/Suburb'
         self.helper = BaseFormHelper(self)
         self.helper.form_id = 'id_form_address'
         self.helper.attrs = {'novalidate': ''}

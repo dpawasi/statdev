@@ -1,6 +1,7 @@
     
 <div class="col-sm-4 col-md-3 col-lg-2">
 {% if admin_staff == True %}
+{% if org %}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">Actions</h3>
@@ -16,6 +17,7 @@
         <ul>
     </div>
 </div>
+	{% endif %}
 {% endif %}
 </div>
 
