@@ -91,7 +91,7 @@ class PublicApplicationFeedback(UpdateView):
         status=None
         application = Application.objects.get(id=app_id)
       
-        if action == 'drafts':
+        if action == 'draft':
              status='draft'
         elif action == 'final': 
              status='final' 
