@@ -19,7 +19,7 @@ def has_staff(user):
 def has_admin(user):
     staff_groups = ['Processor']
     user_groups = user.groups.all()
-    for sg in user_groups:
+    for sg in staff_groups:
         group = Group.objects.get(name=sg)
         if group in user.groups.all():
             return True
