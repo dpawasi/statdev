@@ -260,7 +260,6 @@ class Referrals_Next_Action_Check():
 
     def get(self,app):
         app_refs = Referral.objects.filter(application=app)
-        print app_refs
         referralscompleted = True
         for ref in app_refs:
             if ref.status == Referral.REFERRAL_STATUS_CHOICES.referred:
