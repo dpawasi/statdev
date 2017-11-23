@@ -2376,6 +2376,7 @@ class ReferralConditions(UpdateView):
         referral.feedback = forms_data['comments'] 
         referral.proposed_conditions = forms_data['proposed_conditions']
         referral.response_date = date.today() 
+        referral.status = Referral.REFERRAL_STATUS_CHOICES.responded
 
         records = referral.records.all()
         for la_co in records:
@@ -2393,6 +2394,17 @@ class ReferralConditions(UpdateView):
                 referral.records.add(doc)
 
         referral.save()
+
+        refnextaction = Referrals_Next_Action_Check()
+        refactionresp = refnextaction.get(application)
+        if refactionresp == True:
+            refnextaction.go_next_action(application)
+            # Record an action.
+            action = Action(
+                content_object=application,
+                action='No outstanding referrals, application status set to "{}"'.format(application.get_state_display()))
+            action.save()
+
 
         return HttpResponseRedirect('/')
 
