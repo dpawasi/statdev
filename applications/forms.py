@@ -150,7 +150,7 @@ class CreateLinkCompanyForm(ModelForm):
             #print Organisation.objects.get(abn=)
             #print self.initial['company_exists']
             if self.initial['company_exists'] == 'yes':
-                crispy_boxes.append(crispy_box('pins_collapse','form_pins','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2','company_exists','company_id' ))
+                crispy_boxes.append(crispy_box('pins_collapse','form_pins','Please Enter Pins',crispy_h3("Please enter company pins?"),'pin1','pin2','company_exists','company_id' ,crispy_para_no_label('The following people can provide pins for this organisation:'), crispy_para_no_label(str(self.initial['company_delegates']))))
                 self.fields['pin1'].required = True
                 self.fields['pin2'].required = True
             else:

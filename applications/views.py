@@ -435,6 +435,14 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                           companyextras = OrganisationExtras.objects.get(organisation=company.id)
                           initial['company_id'] = company.id
                           initial['company_exists'] = 'yes'
+                          listusers = Delegate.objects.filter(organisation__id=company.id)
+                          delegate_people = ''
+                          for lu in listusers:
+                               if delegate_people == '':
+                                   delegate_people = lu.email_user.first_name + ' '+ lu.email_user.last_name 
+                               else:
+                                   delegate_people = delegate_people + ', ' + lu.email_user.first_name + ' ' + lu.email_user.last_name
+                          initial['company_delegates'] = delegate_people
                        else:
                           initial['company_exists'] = 'no'
                     else:
@@ -538,8 +546,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                    if Attachment_Extension_Check('single', request.FILES['identification'], ['.pdf','.png','.jpg']) is False:
                       messages.error(self.request,'Identification contains and unallowed attachment extension.')
                       return HttpResponseRedirect(request.path)
-
-
 
         if request.POST.get('cancel'):
             app = self.get_object().application_set.first()
@@ -3209,6 +3215,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
                                      self.object.routeid = ro['route']
                                      self.object.state = ro['state']
+                                     self.object.route_status = flow.json_obj[ro['route']]['title']
                                      self.object.save()
 
                                      routeurl = "application_update" 
@@ -3349,7 +3356,7 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         action.save()
         # Success message.
         msg = """Your {0} application has been successfully submitted. The application
-        number is: <strong>{1}</strong>.<br>
+        number is: <strong>WO-{1}</strong>.<br>
         Please note that routine applications take approximately 4-6 weeks to process.<br>
         If any information is unclear or missing, Parks and Wildlife may return your
         application to you to amend or complete.<br>
@@ -3661,6 +3668,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           organisation = app.organisation,
                                           application=app,
                                           start_date = app.assessment_start_date,
+                                          expiry_date = app.expire_date,
                                           status = 1
                 )
    
@@ -4197,7 +4205,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
 
                 msg = """<strong>The emergency works has been successfully issued.</strong><br />
                 <br />
-                <strong>Emergency Works:</strong> \t{0}<br />
+                <strong>Emergency Works:</strong> \tEW-{0}<br />
                 <strong>Date / Time:</strong> \t{1}<br />
                 <br />
                 <a href="{2}">{3}</a>
