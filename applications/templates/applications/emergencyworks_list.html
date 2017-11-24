@@ -99,7 +99,6 @@
                                 <th>Issue Date</th>
                                 <th>Start Date</th>
                                 <th>Expiry Date</th>
-                                <th>Assigned to</th>
                                 <th>Emergency Works</th>
                                 <th>Action</th>
                             </tr>
@@ -120,7 +119,6 @@
                                 <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.proposed_commence|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.proposed_end|date:"d-M-Y" }}</td>
-                                <td>{{ app_obj.app.assignee.get_full_name }}</td>
                                 <td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
                                 <td>
                                     <ul class="nav navbar-nav">

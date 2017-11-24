@@ -35,7 +35,7 @@
                     "route": "1",
                     "routeurl": "application_update",
                     "required" : [],
-                    "state": "15"
+                    "state": "1"
                 }
                 ]
             },
@@ -268,11 +268,19 @@
             "deed": "False",
             "publication": "True",
             "conditions": "True",
-            "assessments": "True",
+            "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "True"
         },
         "actions": [
+            {
+                "title": "Reject to Admin Officer/s",
+                "route": "2",
+                "routegroup": "admin",
+                "state": "2",
+                "required": []
+
+            },
             {
                 "title": "Send to Manager/s",
                 "route": "5",
@@ -293,7 +301,7 @@
                 "may_refer":"False",
                 "may_assign":"False",
                 "may_assign_customer": "False",
-                "may_assign_processor": "False",
+                "may_assign_processor": "True",
                 "may_create_condition":"True",
                 "may_update_condition":"True",
                 "may_submit_approval": "True",
