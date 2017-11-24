@@ -106,7 +106,7 @@
                                 <td>{{ item_obj.app.assignee.get_full_name }}</td>
                                 <td>
 				    {% if item_obj.status == 1 %}
-                                    <a class="btn btn-info pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">Process</a> 
+                                    	<a class="btn btn-info pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">Process</a> 
 				    {% else %}
 					<a class="btn btn-primary pull-right" role="button" href="{% url "organisation_access_requests_view" item_obj.pk %}">View</a>
  				    {% endif %}
@@ -133,7 +133,5 @@ window.onload= function() {
     loadTable();
 }
 </script>
-
-
 
 {% endblock %}

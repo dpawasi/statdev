@@ -401,6 +401,11 @@ class CommunicationCreateForm(ModelForm):
         #application = kwargs.pop('application')
         super(CommunicationCreateForm, self).__init__(*args, **kwargs)
 
+        # Werid just deleting the option doesn't from the array doesn't update the array..
+        del self.fields['comms_type'].choices[4]
+        # because just a delete doesn't update  the array.  Have to do this line as well to update the choices list.
+        self.fields['comms_type'].choices = self.fields['comms_type'].choices
+
         self.fields['comms_to'].required = True
         self.fields['comms_from'].required = True
         self.fields['subject'].required = True
@@ -620,6 +625,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['anchorage'].label = "List all anchorage areas"
         self.fields['operating_details'].label = "Hours and days of operation including length of tours / lessons"
         self.fields['vessel_or_craft_details'].label = "Are there any vessels or crafts to be noted in this application?"
+        self.fields['assessment_start_date'].label = "Start Date"
 
         vesselandcraftdetails = crispy_para("Any vessel or craft to be used by a commercial operator in the river reserve must be noted in this application with the relevent Department of Transport certificate of survery or hire and driver registration.")
         deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
@@ -778,6 +784,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['project_no'].label = "Riverbank project number (if applicable)"
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
+        self.fields['assessment_start_date'].label = "Start Date"
 
 #       self.fields['records'].label = "Attach more detailed descripton, maps or plans"
         self.fields['title'].required = False      
@@ -884,8 +891,6 @@ class ApplicationChange(ApplicationFormMixin, ModelForm):
         self.helper.attrs = {'novalidate': ''}
         self.helper.add_input(Submit('createform', 'Create Form', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
-
-
 
 class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
@@ -1081,7 +1086,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
                  self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
                  self.helper.add_input(Submit('cancel', 'Cancel'))
 
- 
+        self.fields['assessment_start_date'].label = "Start Date" 
         #self.fields['applicant'].disabled = True
 
         self.helper.form_id = 'id_form_update_part_5'
@@ -1415,7 +1420,7 @@ class ApplicationAssignNextAction(ModelForm):
             HTML('<p>Application Next Action</p>'),
             'details','sumbitter_comment','records',
             FormActions(
-                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('assign', 'Submit', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
             )
         )

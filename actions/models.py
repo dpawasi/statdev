@@ -22,7 +22,8 @@ class Action(models.Model):
         (6, 'publish', ('Publish')),
         (7, 'lodge', ('Lodge')),
         (8, 'action', ('Next Step')),
-        (9, 'change', ('Change'))
+        (9, 'change', ('Change')),
+        (10, 'create',('Create'))
         # TODO: Compliance request
         # TODO: Request/add/remove delegate
     )

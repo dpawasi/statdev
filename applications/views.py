@@ -755,9 +755,12 @@ class ApplicationApplicantChange(LoginRequiredMixin,DetailView):
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
             search_filter = Q()
-            listusers = Delegate.objects.filter(organisation__name__icontains=query_str)
+            search_filter = Q(first_name__icontains=query_str) | Q(last_name__icontains=query_str) | Q(email__icontains=query_str)
+            print search_filter
+            listusers = EmailUser.objects.filter(search_filter).exclude(is_staff=True)
+            print query_str
         else:
-            listusers =  EmailUser.objects.all()
+            listusers =  EmailUser.objects.all().exclude(is_staff=True)[100]
 
         context['acc_list'] = []
         for lu in listusers:
@@ -3483,6 +3486,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 #        print hasattr(app, appt)
 #        print getattr(app, appt)
 #        print app.routeid
+
         if app.assignee is None:
             messages.error(self.request, 'Please Allocate an Assigned Person First')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -3557,13 +3561,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         action = self.kwargs['action']
 
         # Upload New Files
-        #doc = None
-        #if self.request.FILES.get('records'):  # Uploaded new file.
+        # doc = None
+        # if self.request.FILES.get('records'):  # Uploaded new file.
         #    doc = Record()
         #    doc.upload = forms_data['records']
         #    doc.name = forms_data['records'].name
         #    doc.save()
-        #print doc
+        # print doc
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         DefaultGroups = flow.groupList()
@@ -3849,8 +3853,10 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
             action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_state_display()))
         action.save()
         if self.request.user != app.assignee:
+            messages.success(self.request, 'Assign person completed')
             return HttpResponseRedirect(reverse('application_list'))
         else:
+            messages.success(self.request, 'Assign person completed')
             return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
@@ -4139,7 +4145,7 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
                action='Application Discard')
         action.save()
         messages.success(self.request, "Your application has been discard")
-        return HttpResponseRedirect(self.get_success_url(self.kwargs['pk']))
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
         initial = super(ApplicationDiscard, self).get_initial()
@@ -5228,7 +5234,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         self.object.save()
         # Record an action on the application:
         action = Action(
-            content_object=app, user=self.request.user,
+            content_object=app, category=Action.ACTION_CATEGORY_CHOICES.create, user=self.request.user,
             action='Created condition {} (status: {})'.format(self.object.pk, self.object.get_status_display()))
         action.save()
         return super(ConditionCreate, self).form_valid(form)

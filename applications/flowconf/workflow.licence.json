@@ -687,6 +687,14 @@
         },
         "actions": [
             {
+                "title": "Reject to Admin Officer/s",
+                "route": "3.2",
+                "routegroup": "admin",
+                "state": "3",
+                "required": []
+
+            },
+            {
                 "title": "Send to Manager/s",
                 "route": "5",
                 "routegroup": "manager",
@@ -706,7 +714,7 @@
                 "may_refer":"False",
                 "may_assign":"False",
                 "may_assign_customer": "False",
-                "may_assign_processor": "False",
+                "may_assign_processor": "True",
                 "may_create_condition":"False",
                 "may_submit_approval": "True",
                 "may_issue": "False",
