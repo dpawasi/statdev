@@ -756,9 +756,7 @@ class ApplicationApplicantChange(LoginRequiredMixin,DetailView):
             query_str_split = query_str.split()
             search_filter = Q()
             search_filter = Q(first_name__icontains=query_str) | Q(last_name__icontains=query_str) | Q(email__icontains=query_str)
-            print search_filter
             listusers = EmailUser.objects.filter(search_filter).exclude(is_staff=True)
-            print query_str
         else:
             listusers =  EmailUser.objects.all().exclude(is_staff=True)[100]
 
