@@ -855,7 +855,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
             crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
         # Assessment
         if check_fields_exist(self.fields,['assessment_start_date','expire_date']) is True:
-            crispy_boxes.append(crispy_box('assessment_collapse', 'form_assessement', 'Assessments','assessment_start_date','expire_date','document_final'))
+            crispy_boxes.append(crispy_box('assessment_collapse', 'form_assessement', 'Assessment','assessment_start_date','expire_date','document_final'))
             crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
         # Deed
         if check_fields_exist(self.fields,['deed']) is True:
@@ -1086,8 +1086,8 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
              else:
                  self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
                  self.helper.add_input(Submit('cancel', 'Cancel'))
-
-        self.fields['assessment_start_date'].label = "Start Date" 
+        if 'assessment_start_date' in self.fields:
+            self.fields['assessment_start_date'].label = "Start Date" 
         #self.fields['applicant'].disabled = True
 
         self.helper.form_id = 'id_form_update_part_5'
