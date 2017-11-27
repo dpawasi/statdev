@@ -119,7 +119,12 @@
 								<td><a href="{% url 'approval_detail' app_obj.app.pk %}">AP-{{ app_obj.app.pk }}</a></td>
 								<td>{{ app_obj.app.get_app_type_display }}</td>
 								<td>{{ app_obj.app.title }}</td>
-								<td>{{ app_obj.app.applicant.get_full_name }}</td>
+								<td>    {% if app_obj.app.organisation %}
+					                                 {{ app_obj.app.organisation }}
+        					                        {% else %}
+                                					 {{ app_obj.app.applicant.get_full_name }}
+					                                {% endif %}
+								</td>
 								<td>{{ app_obj.app.get_status_display }}</td>
 								<td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
 								<td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
@@ -129,31 +134,37 @@
 										<li class="dropdown">
 											<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
 											<ul class="dropdown-menu" role="menu">
+                                                                                                <li><a href="{% url 'approval_detail' app_obj.app.pk %}">View</a></li>
+                                                                                                {% if app_obj.app.status == 1 %}
 												{% if app_obj.app.app_type == 3 %}
 												<!-- Add Logic to check if ammendment request has been completed -->
 												{% if app_obj.app.ammendment_application %}
 												{% if app_obj.app.ammendment_application.get_state_display == "Approved" %}
-												<li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
+												<li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Amend</a></li>
 												{% endif %}
 												{% endif %}
 												{% else %}
-												<li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Ammend</a></li>
+												<li><a href="{% url 'application_change' app_obj.app.pk 'amend' %}">Amend</a></li>
 												{% endif %}
 												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'cancelled' %}" title="Cancel">Cancel</a></li>
 												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'expired' %}" title="Expire">Expire</a></li>
 												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'suspended' %}" title="Suspend">Suspend</a></li>
 												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'surrendered' %}" title="Surrendered">Surrendered</a></li>
-
-												<li><a href="{% url 'approval_status_change' app_obj.app.pk 'reinstate' %}" title="Reinstate">Reinstate</a></li>
+												
 												{% if app_obj.app.app_type == 3 %}
 												{% else %}
 												<li><a href="/">Renew</a></li>
 
 												<li><a href="/" title="Administration">Renewal Notice</a></li>
 												{% if app_obj.app.app_type == 3 %}
-												<li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Request Ammendment</a></li>
+												<li><a href="{% url 'application_change' app_obj.app.pk 'requestamendment' %}">Request Amendment</a></li>
 												{% endif %}
 												{% endif %}
+												{% endif %}
+                                                                                                {% if app_obj.app.status == 5 or app_obj.app.status == 3 %}
+													<li><a href="{% url 'approval_status_change' app_obj.app.pk 'reinstate' %}" title="Reinstate">Reinstate</a></li>
+												{% endif %}
+
 											</ul>   
 										</li>
 									</ul>

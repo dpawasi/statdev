@@ -785,6 +785,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         self.fields['related_permits'].label = "Details of related permits"
         self.fields['description'].label = "Description of works, acts or activities"
         self.fields['assessment_start_date'].label = "Start Date"
+        self.fields['over_water'].label = "Are any proposed works, acts or activities in or over waters?"
 
 #       self.fields['records'].label = "Attach more detailed descripton, maps or plans"
         self.fields['title'].required = False      
@@ -1397,7 +1398,7 @@ class ApplicationAssignNextAction(ModelForm):
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
     sumbitter_comment = CharField(required=False, widget=Textarea, help_text='Reason to show to submitter')
     #records = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Documents')
+    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Documents')
    
     class Meta:
         model = Application

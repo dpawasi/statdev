@@ -756,9 +756,9 @@ class ApplicationApplicantChange(LoginRequiredMixin,DetailView):
             query_str_split = query_str.split()
             search_filter = Q()
             search_filter = Q(first_name__icontains=query_str) | Q(last_name__icontains=query_str) | Q(email__icontains=query_str)
-            listusers = EmailUser.objects.filter(search_filter).exclude(is_staff=True)
+            listusers = EmailUser.objects.filter(search_filter).exclude(is_staff=True)[:100]
         else:
-            listusers =  EmailUser.objects.all().exclude(is_staff=True)[100]
+            listusers =  EmailUser.objects.all().exclude(is_staff=True)[:100]
 
         context['acc_list'] = []
         for lu in listusers:
@@ -2690,7 +2690,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         initial["workflow"] = flowcontent
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
-        initial['sumbitter_comment'] = app.sumbitter_comment
+        if app.route_status == 'Draft':
+            initial['sumbitter_comment'] = app.sumbitter_comment
         initial['state'] = app.state
 
 #       flow = Flow()
@@ -3369,6 +3370,16 @@ class ApplicationLodge(LoginRequiredMixin, UpdateView):
         You will be notified by email once your {0} application has been determined and/or
         further action is required.""".format(app.get_app_type_display(), app.pk)
         messages.success(self.request, msg)
+
+
+        emailcontext = {}
+        emailcontext['app'] = self.object
+
+        emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+        emailcontext['person'] = app.submitted_by
+        emailcontext['body'] = msg 
+        sendHtmlEmail([app.submitted_by.email], emailcontext['application_name'] + ' application submitted ', emailcontext, 'application-lodged.html', None, None, None)
+
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -3642,7 +3653,8 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         elif action == "creator":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailcontext['person'] = assignee
-            sendHtmlEmail([assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
+            emailcontext['admin_comment'] = forms_data['sumbitter_comment']
+            sendHtmlEmail([assignee.email], emailcontext['application_name'] + ' application requires more information ', emailcontext, 'application-assigned-to-submitter.html', None, None, None)
         elif action == "referral":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
@@ -4135,6 +4147,7 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.state = 17
+        self.object.route_status = "Deleted"
         self.object.save()
 
         # Record an action on the application:

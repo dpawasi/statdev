@@ -78,7 +78,7 @@ class ApprovalList(ListView):
  #           query_str = self.request.GET['q']
   #          objlist = ApprovalModel.objects.filter(Q(pk__contains=query_str) | Q(title__icontains=query_str) | Q(applicant__email__icontains=query_str))
         else:
-            objlist = ApprovalModel.objects.filter(status=1)
+            objlist = ApprovalModel.objects.filter()
         usergroups = self.request.user.groups.all()
 
         context['app_list'] = []
