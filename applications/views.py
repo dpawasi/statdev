@@ -803,9 +803,19 @@ class ApplicationApplicantCompanyChange(LoginRequiredMixin,DetailView):
 
         return context
 
-class ApplicationList(ListView):
-
+class ApplicationList(LoginRequiredMixin,ListView):
     model = Application
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        staff = context_processor['staff']
+        if staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ApplicationList, self).get(request, *args, **kwargs)
+
 
     def get_queryset(self):
         qs = super(ApplicationList, self).get_queryset()
