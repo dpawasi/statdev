@@ -101,7 +101,7 @@
                                                                                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
                                                                                         <ul class="dropdown-menu" role="menu">
 												{% if app_obj.app.get_status_display == "Current" or app_obj.app.get_status_display == "Suspended" %}
-												<li><A HREF='{% url 'application_change' app_obj.app.pk 'amend' %}'>Ammend</A></li>
+												<li><A HREF='{% url 'application_change' app_obj.app.pk 'amend' %}'>Amend</A></li>
 												
 												{% endif %}
 												<li><A HREF=''>Renew</A></li>
