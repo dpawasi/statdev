@@ -147,7 +147,16 @@
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
                                             <ul class="dropdown-menu" role="menu">
                                                 <li><a href="{% url 'application_detail' app_obj.app.pk %}" title="View">View</a></li>
+                                                {% if request.user == app_obj.app.assignee %}
                                                 <li><a href="{% url 'application_update' app_obj.app.pk %}" title="Reinstate">Process</a></li>
+                                                {% else %}
+							{% if app_obj.may_assign_to_person == "True" %}
+									{% if app_obj.app.assignee == None %}
+											 <li><a href="{% url 'application_assign_person' app_obj.app.pk %}" title="Reinstate">Process</a></li>		
+									{% endif %}
+							{% endif %}
+						{% endif %}
+						
                                                 {% if app_obj.may_assign_to_person == "True" %}
                                                 <li><a href="{% url 'application_assign_person' app_obj.app.pk %}" title="Assign Person">{% if app_obj.app.assignee == None %}Assign Person{% else %}Re Assign Person{% endif %}</a></li>
                                                 {% endif %}
