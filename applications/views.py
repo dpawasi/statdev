@@ -1288,9 +1288,9 @@ class SearchPersonList(ListView):
             # Add Organsations Results , Will also filter out duplicates
             search_filter |= Q(pk__in=orgs)
             # Get all applicants
-            listusers = EmailUser.objects.filter(search_filter)[:200]
+            listusers = EmailUser.objects.filter(search_filter).exclude(is_staff=True)[:200]
         else:
-            listusers = EmailUser.objects.all().order_by('-id')[:200]       
+            listusers = EmailUser.objects.all().exclude(is_staff=True).order_by('-id')[:200]       
 
         context['acc_list'] = []
         for lu in listusers:
