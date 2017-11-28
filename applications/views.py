@@ -2649,6 +2649,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         return context
 
+    def get_success_url(self,app):
+        print app.get_absolute_url()+'update/'
+        return HttpResponseRedirect(app.get_absolute_url())
+
     def get_form_class(self):
         if self.object.app_type == self.object.APP_TYPE_CHOICES.licence:
             return apps_forms.ApplicationLicencePermitForm
@@ -3235,7 +3239,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                                          routeurl = ro["routeurl"]
                                      return HttpResponseRedirect(reverse(routeurl,kwargs={'pk':self.object.id}))
         self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(self.object.get_absolute_url()+'update/')
+        #return HttpResponseRedirect(self.get_success_url(self.object))
 
 class ApplicationLodge(LoginRequiredMixin, UpdateView):
     model = Application
