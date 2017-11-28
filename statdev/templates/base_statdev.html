@@ -120,6 +120,26 @@
 </script>
 <script  type="text/javascript" src="/static/js/unsaved_form.js"></script>
 
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Unsaved Form Data</h4>
+      </div>
+      <div class="modal-body">
+        <p>Your form has data that has not yet been saved.  Click yes to continue without saving or no to cancel and return to your form.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="django_form_checks.loadUrl();">Dont Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 {% endblock extra_js %}
