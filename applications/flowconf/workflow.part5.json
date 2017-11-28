@@ -620,7 +620,7 @@
         },
         "actions": [
             {
-                "title": "Approve to Director",
+                "title": "Send to Director",
                 "route": "6",
                 "routegroup": "director",
                 "state": "12"
@@ -1591,7 +1591,7 @@
 
             },
             {
-                "title": "Approve to Director (Public)",
+                "title": "Send to Director (Public)",
                 "route": "16",
                 "routegroup": "director",
                 "state": "12"
@@ -2199,7 +2199,7 @@
 
             },
             {
-                "title": "Approve to Director (Determination)",
+                "title": "Send to Director (Determination)",
                 "route": "21",
                 "routegroup": "director",
                 "state": "12"
