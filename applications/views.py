@@ -1260,7 +1260,10 @@ class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequestView, self).get_context_data(**kwargs)
         app = self.get_object()
-        context['org'] = Organisation.objects.get(abn=app.abn)
+        try:
+             context['org'] = Organisation.objects.get(abn=app.abn)
+        except: 
+             donothing = ''
 #        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         return context
 
@@ -4827,6 +4830,11 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
                 doc.save()
                 self.object.records.add(doc)
 
+        action = Action(
+            content_object=self.object.application, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.create,
+            action='Newspaper Publication ({} {}) '.format(self.object.newspaper, self.object.date) )
+        action.save()
+
         return super(NewsPaperPublicationCreate, self).form_valid(form)
 
 
@@ -4906,6 +4914,12 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.upload = f
                 doc.save()
                 self.object.records.add(doc)
+
+        action = Action(
+            content_object=self.object.application, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+            action='Newspaper Publication ({} {}) '.format(self.object.newspaper, self.object.date) )
+        action.save()
+
 
         return HttpResponseRedirect(app.get_absolute_url())
 
