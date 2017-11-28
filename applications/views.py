@@ -2650,7 +2650,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self,app):
-        print app.get_absolute_url()+'update/'
         return HttpResponseRedirect(app.get_absolute_url())
 
     def get_form_class(self):
