@@ -8,6 +8,11 @@ var django_form_checks = {
 			      django_form_checks.var.form_changed = 'changed';
 			      console.log('changed');
 			      });
+              $("form input[type=file]").change(function() {
+                              django_form_checks.var.form_changed = 'changed';
+                              console.log('changed');
+                              });
+
 
 	      $("a").click(function(e) { 
                          var href= $(this).attr('href');
