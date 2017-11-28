@@ -2182,7 +2182,9 @@ class ApplicationCommsCreate(CreateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('home_page'))
+#            return HttpResponseRedirect(reverse('home_page'))
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())
         return super(ApplicationCommsCreate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):

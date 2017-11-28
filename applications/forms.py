@@ -1878,6 +1878,7 @@ class WebsitePublicationCreateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(WebsitePublicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
+        self.fields['published_document'].label = 'To be published document'
         self.helper.form_id = 'id_form_create_websitepublication'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
@@ -1896,6 +1897,7 @@ class WebsitePublicationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(WebsitePublicationForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
+        self.fields['published_document'].label = 'To be published document'
         self.helper.form_id = 'id_form_create_websitepublication'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
