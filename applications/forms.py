@@ -855,8 +855,8 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
             crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
         # Assessment
         if check_fields_exist(self.fields,['assessment_start_date','expire_date']) is True:
-            crispy_boxes.append(crispy_box('assessment_collapse', 'form_assessement', 'Assessment','assessment_start_date','expire_date','document_final'))
             crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
+            crispy_boxes.append(crispy_box('assessment_collapse', 'form_assessement', 'Assessment','assessment_start_date','expire_date','document_final'))
         # Deed
         if check_fields_exist(self.fields,['deed']) is True:
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))

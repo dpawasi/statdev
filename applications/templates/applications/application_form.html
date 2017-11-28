@@ -19,8 +19,15 @@
 
             <h1 style='display:none'>{{ page_heading }}</h1>
             {% crispy form %}
-            {% endblock %}
-
         </div>
     </div>
 </div>
+
+<script>
+window.onload = function () {
+        django_form_checks.load();
+}
+
+</script>
+{% endblock %}
+

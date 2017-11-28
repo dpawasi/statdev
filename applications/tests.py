@@ -139,7 +139,7 @@ class ApplicationTest(StatDevTestCase):
         url = reverse('application_update', args=(self.app1.pk,))
         resp = self.client.post(url, {'title': 'foo','vessel_or_craft_details':'1', 'jetty_dot_approval':True, 'food': True, 'beverage': True,'byo_alcohol':True})
         # Create view will redirect to the detail view.
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+        self.assertRedirects(resp, self.app1.get_absolute_url()+"update/")
         a = Application.objects.get(pk=self.app1.pk)
         self.assertEquals(a.title, 'foo')
 
