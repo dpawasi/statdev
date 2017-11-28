@@ -110,11 +110,14 @@
                                  {% if staff == True %}
                                         {{ app_obj.app.get_state_display }}
 				 {% else %}
+			
                             	     {% if app_obj.app.state == 1 %}
                                          {{ app_obj.app.get_state_display }}
 				     {% elif app_obj.app.state == 8 %}
                                          {{ app_obj.app.get_state_display }}
                                      {% elif  app_obj.app.state == 10 %} 
+					{{ app_obj.app.get_state_display }}
+                                     {% elif  app_obj.app.state == 14 %}
 					{{ app_obj.app.get_state_display }}
 				     {% else %}
 					Submitted
