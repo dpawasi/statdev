@@ -4884,8 +4884,9 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            app = self.get_object().application_set.first()
-            return HttpResponseRedirect(app.get_absolute_url())
+ #           print self.get_object().application.pk
+#            app = self.get_object().application_set.first()
+            return HttpResponseRedirect(reverse('application_detail', args=(self.get_object().application.pk,)))
         return super(NewsPaperPublicationUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
