@@ -584,7 +584,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
     location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}) label='Other relevant supporting documentation (if available)' ) 
+    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Other relevant supporting documentation (if available)' ) 
     vessel_or_craft_details = ChoiceField(choices=Application.APP_VESSEL_CRAFT ,widget=RadioSelect(attrs={'class':'radio-inline'}))
     jetty_dot_approval = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     food = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
