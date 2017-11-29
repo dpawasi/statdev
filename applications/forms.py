@@ -567,11 +567,11 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     cert_public_liability_insurance = FileField(
         label='Public liability insurance certificate', required=False, max_length=128)
     risk_mgmt_plan = FileField(
-        label='Risk managment plan', required=False, max_length=128)
+        label='Risk managment plan (if available)', required=False, max_length=128)
     safety_mgmt_procedures = FileField(
-        label='Safety management procedures', required=False, max_length=128)
+        label='Safety management procedures (if available)', required=False, max_length=128)
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}) , label='Brochures, itineraries or advertisements (if available)' )
     #MultiFileField(
     #    required=False, label='Brochures, itineraries or advertisements',
     #    help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
@@ -584,7 +584,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
     location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'})) 
+    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}) label='Other relevant supporting documentation (if available)' ) 
     vessel_or_craft_details = ChoiceField(choices=Application.APP_VESSEL_CRAFT ,widget=RadioSelect(attrs={'class':'radio-inline'}))
     jetty_dot_approval = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     food = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
