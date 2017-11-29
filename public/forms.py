@@ -29,7 +29,7 @@ class ApplicationPart5(ModelForm):
     email = EmailField(required=False,max_length=255)
     email_confirm = EmailField(required=False,max_length=255)
     comments = CharField(required=False,max_length=255, widget=Textarea)
-    
+    records = FileField(required=False, max_length=128 , widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'})) 
 
     class Meta:
         model = Application
@@ -60,7 +60,7 @@ class ApplicationPart5(ModelForm):
         crispy_boxes.append(HTML('{% include "public/river_reserve_licence_snippet.html" %}'))
         crispy_boxes.append(HTML('{% include "public/details_of_proposed_develeopment_snipplet.html" %}'))
 
-        crispy_boxes.append(crispy_box('feedback_collapse','form_feecback','Feedback','name','address','suburb','state','post_code','phone','email','email_confirm','comments',Submit('submitfeedback', 'Submit', css_class='btn-lg')))
+        crispy_boxes.append(crispy_box('feedback_collapse','form_feecback','Feedback','name','address','suburb','state','post_code','phone','email','email_confirm','comments','records',Submit('submitfeedback', 'Submit', css_class='btn-lg')))
 
 #        crispy_boxes.append(HTML('{% include "public/river_reserve_licence_snippet.html" %}'))
 

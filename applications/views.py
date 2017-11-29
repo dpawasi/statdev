@@ -5251,7 +5251,7 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         """Override to redirect to the condition's parent application detail view.
         """
-        return reverse('application_detail', args=(self.object.application.pk,))
+        return reverse('application_update', args=(self.object.application.pk,))
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
