@@ -58,7 +58,6 @@
                         </div>
                         <div class="col-sm-12 col-lg-6">
                         </div>
-
                     </div>
                     <!-- end -->
                 </div>
@@ -79,15 +78,7 @@
                             <th>Type</th>
                             <th>Title</th>
                             <th>Applicant</th>
-                            <th>Status</th>
                             <th>Lodged on</th>
-                            {% if staff == True %}
-                            <th>Assignee</th>
-			    {% endif %}
-			    <th>Submitter</th>
-                             {% if staff == True %}
-                            <th>Payment status</th>
-                            {% endif %}
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -98,21 +89,13 @@
 
                             <td>{{ row_obj.get_app_type_display }}</td>
                             <td>{{ row_obj.title }}</td>
-                            <td>{% if row_obj.app.organisation %}
-                                 {{ row_obj.app.organisation }}
+                            <td>{% if row_obj.organisation %}
+                                 {{ row_obj.organisation }}
                                 {% else %}
-                                 {{ row_obj.app.applicant.get_full_name }}
+                                 {{ row_obj.applicant.get_full_name }}
                                 {% endif %}
                             </td>
-                            <td>{{ row_obj.app.get_state_display }}</td>
-                            <td>{{ row_obj.app.submit_date|date:"d-M-Y" }}</td>
-                            {% if staff == True %}
-                            <td>{{ row_obj.app.assignee.get_full_name }}</td>
-			     {% endif %}
-				<td>{{ row_obj.app.submitted_by.get_full_name }}</td>
-                             {% if staff == True %} 
-                                <td></td>
-                             {% endif %}
+                            <td>{{ row_obj.submit_date|date:"d-M-Y" }}</td>
                             <td><a href="{% url 'public_application' row_obj.pk action %}" title="View">View</a></td>
                         </tr>
                         {% endfor %}
@@ -126,9 +109,9 @@
     <script>
 function loadTable() {
     $('#application-table').dataTable({searching: false, paging: true, "pageLength": 10,
- "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ {% if staff == True %}9{% else %}7{% endif %} ] }
-       ]
+     columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 4 }, { 'bSortable': false, 'aTargets':  5 }
+     ]
 
 });
 }

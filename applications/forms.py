@@ -546,10 +546,18 @@ class ApplicationFormMixin(object):
         cleaned_data = super(ApplicationFormMixin, self).clean()
         # Rule: proposed commence date cannot be later then proposed end date.
         if cleaned_data.get('proposed_commence') and cleaned_data.get('proposed_end'):
+            difference = cleaned_data['proposed_end'] - cleaned_data['proposed_commence'] 
+            years = (difference.days + difference.seconds/86400)/365.2425
             if cleaned_data['proposed_commence'] > cleaned_data['proposed_end']:
                 msg = 'Commence date cannot be later than the end date'
                 self._errors['proposed_commence'] = self.error_class([msg])
                 self._errors['proposed_end'] = self.error_class([msg])
+            if years > 2: 
+                msg = 'Proposed end date must be two years or less from proposed commencement date.'
+                self._errors['proposed_commence'] = self.error_class([msg])
+                self._errors['proposed_end'] = self.error_class([msg])
+
+            
         return cleaned_data
 
 
@@ -559,11 +567,11 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     cert_public_liability_insurance = FileField(
         label='Public liability insurance certificate', required=False, max_length=128)
     risk_mgmt_plan = FileField(
-        label='Risk managment plan', required=False, max_length=128)
+        label='Risk managment plan (if available)', required=False, max_length=128)
     safety_mgmt_procedures = FileField(
-        label='Safety management procedures', required=False, max_length=128)
+        label='Safety management procedures (if available)', required=False, max_length=128)
     deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}) , label='Brochures, itineraries or advertisements (if available)' )
     #MultiFileField(
     #    required=False, label='Brochures, itineraries or advertisements',
     #    help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
@@ -576,7 +584,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
     location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'})) 
+    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Other relevant supporting documentation (if available)' ) 
     vessel_or_craft_details = ChoiceField(choices=Application.APP_VESSEL_CRAFT ,widget=RadioSelect(attrs={'class':'radio-inline'}))
     jetty_dot_approval = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     food = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
@@ -897,12 +905,12 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
     certificate_of_title_volume = CharField(required=False)
     folio = CharField(required=False)
-    diagram_plan_deposit_number = CharField(required=False)
+    diagram_plan_deposit_number = CharField(required=False, label='Diagram / Plan / Deposit number')
+    lot = CharField(required=False, label='Subject lot Lot Number')
     location = CharField(required=False)
     reserve_number = CharField(required=False)
     street_number_and_name = CharField(required=False)
-    town_suburb = CharField(required=False)
-    lot = CharField(required=False)
+    town_suburb = CharField(required=False, label='Town / Suburb')
     nearest_road_intersection = CharField(required=False)
 
     land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
@@ -922,8 +930,10 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
     document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
     document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
-    river_lease_require_river_lease = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
-    river_lease_reserve_licence = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+    river_lease_require_river_lease = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}), label='Does the development require a River reserve lease?')
+    river_lease_reserve_licence = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}), label='Does the proposed development involve an activity in the River reserve that will require a River reserve licence?')
+    river_lease_application_number = CharField(required=False, label='Application number')
+
 
     class Meta:
         model = Application
@@ -990,7 +1000,8 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
         # Certificate of Title Information
         if check_fields_exist(self.fields,['certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection']) is True:
-             crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information','certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection'))
+             crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information','certificate_of_title_volume','folio','diagram_plan_deposit_number','lot','location','reserve_number','street_number_and_name','town_suburb','nearest_road_intersection'))
+             donothing =''
 
         # River Reserve Lease (Swan and Cannning Management Act 2006 - section 29
         if check_fields_exist(self.fields,['river_lease_require_river_lease','river_lease_scan_of_application']) is True:

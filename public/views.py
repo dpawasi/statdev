@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from applications.models import Application, PublicationFeedback
+from applications.models import Application, PublicationFeedback, Record
 from approvals.models import Approval 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.db.models import Q
 from public import forms as apps_forms
 from django.core.urlresolvers import reverse
-
+from django.utils.safestring import SafeText
 
 class PublicApplicationsList(TemplateView):
     #model = appmodel.Application
@@ -62,6 +62,17 @@ class PublicApplicationFeedback(UpdateView):
         context['left_sidebar'] = 'yes'
         context['action'] = self.kwargs['action']
         app = self.get_object()
+
+        doclist = app.proposed_development_plans.all()
+        context['proposed_development_plans_list'] = []
+        for doc in doclist:
+            fileitem = {}
+            fileitem['fileid'] = doc.id
+            fileitem['path'] = doc.upload.name
+            fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            context['proposed_development_plans_list'].append(fileitem)
+
+
         return context
     def get_initial(self):
         initial = super(PublicApplicationFeedback, self).get_initial()
@@ -69,6 +80,8 @@ class PublicApplicationFeedback(UpdateView):
        
         initial['application_id'] = self.kwargs['pk']
         initial['organisation'] = app.organisation
+        if app.river_lease_scan_of_application:
+            initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
 
         return initial
 
@@ -113,6 +126,13 @@ class PublicApplicationFeedback(UpdateView):
  
 	)
 
+
+        if self.request.FILES.get('records'):
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                pfcreate.records.add(doc)
 
 
 
