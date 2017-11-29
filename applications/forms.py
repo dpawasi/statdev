@@ -546,10 +546,18 @@ class ApplicationFormMixin(object):
         cleaned_data = super(ApplicationFormMixin, self).clean()
         # Rule: proposed commence date cannot be later then proposed end date.
         if cleaned_data.get('proposed_commence') and cleaned_data.get('proposed_end'):
+            difference = cleaned_data['proposed_end'] - cleaned_data['proposed_commence'] 
+            years = (difference.days + difference.seconds/86400)/365.2425
             if cleaned_data['proposed_commence'] > cleaned_data['proposed_end']:
                 msg = 'Commence date cannot be later than the end date'
                 self._errors['proposed_commence'] = self.error_class([msg])
                 self._errors['proposed_end'] = self.error_class([msg])
+            if years > 2: 
+                msg = 'Proposed end date must be two years or less from proposed commencement date.'
+                self._errors['proposed_commence'] = self.error_class([msg])
+                self._errors['proposed_end'] = self.error_class([msg])
+
+            
         return cleaned_data
 
 
