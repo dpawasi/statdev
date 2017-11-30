@@ -647,7 +647,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['food'].required = False
         self.fields['beverage'].required = False
         self.fields['byo_alcohol'].required = False
-	self.fields['liquor_licence'].required = False
+        self.fields['liquor_licence'].required = False
 
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
