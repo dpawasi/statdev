@@ -185,6 +185,11 @@
                                             <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Delete
                                             </a>
+                                            <a href="{% url 'application_view_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+                                                View
+                                            </a>
+
+
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -279,6 +284,9 @@
                                             </a>
                                             <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Delete
+                                            </a>
+                                            <a href="{% url 'application_view_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+                                                View
                                             </a>
                                             {% endif %}
                                         </td>
@@ -380,6 +388,10 @@
                                             <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
                                                 Delete
                                             </a>
+                                            <a href="{% url 'application_view_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
+                                                View
+                                            </a>
+
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -394,8 +406,6 @@
                                 </a>
                                 {% endif %}
                                 {% endif %}
-
-
 
                             </div>
                         </div>
