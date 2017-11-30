@@ -139,8 +139,11 @@
                                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
                                       <ul class="dropdown-menu" role="menu">
 					{% if app_obj.app.state == 1 %}
-
-                                           <li><a href="{% url 'application_update' app_obj.app.pk %}" title="View">Continue</a></li>
+                                           {% if app_obj.app.app_type == None %}
+                                           	<li><a href="{% url 'application_apply_form' app_obj.app.pk 'apptype' %}" title="View">Continue</a></li>
+				           {% else %}
+						<li><a href="{% url 'application_update' app_obj.app.pk %}" title="View">Continue</a></li>
+					   {% endif %}
 					<li><a href="{% url 'application_discard' app_obj.app.pk %}" title="View">Discard</a></li>
 					{% else %}
 
