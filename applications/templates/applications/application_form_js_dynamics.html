@@ -1,0 +1,36 @@
+<script>
+	$("input[name=beverage]").click(function(e) {
+		var value = this.value;
+                if (value == 'True') { 
+			$('#div_id_liquor_licence').show();
+		} else {
+			$('#div_id_liquor_licence').hide();		
+		}
+	});
+
+        $("input[name=jetty_dot_approval]").click(function(e) {
+                var value = this.value;
+                if (value == 'True') {
+                        $('#div_id_jetty_dot_approval_expiry').show();
+                } else {
+                        $('#div_id_jetty_dot_approval_expiry').hide();
+                }
+        });
+
+
+	var beverage = $('#id_beverage_1').is(':checked');
+        if (beverage == true) {
+		$('#div_id_liquor_licence').show();
+        } else {
+	        $('#div_id_liquor_licence').hide();
+	}
+	var jetty_dot_approval = $('#id_jetty_dot_approval_1').is(':checked');
+        if (jetty_dot_approval == true) {
+                $('#div_id_jetty_dot_approval_expiry').show();
+        } else {
+                $('#div_id_jetty_dot_approval_expiry').hide();
+        }
+
+
+
+</script>

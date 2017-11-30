@@ -176,6 +176,7 @@ class Application(models.Model):
     drop_off_pick_up = models.TextField(null=True, blank=True)
     food = models.NullBooleanField(default=None)
     beverage = models.NullBooleanField(default=None)
+    liquor_licence = models.NullBooleanField(default=None)
     byo_alcohol = models.NullBooleanField(default=None)
     sullage_disposal = models.TextField(null=True, blank=True)
     waste_disposal = models.TextField(null=True, blank=True)

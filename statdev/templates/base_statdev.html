@@ -4,7 +4,21 @@
 {% block extra_head %}
 <link rel="stylesheet" type="text/css" href="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css">
 <link rel="stylesheet" type="text/css" href="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/css/dataTables.bootstrap.css">
+<script src="//static.dpaw.wa.gov.au/static/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="//static.dpaw.wa.gov.au/static/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/jquery-ui-bootstrap/0.5pre/js/jquery-ui-1.9.2.custom.min.js"></script>
+        <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/js/jquery.dataTables.js"></script>
+
+        <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/js/dataTables.bootstrap.js"></script>
+        <script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+        <script  type="text/javascript" src="/static/js/natural.js"></script>
+        <script  type="text/javascript" src="/static/js/date-dd-MMM-yyyy.js"></script>
+	<script  type="text/javascript" src="/static/js/unsaved_form.js"></script>
+
 {% endblock %}
+
+{% block base_js %}{% endblock %}
+
 {% block navbar_site_title %}
 
 <a class="navbar-brand" href="/">Statutory Development</a>
@@ -98,27 +112,7 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/jquery-ui-bootstrap/0.5pre/js/jquery-ui-1.9.2.custom.min.js"></script>
-<script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/js/jquery.dataTables.js"></script>
-
-<script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/datatables/1.10.15/js/dataTables.bootstrap.js"></script>
-<script type="text/javascript" src="//static.dpaw.wa.gov.au/static/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
-<script  type="text/javascript" src="/static/js/natural.js"></script>
-<script  type="text/javascript" src="/static/js/date-dd-MMM-yyyy.js"></script>
-<script>
-    $(function() {
-        // Initialise datepicker widgets.
-        $(".dateinput").datepicker({
-            format: 'dd/mm/yyyy',
-            autoclose: true,
-            todayHighlight: true
-        });
-    });
-</script>
-<script  type="text/javascript" src="/static/js/unsaved_form.js"></script>
 
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
@@ -141,5 +135,19 @@
 
   </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    $(function() {
+        // Initialise datepicker widgets.
+        $(".dateinput").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
+
 
 {% endblock extra_js %}
+

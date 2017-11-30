@@ -3204,7 +3204,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
              self.object.beverage = None
         if self.object.byo_alcohol == '':
              self.object.byo_alcohol = None
-                    
+        if self.object.liquor_licence == '':
+             self.object.liquor_licence = None        
+
+            
         self.object.save()
         new_loc.save()
 
@@ -6363,6 +6366,27 @@ class OrganisationDetails(LoginRequiredMixin, DetailView):
     model = Organisation
     template_name = 'applications/organisation_details.html'
 
+    def get_organisation(self):
+        return Organisation.objects.get(pk=self.kwargs['pk'])
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = self.get_organisation()
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+           donothing = ""
+        else:
+           if admin_staff is True:
+               return super(OrganisationDetails, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised to view this organisation.')
+               return HttpResponseRedirect(reverse('home_page'))
+
+        return super(OrganisationDetails, self).get(request, *args, **kwargs)
+
+
     def get_queryset(self):
         qs = super(OrganisationDetails, self).get_queryset()
         # Did we pass in a search string? If so, filter the queryset and return it.
@@ -6932,12 +6956,19 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
         admin_staff = context_processor['admin_staff']
 
         org = self.get_organisation()
-        delegates = Delegate.objects.filter(email_user_id=self.kwargs['user_id'], organisation=org)
-        if request.user.id == int(self.kwargs['user_id']):
+        if Delegate.objects.filter(email_user_id=self.kwargs['user_id'], organisation=org).exists():
+           donothing = ''
+        else:
+           messages.error(self.request, 'User not found')
+           return HttpResponseRedirect(self.get_success_url())
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+#        print delegates
+#        if request.user.id == delegates.email_user.id:
            donothing = ""
         else:
            if admin_staff is True:
-               donothing = ""
+               return super(UnlinkDelegate, self).get(request, *args, **kwargs)
            else:
                messages.error(self.request, 'You are not authorised to unlink a delegated user for {}'.format(org.name))
                return HttpResponseRedirect(self.get_success_url())
