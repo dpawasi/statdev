@@ -5132,6 +5132,31 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
         return super(FeedbackPublicationCreate, self).form_valid(form)
 
 
+class FeedbackPublicationView(LoginRequiredMixin, DetailView):
+    model = PublicationFeedback
+    template_name = 'applications/application_feedback_view.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden Access.')
+           return HttpResponseRedirect("/")
+        return super(FeedbackPublicationView, self).get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.kwargs['application'],))
+
+    def get_context_data(self, **kwargs):
+        context = super(FeedbackPublicationView,
+                        self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['application'])
+        return context
+
+
+
 class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
     model = PublicationFeedback
     form_class = apps_forms.FeedbackPublicationCreateForm

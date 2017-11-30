@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/feedbackpublication/create/(?P<status>\w+)/$', views.FeedbackPublicationCreate.as_view(), name='application_add_feedbackpublication_draft'),
     url(r'^applications/(?P<application>\d+)/feedbackpublication/update/(?P<pk>\d+)/$', views.FeedbackPublicationUpdate.as_view(), name='application_update_feedbackpublication'),
     url(r'^applications/(?P<application>\d+)/feedbackpublication/delete/(?P<pk>\d+)/$', views.FeedbackPublicationDelete.as_view(), name='application_delete_feedbackpublication'),
+    url(r'^applications/(?P<application>\d+)/feedbackpublication/view/(?P<pk>\d+)/$', views.FeedbackPublicationView.as_view(), name='application_view_feedbackpublication'),
     url(r'^applications/(?P<pk>\d+)/feedbackpublication/create/(?P<status>\w+)/$', views.FeedbackPublicationCreate.as_view(), name='application_add_feedbackpublication_final'),
     url(r'^applications/(?P<pk>\d+)/feedbackpublication/create/(?P<status>\w+)/$', views.FeedbackPublicationCreate.as_view(), name='application_add_feedbackpublication_determination'),
     url(r'^applications/(?P<pk>\d+)/webpublish/(?P<publish_type>\w+)/', views.WebPublish.as_view(), name='application_publish_documents'),
