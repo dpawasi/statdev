@@ -257,7 +257,8 @@
             "expire_date" : "hide",
             "document_final" :" hide",
             "type_of_crafts" : "hide",
-            "number_of_crafts" : "hide"
+            "number_of_crafts" : "hide",
+	    "liquor_licence" : "hide"
         },
         "required" : ["type_of_crafts","number_of_crafts"]
     },
@@ -389,7 +390,8 @@
             "description" : "hide",
             "assessment_start_date": "hide",
             "expire_date" : "hide",
-            "document_final" :" hide"
+            "document_final" :"hide",
+	    "liquor_licence" : "hide"
 
         },
         "required" : []

@@ -16,7 +16,7 @@ var django_form_checks = {
 
 	      $("a").click(function(e) { 
                          var href= $(this).attr('href');
-                         django_form_checks.var.href= href;
+                         django_form_checks.var.href = href;
                          var reg = new RegExp(/^#.*$/);
                          if (href.match(reg)) {
 			 } else {
@@ -25,7 +25,8 @@ var django_form_checks = {
 
  $('#myModal').modal({
         show: 'false'
-    }); 
+ }); 
+
 return false;
  $( function() {
     $( "#myModal" ).dialog({
@@ -43,7 +44,7 @@ return false;
         }
       }
     });
-  } );
+  });
 //    			      if (success == false) { 
 					return false;
 //				      }
@@ -56,8 +57,7 @@ return false;
 
         },
         loadUrl: function() {
-	window.location = django_form_checks.var.href;
-
+		window.location = django_form_checks.var.href;
 	}
 };
 

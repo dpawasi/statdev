@@ -589,6 +589,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
     jetty_dot_approval = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     food = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     beverage = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
+    liquor_licence = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(), label='Do you have an appropriate liquor licence?')
     byo_alcohol = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
 
 
@@ -597,8 +598,8 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         fields = [
             'applicant','title', 'description', 'proposed_commence', 'proposed_end',
             'purpose', 'max_participants', 'proposed_location', 'address',
-            'jetties', 'jetty_dot_approval','type_of_crafts','number_of_crafts',
-            'drop_off_pick_up', 'food', 'beverage', 'byo_alcohol', 'sullage_disposal', 'waste_disposal',
+            'jetties', 'jetty_dot_approval','jetty_dot_approval_expiry','type_of_crafts','number_of_crafts',
+            'drop_off_pick_up', 'food', 'beverage', 'liquor_licence','byo_alcohol', 'sullage_disposal', 'waste_disposal',
             'refuel_location_method', 'berth_location', 'anchorage', 'operating_details','assessment_start_date','expire_date','vessel_or_craft_details'
         ]
 
@@ -646,7 +647,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         self.fields['food'].required = False
         self.fields['beverage'].required = False
         self.fields['byo_alcohol'].required = False
-
+        self.fields['liquor_licence'].required = False
 
         for fielditem in self.initial["fieldstatus"]:
             if fielditem in self.fields:
@@ -700,7 +701,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
                     del self.fields['number_of_crafts']
                     
         if check_fields_exist(self.fields,['purpose']) is True:
-             crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
+             crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'jetty_dot_approval_expiry','drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('liquor_licence'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
 
         if check_fields_exist(self.fields,['cert_survey','cert_public_liability_insurance','risk_mgmt_plan','safety_mgmt_procedures','brochures_itineries_adverts','other_relevant_documents']) is True:
              crispy_boxes.append(crispy_box('other_documents_collapse', 'form_other_documents' , 'Other Documents','cert_survey','cert_public_liability_insurance','risk_mgmt_plan','safety_mgmt_procedures','brochures_itineries_adverts','other_relevant_documents'))
@@ -717,9 +718,9 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         if check_fields_exist(self.fields,['document_final']) is True:
             crispy_boxes.append(crispy_box('document_final_collapse', 'form_document_final' , 'Assessment','document_final','assessment_start_date','expire_date'))
 
+        dynamic_selections = HTML('{% include "applications/application_form_js_dynamics.html" %}')
 
-
-        self.helper.layout = Layout(crispy_boxes,)
+        self.helper.layout = Layout(crispy_boxes,dynamic_selections)
         if 'condactions' in self.initial['workflow']:
              if  self.initial['workflow']['condactions'] is not None:
                  for ca in self.initial['workflow']['condactions']: 
