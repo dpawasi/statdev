@@ -3149,7 +3149,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             if is_json(self.request.POST['river_lease_scan_of_application_json']) is True:
                 json_data = json.loads(self.request.POST['river_lease_scan_of_application_json'])
                 new_doc = Record.objects.get(id=json_data['doc_id'])
-	        self.object.river_lease_scan_of_application = new_doc
+                self.object.river_lease_scan_of_application = new_doc
         #    if Attachment_Extension_Check('single', forms_data['river_lease_scan_of_application'], None) is False:
         #        raise ValidationError('River Lease Scan of Application contains and unallowed attachment extension.')
 
