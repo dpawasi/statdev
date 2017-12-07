@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField
-from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions
+from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions, AjaxFileUploader
 from multiupload.fields import MultiFileField
 from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6, crispy_alert
 from ledger.accounts.models import EmailUser, Address, Organisation
@@ -914,8 +914,11 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     town_suburb = CharField(required=False, label='Town / Suburb')
     nearest_road_intersection = CharField(required=False)
 
-    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
-    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+#    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
+    land_owner_consent = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
+#    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    proposed_development_plans = FileField(required=False, max_length=128, widget=AjaxFileUploader(attrs={'multiple':'multiple'}))
+    
     document_new_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_draft_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
@@ -923,8 +926,11 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     document_final_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    #river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    river_lease_scan_of_application = FileField(required=False, max_length=128, widget=AjaxFileUploader())
+#    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    deed = FileField(required=False, max_length=128, widget=AjaxFileUploader())
     swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
     document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')

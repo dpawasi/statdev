@@ -27,7 +27,7 @@ from applications.models import (
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
-from applications.validationchecks import Attachment_Extension_Check
+from applications.validationchecks import Attachment_Extension_Check, is_json
 from applications.utils import get_query, random_generator
 from ledger.accounts.models import EmailUser, Address, Organisation, Document
 from approvals.models import Approval
@@ -1916,7 +1916,6 @@ class ApplicationDetail(DetailView):
             self.template_name = 'applications/application_part5_amend.html'
             part5 = Application_Part5()
             context = part5.get(app, self, context)
-
         elif app.app_type == app.APP_TYPE_CHOICES.emergency:
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
@@ -2777,7 +2776,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #          initial['proposed_development_plans'] = app.proposed_development_plans.upload
 
         if app.deed:
-            initial['deed'] = app.deed.upload
+            initial['deed'] = app.deed
         if app.swan_river_trust_board_feedback:
             initial['swan_river_trust_board_feedback'] = app.swan_river_trust_board_feedback.upload
         if app.document_final:
@@ -2795,10 +2794,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['risk_mgmt_plan'] = app.risk_mgmt_plan.upload
         if app.safety_mgmt_procedures:
             initial['safety_mgmt_procedures'] = app.safety_mgmt_procedures.upload
-        if app.deed:
-            initial['deed'] = app.deed.upload
         if app.river_lease_scan_of_application:
-            initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
+            initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application
         if app.supporting_info_demonstrate_compliance_trust_policies:
             initial['supporting_info_demonstrate_compliance_trust_policies'] = app.supporting_info_demonstrate_compliance_trust_policies.upload
 
@@ -2847,6 +2844,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         # TODO: Potentially refactor to separate process_documents method
         # Record upload fields.
+#        if 'land_owner_consent_json' in self.request.POST:
+#             d = json.loads(self.request.POST['land_owner_consent_json'])
+#             for i in d:
+#                 print i
+#                 print i['doc_id']
 
         land_owner_consent = application.land_owner_consent.all()
         for la_co in land_owner_consent:
@@ -2989,6 +2991,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             if 'brochures_itineries_adverts-clear_multifileid-' + str(filelist.id) in form.data:
                  self.object.brochures_itineries_adverts.remove(filelist)
 
+
+
+
         if self.request.FILES.get('brochures_itineries_adverts'):
             #  print self.request.FILES.getlist('brochures_itineries_adverts')
             # Remove existing documents.
@@ -3005,20 +3010,32 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 doc.save()
                 self.object.brochures_itineries_adverts.add(doc)
 
-        if self.request.FILES.get('land_owner_consent'):
+#        if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
             # for d in self.object.land_owner_consent.all():
             #    self.object.land_owner_consent.remove(d)
             # Add new uploads.
-            if Attachment_Extension_Check('multi', self.request.FILES.getlist('land_owner_consent'), None) is False:
-                raise ValidationError('Land Owner Consent contains and unallowed attachment extension.')
-
-            for f in self.request.FILES.getlist('land_owner_consent'):
-                doc = Record()
-                doc.upload = f
+#            if Attachment_Extension_Check('multi', self.request.FILES.getlist('land_owner_consent'), None) is False:
+#                raise ValidationError('Land Owner Consent contains and unallowed attachment extension.')
+#
+#            for f in self.request.FILES.getlist('land_owner_consent'):
+#                doc = Record()
+ #               doc.upload = f
        #         doc.name = f.name
-                doc.save()
-                self.object.land_owner_consent.add(doc)
+ ##               doc.save()
+ #               self.object.land_owner_consent.add(doc)
+        if 'land_owner_consent_json' in self.request.POST:
+             json_data = json.loads(self.request.POST['land_owner_consent_json'])
+             for i in json_data:
+                 doc = Record.objects.get(id=i['doc_id'])
+                 self.object.land_owner_consent.add(doc)
+
+        if 'proposed_development_plans_json' in self.request.POST:
+             json_data = json.loads(self.request.POST['proposed_development_plans_json'])
+             for i in json_data:
+                 doc = Record.objects.get(id=i['doc_id'])
+                 self.object.proposed_development_plans.add(doc)
+
 
         if self.request.FILES.get('proposed_development_plans'):
             if Attachment_Extension_Check('multi', self.request.FILES.getlist('proposed_development_plans'), None) is False:
@@ -3112,22 +3129,35 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.swan_river_trust_board_feedback = new_doc
 
-        if self.request.FILES.get('deed'):
-            if Attachment_Extension_Check('single', forms_data['deed'], None) is False:
-                raise ValidationError('Deed contains and unallowed attachment extension.')
+#        if self.request.FILES.get('deed'):
+#            if Attachment_Extension_Check('single', forms_data['deed'], None) is False:
+#                raise ValidationError('Deed contains and unallowed attachment extension.')
+#
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['deed']
+#            new_doc.save()
+#            self.object.deed = new_doc
 
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['deed']
-            new_doc.save()
-            self.object.deed = new_doc
-        if self.request.FILES.get('river_lease_scan_of_application'):
-            if Attachment_Extension_Check('single', forms_data['river_lease_scan_of_application'], None) is False:
-                raise ValidationError('River Lease Scan of Application contains and unallowed attachment extension.')
+        if 'deed_json' in self.request.POST:
+           if is_json(self.request.POST['deed_json']) is True:
+                json_data = json.loads(self.request.POST['deed_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.deed = new_doc
+        
 
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['river_lease_scan_of_application']
-            new_doc.save()
-            self.object.river_lease_scan_of_application = new_doc
+        if 'river_lease_scan_of_application_json' in self.request.POST:
+           if is_json(self.request.POST['river_lease_scan_of_application_json']) is True:
+                json_data = json.loads(self.request.POST['river_lease_scan_of_application_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.river_lease_scan_of_application = new_doc
+
+                #    if Attachment_Extension_Check('single', forms_data['river_lease_scan_of_application'], None) is False:
+                #        raise ValidationError('River Lease Scan of Application contains and unallowed attachment extension.')
+
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['river_lease_scan_of_application']
+#            new_doc.save()
+#            self.object.river_lease_scan_of_application = new_doc
         if self.request.FILES.get('document_determination'):
             if Attachment_Extension_Check('single', forms_data['document_determination'], None) is False:
                 raise ValidationError('Determination contains and unallowed attachment extension.')

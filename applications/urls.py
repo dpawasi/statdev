@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from applications import views
+from applications import uploads 
 
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
@@ -16,6 +17,7 @@ urlpatterns = [
     url(r'^company-create-link-steps/(?P<pk>\d+)/(?P<step>\d+)/(?P<po_id>\d+)/$',views.CreateLinkCompany.as_view(), name='company_create_link_steps'),
     url(r'^company-create-link-steps/(?P<pk>\d+)/(?P<step>\d+)/(?P<po_id>\d+)/(?P<application_id>\d+)/$',views.CreateLinkCompany.as_view(), name='company_create_link_steps_application'),
     url(r'^applications/$', views.ApplicationList.as_view(), name='application_list'),
+    url(r'^applications-uploads/$', uploads.ApplicationUploads, name='application_uploads'),
     url(r'^applications/apply/$', views.ApplicationApply.as_view(), name='application_apply'),
     url(r'^applications/create/$', views.ApplicationCreate.as_view(), name='application_create'),
     url(r'^applications/create-emergency-works/$', views.ApplicationCreateEW.as_view(), name='application_create_ew'),
@@ -120,6 +122,4 @@ urlpatterns = [
     url(r'^organisations/access-requests/$', views.OrganisationAccessRequest.as_view(), name='organisation_access_requests'),
     url(r'^organisations/(?P<pk>\d+)/comms-create/$', views.OrganisationCommsCreate.as_view(), name='organisation_comms_create'),
     url(r'^organisations/(?P<pk>\d+)/comms/$', views.OrganisationComms.as_view(), name='organisation_comms'),
-    
-
 ]
