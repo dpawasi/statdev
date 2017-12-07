@@ -34,3 +34,9 @@ def Attachment_Extension_Check(attach_list_type,attachments,allow_extension_type
 
     return allowed
 
+def is_json(myjson):
+  try:
+    json_object = json.loads(myjson)
+  except ValueError, e:
+    return False
+  return True
