@@ -215,10 +215,6 @@ class AjaxFileUploader(FileInput):
         
         if type(value) is list:
            substitutions['clearfiles'] = "<div class='col-sm-12'><Label>Files:</Label></div>"
-           print "START"
-           print name
-           print value
-           print "END" 
            if value:
               for fi in value:
                   if fi:
@@ -250,7 +246,6 @@ class AjaxFileUploader(FileInput):
         substitutions['ajax_uploader'] += '</TEXTAREA>'
         substitutions['clearfiles'] = ''
          
-        print value
         if self.is_initial(value):
             template = self.template_with_initial
             substitutions.update(self.get_template_substitution_values(value))
