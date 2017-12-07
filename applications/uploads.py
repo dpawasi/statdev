@@ -19,7 +19,6 @@ def ApplicationUploads(request):
     object_hash = {} 
 
     for f in request.FILES.getlist('__files[]'):
-         print f
          doc = Record()
          doc.upload = f
          doc.save()
