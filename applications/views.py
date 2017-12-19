@@ -42,6 +42,7 @@ import json
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
+
     template_name = 'applications/home_page.html'
     def render_to_response(self, context):
        
@@ -211,6 +212,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super(FirstLoginInfoSteps, self).get_context_data(**kwargs)
         step = self.kwargs['step']
+
         if step == '1':
             context['step1'] = 'active'
             context['step2'] = 'disabled'
@@ -270,6 +272,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
         forms_data = form.cleaned_data
         step = self.kwargs['step']
         app_id = None
+
         if 'application_id' in self.kwargs:
             app_id = self.kwargs['application_id']
 
@@ -2068,7 +2071,7 @@ class ApplicationDetailPDF(ApplicationDetail):
                 app.delete()
                 return HttpResponseRedirect(reverse('application_list'))
             return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ApplicationUpdate, self).post(request, *args, **kwargs)
+        return super(ApplicationDetailPDF, self).post(request, *args, **kwargs)
 
 class AccountActions(DetailView):
     model = EmailUser 
@@ -2754,51 +2757,54 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial['brochures_itineries_adverts'] = multifilelist
 
         #initial['publication_newspaper'] = PublicationNewspaper.objects.get(application_id=self.object.id)
+
+        if app.location_route_access:
+            initial['location_route_access'] = app.location_route_access
         if app.document_new_draft:
-            initial['document_new_draft'] = app.document_new_draft.upload
+            initial['document_new_draft'] = app.document_new_draft
         if app.document_memo:
-            initial['document_memo'] = app.document_memo.upload
+            initial['document_memo'] = app.document_memo
         if app.document_new_draft_v3:
-            initial['document_new_draft_v3'] = app.document_new_draft_v3.upload
+            initial['document_new_draft_v3'] = app.document_new_draft_v3
+
         if app.document_draft_signed:
-            initial['document_draft_signed'] = app.document_draft_signed.upload
+            initial['document_draft_signed'] = app.document_draft_signed
         if app.document_draft:
-            initial['document_draft'] = app.document_draft.upload
+            initial['document_draft'] = app.document_draft
         if app.document_final_signed:
-            initial['document_final_signed'] = app.document_final_signed.upload
+            initial['document_final_signed'] = app.document_final_signed
         if app.document_briefing_note:
-            initial['document_briefing_note'] = app.document_briefing_note.upload
+            initial['document_briefing_note'] = app.document_briefing_note
 
         if app.document_determination_approved:
-            initial['document_determination_approved'] = app.document_determination_approved.upload
+            initial['document_determination_approved'] = app.document_determination_approved
 
 #       if app.proposed_development_plans:
 #          initial['proposed_development_plans'] = app.proposed_development_plans.upload
-
         if app.deed:
             initial['deed'] = app.deed
         if app.swan_river_trust_board_feedback:
-            initial['swan_river_trust_board_feedback'] = app.swan_river_trust_board_feedback.upload
+            initial['swan_river_trust_board_feedback'] = app.swan_river_trust_board_feedback
         if app.document_final:
-            initial['document_final'] = app.document_final.upload
+            initial['document_final'] = app.document_final
         if app.document_determination:
-            initial['document_determination'] = app.document_determination.upload
+            initial['document_determination'] = app.document_determination
         if app.document_completion:
-            initial['document_completion'] = app.document_completion.upload
+            initial['document_completion'] = app.document_completion
+
         # Record FK fields:
         if app.cert_survey:
-            initial['cert_survey'] = app.cert_survey.upload
+            initial['cert_survey'] = app.cert_survey
         if app.cert_public_liability_insurance:
-            initial['cert_public_liability_insurance'] = app.cert_public_liability_insurance.upload
+            initial['cert_public_liability_insurance'] = app.cert_public_liability_insurance
         if app.risk_mgmt_plan:
-            initial['risk_mgmt_plan'] = app.risk_mgmt_plan.upload
+            initial['risk_mgmt_plan'] = app.risk_mgmt_plan
         if app.safety_mgmt_procedures:
-            initial['safety_mgmt_procedures'] = app.safety_mgmt_procedures.upload
+            initial['safety_mgmt_procedures'] = app.safety_mgmt_procedures
         if app.river_lease_scan_of_application:
             initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application
         if app.supporting_info_demonstrate_compliance_trust_policies:
-            initial['supporting_info_demonstrate_compliance_trust_policies'] = app.supporting_info_demonstrate_compliance_trust_policies.upload
-
+            initial['supporting_info_demonstrate_compliance_trust_policies'] = app.supporting_info_demonstrate_compliance_trust_policies
 
         try:
             LocObj = Location.objects.get(application_id=self.object.id)
@@ -2850,100 +2856,100 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #                 print i
 #                 print i['doc_id']
 
-        land_owner_consent = application.land_owner_consent.all()
-        for la_co in land_owner_consent:
-            if 'land_owner_consent-clear_multifileid-' + str(la_co.id) in form.data:
-                application.land_owner_consent.remove(la_co)
+#        land_owner_consent = application.land_owner_consent.all()
+#        for la_co in land_owner_consent:
+#            if 'land_owner_consent-clear_multifileid-' + str(la_co.id) in form.data:
+#                application.land_owner_consent.remove(la_co)
 
-        proposed_development_plans = application.proposed_development_plans.all()
-        for filelist in proposed_development_plans:
-            if 'proposed_development_plans-clear_multifileid-' + str(filelist.id) in form.data:
-                application.proposed_development_plans.remove(filelist)
+#        proposed_development_plans = application.proposed_development_plans.all()
+#        for filelist in proposed_development_plans:
+#            if 'proposed_development_plans-clear_multifileid-' + str(filelist.id) in form.data:
+#                application.proposed_development_plans.remove(filelist)
 
-        other_relevant_documents = application.other_relevant_documents.all()
-        for filelist in other_relevant_documents:
-            if 'other_relevant_documents-clear_multifileid-' + str(filelist.id) in form.data:
-                application.other_relevant_documents.remove(filelist)
+#        other_relevant_documents = application.other_relevant_documents.all()
+#        for filelist in other_relevant_documents:
+#            if 'other_relevant_documents-clear_multifileid-' + str(filelist.id) in form.data:
+#                application.other_relevant_documents.remove(filelist)
 
         # if 'land_owner_consent-clear_multifileid' in forms_data:
         # Check for clear checkbox (remove files)
         # Clear' was checked.
-        if 'cert_survey-clear' in form.data and self.object.cert_survey:
-            self.object.cert_survey = None
-        if 'river_lease_scan_of_application-clear' in form.data:
-            self.object.river_lease_scan_of_application = None
-        if 'cert_public_liability_insurance-clear' in form.data and self.object.cert_public_liability_insurance:
-            self.object.cert_public_liability_insurance = None
-        if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
-            self.object.risk_mgmt_plan = None
-        if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
-            self.object.safety_mgmt_procedures = None
-        if 'deed-clear' in form.data and self.object.deed:
-            self.object.deed = None
-        if 'swan_river_trust_board_feedback-clear' in form.data and self.object.swan_river_trust_board_feedback:
-            self.object.swan_river_trust_board_feedback = None
-        if 'document_new_draft_v3-clear' in form.data and self.object.document_new_draft_v3:
-            self.object.document_new_draft_v3 = None
-        if 'document_memo-clear' in form.data and self.object.document_memo:
-            self.object.document_memo = None
-        if 'document_final_signed-clear' in form.data and self.object.document_final_signed:
-            self.object.document_final_signed = None
-        if 'document_briefing_note-clear' in form.data and self.object.document_briefing_note:
-            self.object.document_briefing_note = None
-        if 'supporting_info_demonstrate_compliance_trust_policies-clear' in form.data and self.object.supporting_info_demonstrate_compliance_trust_policies:
-            self.object.supporting_info_demonstrate_compliance_trust_policies = None
+#        if 'cert_survey-clear' in form.data and self.object.cert_survey:
+#            self.object.cert_survey = None
+#        if 'river_lease_scan_of_application-clear' in form.data:
+#            self.object.river_lease_scan_of_application = None
+#        if 'cert_public_liability_insurance-clear' in form.data and self.object.cert_public_liability_insurance:
+#            self.object.cert_public_liability_insurance = None
+#        if 'risk_mgmt_plan-clear' in form.data and self.object.risk_mgmt_plan:
+#            self.object.risk_mgmt_plan = None
+#        if 'safety_mgmt_procedures-clear' in form.data and self.object.safety_mgmt_procedures:
+#            self.object.safety_mgmt_procedures = None
+#        if 'deed-clear' in form.data and self.object.deed:
+#            self.object.deed = None
+#        if 'swan_river_trust_board_feedback-clear' in form.data and self.object.swan_river_trust_board_feedback:
+#            self.object.swan_river_trust_board_feedback = None
+#        if 'document_new_draft_v3-clear' in form.data and self.object.document_new_draft_v3:
+#            self.object.document_new_draft_v3 = None
+#        if 'document_memo-clear' in form.data and self.object.document_memo:
+#            self.object.document_memo = None
+        #if 'document_final_signed-clear' in form.data and self.object.document_final_signed:
+#            self.object.document_final_signed = None
+#        if 'document_briefing_note-clear' in form.data and self.object.document_briefing_note:
+ #           self.object.document_briefing_note = None
+        #if 'supporting_info_demonstrate_compliance_trust_policies-clear' in form.data and self.object.supporting_info_demonstrate_compliance_trust_policies:
+         #   self.object.supporting_info_demonstrate_compliance_trust_policies = None
 
         # Upload New Files
-        if self.request.FILES.get('cert_survey'):  # Uploaded new file.
-            if self.object.cert_survey:
-                doc = self.object.cert_survey
-            else:
-                doc = Record()
-            if Attachment_Extension_Check('single', forms_data['cert_survey'], None) is False:
-                raise ValidationError('Certficate Survey contains and unallowed attachment extension.')
-
-            doc.upload = forms_data['cert_survey']
-            doc.name = forms_data['cert_survey'].name
-            doc.save()
-            self.object.cert_survey = doc
-        if self.request.FILES.get('cert_public_liability_insurance'):
-            if self.object.cert_public_liability_insurance:
-                doc = self.object.cert_public_liability_insurance
-            else:
-                doc = Record()
-
-            if Attachment_Extension_Check('single', forms_data['cert_public_liability_insurance'], None) is False:
-                raise ValidationError('Certficate of Public Liability Insurance contains and unallowed attachment extension.')
-
-            doc.upload = forms_data['cert_public_liability_insurance']
-            doc.name = forms_data['cert_public_liability_insurance'].name
-            doc.save()
-            self.object.cert_public_liability_insurance = doc
-        if self.request.FILES.get('risk_mgmt_plan'):
-            if self.object.risk_mgmt_plan:
-                doc = self.object.risk_mgmt_plan
-            else:
-                doc = Record()
-
-            if Attachment_Extension_Check('single', forms_data['risk_mgmt_plan'], None) is False:
-                raise ValidationError('Risk Management Plan contains and unallowed attachment extension.')
-
-            doc.upload = forms_data['risk_mgmt_plan']
-            doc.name = forms_data['risk_mgmt_plan'].name
-            doc.save()
-            self.object.risk_mgmt_plan = doc
-        if self.request.FILES.get('safety_mgmt_procedures'):
-            if self.object.safety_mgmt_procedures:
-                doc = self.object.safety_mgmt_procedures
-            else:
-                doc = Record()
-            if Attachment_Extension_Check('single', forms_data['safety_mgmt_procedures'], None) is False:
-                raise ValidationError('Safety Procedures contains and unallowed attachment extension.')
-
-            doc.upload = forms_data['safety_mgmt_procedures']
-            doc.name = forms_data['safety_mgmt_procedures'].name
-            doc.save()
-            self.object.safety_mgmt_procedures = doc
+#        if self.request.FILES.get('cert_survey'):  # Uploaded new file.
+#            if self.object.cert_survey:
+#                doc = self.object.cert_survey
+#            else:
+#                doc = Record()
+#            if Attachment_Extension_Check('single', forms_data['cert_survey'], None) is False:
+#                raise ValidationError('Certficate Survey contains and unallowed attachment extension.')
+#
+#            doc.upload = forms_data['cert_survey']
+#            doc.name = forms_data['cert_survey'].name
+#            doc.save()
+#            self.object.cert_survey = doc
+#        if self.request.FILES.get('cert_public_liability_insurance'):
+#            if self.object.cert_public_liability_insurance:
+#                doc = self.object.cert_public_liability_insurance
+#            else:
+#                doc = Record()
+#
+#            if Attachment_Extension_Check('single', forms_data['cert_public_liability_insurance'], None) is False:
+#                raise ValidationError('Certficate of Public Liability Insurance contains and unallowed attachment extension.')
+#
+#            doc.upload = forms_data['cert_public_liability_insurance']
+#            doc.name = forms_data['cert_public_liability_insurance'].name
+#            doc.save()
+#            self.object.cert_public_liability_insurance = doc
+#        if self.request.FILES.get('risk_mgmt_plan'):
+#            if self.object.risk_mgmt_plan:
+#                doc = self.object.risk_mgmt_plan
+#            else:
+#                doc = Record()
+#
+#            if Attachment_Extension_Check('single', forms_data['risk_mgmt_plan'], None) is False:
+#                raise ValidationError('Risk Management Plan contains and unallowed attachment extension.')
+#
+#            doc.upload = forms_data['risk_mgmt_plan']
+#            doc.name = forms_data['risk_mgmt_plan'].name
+#            doc.save()
+#            self.object.risk_mgmt_plan = doc
+#        if self.request.FILES.get('safety_mgmt_procedures'):
+#            if self.object.safety_mgmt_procedures:
+#                doc = self.object.safety_mgmt_procedures
+#            else:
+#                doc = Record()
+#            if Attachment_Extension_Check('single', forms_data['safety_mgmt_procedures'], None) is False:
+#                raise ValidationError('Safety Procedures contains and unallowed attachment extension.')
+#
+#            doc.upload = forms_data['safety_mgmt_procedures']
+#            doc.name = forms_data['safety_mgmt_procedures'].name
+#            doc.save()
+#            self.object.safety_mgmt_procedures = doc
         
         # if self.request.FILES.get('deed'):
         #    if self.object.deed:
@@ -2971,44 +2977,42 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #            doc.save()
 #            self.object.river_lease_scan_of_application = doc
 
-        if self.request.FILES.get('other_relevant_documents'):
+#        if self.request.FILES.get('other_relevant_documents'):
             # Remove existing documents.
  #           for d in self.object.other_relevant_documents.all():
   #              self.object.other_relevant_documents.remove(d)
             # Add new uploads.
-            if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
-                raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
+#            if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
+#                raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
+#
+#            for f in self.request.FILES.getlist('other_relevant_documents'):
+#                doc = Record()
+#                doc.upload = f
+#                doc.name = f.name
+#                doc.save()
+#                self.object.other_relevant_documents.add(doc)
 
-            for f in self.request.FILES.getlist('other_relevant_documents'):
-                doc = Record()
-                doc.upload = f
-                doc.name = f.name
-                doc.save()
-                self.object.other_relevant_documents.add(doc)
-
-        brochures_itineries_adverts = application.brochures_itineries_adverts.all()
-        for filelist in brochures_itineries_adverts:
-            if 'brochures_itineries_adverts-clear_multifileid-' + str(filelist.id) in form.data:
-                 self.object.brochures_itineries_adverts.remove(filelist)
-
-
+#        brochures_itineries_adverts = application.brochures_itineries_adverts.all()
+#        for filelist in brochures_itineries_adverts:
+#            if 'brochures_itineries_adverts-clear_multifileid-' + str(filelist.id) in form.data:
+#                 self.object.brochures_itineries_adverts.remove(filelist)
 
 
-        if self.request.FILES.get('brochures_itineries_adverts'):
+#        if self.request.FILES.get('brochures_itineries_adverts'):
             #  print self.request.FILES.getlist('brochures_itineries_adverts')
             # Remove existing documents.
 #            for d in self.object.brochures_itineries_adverts.all():
  #               self.object.brochures_itineries_adverts.remove(d)
             # Add new uploads.
-            if Attachment_Extension_Check('multi', self.request.FILES.getlist('brochures_itineries_adverts'), None) is False:
-                raise ValidationError('Brochures Itineries contains and unallowed attachment extension.')
-
-            for f in self.request.FILES.getlist('brochures_itineries_adverts'):
-                doc = Record()
-                doc.upload = f
-                doc.name = f.name
-                doc.save()
-                self.object.brochures_itineries_adverts.add(doc)
+ #           if Attachment_Extension_Check('multi', self.request.FILES.getlist('brochures_itineries_adverts'), None) is False:
+ #               raise ValidationError('Brochures Itineries contains and unallowed attachment extension.')
+#
+#            for f in self.request.FILES.getlist('brochures_itineries_adverts'):
+#                doc = Record()
+#                doc.upload = f
+#                doc.name = f.name
+#                doc.save()
+#                self.object.brochures_itineries_adverts.add(doc)
 
 #        if self.request.FILES.get('land_owner_consent'):
             # Remove existing documents.
@@ -3024,110 +3028,152 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
        #         doc.name = f.name
  ##               doc.save()
  #               self.object.land_owner_consent.add(doc)
+
+        if 'other_relevant_documents_json' in self.request.POST:
+             json_data = json.loads(self.request.POST['other_relevant_documents_json'])
+             for d in self.object.other_relevant_documents.all():
+                 self.object.other_relevant_documents.remove(d)
+             for i in json_data:
+                 doc = Record.objects.get(id=i['doc_id'])
+                 self.object.other_relevant_documents.add(doc)
+
+        if 'brochures_itineries_adverts_json' in self.request.POST:
+             json_data = json.loads(self.request.POST['brochures_itineries_adverts_json'])
+             for d in self.object.brochures_itineries_adverts.all():
+                 self.object.brochures_itineries_adverts.remove(d)
+             for i in json_data:
+                 doc = Record.objects.get(id=i['doc_id'])
+                 self.object.brochures_itineries_adverts.add(doc)
+
         if 'land_owner_consent_json' in self.request.POST:
              json_data = json.loads(self.request.POST['land_owner_consent_json'])
+             for d in self.object.land_owner_consent.all():
+                 self.object.land_owner_consent.remove(d)
              for i in json_data:
                  doc = Record.objects.get(id=i['doc_id'])
                  self.object.land_owner_consent.add(doc)
 
         if 'proposed_development_plans_json' in self.request.POST:
              json_data = json.loads(self.request.POST['proposed_development_plans_json'])
+             self.object.proposed_development_plans.remove()
+             for d in self.object.proposed_development_plans.all():
+                 self.object.proposed_development_plans.remove(d)
              for i in json_data:
                  doc = Record.objects.get(id=i['doc_id'])
                  self.object.proposed_development_plans.add(doc)
 
+        if 'document_draft_json' in self.request.POST:
+           self.object.document_draft = None
+           if is_json(self.request.POST['document_draft_json']) is True:
+                json_data = json.loads(self.request.POST['document_draft_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_draft = new_doc
 
-        if self.request.FILES.get('proposed_development_plans'):
-            if Attachment_Extension_Check('multi', self.request.FILES.getlist('proposed_development_plans'), None) is False:
-                raise ValidationError('Proposed Development Plans contains and unallowed attachment extension.')
+        if 'river_lease_scan_of_application_json' in self.request.POST:
+           if is_json(self.request.POST['river_lease_scan_of_application_json']) is True:
+                json_data = json.loads(self.request.POST['river_lease_scan_of_application_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.river_lease_scan_of_application = new_doc
 
-            for f in self.request.FILES.getlist('proposed_development_plans'):
-                doc = Record()
-                doc.upload = f
-                doc.save()
-                self.object.proposed_development_plans.add(doc)
 
-        if self.request.POST.get('document_draft-clear'):
+#        if 'document_draft_json' in self.request.POST:
+ #            json_data = json.loads(self.request.POST['document_draft_json'])
+ #            for i in json_data:
+ #                doc = Record.objects.get(id=i['doc_id'])
+  #               self.object.proposed_development_plans.add(doc)
+
+
+#        if self.request.FILES.get('proposed_development_plans'):
+#            if Attachment_Extension_Check('multi', self.request.FILES.getlist('proposed_development_plans'), None) is False:
+#                raise ValidationError('Proposed Development Plans contains and unallowed attachment extension.')
+#
+#            for f in self.request.FILES.getlist('proposed_development_plans'):
+#                doc = Record()
+#                doc.upload = f
+#                doc.save()
+#                self.object.proposed_development_plans.add(doc)
+
+#        if self.request.POST.get('document_draft-clear'):
             #application = Application.objects.get(id=self.object.id)
             #document = Record.objects.get(pk=application.document_draft.id)
             # document.delete() // protect error occurs
-            self.object.document_draft = None
+#            self.object.document_draft = None
 
-        if self.request.POST.get('document_new_draft-clear'):
+ #       if self.request.POST.get('document_new_draft-clear'):
             #application = Application.objects.get(id=self.object.id)
-            self.object.document_new_draft = None
+#            self.object.document_new_draft = None
 
-        if self.request.POST.get('document_draft_signed-clear'):
-            self.object.document_draft_signed = None
+#        if self.request.POST.get('document_draft_signed-clear'):
+#            self.object.document_draft_signed = None
 
-        if self.request.POST.get('document_determination_approved-clear'):
-            self.object.document_determination_approved = None
+#        if self.request.POST.get('document_determination_approved-clear'):
+#            self.object.document_determination_approved = None
 
-        if self.request.FILES.get('document_draft'):
-            if Attachment_Extension_Check('single', forms_data['document_draft'], None) is False:
-                raise ValidationError('Draft contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_draft']
-            new_doc.save()
-            self.object.document_draft = new_doc
+#        if self.request.FILES.get('document_draft'):
+#            if Attachment_Extension_Check('single', forms_data['document_draft'], None) is False:
+#                raise ValidationError('Draft contains and unallowed attachment extension.')
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_draft']
+#            new_doc.save()
+#            self.object.document_draft = new_doc
 
-        if self.request.FILES.get('document_new_draft'):
-            if Attachment_Extension_Check('single', forms_data['document_new_draft'], None) is False:
-                raise ValidationError('New Draft contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_new_draft']
-            new_doc.save()
-            self.object.document_new_draft = new_doc
+#        if self.request.FILES.get('document_new_draft'):
+#            if Attachment_Extension_Check('single', forms_data['document_new_draft'], None) is False:
+#                raise ValidationError('New Draft contains and unallowed attachment extension.')
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_new_draft']
+#            new_doc.save()
+#            self.object.document_new_draft = new_doc
 
-        if self.request.FILES.get('document_new_draft_v3'):
-            if Attachment_Extension_Check('single', forms_data['document_new_draft_v3'], None) is False:
-                raise ValidationError('Draft V3 contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_new_draft_v3']
-            new_doc.save()
-            self.object.document_new_draft_v3 = new_doc
+#        if self.request.FILES.get('document_new_draft_v3'):
+#            if Attachment_Extension_Check('single', forms_data['document_new_draft_v3'], None) is False:
+#                raise ValidationError('Draft V3 contains and unallowed attachment extension.')
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_new_draft_v3']
+#            new_doc.save()
+#            self.object.document_new_draft_v3 = new_doc
 
-        if self.request.FILES.get('document_memo'):
-            if Attachment_Extension_Check('single', forms_data['document_memo'], None) is False:
-                raise ValidationError('Memo contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_memo']
-            new_doc.save()
-            self.object.document_memo = new_doc
+#       if self.request.FILES.get('document_memo'):
+#            if Attachment_Extension_Check('single', forms_data['document_memo'], None) is False:
+#                raise ValidationError('Memo contains and unallowed attachment extension.')
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_memo']
+#            new_doc.save()
+#            self.object.document_memo = new_doc
 
-        if self.request.FILES.get('document_draft_signed'):
-            if Attachment_Extension_Check('single', forms_data['document_draft_signed'], None) is False:
-                raise ValidationError('New Draft contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_draft_signed']
-            new_doc.save()
-            self.object.document_draft_signed = new_doc
+#       if self.request.FILES.get('document_draft_signed'):
+#            if Attachment_Extension_Check('single', forms_data['document_draft_signed'], None) is False:
+#                raise ValidationError('New Draft contains and unallowed attachment extension.')
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_draft_signed']
+#            new_doc.save()
+#            self.object.document_draft_signed = new_doc
 
-        if self.request.FILES.get('document_final'):
-            if Attachment_Extension_Check('single', forms_data['document_final'], None) is False:
-                raise ValidationError('Final contains and unallowed attachment extension.')
+#        if self.request.FILES.get('document_final'):
+#            if Attachment_Extension_Check('single', forms_data['document_final'], None) is False:
+#               raise ValidationError('Final contains and unallowed attachment extension.')
 
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_final']
-            new_doc.save()
-            self.object.document_final = new_doc
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_final']
+#            new_doc.save()
+#            self.object.document_final = new_doc
 
-        if self.request.FILES.get('document_final_signed'):
-            if Attachment_Extension_Check('single', forms_data['document_final_signed'], None) is False:
-                raise ValidationError('Final Signed contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_final_signed']
-            new_doc.save()
-            self.object.document_final_signed = new_doc
+#        if self.request.FILES.get('document_final_signed'):
+#            if Attachment_Extension_Check('single', forms_data['document_final_signed'], None) is False:
+#                raise ValidationError('Final Signed contains and unallowed attachment extension.')
+##            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_final_signed']
+#            new_doc.save()
+#            self.object.document_final_signed = new_doc
 
-        if self.request.FILES.get('swan_river_trust_board_feedback'):
-            if Attachment_Extension_Check('single', forms_data['swan_river_trust_board_feedback'], None) is False:
-                raise ValidationError('Swan River Trust Board Feedback contains and unallowed attachment extension.')
-
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['swan_river_trust_board_feedback']
-            new_doc.save()
-            self.object.swan_river_trust_board_feedback = new_doc
+        #if self.request.FILES.get('swan_river_trust_board_feedback'):
+        #    if Attachment_Extension_Check('single', forms_data['swan_river_trust_board_feedback'], None) is False:
+        #        raise ValidationError('Swan River Trust Board Feedback contains and unallowed attachment extension.')
+#
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['swan_river_trust_board_feedback']
+#            new_doc.save()
+#            self.object.swan_river_trust_board_feedback = new_doc
 
 #        if self.request.FILES.get('deed'):
 #            if Attachment_Extension_Check('single', forms_data['deed'], None) is False:
@@ -3138,19 +3184,136 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #            new_doc.save()
 #            self.object.deed = new_doc
 
+        if 'document_final_json' in self.request.POST:
+           self.object.document_final = None
+           if is_json(self.request.POST['document_final_json']) is True:
+                json_data = json.loads(self.request.POST['document_final_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_final = new_doc
+
+        if 'location_route_access_json' in self.request.POST:
+           self.object.location_route_access = None
+           if is_json(self.request.POST['location_route_access_json']) is True:
+                json_data = json.loads(self.request.POST['location_route_access_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.location_route_access = new_doc
+
+        if 'safety_mgmt_procedures_json' in self.request.POST:
+           self.object.safety_mgmt_procedures = None
+           if is_json(self.request.POST['safety_mgmt_procedures_json']) is True:
+                json_data = json.loads(self.request.POST['safety_mgmt_procedures_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.safety_mgmt_procedures = new_doc
+
+        if 'risk_mgmt_plan_json' in self.request.POST:
+           self.object.risk_mgmt_plan = None
+           if is_json(self.request.POST['risk_mgmt_plan_json']) is True:
+                json_data = json.loads(self.request.POST['risk_mgmt_plan_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.risk_mgmt_plan = new_doc
+
+        if 'cert_public_liability_insurance_json' in self.request.POST:
+           self.object.cert_public_liability_insurance = None
+           if is_json(self.request.POST['cert_public_liability_insurance_json']) is True:
+                json_data = json.loads(self.request.POST['cert_public_liability_insurance_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.cert_public_liability_insurance = new_doc
+
+        if 'cert_survey_json' in self.request.POST:
+           self.object.cert_survey = None
+           if is_json(self.request.POST['cert_survey_json']) is True:
+                json_data = json.loads(self.request.POST['cert_survey_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.cert_survey = new_doc
+
+        if 'supporting_info_demonstrate_compliance_trust_policies_json' in self.request.POST:
+           self.object.supporting_info_demonstrate_compliance_trust_policies = None
+           if is_json(self.request.POST['supporting_info_demonstrate_compliance_trust_policies_json']) is True:
+                json_data = json.loads(self.request.POST['supporting_info_demonstrate_compliance_trust_policies_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.supporting_info_demonstrate_compliance_trust_policies = new_doc
+
+        if 'document_determination_approved_json' in self.request.POST:
+           self.object.document_determination_approved = None
+           if is_json(self.request.POST['document_determination_approved_json']) is True:
+                json_data = json.loads(self.request.POST['document_determination_approved_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_determination_approved = new_doc
+
+        if 'document_determination_json' in self.request.POST:
+           self.object.document_determination = None
+           if is_json(self.request.POST['document_determination_json']) is True:
+                json_data = json.loads(self.request.POST['document_determination_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_determination = new_doc
+
+        if 'document_briefing_note_json' in self.request.POST:
+           self.object.document_briefing_note = None
+           if is_json(self.request.POST['document_briefing_note_json']) is True:
+                json_data = json.loads(self.request.POST['document_briefing_note_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_briefing_note = new_doc
+
+        if 'document_briefing_note_json' in self.request.POST:
+           self.object.document_briefing_note = None
+           if is_json(self.request.POST['document_briefing_note_json']) is True:
+                json_data = json.loads(self.request.POST['document_briefing_note_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_briefing_note = new_doc
+
+        if 'document_new_draft_v3_json' in self.request.POST:
+           self.object.document_new_draft_v3 = None
+           if is_json(self.request.POST['document_new_draft_v3_json']) is True:
+                json_data = json.loads(self.request.POST['document_new_draft_v3_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_new_draft_v3 = new_doc
+
+
+        if 'document_memo_json' in self.request.POST:
+           self.object.document_memo = None
+           if is_json(self.request.POST['document_memo_json']) is True:
+                json_data = json.loads(self.request.POST['document_memo_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_memo = new_doc
+
         if 'deed_json' in self.request.POST:
+           self.object.deed = None
            if is_json(self.request.POST['deed_json']) is True:
                 json_data = json.loads(self.request.POST['deed_json'])
                 new_doc = Record.objects.get(id=json_data['doc_id'])
                 self.object.deed = new_doc
         
+        if 'swan_river_trust_board_feedback_json' in self.request.POST:
+           self.object.swan_river_trust_board_feedback = None
+           if is_json(self.request.POST['swan_river_trust_board_feedback_json']) is True:
+                json_data = json.loads(self.request.POST['swan_river_trust_board_feedback_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.swan_river_trust_board_feedback = new_doc
+
 
         if 'river_lease_scan_of_application_json' in self.request.POST:
+           self.object.river_lease_scan_of_application = None
            if is_json(self.request.POST['river_lease_scan_of_application_json']) is True:
                 json_data = json.loads(self.request.POST['river_lease_scan_of_application_json'])
                 new_doc = Record.objects.get(id=json_data['doc_id'])
                 self.object.river_lease_scan_of_application = new_doc
 
+        if 'document_draft_signed_json' in self.request.POST:
+           self.object.document_draft_signed = None
+           if is_json(self.request.POST['document_draft_signed_json']) is True:
+                json_data = json.loads(self.request.POST['document_draft_signed_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_draft_signed = new_doc
+
+        if 'document_final_signed_json' in self.request.POST:
+           self.object.document_final_signed = None
+           if is_json(self.request.POST['document_final_signed_json']) is True:
+                json_data = json.loads(self.request.POST['document_final_signed_json'])
+                new_doc = Record.objects.get(id=json_data['doc_id'])
+                self.object.document_final_signed = new_doc
+
+
+# document_final_signed
                 #    if Attachment_Extension_Check('single', forms_data['river_lease_scan_of_application'], None) is False:
                 #        raise ValidationError('River Lease Scan of Application contains and unallowed attachment extension.')
 
@@ -3167,13 +3330,13 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.document_determination = new_doc
 
-        if self.request.FILES.get('document_determination_approved'):
-            if Attachment_Extension_Check('single', forms_data['document_determination_approved'], None) is False:
-                raise ValidationError('Determination contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['document_determination_approved']
-            new_doc.save()
-            self.object.document_determination_approved = new_doc
+#        if self.request.FILES.get('document_determination_approved'):
+#            if Attachment_Extension_Check('single', forms_data['document_determination_approved'], None) is False:
+#                raise ValidationError('Determination contains and unallowed attachment extension.')
+#            new_doc = Record()
+#            new_doc.upload = self.request.FILES['document_determination_approved']
+#            new_doc.save()
+#            self.object.document_determination_approved = new_doc
 
         if self.request.FILES.get('document_briefing_note'):
             if Attachment_Extension_Check('single', forms_data['document_briefing_note'], None) is False:
@@ -3193,15 +3356,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             new_doc.save()
             self.object.document_completion = new_doc
 
-        if self.request.FILES.get('supporting_info_demonstrate_compliance_trust_policies'):
-            if Attachment_Extension_Check('single', forms_data['supporting_info_demonstrate_compliance_trust_policies'], None) is False:
-                raise ValidationError('Completion Docuemnt contains and unallowed attachment extension.')
-            new_doc = Record()
-            new_doc.upload = self.request.FILES['supporting_info_demonstrate_compliance_trust_policies']
-            new_doc.save()
-            self.object.supporting_info_demonstrate_compliance_trust_policies = new_doc
-
+        #if self.request.FILES.get('supporting_info_demonstrate_compliance_trust_policies'):
+        #    if Attachment_Extension_Check('single', forms_data['supporting_info_demonstrate_compliance_trust_policies'], None) is False:
+        #        raise ValidationError('Completion Docuemnt contains and unallowed attachment extension.')
+        #    new_doc = Record()
+        #    new_doc.upload = self.request.FILES['supporting_info_demonstrate_compliance_trust_policies']
+        #    new_doc.save()
+        #    self.object.supporting_info_demonstrate_compliance_trust_policies = new_doc
+	#
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
+
         if 'certificate_of_title_volume' in forms_data:
             new_loc.title_volume = forms_data['certificate_of_title_volume']
         if 'folio' in forms_data:
@@ -3237,7 +3401,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         if self.object.liquor_licence == '':
              self.object.liquor_licence = None        
 
-            
         self.object.save()
         new_loc.save()
 
@@ -3601,6 +3764,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationAssignNextAction, self).get_initial()
         initial['action'] = self.kwargs['action'] 
+        initial['records'] = None
         return initial
 
 # action = self.kwargs['action']
@@ -3671,6 +3835,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms = Communication()
         comms.application = app
         comms.comms_from = str(self.request.user.email)
+
         if action == 'creator': 
            comms.comms_to = "Form Creator"
         else:
@@ -3681,17 +3846,25 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         comms.comms_type = 4
         comms.save()
 
+        if 'records_json' in self.request.POST:
+            if is_json(self.request.POST['records_json']) is True:
+                json_data = json.loads(self.request.POST['records_json'])
+                for i in json_data:
+                    doc = Record.objects.get(id=i['doc_id'])
+                    comms.records.add(doc)
+                    comms.save() 
 
-        if self.request.FILES.get('records'):
-            if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
-                raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
 
-            for f in self.request.FILES.getlist('records'):
-                doc = Record()
-                doc.upload = f
-                doc.name = f.name
-                doc.save()
-                comms.records.add(doc)
+#        if self.request.FILES.get('records'):
+#            if Attachment_Extension_Check('multi', self.request.FILES.getlist('other_relevant_documents'), None) is False:
+#                raise ValidationError('Other relevant documents contains and unallowed attachment extension.')
+#
+#            for f in self.request.FILES.getlist('records'):
+#                doc = Record()
+#                doc.upload = f
+#                doc.name = f.name
+#                doc.save()
+#                comms.records.add(doc)
 #        if doc:
 #            comms.records.add(doc)
 

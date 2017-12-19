@@ -16,24 +16,23 @@ $(my_form_id).on("submit", function(event) {
 	var error = [];	//errors
 	var total_files_size = 0;
   	
-	//reset progressbar
+	// reset progressbar
 	$(progress_bar_id +" .progress-bar").css("width", "0%");
 	$(progress_bar_id + " .status").text("0%");
 							
-	if (!window.File && window.FileReader && window.FileList && window.Blob) { //if browser doesn't supports File API
+	if (!window.File && window.FileReader && window.FileList && window.Blob) { // if browser doesn't supports File API
 		error.push("Your browser does not support new File API! Please upgrade."); //push error text
 	} else {
 		var total_selected_files = this.elements['__files[]'].files.length; //number of files
 	        if (total_selected_files == 0) { 
 			error.push("Please select a file first");
 			proceed = false; //set proceed flag to false
-
 		} else {
-		//limit number of files allowed
-		if(total_selected_files > total_files_allowed) {
-			error.push( "You have selected "+total_selected_files+" file(s), " + total_files_allowed +" is maximum!"); //push error text
+		   // limit number of files allowed
+   		   if (total_selected_files > total_files_allowed) {
+			error.push("You have selected "+total_selected_files+" file(s), " + total_files_allowed +" is maximum!"); //push error text
 			proceed = false; //set proceed flag to false
-		}
+		   }
 		}
 		 //iterate files in file input field
 		$(this.elements['__files[]'].files).each(function(i, ifile) {
@@ -48,7 +47,7 @@ $(my_form_id).on("submit", function(event) {
 		});
 		
 		//if total file size is greater than max file size
-		if(total_files_size > max_file_size) { 
+		if (total_files_size > max_file_size) { 
 			error.push( "You have "+total_selected_files+" file(s) with total size "+total_files_size+", Allowed size is " + max_file_size +", Try smaller file!"); //push error text
 			proceed = false; //set proceed flag to false
 		}
@@ -56,7 +55,7 @@ $(my_form_id).on("submit", function(event) {
 		var submit_btn  = $(this).find("input[name=__submit__]"); //form submit button	
 		
 		//if everything looks good, proceed with jQuery Ajax
-		if(proceed) {
+		if (proceed) {
 			submit_btn.val("Please Wait...").prop( "disabled", true); //disable submit button
 			var form_data = new FormData(this); //Creates new FormData object
 			var post_url = $(this).attr("action"); //get action URL of form
@@ -69,7 +68,7 @@ $.ajax({
 	contentType: false,
 	cache: false,
 	processData:false,
-	xhr: function(){
+	xhr: function() {
 		//upload Progress
 		var xhr = $.ajaxSettings.xhr();
 		if (xhr.upload) {
@@ -77,9 +76,11 @@ $.ajax({
 				var percent = 0;
 				var position = event.loaded || event.position;
 				var total = event.total;
+
 				if (event.lengthComputable) {
 					percent = Math.ceil(position / total * 100);
 				}
+
 				//update progressbar
 				if (percent > 99) { 
 					$('#progress-bar-indicator').attr('class', 'progress-bar progress-bar-success');
@@ -88,6 +89,7 @@ $.ajax({
 	                                $('#progress-bar-indicator').attr('class', 'progress-bar progress-bar-warning progress-bar-striped active');
 					$(progress_bar_id + " .status-text").text("uploading");
 				}
+
 				$(progress_bar_id +" .progress-bar").css("width", + percent +"%");
 				$(progress_bar_id + " .status").text(percent +"%");
 			}, true);
@@ -104,6 +106,7 @@ $.ajax({
 	// $(result_output).html(res); //output response from server
         var obj = JSON.parse(res);
         var input_id_obj = $('#'+input_id+'_json').val();
+
         if (upload_type == 'multiple') { 
 
             if (input_id_obj.length > 0) { 
@@ -154,7 +157,8 @@ $.ajax({
 }
 
 var ajax_loader_django = { 
-    openUploader: function(input_id,upload_type) { 
+    openUploader: function(input_id,upload_type) {
+ 
     var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
 	var htmlvalue = "";
             htmlvalue += '<div id="uploadModal" class="modal fade" role="dialog">';
@@ -252,15 +256,16 @@ var ajax_loader_django = {
 		  }
 	          console.log(htmlvalue);
                   $('#showfiles').html(htmlvalue);
+                  $('#'+input_id+'__showfiles').html(htmlvalue);
 	    } else {
 		$('#showfiles').html(htmlvalue);
-
+                $('#'+input_id+'__showfiles').html(htmlvalue);
 	    }
     },
     deleteFile: function(input_id,file_id,upload_type) {
 	console.log(input_id+' '+ file_id);
         var input_id_obj = $('#'+input_id+'_json').val();
-
+        django_form_checks.var.form_changed = 'changed';
         if (upload_type == 'multiple') {
 
             if (input_id_obj.length > 0) {

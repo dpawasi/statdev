@@ -11,7 +11,6 @@ import json
 from django.utils.safestring import SafeText
 """
 This is a upload wrapper for the ajax uploader widget for django forms.
-
 """
 
 def ApplicationUploads(request):
@@ -21,6 +20,7 @@ def ApplicationUploads(request):
     for f in request.FILES.getlist('__files[]'):
          doc = Record()
          doc.upload = f
+         doc.name = f.name
          doc.save()
 #         self.object.records.add(doc)
 #         print doc.id
