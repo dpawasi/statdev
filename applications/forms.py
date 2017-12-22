@@ -217,6 +217,7 @@ class FirstLoginInfoForm(ModelForm):
             del self.fields['phone_number']
             del self.fields['mobile_number']
             del self.fields['email']
+
         elif step == '2':
             identification_img = None
             if  'identification' in self.initial:
@@ -697,22 +698,22 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title',))
 
         if check_fields_exist(self.fields,['description']) is True:
-             
              crispy_boxes.append(crispy_box('summary_collapse', 'form_summary' , 'Proposed Commercial Acts or Activities','description'))
 
         if check_fields_exist(self.fields,['description']) is True:
-             crispy_boxes.append(crispy_box('vessel_or_crafts_view_collapse', 'form_vessel_or_crafts_view' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'))) 
-
+             crispy_boxes.append(crispy_box('vessel_or_crafts_view_collapse', 'form_vessel_or_crafts_view' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'), HTML('{% include "applications/application_vessels.html" %}'), crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))) 
         if self.initial["workflow"]["hidden"]['vessels'] == "False":
             if self.initial['vessel_or_craft_details'] == 1:
                 crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel Details',HTML('{% include "applications/application_vessels.html" %}')))
-        if 'crafts' in self.initial["workflow"]["hidden"]:    
-            if self.initial["workflow"]["hidden"]['crafts'] == "False":
-                if self.initial['vessel_or_craft_details'] == 2:
-                    crispy_boxes.append(crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))
-                else: 
-                    del self.fields['type_of_crafts']
-                    del self.fields['number_of_crafts']
+                
+
+    #    if 'crafts' in self.initial["workflow"]["hidden"]:    
+   #         if self.initial["workflow"]["hidden"]['crafts'] == "False":
+   #             if self.initial['vessel_or_craft_details'] == 2:
+  #                  crispy_boxes.append(crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))
+ #               else: 
+#                    del self.fields['type_of_crafts']
+ #                   del self.fields['number_of_crafts']
                     
         if check_fields_exist(self.fields,['purpose']) is True:
              crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'jetty_dot_approval_expiry','drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('liquor_licence'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
@@ -1889,7 +1890,9 @@ class ComplianceCreateForm(ModelForm):
 
 
 class VesselForm(ModelForm):
-    registration = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+#    registration = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    registration = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}))
+
 #MultiFileField(
  #       required=False, label='Registration & licence documents',
 #        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')

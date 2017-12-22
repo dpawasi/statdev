@@ -251,8 +251,8 @@ class AjaxFileUploader(FileInput):
         else:
            substitutions['ajax_uploader'] += json.dumps(value)
         substitutions['ajax_uploader'] += '</TEXTAREA>'
-
-        substitutions['ajax_uploader'] += '<div id="'+name+'__showfiles" >'
+        substitutions['ajax_uploader'] += '<div id="'+name+'__uploader" ></div>'
+        substitutions['ajax_uploader'] += '<div id="'+name+'__showfiles" ><BR>'
         if value == '':
            donothing = ''
         else:

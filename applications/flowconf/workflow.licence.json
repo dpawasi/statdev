@@ -26,7 +26,7 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "vessels" : "True"
+            "vessels" : "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -62,7 +62,6 @@
                 "route": "3.2",
                 "routegroup":"lodge",
                 "required" : []
-
             }
         ],
         "formcomponent": {
@@ -82,7 +81,7 @@
             "may_issue": "False",
             "may_generate_pdf": "False",
             "may_assign_to_creator": "False",
-            "may_update_vessels_list": "False"
+            "may_update_vessels_list": "True"
         },
         "groupaccess": {
             "Processor": {
@@ -115,9 +114,7 @@
         "fields": {
             "assessment_start_date": "hide",
             "expire_date" : "hide",
-            "document_final" :" hide",
-            "type_of_crafts" : "hide",
-            "number_of_crafts" : "hide"
+            "document_final" :" hide"
         },
         "required" : []
     },
@@ -249,8 +246,8 @@
             "assessment_start_date": "hide",
             "expire_date" : "hide",
             "document_final" :" hide",
-            "type_of_crafts" : "hide",
-            "number_of_crafts" : "hide",
+            "type_of_crafts" : "show",
+            "number_of_crafts" : "show",
 	    "liquor_licence" : "hide"
         },
         "required" : ["type_of_crafts","number_of_crafts"]

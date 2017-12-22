@@ -1751,10 +1751,12 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
     template_name = 'applications/application_apply_form.html'
 
     def get(self, request, *args, **kwargs):
+        print "AAA"
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             app = Application.objects.create(submitted_by=self.request.user
                                              ,submit_date=date.today()
                                              ,state=Application.APP_STATE_CHOICES.new
+                                             #,assignee=self.request.user
                                              )
             return HttpResponseRedirect("/applications/"+str(app.id)+"/apply/apptype/")
         return super(ApplicationApply, self).get(request, *args, **kwargs)
@@ -1790,7 +1792,8 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.draft
         self.object.save()
-
+        print "ASS"
+        print self.object.assignee
         apply_on_behalf_of = forms_data['apply_on_behalf_of']
         if apply_on_behalf_of == '1':
             nextstep = 'apptype'
@@ -2766,7 +2769,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['document_memo'] = app.document_memo
         if app.document_new_draft_v3:
             initial['document_new_draft_v3'] = app.document_new_draft_v3
-
         if app.document_draft_signed:
             initial['document_draft_signed'] = app.document_draft_signed
         if app.document_draft:
@@ -2775,7 +2777,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['document_final_signed'] = app.document_final_signed
         if app.document_briefing_note:
             initial['document_briefing_note'] = app.document_briefing_note
-
         if app.document_determination_approved:
             initial['document_determination_approved'] = app.document_determination_approved
 
@@ -5593,6 +5594,7 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
+
         # Rule: can only delete a condition if the parent application is status
         # 'with referral' or 'with assessor'. Can also delete if you are the user assigned
         # to an Emergency Works
@@ -5645,12 +5647,17 @@ class VesselCreate(LoginRequiredMixin, CreateView):
 
         flow = Flow()
         flowcontext = {}
-        flowcontext['application_assignee_id'] = app.assignee.id
+        if app.assignee:
+           flowcontext['application_assignee_id'] = app.assignee.id
+        else:
+           flowcontext['application_assignee_id'] = None
+       
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+#        print flowcontext["may_update_vessels_list"]
         if flowcontext["may_update_vessels_list"] != "True":
 #        if app.state != app.APP_STATE_CHOICES.draft:
             messages.error(

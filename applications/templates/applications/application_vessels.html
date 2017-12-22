@@ -13,7 +13,9 @@
         </div>
     </div>
 </div>
-{% if object.vessels.exists %}
+
+<button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm();" type='button'>Add Vessel</button>
+
 <table class="table table-bordered table-striped">
     <tr>
         <th>Nominated vessel</th>
@@ -45,6 +47,8 @@
     </tr>
     {% endfor %}
 </table>
+
+{% if object.vessels.exists %}
 {% else %}
 <p>None</p>
 {% endif %}
