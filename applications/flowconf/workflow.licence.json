@@ -95,7 +95,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "may_change_application_applicant" :"True"
+                "may_change_application_applicant" :"True",
+		"may_update_vessels_list": "True"
             }
         },
         "collapse": {

@@ -2582,6 +2582,61 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
 #        self.object = form.save(commit=False)
         return HttpResponseRedirect(self.get_success_url())
 
+class ApplicationVesselTable(LoginRequiredMixin, DetailView):
+    """A view for updating a draft (non-lodged) application.
+    """
+    model = Application
+    template_name = 'applications/application_vessels_table.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+
+        context = {}
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+
+        if context['may_update_vessels_list'] != "True":
+            messages.error(self.request, 'This application cannot be updated!')
+            return HttpResponseRedirect(app.get_absolute_url())
+
+
+        return super(ApplicationVesselTable, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationVesselTable, self).get_context_data(**kwargs)
+        #context['page_heading'] = 'Update application details'
+        #context['left_sidebar'] = 'yes'
+        app = self.get_object()
+
+        # if app.app_type == app.APP_TYPE_CHOICES.part5:
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+        flow = Flow()
+
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        #context = flow.getCollapse(context,app.routeid,workflowtype)
+        #context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+        #context['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
+        #context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
+
+        return context
+
+    def get_success_url(self,app):
+        return HttpResponseRedirect(app.get_absolute_url())
+
+
+
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     """A view for updating a draft (non-lodged) application.
     """
@@ -3039,20 +3094,22 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                  self.object.other_relevant_documents.add(doc)
 
         if 'brochures_itineries_adverts_json' in self.request.POST:
-             json_data = json.loads(self.request.POST['brochures_itineries_adverts_json'])
-             for d in self.object.brochures_itineries_adverts.all():
-                 self.object.brochures_itineries_adverts.remove(d)
-             for i in json_data:
-                 doc = Record.objects.get(id=i['doc_id'])
-                 self.object.brochures_itineries_adverts.add(doc)
+             if is_json(self.request.POST['brochures_itineries_adverts_json']) is True:
+                 json_data = json.loads(self.request.POST['brochures_itineries_adverts_json'])
+                 for d in self.object.brochures_itineries_adverts.all():
+                    self.object.brochures_itineries_adverts.remove(d)
+                 for i in json_data:
+                    doc = Record.objects.get(id=i['doc_id'])
+                    self.object.brochures_itineries_adverts.add(doc)
 
         if 'land_owner_consent_json' in self.request.POST:
-             json_data = json.loads(self.request.POST['land_owner_consent_json'])
-             for d in self.object.land_owner_consent.all():
-                 self.object.land_owner_consent.remove(d)
-             for i in json_data:
-                 doc = Record.objects.get(id=i['doc_id'])
-                 self.object.land_owner_consent.add(doc)
+             if is_json(self.request.POST['land_owner_consent_json']) is True:
+                 json_data = json.loads(self.request.POST['land_owner_consent_json'])
+                 for d in self.object.land_owner_consent.all():
+                     self.object.land_owner_consent.remove(d)
+                 for i in json_data:
+                     doc = Record.objects.get(id=i['doc_id'])
+                     self.object.land_owner_consent.add(doc)
 
         if 'proposed_development_plans_json' in self.request.POST:
              json_data = json.loads(self.request.POST['proposed_development_plans_json'])
@@ -5658,7 +5715,9 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
 #        print flowcontext["may_update_vessels_list"]
-        if flowcontext["may_update_vessels_list"] != "True":
+        if self.request.user.groups.filter(name__in=['Processor']).exists():
+            donothing = ''
+        elif flowcontext["may_update_vessels_list"] != "True":
 #        if app.state != app.APP_STATE_CHOICES.draft:
             messages.error(
                 self.request, "Can't add new vessels to this application")
@@ -5685,13 +5744,22 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         app.vessels.add(self.object.id)
         app.save()
 
+        if 'registration_json' in self.request.POST:
+             if is_json(self.request.POST['registration_json']) is True:
+                 json_data = json.loads(self.request.POST['registration_json'])
+                 for d in self.object.registration.all():
+                     self.object.registration.remove(d)
+                 for i in json_data:
+                     doc = Record.objects.get(id=i['doc_id'])
+                     self.object.registration.add(doc)
+
         # Registration document uploads.
-        if self.request.FILES.get('registration'):
-            for f in self.request.FILES.getlist('registration'):
-                doc = Record()
-                doc.upload = f
-                doc.save()
-                self.object.registration.add(doc)
+#        if self.request.FILES.get('registration'):
+#            for f in self.request.FILES.getlist('registration'):
+#                doc = Record()
+#                doc.upload = f
+#                doc.save()
+#                self.object.registration.add(doc)
 
         return super(VesselCreate, self).form_valid(form)
 
@@ -5706,7 +5774,12 @@ class VesselDelete(LoginRequiredMixin, UpdateView):
         app = self.get_object().application_set.first()
         flow = Flow()
         flowcontext = {}
-        flowcontext['application_assignee_id'] = app.assignee.id
+        if app.assignee:
+           flowcontext['application_assignee_id'] = app.assignee.id
+        else:
+           flowcontext['application_assignee_id'] = None
+
+#        flowcontext['application_assignee_id'] = app.assignee.id
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
@@ -5770,8 +5843,8 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
 
 
         flow = Flow()
-        flowcontext = {}
-        flowcontext['application_assignee_id'] = app.assignee.id
+        #flowcontext = {}
+        # flowcontext['application_assignee_id'] = app.assignee.id
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         DefaultGroups = flow.groupList()
@@ -5815,17 +5888,28 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         # Registration document uploads.
-        rego = self.object.registration.all()
-        for filelist in rego:
-            if 'registration-clear_multifileid-' + str(filelist.id) in form.data:
-                 self.object.registration.remove(filelist)
+#        rego = self.object.registration.all()
 
-        if self.request.FILES.get('registration'):
-            for f in self.request.FILES.getlist('registration'):
-                doc = Record()
-                doc.upload = f
-                doc.save()
-                self.object.registration.add(doc)
+        if 'registration_json' in self.request.POST:
+             if is_json(self.request.POST['registration_json']) is True:
+                 json_data = json.loads(self.request.POST['registration_json'])
+                 for d in self.object.registration.all():
+                     self.object.registration.remove(d)
+                 for i in json_data:
+                     doc = Record.objects.get(id=i['doc_id'])
+                     self.object.registration.add(doc)
+
+        #for filelist in rego:
+        #    if 'registration-clear_multifileid-' + str(filelist.id) in form.data:
+        #         self.object.registration.remove(filelist)
+
+#
+#        if self.request.FILES.get('registration'):
+#            for f in self.request.FILES.getlist('registration'):
+#                doc = Record()
+#                doc.upload = f
+#                doc.save()
+#                self.object.registration.add(doc)
 
         app = self.object.application_set.first()
         return HttpResponseRedirect(self.get_success_url(app.id),)

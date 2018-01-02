@@ -702,9 +702,9 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
         if check_fields_exist(self.fields,['description']) is True:
              crispy_boxes.append(crispy_box('vessel_or_crafts_view_collapse', 'form_vessel_or_crafts_view' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'), HTML('{% include "applications/application_vessels.html" %}'), crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))) 
-        if self.initial["workflow"]["hidden"]['vessels'] == "False":
-            if self.initial['vessel_or_craft_details'] == 1:
-                crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel Details',HTML('{% include "applications/application_vessels.html" %}')))
+        #if self.initial["workflow"]["hidden"]['vessels'] == "False":
+        #    if self.initial['vessel_or_craft_details'] == 1:
+        #        crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel Details',HTML('{% include "applications/application_vessels.html" %}')))
                 
 
     #    if 'crafts' in self.initial["workflow"]["hidden"]:    
@@ -1367,9 +1367,10 @@ class VesselDeleteForm(Form):
         kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
         super(VesselDeleteForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.form_id = 'id_form_vessel_delete'
-        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        #self.helper.form_id = 'id_form_vessel_delete'
+        self.helper.form_id = 'id_form_modals'
+        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close' ))
 
 class ComplianceComplete(ModelForm):
     """Compliance Complete form
@@ -1905,10 +1906,11 @@ class VesselForm(ModelForm):
         # User must be passed in as a kwarg.
         super(VesselForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_create_vessel'
+        #self.helper.form_id = 'id_form_create_vessel'
+        self.helper.form_id = 'id_form_modals'
         self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close'))
 
 
 class NewsPaperPublicationCreateForm(ModelForm):

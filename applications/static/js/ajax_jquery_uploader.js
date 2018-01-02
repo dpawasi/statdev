@@ -55,8 +55,10 @@ function bindForm(form_id,input_id,upload_type) {
 				error.push( "You have "+total_selected_files+" file(s) with total size "+total_files_size+", Allowed size is " + max_file_size +", Try smaller file!"); //push error text
 				proceed = false; //set proceed flag to false
 			}
-
-			var submit_btn  = $(this).find("input[name=__submit__]"); //form submit button	
+                        console.log(input_id);
+//			var submit_btn  = $(this).find("input[name=__submit__]"); //form submit button	
+                        var submit_btn = $('#'+input_id+'__submit');
+                         
 
 			//if everything looks good, proceed with jQuery Ajax
 			if (proceed) {
