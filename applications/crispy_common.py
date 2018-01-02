@@ -44,7 +44,7 @@ def crispy_box(collapse_id, header_id , heading_label,*field_set):
                             ), css_class='panel-body',
                           ), css_class="panel-collapse collapse in",id=collapse_id,
                     ), css_class='panel panel-default'
-             )
+             ,id='box_'+collapse_id)
 
 def crispy_empty_box():
     return Div()

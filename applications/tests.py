@@ -437,12 +437,12 @@ class ApplicationTest(StatDevTestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_application_add_vessel_get_redirect(self):
-        self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.save()
-        url = reverse('application_add_vessel', args=(self.app1.pk,))
-        resp = self.client.get(url)
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+#    def test_application_add_vessel_get_redirect(self):
+#        self.app1.state = Application.APP_STATE_CHOICES.with_admin
+#        self.app1.save()
+#        url = reverse('application_add_vessel', args=(self.app1.pk,))
+#        resp = self.client.get(url)
+#        self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_application_add_vessel_post(self):
         self.assertFalse(Vessel.objects.exists())

@@ -435,7 +435,8 @@
             "document_new_draft_v3" : "hide",
             "document_memo" : "hide",
             "document_briefing_note" : "hide",
-            "document_determination_approved" :"hide"
+            "document_determination_approved" :"hide",
+	    "liquor_licence" : "hide"
         },
         "required": [
             "assessment_start_date",
@@ -778,11 +779,11 @@
 
             }
         ],
-		"formcomponent": {
-                "update": {
-                    "title": "Attach Board Feedback",
-                    "required": ["swan_river_trust_board_feedback"]
-                }
+	"formcomponent": {
+           "update": {
+               "title": "Attach Board Feedback",
+               "required": []
+           }
 
         },
         "groupaccess": {
@@ -819,7 +820,7 @@
             "conditions": "False",
             "assessments": "False"
         },
-		"fields": {
+        "fields": {
             "title": "hide",
             "description": "hide",
             "cost": "hide",
@@ -845,8 +846,8 @@
             "river_lease_scan_of_application":"hide",
             "deed":"hide",
             "document_determination":"hide",
-			"assessment_start_date": "hide",
-			"document_draft": "hide",
+            "assessment_start_date": "hide",
+	    "document_draft": "hide",
             "document_new_draft": "hide",
             "document_draft_signed": "hide",
             "document_final_signed": "hide",
@@ -856,9 +857,7 @@
             "document_determination_approved" :"hide"
 
         },
-        "required": [
-            "swan_river_trust_board_feedback"
-        ]
+        "required": []
     },
     "9": {
         "title": "Assessor (Swan River)",
@@ -1242,7 +1241,7 @@
         "formcomponent": {
              "update": {
                 "title": "Attached Signed Draft",
-                "required": ["document_draft_signed"]
+                "required": []
             }
 
         },
@@ -1321,7 +1320,7 @@
             "document_briefing_note" : "hide",
             "document_determination_approved" :"hide"
         },
-        "required": ["document_draft_signed"]
+        "required": []
     },
     "13.1": {
         "title": "Admin Officer - Pending DG - Wait 21 Days",

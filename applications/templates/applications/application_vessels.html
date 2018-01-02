@@ -1,4 +1,5 @@
 <!-- Vessel / Craft Panel -->
+<div id='vessel_and_crafts_option'>
 <div class="panel panel-default" style='display:none'>
     <div class="panel-heading" role="tab" id="vessels_heading">
         <h3 class="panel-title">
@@ -13,45 +14,16 @@
         </div>
     </div>
 </div>
+
+{% if may_update_vessels_list == "True"  %}
+	<button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_vessel' object.pk %}');" type='button'>Add new vessel / craft</button>
+{% endif %}
+<div id='vessels_table'>
+{% include "applications/application_vessels_table.html" %}
+</div>
 {% if object.vessels.exists %}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>Nominated vessel</th>
-        <th>Vessel ID</th>
-        <th>Hire and drive registration</th>
-        <th>Size (m)</th>
-        <th>Engine (kW)</th>
-        <th>Passenger capacity</th>
-        <th></th>
-    </tr>
-    {% for vessel in object.vessels.all %}
-    <tr>
-        <td>{{ vessel.name }}</td>
-        <td>{{ vessel.vessel_id }}</td>
-        <td>
-            {% if vessel.registration.exists %}
-            {% for doc in vessel.registration.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}
-            {% endif %}
-        </td>
-        <td>{% if vessel.size %}{{ vessel.size }}{% endif %}</td>
-        <td>{% if vessel.engine %}{{ vessel.engine }}{% endif %}</td>
-        <td>{% if vessel.passenger_capacity %}{{ vessel.passenger_capacity }}{% endif %}</td>
-        <td>
-            {% if may_update_vessels_list == "True" %}
-            <a href="{% url 'vessel_update' vessel.pk %}" class="btn btn-primary btn-sm" role="button">Update</a>
-            <a href="{% url 'vessel_delete' vessel.pk %}" class="btn btn-primary btn-sm" role="button">Delete</a>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
 {% else %}
 <p>None</p>
 {% endif %}
-
-{% if may_update_vessels_list == "True"  %}
-<a href="{% url 'application_add_vessel' object.pk %}" class="btn btn-primary" role="button">
-    Add new vessel / craft
-</a>
-{% endif %}
+</div>
 

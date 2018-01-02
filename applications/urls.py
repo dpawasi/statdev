@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/issue/$', views.ApplicationIssue.as_view(), name='application_issue'),
     url(r'^applications/(?P<pk>\d+)/create-compliance/$', views.ComplianceCreate.as_view(), name='compliance_create'),
     url(r'^applications/(?P<pk>\d+)/vessel/$', views.VesselCreate.as_view(), name='application_add_vessel'),
+    url(r'^applications/(?P<pk>\d+)/vessel-table/$', views.ApplicationVesselTable.as_view(), name='application_vessel_table'),
     url(r'^applications/(?P<pk>\d+)/newspaperpublication/$', views.NewsPaperPublicationCreate.as_view(), name='application_add_newspaperpublication'),
     url(r'^applications/(?P<pk>\d+)/change-person-applicant/$', views.ApplicationApplicantChange.as_view(), name='applicant_change'),
     url(r'^applications/(?P<pk>\d+)/change-company-applicant/$', views.ApplicationApplicantCompanyChange.as_view(), name='applicant_change_company'),

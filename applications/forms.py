@@ -217,6 +217,7 @@ class FirstLoginInfoForm(ModelForm):
             del self.fields['phone_number']
             del self.fields['mobile_number']
             del self.fields['email']
+
         elif step == '2':
             identification_img = None
             if  'identification' in self.initial:
@@ -562,30 +563,44 @@ class ApplicationFormMixin(object):
 
 
 class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
-    cert_survey = FileField(
-        label='Certificate of survey', required=False, max_length=128)
-    cert_public_liability_insurance = FileField(
-        label='Public liability insurance certificate', required=False, max_length=128)
-    risk_mgmt_plan = FileField(
-        label='Risk managment plan (if available)', required=False, max_length=128)
-    safety_mgmt_procedures = FileField(
-        label='Safety management procedures (if available)', required=False, max_length=128)
-    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}) , label='Brochures, itineraries or advertisements (if available)' )
+#    cert_survey = FileField(
+#        label='Certificate of survey', required=False, max_length=128)
+#    cert_public_liability_insurance = FileField(
+#        label='Public liability insurance certificate', required=False, max_length=128)
+#    risk_mgmt_plan = FileField(
+#        label='Risk managment plan (if available)', required=False, max_length=128)
+#    safety_mgmt_procedures = FileField(
+#        label='Safety management procedures (if available)', required=False, max_length=128)
+#    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    cert_survey = FileField(label='Certificate of survey', required=False, max_length=128, widget=AjaxFileUploader())
+    cert_public_liability_insurance = FileField( label='Public liability insurance certificate', required=False, max_length=128, widget=AjaxFileUploader())
+    risk_mgmt_plan = FileField(label='Risk managment plan (if available)', required=False, max_length=128, widget=AjaxFileUploader()) 
+    safety_mgmt_procedures = FileField( label='Safety management procedures (if available)', required=False, max_length=128, widget=AjaxFileUploader())
+    deed = FileField(required=False, max_length=128, widget=AjaxFileUploader())
+
+    brochures_itineries_adverts = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}) , label='Brochures, itineraries or advertisements (if available)' )
+#    brochures_itineries_adverts = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}) , label='Brochures, itineraries or advertisements (if available)' )
     #MultiFileField(
     #    required=False, label='Brochures, itineraries or advertisements',
     #    help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
     #    land_owner_consent = MultiFileField(
             #        required=False, label='Landowner consent statement(s)',
         #        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
-    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)',
-            help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.'
-            )
+#    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)', help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.' )
+    land_owner_consent = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)', help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.' )
 
-    location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Other relevant supporting documentation (if available)' ) 
+#    location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    location_route_access = FileField(required=False, max_length=128, widget=AjaxFileUploader())
+
+#    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+    document_final = FileField(required=False, max_length=128, widget=AjaxFileUploader())
+
+    other_relevant_documents = FileField(required=False, max_length=128, widget=AjaxFileUploader(attrs={'multiple':'multiple'}), label='Other relevant supporting documentation (if available)' )
+#    other_relevant_documents = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Other relevant supporting documentation (if available)' )
+ 
     vessel_or_craft_details = ChoiceField(choices=Application.APP_VESSEL_CRAFT ,widget=RadioSelect(attrs={'class':'radio-inline'}))
+
     jetty_dot_approval = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     food = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
     beverage = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect())
@@ -683,22 +698,22 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title',))
 
         if check_fields_exist(self.fields,['description']) is True:
-             
              crispy_boxes.append(crispy_box('summary_collapse', 'form_summary' , 'Proposed Commercial Acts or Activities','description'))
 
         if check_fields_exist(self.fields,['description']) is True:
-             crispy_boxes.append(crispy_box('vessel_or_crafts_view_collapse', 'form_vessel_or_crafts_view' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'))) 
+             crispy_boxes.append(crispy_box('vessel_or_crafts_view_collapse', 'form_vessel_or_crafts_view' , 'Vessel or Craft Details',vesselandcraftdetails,InlineRadios('vessel_or_craft_details'), HTML('{% include "applications/application_vessels.html" %}'), crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))) 
+        #if self.initial["workflow"]["hidden"]['vessels'] == "False":
+        #    if self.initial['vessel_or_craft_details'] == 1:
+        #        crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel Details',HTML('{% include "applications/application_vessels.html" %}')))
+                
 
-        if self.initial["workflow"]["hidden"]['vessels'] == "False":
-            if self.initial['vessel_or_craft_details'] == 1:
-                crispy_boxes.append(crispy_box('vessel_or_crafts_collapse', 'form_vessel_or_crafts' , 'Vessel Details',HTML('{% include "applications/application_vessels.html" %}')))
-        if 'crafts' in self.initial["workflow"]["hidden"]:    
-            if self.initial["workflow"]["hidden"]['crafts'] == "False":
-                if self.initial['vessel_or_craft_details'] == 2:
-                    crispy_boxes.append(crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))
-                else: 
-                    del self.fields['type_of_crafts']
-                    del self.fields['number_of_crafts']
+    #    if 'crafts' in self.initial["workflow"]["hidden"]:    
+   #         if self.initial["workflow"]["hidden"]['crafts'] == "False":
+   #             if self.initial['vessel_or_craft_details'] == 2:
+  #                  crispy_boxes.append(crispy_box('crafts_collapse', 'form_crafts' , 'Craft Details','type_of_crafts','number_of_crafts'))
+ #               else: 
+#                    del self.fields['type_of_crafts']
+ #                   del self.fields['number_of_crafts']
                     
         if check_fields_exist(self.fields,['purpose']) is True:
              crispy_boxes.append(crispy_box('proposal_details_collapse', 'form_proposal_details' , 'Proposal Details ','purpose','proposed_commence','proposed_end','max_participants','proposed_location','address','location_route_access','jetties',InlineRadios('jetty_dot_approval'),'jetty_dot_approval_expiry','drop_off_pick_up',InlineRadios('food'),InlineRadios('beverage'),InlineRadios('liquor_licence'),InlineRadios('byo_alcohol'),'sullage_disposal','waste_disposal','refuel_location_method','berth_location','anchorage','operating_details'))
@@ -756,10 +771,16 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
 class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
 
-    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Attach more detailed descripton, maps or plans')
-    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
-    deed = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+#    document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
+#    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Attach more detailed descripton, maps or plans')
+#    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
+#    deed = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+
+    document_final = FileField(required=False, max_length=128, widget=AjaxFileUploader)
+    records = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Attach more detailed descripton, maps or plans')
+    land_owner_consent = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
+    deed = FileField(required=False, max_length=128, widget=AjaxFileUploader)
+
     over_water = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
 
     lot = CharField(required=False)
@@ -768,8 +789,11 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     nearest_road_intersection = CharField(required=False)
     local_government_authority = CharField(required=False)
 
-    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
-    supporting_info_demonstrate_compliance_trust_policies = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+#    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+#    supporting_info_demonstrate_compliance_trust_policies = FileField(required=False, max_length=128, widget=ClearableFileInput) 
+
+    proposed_development_plans = FileField(required=False, max_length=128, widget=AjaxFileUploader(attrs={'multiple':'multiple'}))
+    supporting_info_demonstrate_compliance_trust_policies = FileField(required=False, max_length=128, widget=AjaxFileUploader())
 
     class Meta:
         model = Application
@@ -920,23 +944,40 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
     proposed_development_plans = FileField(required=False, max_length=128, widget=AjaxFileUploader(attrs={'multiple':'multiple'}))
     
     document_new_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
-    document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
-    document_draft_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    #document_draft = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    document_draft = FileField(required=False, max_length=128 , widget=AjaxFileUploader())
+     
+#    document_draft_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    document_draft_signed = FileField(required=False, max_length=128 , widget=AjaxFileUploader())
     document_final = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    document_final_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+#    document_final_signed = FileField(required=False, max_length=128 , widget=ClearableFileInput)
+    document_final_signed = FileField(required=False, max_length=128 , widget=AjaxFileUploader())
     document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput)
     document_completion = FileField(required=False, max_length=128, widget=ClearableFileInput)
     #river_lease_scan_of_application = FileField(required=False, max_length=128, widget=ClearableFileInput)
     river_lease_scan_of_application = FileField(required=False, max_length=128, widget=AjaxFileUploader())
+
 #    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     deed = FileField(required=False, max_length=128, widget=AjaxFileUploader())
-    swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
-    document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
-    document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
-    document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
-    document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
+#   swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=ClearableFileInput)
+
+    swan_river_trust_board_feedback = FileField(required=False, max_length=128, widget=AjaxFileUploader())
+#    document_new_draft_v3 = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Draft Version 3')
+#    document_memo = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Memo')
+
+    document_new_draft_v3 = FileField(required=False, max_length=128, widget=AjaxFileUploader(), label='Draft Version 3')
+    document_memo = FileField(required=False, max_length=128, widget=AjaxFileUploader(), label='Memo')
+
+#    document_determination = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Report')
+#    document_briefing_note = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Briefing Note')
+
+    document_determination = FileField(required=False, max_length=128, widget=AjaxFileUploader(), label='Determination Report')
+    document_briefing_note = FileField(required=False, max_length=128, widget=AjaxFileUploader(), label='Briefing Note')
+
+#    document_determination_approved = FileField(required=False, max_length=128, widget=ClearableFileInput, label='Determination Signed Approved')
+    document_determination_approved = FileField(required=False, max_length=128, widget=AjaxFileUploader(), label='Determination Signed Approved')
+
     river_lease_require_river_lease = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}), label='Does the development require a River reserve lease?')
     river_lease_reserve_licence = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}), label='Does the proposed development involve an activity in the River reserve that will require a River reserve licence?')
     river_lease_application_number = CharField(required=False, label='Application number')
@@ -1326,9 +1367,10 @@ class VesselDeleteForm(Form):
         kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
         super(VesselDeleteForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.form_id = 'id_form_vessel_delete'
-        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        #self.helper.form_id = 'id_form_vessel_delete'
+        self.helper.form_id = 'id_form_modals'
+        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close' ))
 
 class ComplianceComplete(ModelForm):
     """Compliance Complete form
@@ -1416,8 +1458,9 @@ class ApplicationAssignNextAction(ModelForm):
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
     sumbitter_comment = CharField(required=False, widget=Textarea, help_text='Reason to show to submitter')
     #records = FileField(required=False, max_length=128, widget=ClearableFileInput)
-    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Documents')
-   
+#    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Documents')
+    records = FileField(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}), label='Documents')
+
     class Meta:
         model = Application
         fields = ['id','details','sumbitter_comment','records']
@@ -1848,7 +1891,9 @@ class ComplianceCreateForm(ModelForm):
 
 
 class VesselForm(ModelForm):
-    registration = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+#    registration = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    registration = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}))
+
 #MultiFileField(
  #       required=False, label='Registration & licence documents',
 #        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
@@ -1861,10 +1906,11 @@ class VesselForm(ModelForm):
         # User must be passed in as a kwarg.
         super(VesselForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_create_vessel'
+        #self.helper.form_id = 'id_form_create_vessel'
+        self.helper.form_id = 'id_form_modals'
         self.helper.attrs = {'novalidate': ''}
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close'))
 
 
 class NewsPaperPublicationCreateForm(ModelForm):

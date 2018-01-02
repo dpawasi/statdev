@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy
 from django.forms import Media, MediaDefiningClass, Widget, CheckboxInput
 from django.utils.safestring import SafeText
+from applications.validationchecks import is_json
 
 from django.utils.encoding import (
       force_str, force_text, python_2_unicode_compatible,
@@ -106,6 +107,7 @@ class ClearableMultipleFileInput(FileInput):
         template = '%(input)s %(clearfiles)s'
         substitutions['input'] = super(ClearableMultipleFileInput, self).render(name, value, attrs)
         substitutions['clearfiles'] = ''
+
         if type(value) is list:
            substitutions['clearfiles'] = "<div class='col-sm-12'><Label>Files:</Label></div>"
            if value:
@@ -162,6 +164,7 @@ class AjaxFileUploader(FileInput):
         '%(initial_text)s: <a href="%(initial_url)s">%(initial)s</a>'
         '%(clear_template)s<br />%(input_text)s: %(input)s %(ajax_uploader)s'
     )
+
     template_with_clear = '%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>'
    
     def clear_checkbox_name(self, name):
@@ -194,27 +197,32 @@ class AjaxFileUploader(FileInput):
 
 
     def render(self, name, value, attrs=None):
+
         substitutions = {
             'initial_text': self.initial_text,
             'input_text': self.input_text,
             'clear_template': '',
             'clear_checkbox_label': self.clear_checkbox_label,
         }
+
         #if 'multiple' in attrs:
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name, )
+        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name,)
         upload_type = 'single'
-        if 'multiple' in  final_attrs:
+
+        if 'multiple' in final_attrs:
             upload_type = 'multiple'
         
-         
         template = '%(ajax_uploader)s %(clearfiles)s'
         substitutions['input'] = super(AjaxFileUploader, self).render(name, value, attrs)
+
 #        substitutions['ajax_uploader'] = '<button type="button" class="btn btn-primary" onclick="ajax_loader_django.openUploader(\''+name+'\',\''+upload_type+'\');" >Upload Files</button><br>'
 #        substitutions['ajax_uploader'] += '<TEXTAREA name="'+name+'_json" id="'+name+'_json"></TEXTAREA>'
 #        substitutions['clearfiles'] = ''
-        
+
+        value1 = {} 
         if type(value) is list:
            substitutions['clearfiles'] = "<div class='col-sm-12'><Label>Files:</Label></div>"
+
            if value:
               for fi in value:
                   if fi:
@@ -225,9 +233,8 @@ class AjaxFileUploader(FileInput):
                       substitutions['clearfiles'] += " name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
                       substitutions['clearfiles'] += " id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
                       substitutions['clearfiles'] += " > Clear</div>"
+
         else:
-           
-           value1 = {}
            if value is None:
              value1 =  '' 
            else:
@@ -244,7 +251,49 @@ class AjaxFileUploader(FileInput):
         else:
            substitutions['ajax_uploader'] += json.dumps(value)
         substitutions['ajax_uploader'] += '</TEXTAREA>'
+        substitutions['ajax_uploader'] += '<div id="'+name+'__uploader" ></div>'
+        substitutions['ajax_uploader'] += '<div id="'+name+'__showfiles" ><BR>'
+        if value == '':
+           donothing = ''
+        else:
+           if type(value) is list:
+              count = 1
+              for fi in value:
+                 if 'short_name' in fi:
+#                    substitutions['ajax_uploader'] += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">'
+                            
+#                    substitutions['ajax_uploader'] += '</div>';
+#                    substitutions['ajax_uploader'] += '<li>'+str(count)+'. <A HREF="/media/'+fi['path']+'">'+fi['short_name']+'</A>  <a onclick="ajax_loader_django.deleteFile(\'river_lease_scan_of_application\',\''+str(fi['doc_id'])+'\',\''+str(upload_type)+'\')" href="javascript:void(0);">X</a> </li>'
+
+                     substitutions['ajax_uploader'] += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">'
+                     substitutions['ajax_uploader'] += '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">'
+                     substitutions['ajax_uploader'] += str(count)+'. <A HREF="/media/'+fi['path']+'">'+fi['short_name']+'</A>'
+                     substitutions['ajax_uploader'] += '</div>'
+                     substitutions['ajax_uploader'] += '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">';
+                     substitutions['ajax_uploader'] += '<A onclick="ajax_loader_django.deleteFile(\''+name+'\',\''+str(fi['doc_id'])+'\',\''+upload_type+'\')" href="javascript:void(0);">X</A>'
+                     substitutions['ajax_uploader'] += '</div>'
+                     substitutions['ajax_uploader'] += '</div>'
+
+
+
+
+                     count = count + 1
+           else:
+                 if 'short_name' in value:
+                     #substitutions['ajax_uploader'] += '<li>1. <A HREF="/media/'+value['path']+'">'+value['short_name']+'</A></li>'
+
+                     substitutions['ajax_uploader'] += '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">'
+                     substitutions['ajax_uploader'] += '<A HREF="/media/'+value['path']+'">'+value['short_name']+'</A>'
+                     substitutions['ajax_uploader'] += '</div>';
+                     substitutions['ajax_uploader'] += '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">'
+                     substitutions['ajax_uploader'] += '<A onclick="ajax_loader_django.deleteFile(\''+name+'\',\''+str(value['doc_id'])+'\',\''+upload_type+'\')" href="javascript:void(0);">X</A>'
+                     substitutions['ajax_uploader'] += '</div>'
+                  
+           #substitutions['ajax_uploader'] += '<li>1. <A HREF="">File 1</A></li>'
+           #substitutions['ajax_uploader'] += '<li>2. <A HREF="">File 2</A></li>'
+        substitutions['ajax_uploader'] += '</div>'
         substitutions['clearfiles'] = ''
+
          
         if self.is_initial(value):
             template = self.template_with_initial
