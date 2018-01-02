@@ -1791,8 +1791,6 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
         self.object.submit_date = date.today()
         self.object.state = self.object.APP_STATE_CHOICES.draft
         self.object.save()
-        print "ASS"
-        print self.object.assignee
         apply_on_behalf_of = forms_data['apply_on_behalf_of']
         if apply_on_behalf_of == '1':
             nextstep = 'apptype'
@@ -2605,7 +2603,6 @@ class ApplicationVesselTable(LoginRequiredMixin, DetailView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
-        print context['may_update_vessels_list']
         #if self.request.user.groups.filter(name__in=['Processor']).exists():
         #    donothing = ''
         if context['may_update_vessels_list'] != "True":
@@ -5726,7 +5723,6 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         DefaultGroups = flow.groupList()
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
-        print flowcontext["may_update_vessels_list"]
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             donothing = ''
         elif flowcontext["may_update_vessels_list"] != "True":
