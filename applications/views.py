@@ -1751,7 +1751,6 @@ class ApplicationApply(LoginRequiredMixin, CreateView):
     template_name = 'applications/application_apply_form.html'
 
     def get(self, request, *args, **kwargs):
-        print "AAA"
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             app = Application.objects.create(submitted_by=self.request.user
                                              ,submit_date=date.today()
@@ -2597,15 +2596,21 @@ class ApplicationVesselTable(LoginRequiredMixin, DetailView):
         if app.routeid is None:
             app.routeid = 1
 
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
-
+        print context['may_update_vessels_list']
+        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+        #    donothing = ''
         if context['may_update_vessels_list'] != "True":
             messages.error(self.request, 'This application cannot be updated!')
             return HttpResponseRedirect(app.get_absolute_url())
-
 
         return super(ApplicationVesselTable, self).get(request, *args, **kwargs)
 
@@ -2619,11 +2624,18 @@ class ApplicationVesselTable(LoginRequiredMixin, DetailView):
         if app.routeid is None:
             app.routeid = 1
         request = self.request
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
         flow = Flow()
 
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context['workflowoptions'] = flow.getWorkflowOptions()
+       
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         #context = flow.getCollapse(context,app.routeid,workflowtype)
         #context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
@@ -5714,7 +5726,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         DefaultGroups = flow.groupList()
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
-#        print flowcontext["may_update_vessels_list"]
+        print flowcontext["may_update_vessels_list"]
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             donothing = ''
         elif flowcontext["may_update_vessels_list"] != "True":
