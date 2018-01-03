@@ -1094,9 +1094,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 
 
 
-
+        dynamic_selections = HTML('{% include "applications/application_form_part5_js_dynamics.html" %}')
         self.helper.layout = Layout(
-                                crispy_boxes,
+                                crispy_boxes,dynamic_selections
 
 #                            Div(crispy_heading('certificate_collapse', 'form_certificate' , 'Certificate of Title Information'),
 #                                

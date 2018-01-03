@@ -287,12 +287,11 @@ class Referrals_Next_Action_Check():
             app.routeid = route["route"]
         else:
             app.routeid = None
-
         if "state" in route:
             app.state = route["state"]
+            app.route_status = flow.json_obj[route['route']]['title']
         else:
             app.state = 0 
-
         app.group = groupassignment
         app.assignee = assignee
         app.save()

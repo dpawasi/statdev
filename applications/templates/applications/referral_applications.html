@@ -100,7 +100,18 @@
                                  {{ row_obj.application.applicant.get_full_name }}
                                 {% endif %}
                             </td>
-                            <td>{{ row_obj.application.get_state_display }}</td>
+                            <td>{% if row_obj.status == 1 %} 
+					Open 
+				{% elif row_obj.status == 2 %} 
+					Processed
+                                {% elif row_obj.status == 3 %}
+					Expired
+                                {% elif row_obj.status == 4 %}
+					Expired
+				{% elif row_obj.status == 5 %}
+					Processed
+				{% endif %}
+			    </td>
                             <td>{{ row_obj.application.submit_date|date:"d-M-Y" }}</td>
 				<td>{{ row_obj.application.submitted_by.get_full_name }}</td>
 			     <td>{{ row_obj.sent_date }}</td>
