@@ -2395,6 +2395,7 @@ class ReferralConditions(UpdateView):
         app_id = self.kwargs['pk']
         #action = self.kwargs['action']
         status=None
+       
         application = Application.objects.get(id=app_id)
         referral = Referral.objects.get(application_id=app_id,referee=self.request.user)
         referral.feedback = forms_data['comments'] 

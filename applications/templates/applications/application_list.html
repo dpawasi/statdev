@@ -16,15 +16,9 @@
     <div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
         <div class="panel-body">
 
-            {% if may_create %}
-            <div class="col-sm-12 col-lg-12">
-                <a class="btn btn-primary pull-right" role="button" href="{% url 'application_apply' %}">Create a new application</a>
-            </div>
-            {% endif %}
-
             <div class="row">
                 <form action="" method="get">
-                    <div class="col-sm-12 col-lg-12">
+                    <div class="col-sm-12 col-lg-9">
                         <input type='hidden' name='action' value='search'>
                         <!-- RES -->
                         <div class="col-sm-12 col-lg-3">
@@ -81,6 +75,16 @@
                             </div>
                         </div>
                     </div>
+
+                     <div class="col-sm-12 col-lg-3">
+                                <div class="col-sm-12 col-lg-12">
+					{% if may_create %}
+					   <a class="btn btn-primary pull-right" role="button" href="{% url 'application_apply' %}">Create a new application</a>
+					{% endif %}
+                                </div>
+
+                        </div>
+
                     <div class="col-sm-12 col-lg-12">
                         <div class="col-sm-12 col-lg-9">
                             <div class="col-sm-12 col-lg-12">
@@ -146,18 +150,22 @@
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
                                             <ul class="dropdown-menu" role="menu">
                                                 <li><a href="{% url 'application_detail' app_obj.app.pk %}" title="View">View</a></li>
+                                                {% if app_obj.app.state == 14 %} 
+							<!-- do nothing -->
+						{% else %}
                                                 {% if request.user == app_obj.app.assignee %}
                                                 <li><a href="{% url 'application_update' app_obj.app.pk %}" title="Reinstate">Process</a></li>
                                                 {% else %}
 							{% if app_obj.may_assign_to_person == "True" %}
 									{% if app_obj.app.assignee == None %}
-											 <li><a href="{% url 'application_assign_person' app_obj.app.pk %}" title="Reinstate">Process</a></li>		
+					                                     <li><a href="{% url 'application_assign_person' app_obj.app.pk %}" title="Reinstate">Process</a></li>		
 									{% endif %}
 							{% endif %}
 						{% endif %}
 						
                                                 {% if app_obj.may_assign_to_person == "True" %}
                                                 <li><a href="{% url 'application_assign_person' app_obj.app.pk %}" title="Assign Person">{% if app_obj.app.assignee == None %}Assign Person{% else %}Re Assign Person{% endif %}</a></li>
+						{% endif %}
                                                 {% endif %}
                                             </ul>
                                         </li>
