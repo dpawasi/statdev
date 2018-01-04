@@ -2722,6 +2722,23 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
         context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
 
+        try:
+            LocObj = Location.objects.get(application_id=app.id)
+            if LocObj:
+                context['certificate_of_title_volume'] = LocObj.title_volume
+                context['folio'] = LocObj.folio
+                context['diagram_plan_deposit_number'] = LocObj.dpd_number
+                context['location'] = LocObj.location
+                context['reserve_number'] = LocObj.reserve
+                context['street_number_and_name'] = LocObj.street_number_name
+                context['town_suburb'] = LocObj.suburb
+                context['lot'] = LocObj.lot
+                context['nearest_road_intersection'] = LocObj.intersection
+                context['local_government_authority'] = LocObj.local_government_authority
+        except ObjectDoesNotExist:
+            donothing = ''
+
+
         return context
 
     def get_success_url(self,app):
@@ -4122,6 +4139,12 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+
+        if app.state == 14:
+           messages.error(self.request, 'This application is completed and cannot be assigned.')
+           return HttpResponseRedirect("/")
+             
+
         if app.group is None:
             messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
             return HttpResponseRedirect(app.get_absolute_url())
@@ -4135,6 +4158,9 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationAssignPerson, self).post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('application_update', args=(self.object.pk,))
 
     def form_valid(self, form):
         self.object = form.save(commit=True)

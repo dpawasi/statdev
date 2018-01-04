@@ -19,7 +19,6 @@
                                 {% else %}
                                 <option value="{{ at.0 }}">{{ at.1 }}</option>
                                 {% endif %}
-
                                 {% endfor %}
                             </select>
                         </div>
@@ -42,7 +41,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-sm-12 col-lg-12">
                     <div class="col-sm-12 col-lg-9">
                         <div class="col-sm-12 col-lg-12">
@@ -136,7 +134,7 @@
 function loadTable() {
     $('#application-table').dataTable({searching: false, paging: true, "pageLength": 10,
  "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ {% if staff == True %}9{% else %}7{% endif %} ] }
+          { type: 'natural-nohtml', targets: 0 }, { 'bSortable': false, 'aTargets': [ {% if staff == True %}9{% else %}7{% endif %} ] }
        ]
 
 });

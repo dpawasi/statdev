@@ -1,0 +1,46 @@
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="deed_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#deed_collapse" aria-expanded="false" aria-controls="deed_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                          	Assessment 
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in " id="assessment_collapse" role="tabpanel" aria-labelledby="deed_heading">
+
+
+                    <div class="panel-body">
+                        <div class='col-sm-12 col-md-12 col-lg-12'>
+                        <div class='col-sm-12 col-md-3 col-lg-3'>
+                        <label>Start Date</label>
+                        </div>
+                        <div class='col-sm-12 col-md-9 col-lg-9'>
+                                {{ object.assessment_start_date }}
+                        </div>
+                        </div>
+                        <div class='col-sm-12 col-md-12 col-lg-12'>
+
+                        <div class='col-sm-12 col-md-3 col-lg-3'>
+                                <label>Expiry Date</label>
+                        </div>
+                        <div class='col-sm-12 col-md-9 col-lg-9'>
+                                     {{ object.expire_date }}
+                        </div>
+                        </div>
+
+                        <div class='col-sm-12 col-md-12 col-lg-12'>
+
+                        <div class='col-sm-12 col-md-3 col-lg-3'>
+                                <label>Document Final</label>
+                        </div>
+                        <div class='col-sm-12 col-md-9 col-lg-9'>
+                                <a href="{{ object.document_final.upload.url }}">{{ object.document_final }}</a>
+                        </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>

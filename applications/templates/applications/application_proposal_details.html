@@ -1,0 +1,123 @@
+            <!-- Proposal details panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="prop_details_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#prop_details_collapse" aria-expanded="false" aria-controls="prop_details_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Proposal details
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.proposed_details }}" id="prop_details_collapse" role="tabpanel" aria-labelledby="prop_details_heading">
+                    <div class="panel-body">
+                        <div class="fluid-container">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <h4>Purpose of application:</h4>
+                                    {% if object.purpose %}
+                                    <p>{{ object.purpose }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h4>Proposed commencement date:</h4>
+                                    {% if object.proposed_commence %}
+                                    <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>Proposed end date:</h4>
+                                    {% if object.proposed_end %}
+                                    <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <h4>Maximum number of participants:</h4>
+                                    <p>{{ object.max_participants }}</p>
+                                    <h4>Proposed location:</h4>
+                                    <p>{{ object.proposed_location }}</p>
+                                    <h4>Address of any land-based component of the commercial activity:</h4>
+                                    {% if object.address %}
+                                    <p>{{ object.address }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Location/route and access points (mark clearly on map):</h4>
+                                    {% if object.location_route_access %}
+                                    <p><a href="{{ object.location_route_access.upload.url }}">{{ object.location_route_access }}</a></p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>List of jetties to be used:</h4>
+                                    {% if object.jetties %}
+                                    <p>{{ object.jetties }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Do you have approval to use Department of Transport service jetties?</h4>
+                                    <p>{{ object.jetty_dot_approval|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>List all drop off and pick up points</h4>
+                                    {% if object.drop_off_pick_up %}
+                                    <p>{{ object.drop_off_pick_up }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Food to be served?</h4>
+                                    <p>{{ object.food|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Beverage to be served?</h4>
+                                    <p>{{ object.beverage|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Do you allow BYO alcohol?</h4>
+                                    <p>{{ object.byo_alcohol|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Details of sullage disposal method:</h4>
+                                    {% if object.sullage_disposal %}
+                                    <p>{{ object.sullage_disposal }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Details of waste disposal method:</h4>
+                                    {% if object.waste_disposal %}
+                                    <p>{{ object.waste_disposal }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Location and method of refueling:</h4>
+                                    {% if object.refuel_location_method %}
+                                    <p>{{ object.refuel_location_method }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Berth location:</h4>
+                                    {% if object.berth_location %}
+                                    <p>{{ object.berth_location }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>List all anchorage areas:</h4>
+                                    {% if object.anchorage %}
+                                    <p>{{ object.anchorage }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Hours and days of operation including length of tours/lessons:</h4>
+                                    {% if object.operating_details %}
+                                    <p>{{ object.operating_details }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                      
+
