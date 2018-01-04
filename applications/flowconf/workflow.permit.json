@@ -23,7 +23,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -161,7 +162,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "False"
         },
         "actions": [
             {
@@ -270,7 +272,8 @@
             "conditions": "True",
             "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "False"
         },
         "actions": [
             {
@@ -384,7 +387,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "True"
         },
         "actions": [
             {
@@ -482,10 +486,11 @@
             "landowner_consent": "False",
             "deed": "False",
             "publication": "True",
-            "conditions": "True",
-            "assessments": "True",
+            "conditions": "False",
+            "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "True"
         },
         "actions": [
             {
@@ -517,7 +522,7 @@
 		"may_view_action_log": "True"
 	    },
             "Approver": {
-                "may_update": "False",
+                "may_update": "True",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -545,12 +550,27 @@
             "landowner_consent": "False"
         },
         "fields": {
-            "location": "hide",
-            "document_draft": "hide",
-            "document_final": "hide",
-            "document_determination": "hide",
-            "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "applicant":"hide",
+            "title": "hide",
+            "description" :"hide",
+            "proposed_commence" : "hide",
+            "proposed_end" : "hide",
+            "cost" : "hide",
+            "project_no" : "hide",
+            "related_permits" : "hide",
+            "records" : "hide",
+            "land_owner_consent" : "hide",
+            "deed" : "hide",
+            "lot" : "hide",
+            "reserve_number" : "hide",
+            "town_suburb" : "hide",
+            "nearest_road_intersection" : "hide",
+            "local_government_authority" : "hide",
+            "over_water" : "hide",
+            "proposed_development_plans" : "hide",
+            "supporting_info_demonstrate_compliance_trust_policies" : "hide",
+	    "assessment_start_date" : "hide",
+            "expire_date": "hide"
         }
     },
     "6": {
@@ -569,10 +589,11 @@
             "landowner_consent": "False",
             "deed": "False",
             "publication": "True",
-            "conditions": "True",
-            "assessments": "True",
+            "conditions": "False",
+            "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "True"
         },
         "actions": [
             {
@@ -648,12 +669,27 @@
             "landowner_consent": "False"
         },
         "fields": {
-            "location": "hide",
-            "document_draft": "hide",
-            "document_final": "hide",
-            "document_determination": "hide",
-            "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "applicant":"hide",
+            "title": "hide",
+            "description" :"hide",
+            "proposed_commence" : "hide",
+            "proposed_end" : "hide",
+            "cost" : "hide",
+            "project_no" : "hide",
+            "related_permits" : "hide",
+            "records" : "hide",
+            "land_owner_consent" : "hide",
+            "deed" : "hide",
+            "lot" : "hide",
+            "reserve_number" : "hide",
+            "town_suburb" : "hide",
+            "nearest_road_intersection" : "hide",
+            "local_government_authority" : "hide",
+            "over_water" : "hide",
+            "proposed_development_plans" : "hide",
+            "supporting_info_demonstrate_compliance_trust_policies" : "hide",
+            "assessment_start_date" : "hide",
+            "expire_date": "hide"
         }
     },
     "7": {

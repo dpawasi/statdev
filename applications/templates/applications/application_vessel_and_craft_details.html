@@ -1,0 +1,48 @@
+
+<!-- Vessel / Craft Panel -->
+<div class="panel panel-default" >
+    <div class="panel-heading" role="tab" id="vessels_heading">
+        <h3 class="panel-title">
+            <a role="button" data-toggle="collapse" href="#vessels_collapse" aria-expanded="false" aria-controls="vessels_collapse">
+                <span class="glyphicon glyphicon-plus"></span>
+                Vessel and craft details
+            </a>
+        </h3>
+    </div>
+    <div class="panel-collapse collapse " id="vessels_collapse" role="tabpanel" aria-labelledby="vessels_heading">
+        <div class="panel-body">
+
+          {% if object.vessel_or_craft_details == 1 %}
+                 <div id='vessels_table'>
+                     {% include "applications/application_vessels_table.html" %}
+                 </div>
+                 {% if object.vessels.exists %}
+                 {% else %}
+                       <p>None</p>
+                 {% endif %}
+          {% elif object.vessel_or_craft_details == 2 %}
+                        <div class='col-sm-12 col-md-12 col-lg-12'>
+                        <div class='col-sm-12 col-md-3 col-lg-3'>
+                        <label>Type of Craft</label>
+                        </div>
+                        <div class='col-sm-12 col-md-9 col-lg-9'>
+                                {{ object.type_of_crafts }}
+                        </div>
+                        </div>
+
+                        <div class='col-sm-12 col-md-12 col-lg-12'>
+                        <div class='col-sm-12 col-md-3 col-lg-3'>
+                        <label>Number of Craft</label>
+                        </div>
+                        <div class='col-sm-12 col-md-9 col-lg-9'>
+                                {{ object.number_of_crafts }}
+                        </div>
+                        </div>
+          {% else %}
+                 No Selection
+          {% endif %}
+
+        </div>
+   </div>
+</div>
+

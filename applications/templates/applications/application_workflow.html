@@ -85,8 +85,13 @@
         </ul>
 
         <ul>
-            {% if may_assign_to_person == "True" %}
-            <li><a href="{% url 'application_assign_person' object.pk %}">{% if object.assignee != None %} Reassign{% else %}Assign Person{% endif %}</a></li>
+            {% if object.state == 14 %}
+               <!-- do nothing -->
+            {% else %}
+
+                {% if may_assign_to_person == "True" %}
+                  <li><a href="{% url 'application_assign_person' object.pk %}">{% if object.assignee != None %} Reassign{% else %}Assign Person{% endif %}</a></li>
+                {% endif %}
             {% endif %}
         </ul>
     </div>

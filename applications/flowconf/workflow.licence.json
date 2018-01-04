@@ -23,7 +23,8 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "vessels" : "False"
+            "vessels" : "False",
+	    "hide_form_buttons": "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -68,7 +69,7 @@
         },
         "assigntoaccess": {
             "may_update": "True",
-            "may_lodge":"False",
+            "may_lodge":"True",
             "may_refer":"False",
             "may_assign":"False",
             "may_assign_customer": "False",
@@ -136,7 +137,8 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "crafts" : "True"
+            "crafts" : "True",
+            "hide_form_buttons": "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -271,7 +273,8 @@
             "stakeholdercommunication": "True",
             "referrals": "True",
             "vessels" : "True",
-            "crafts" : "False"
+            "crafts" : "False",
+            "hide_form_buttons": "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -404,7 +407,8 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "crafts": "False"
+            "crafts": "False",
+            "hide_form_buttons": "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -545,7 +549,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "False"
         },
         "actions": [
             {
@@ -648,7 +653,11 @@
             "document_completion": "hide",
             "assessment_start_date": "hide",
             "type_of_crafts" : "hide",
-            "number_of_crafts" : "hide"
+            "number_of_crafts" : "hide",
+            "assessment_start_date": "hide",
+            "expire_date" : "hide",
+            "document_final" :" hide"
+
         },
         "required": []
     },
@@ -672,7 +681,8 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "vessels": "True"
+            "vessels": "True",
+            "hide_form_buttons": "False"
 
         },
         "actions": [
@@ -804,7 +814,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "hide_form_buttons": "False"
         },
         "actions": [
             {
@@ -905,7 +916,9 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "assessements" : "False",
+            "hide_form_buttons": "True"
         },
         "actions": [
             {
@@ -934,7 +947,7 @@
         },
         "groupaccess": {
             "Approver": {
-                "may_update": "False",
+                "may_update": "True",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -970,7 +983,45 @@
             "document_final": "hide",
             "document_determination": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "assessment_start_date": "hide",
+            "applicant" : "hide",
+            "title" : "hide",
+            "purpose" : "hide",
+            "proposed_commence" : "hide",
+            "proposed_end" : "hide",
+            "max_participants" : "hide",
+            "proposed_location" : "hide",
+            "address" : "hide",
+            "jetties" : "hide",
+            "jetty_dot_approval" :"hide",
+            "drop_off_pick_up" : "hide",
+            "food" : "hide",
+            "beverage" : "hide",
+            "byo_alcohol" : "hide",
+            "sullage_disposal" : "hide",
+            "waste_disposal" : "hide",
+            "refuel_location_method" : "hide",
+            "berth_location" : "hide",
+            "anchorage" : "hide",
+            "operating_details" : "hide",
+            "vessel_or_craft_details" : "hide",
+            "cert_survey" :"hide",
+            "cert_public_liability_insurance" : "hide",
+            "risk_mgmt_plan" : "hide",
+            "safety_mgmt_procedures" : "hide",
+            "brochures_itineries_adverts" : "hide",
+            "other_relevant_documents" : "hide",
+            "land_owner_consent" : "hide",
+            "deed": "hide",
+            "description" : "hide",
+            "assessment_start_date": "hide",
+            "expire_date" : "hide",
+            "document_final" :"hide",
+            "liquor_licence" : "hide",
+	    "jetty_dot_approval_expiry": "hide",
+            "number_of_crafts" : "hide",
+            "type_of_crafts" : "hide"
+
         }
     },
     "6": {
@@ -1071,7 +1122,9 @@
             "document_final": "hide",
             "document_determination": "hide",
             "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "assessment_start_date": "hide",
+            "expire_date" : "hide"
+
         }
     },
     "7": {
