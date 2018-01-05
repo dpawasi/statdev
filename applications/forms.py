@@ -784,13 +784,16 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         else:
             application_deed = HTML('{% include "applications/application_deed.html" %}')
             crispy_boxes.append(application_deed)
+    
+        if self.initial["workflow"]["hidden"]["conditions"] == 'False':
+            crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
+
 
 
         if check_fields_exist(self.fields,['document_final']) is True:
             crispy_boxes.append(crispy_box('document_final_collapse', 'form_document_final' , 'Assessment','document_final','assessment_start_date','expire_date'))
         else:
             if self.initial["workflow"]["hidden"]["assessments"] == 'False':
-                crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
                 crispy_boxes.append(HTML('{% include "applications/application_assessment.html" %}'))
 
 
