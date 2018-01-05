@@ -917,7 +917,7 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "assessements" : "False",
+            "assessments" : "False",
             "hide_form_buttons": "True"
         },
         "actions": [
