@@ -8,7 +8,6 @@ var total_files_allowed 	= 3; //Number files allowed to upload
 
 // on form submit
 function bindForm(form_id,input_id,upload_type) {
-
 	// alert(form_id);
 	$(form_id).on("click", function(event) {
 			//$(form_id).on("submit", function(event) {
@@ -19,7 +18,7 @@ function bindForm(form_id,input_id,upload_type) {
 			var proceed = true; //set proceed flag
 			var error = [];	//errors
 			var total_files_size = 0;
-
+                        var form_data;
 			// reset progressbar
 			$(progress_bar_id +" .progress-bar").css("width", "0%");
 			$(progress_bar_id + " .status").text("0%");
@@ -63,9 +62,11 @@ function bindForm(form_id,input_id,upload_type) {
 			//if everything looks good, proceed with jQuery Ajax
 			if (proceed) {
 				submit_btn.val("Please Wait...").prop( "disabled", true); //disable submit button
-				var form_data = new FormData(this); //Creates new FormData object
+				// var form_data = new FormData(this); //Creates new FormData object
+                                // var form_data;
+                                var form_data = new FormData();
 				var post_url = $(this).attr("action"); //get action URL of form
-
+                                
 				//jQuery Ajax to Post form data
 				// form_data =  {'files': []};
 				var file_array = [];
