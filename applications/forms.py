@@ -1188,7 +1188,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
             crispy_boxes.append(HTML('{% include "applications/application_deed.html" %}'))
       
         crispy_boxes.append(HTML('{% include "applications/application_publication.html" %}'))
-	crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
+        crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
 
         crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
 
