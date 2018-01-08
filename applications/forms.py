@@ -1165,7 +1165,7 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
         if check_fields_exist(self.fields,['river_lease_reserve_licence','river_lease_application_number']) is True:
         # River Reserve Lease (Swan and Cannning Management Act 2006 - section 32
              crispy_boxes.append(crispy_box('riverleasesection32_collapse', 'form_riverleasesection32' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 32',InlineRadios('river_lease_reserve_licence'),'river_lease_application_number'))
-	else:
+        else:
              crispy_boxes.append(HTML('{% include "applications/application_river_lease_32.html" %}'))
 
         # Details of Proposed Developmen
