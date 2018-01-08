@@ -1186,11 +1186,15 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
         else:
             crispy_boxes.append(HTML('{% include "applications/application_deed.html" %}'))
-      
-        crispy_boxes.append(HTML('{% include "applications/application_publication.html" %}'))
-        crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
 
-        crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
+        # publication
+        if 'hide_form_buttons' in self.initial["workflow"]["hidden"]:
+             if self.initial["workflow"]["hidden"]["publication"] == 'False':
+                 crispy_boxes.append(HTML('{% include "applications/application_publication.html" %}'))
+             if self.initial["workflow"]["hidden"]["referrals"] == 'False':
+                 crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
+             if self.initial["workflow"]["hidden"]["conditions"] == 'False':
+                 crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
 
         # Assessment Update Step
         if check_fields_exist(self.fields,['assessment_start_date']) is True:
@@ -1212,7 +1216,6 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
  
         if check_fields_exist(self.fields,['document_determination_approved']) is True:
             crispy_boxes.append(crispy_box('determination_approved_collapse','form_determination_approved','Determination Approved','document_determination_approved'))
-
 
 
         dynamic_selections = HTML('{% include "applications/application_form_part5_js_dynamics.html" %}')
@@ -1409,9 +1412,10 @@ class ReferralForm(ModelForm):
         existing_referees = app.referral_set.all().values_list('referee__email', flat=True)
         self.fields['referee'].queryset = User.objects.filter(groups__in=[referee]).exclude(email__in=existing_referees)
         # TODO: business logic to limit the document queryset.
-        self.helper.form_id = 'id_form_refer_application'
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        # self.helper.form_id = 'id_form_refer_application'
+        self.helper.form_id = 'id_form_modals'
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close' ))
 
 
 class ReferralCompleteForm(ModelForm):
@@ -2048,11 +2052,12 @@ class NewsPaperPublicationCreateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(NewsPaperPublicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_create_newspaperpublication'
+#        self.helper.form_id = 'id_form_create_newspaperpublication'
+        self.helper.form_id = 'id_form_modals' 
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel' , css_class='ajax-close'))
 
 
 class WebsitePublicationCreateForm(ModelForm):
@@ -2106,12 +2111,13 @@ class FeedbackPublicationCreateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FeedbackPublicationCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper()
-        self.helper.form_id = 'id_form_create_websitepublication'
+#        self.helper.form_id = 'id_form_create_websitepublication'
+        self.helper.form_id = 'id_form_modals'
         self.helper.attrs = {'novalidate': ''}
         self.fields['application'].widget = HiddenInput()
         self.fields['status'].widget = HiddenInput()
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close'))
 
 
 class RecordCreateForm(ModelForm):

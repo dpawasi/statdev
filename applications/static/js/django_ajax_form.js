@@ -69,6 +69,16 @@ django_ajax_form.CloseForm();
 });
 
 
+    $(function() {
+        // Initialise datepicker widgets.
+        $(".dateinput").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+
+
       },
       saveForm: function()  { 
 
@@ -143,6 +153,14 @@ django_ajax_form.CloseForm();
 
 });
 
+    $(function() {
+        // Initialise datepicker widgets.
+        $(".dateinput").datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
 
 
         // $(form_id)[0].reset(); //reset form

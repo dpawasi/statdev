@@ -1,0 +1,33 @@
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Date</th>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Newspaper</th>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Document(s)</th>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Action</th>
+                                    </tr>
+                                    {% if publication_newspaper %}
+                                    {% for newspub in publication_newspaper_list %}
+                                    <tr>
+                                        <td>{{ newspub.date }}</td>
+                                        <td>{{ newspub.newspaper }}</td>
+                                        <td>
+                                            {% if newspub.documents_short == None %}
+                                            {% else %}
+                                            {% for doc in newspub.documents_short %}
+                                            <div class="col-sm-12"><A href='/media/{{ doc.path }}'>{{ doc.path_short }}</a></div>
+                                            {% endfor %}
+                                            {% endif %}
+                                            <td>
+                                                {% if workflow_actions %}
+                                                {% if may_update_publication_newspaper == "True" %}
+                                                <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'newspaperpublication_update' newspub.pk %}');" type="button">Edit</button>
+                                                <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'newspaperpublication_delete' newspub.pk %}');" type="button">Delete</button>
+                                                {% endif %}
+                                                {% endif %}
+                                            </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+
+                                </table>
+
