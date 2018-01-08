@@ -2722,6 +2722,38 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         context['condactions'] = flow.getAllConditionBasedRouteActions(app.routeid)
         context['workflow'] = flow.getAllRouteConf(workflowtype,app.routeid)
 
+
+        if app.app_type == app.APP_TYPE_CHOICES.part5:
+            part5 = Application_Part5()
+            context = part5.get(app, self, context)
+        elif app.app_type == app.APP_TYPE_CHOICES.part5cr:
+            part5 = Application_Part5()
+            context = part5.get(app, self, context)
+            #flow = Flow()
+            #workflowtype = flow.getWorkFlowTypeFromApp(app)
+            #flow.get(workflowtype)
+            #context = flow.getAccessRights(self.request,context,app.routeid,workflowtype)
+            #context = flow.getCollapse(context,app.routeid,workflowtype)
+            #context = flow.getHiddenAreas(context,app.routeid,workflowtype)
+            #context['workflow_actions'] = flow.getAllRouteActions(app.routeid,workflowtype)
+            #context['formcomponent'] = flow.getFormComponent(app.routeid,workflowtype)
+        elif app.app_type == app.APP_TYPE_CHOICES.part5amend:
+            part5 = Application_Part5()
+            context = part5.get(app, self, context)
+        elif app.app_type == app.APP_TYPE_CHOICES.emergency:
+            emergency = Application_Emergency()
+            context = emergency.get(app, self, context)
+
+        elif app.app_type == app.APP_TYPE_CHOICES.permit:
+            permit = Application_Permit()
+            context = permit.get(app, self, context)
+
+        elif app.app_type == app.APP_TYPE_CHOICES.licence:
+            licence = Application_Licence()
+            context = licence.get(app, self, context)
+
+
+
         try:
             LocObj = Location.objects.get(application_id=app.id)
             if LocObj:
@@ -2788,6 +2820,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             initial['fieldstatus'] = flowcontent['fields']
         initial['fieldrequired'] = []
         flowcontent = flow.getRequired(flowcontent, app.routeid, workflowtype)
+
         if "formcomponent" in flowcontent:
             if "update" in flowcontent['formcomponent']:
                 if "required" in flowcontent['formcomponent']['update']:
@@ -3837,12 +3870,12 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                 if hasattr(app, fielditem):
                     if getattr(app, fielditem) is None:
                         messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
-                        return HttpResponseRedirect(app.get_absolute_url())
+                        return HttpResponseRedirect(reverse('application_update', args=(app.pk,)))
                     appattr = getattr(app, fielditem)
                     if isinstance(appattr, unicode) or isinstance(appattr, str):
                         if len(appattr) == 0:
                             messages.error(self.request, 'Required Field ' + fielditem + ' is empty,  Please Complete')
-                            return HttpResponseRedirect(app.get_absolute_url())
+                            return HttpResponseRedirect(reverse('application_update', args=(app.pk,)))
 
         return super(ApplicationAssignNextAction, self).get(request, *args, **kwargs)
 
@@ -4998,7 +5031,7 @@ class WebPublish(LoginRequiredMixin, UpdateView):
         return super(WebPublish, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('application_detail', args=(self.kwargs['pk'],))
+        return reverse('application_update', args=(self.kwargs['pk'],))
 
     def get_context_data(self, **kwargs):
         context = super(WebPublish,
