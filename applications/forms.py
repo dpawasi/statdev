@@ -984,6 +984,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         if check_fields_exist(self.fields,['assessment_start_date','expire_date']) is True:
             crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
             crispy_boxes.append(crispy_box('assessment_collapse', 'form_assessement', 'Assessment','assessment_start_date','expire_date','document_final'))
+
         else:
             if self.initial["workflow"]["hidden"]["assessments"] == 'False':
                 crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
@@ -1144,31 +1145,52 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
         if check_fields_exist(self.fields,['title']) is True:
              #self.fields['title'].widget.attrs['placeholder'] = "Enter Title, ( Director of Corporate Services )"
              crispy_boxes.append(crispy_box('title_collapse', 'form_title' , 'Title','title'))
+        else:
+             crispy_boxes.append(HTML('{% include "applications/application_title.html" %}'))
+
 
         # Certificate of Title Information
         if check_fields_exist(self.fields,['certificate_of_title_volume','folio','diagram_plan_deposit_number','location','reserve_number','street_number_and_name','town_suburb','lot','nearest_road_intersection']) is True:
              crispy_boxes.append(crispy_box('certificate_collapse', 'form_certificate' , 'Certificate of Title Information','certificate_of_title_volume','folio','diagram_plan_deposit_number','lot','location','reserve_number','street_number_and_name','town_suburb','nearest_road_intersection'))
              donothing =''
+        else:
+             crispy_boxes.append(HTML('{% include "applications/application_certificate_of_title_information.html" %}'))
 
         # River Reserve Lease (Swan and Cannning Management Act 2006 - section 29
         if check_fields_exist(self.fields,['river_lease_require_river_lease','river_lease_scan_of_application']) is True:
              crispy_boxes.append(crispy_box('riverleasesection29_collapse', 'form_riverleasesection29' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 29',riverleasedesc,InlineRadios('river_lease_require_river_lease'),attachpdf,'river_lease_scan_of_application'))
+        else:
+             crispy_boxes.append(HTML('{% include "applications/application_river_lease_29.html" %}'))
 
         if check_fields_exist(self.fields,['river_lease_reserve_licence','river_lease_application_number']) is True:
         # River Reserve Lease (Swan and Cannning Management Act 2006 - section 32
              crispy_boxes.append(crispy_box('riverleasesection32_collapse', 'form_riverleasesection32' , 'River Reserve Lease (Swan and Cannning Management Act 2006 - section 32',InlineRadios('river_lease_reserve_licence'),'river_lease_application_number'))
+        else:
+             crispy_boxes.append(HTML('{% include "applications/application_river_lease_32.html" %}'))
 
         # Details of Proposed Developmen
         if check_fields_exist(self.fields,['cost','proposed_development_current_use_of_land','proposed_development_description','proposed_development_plans']) is True:
              crispy_boxes.append(crispy_box('proposed_development_collapse', 'form_proposed_development' , 'Details of Proposed Development','cost','proposed_development_current_use_of_land','proposed_development_description','proposed_development_plans'))
+        else:
+             crispy_boxes.append(HTML('{% include "applications/application_details_of_proposed_development.html" %}'))
+
 
         # Landowner Consent
         if check_fields_exist(self.fields,['land_owner_consent']) is True:
             crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
+        else:
+            crispy_boxes.append(HTML('{% include "applications/application_land_owner_consent.html" %}'))
 
         # Deed
         if check_fields_exist(self.fields,['deed']) is True:
             crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
+        else:
+            crispy_boxes.append(HTML('{% include "applications/application_deed.html" %}'))
+      
+        crispy_boxes.append(HTML('{% include "applications/application_publication.html" %}'))
+        crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
+
+        crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
 
         # Assessment Update Step
         if check_fields_exist(self.fields,['assessment_start_date']) is True:
@@ -1236,14 +1258,18 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #                          )
                         )
 
-        if 'condactions' in self.initial['workflow']:
-             if  self.initial['workflow']['condactions'] is not None:
-                 for ca in self.initial['workflow']['condactions']:
-                     if 'steplabel' in self.initial['workflow']['condactions'][ca]:
-                          self.helper = crispy_button(self.helper,ca,self.initial['workflow']['condactions'][ca]['steplabel'])
-             else:
-                 self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-                 self.helper.add_input(Submit('cancel', 'Cancel'))
+        if 'hide_form_buttons' in self.initial["workflow"]["hidden"]:
+             if self.initial["workflow"]["hidden"]["hide_form_buttons"] == 'False':
+                  if 'condactions' in self.initial['workflow']:
+                      if  self.initial['workflow']['condactions'] is not None:
+                          for ca in self.initial['workflow']['condactions']:
+                              if 'steplabel' in self.initial['workflow']['condactions'][ca]:
+                                   self.helper = crispy_button(self.helper,ca,self.initial['workflow']['condactions'][ca]['steplabel'])
+                      else:
+                          self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
+                          self.helper.add_input(Submit('cancel', 'Cancel'))
+
+
         if 'assessment_start_date' in self.fields:
             self.fields['assessment_start_date'].label = "Start Date" 
         #self.fields['applicant'].disabled = True

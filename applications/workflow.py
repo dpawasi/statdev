@@ -125,7 +125,6 @@ class Flow():
         if "allow_admin_side_menu" not in context:
             context["allow_admin_side_menu"] = "False"
 
-
         # Form Components
         if "form_component_update" not in context:
             context["form_component_update_title"] = "Update Application"
@@ -232,6 +231,8 @@ class Flow():
         if json_obj[str(route)]:
            if json_obj[str(route)]['hidden']:
               context["hidden"] = json_obj[str(route)]['hidden']
+        if "hide_form_buttons" not in context["hidden"]:
+               context["hidden"]["hide_form_buttons"] = "False"
         return context
 
     def getFields(self,context,route,flow):

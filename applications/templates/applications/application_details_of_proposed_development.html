@@ -1,0 +1,55 @@
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="details_of_proposed_development_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#details_of_proposed_development_collapse" aria-expanded="false" aria-controls="details_of_proposed_development_collapse">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Details of Proposed Development
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.details_of_proposed_development }}" id="details_of_proposed_development_collapse" role="tabpanel" aria-labelledby="details_of_proposed_development_heading">
+                    <div class="panel-body">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-lg-12">
+                                <label>Estimated cost of development (AU$)</Label>
+                            </div>
+                            <div class="col-lg-4">
+                                {{ object.cost }}
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-lg-12">
+                                <label>Current use of land</Label>
+                            </div>
+                            <div class="col-lg-12">
+                                {{ object.proposed_development_current_use_of_land }}
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-lg-12">
+                                <label>Proposed development</Label>
+                            </div>
+                            <div class="col-lg-12">
+                                {{ object.proposed_development_description }}
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-lg-12">
+                                <label>Attach a full set of plans</Label>
+                            </div>
+                            <div class="col-lg-12">
+                                {% if proposed_development_plans_list %}
+
+                                {% for doc in proposed_development_plans_list %}
+                                <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+                                {% endfor %}
+                                {% else %}
+                                No Attachments
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
