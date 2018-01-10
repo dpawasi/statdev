@@ -11,16 +11,15 @@
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-12">
-                                <label>Application published in newspaper </label>
+                                <label>Application published in newspaper</label>
                             </div>
                             <div class="panel-body">
 				<div id='newspaper_table'>
-                                {% include 'applications/application_publication_newspaper_table.html' %}
+            	                    {% include 'applications/application_publication_newspaper_table.html' %}
                                 </div>
 
                                 {% if workflow_actions %}
                                 {% if may_update_publication_newspaper == "True" %}
-                                </a>
  			        <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_newspaperpublication' object.pk %}');" type="button">Add News Publication</button>
                                 {% endif %}
                                 {% endif %}
@@ -184,6 +183,8 @@
                                 <label>Received Feedback (Final)</label>
                             </div>
                             <div class="panel-body">
+				<div id='feedback_final_table'>
+
                                 <table class="table table-bordered table-striped">
                                     <tr>
                                         <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
@@ -222,11 +223,11 @@
                                     {% endfor %}
                                     {% endif %}
                                 </table>
+				</div>
                                 {% if workflow_actions %}
                                 {% if may_update_publication_feedback_final == "True" %}
-                                <a href="{% url 'application_add_feedbackpublication_final' object.pk 'final' %}" class="btn btn-primary" role="button">
-                                    Add Feedback
-                                </a>
+                                          <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_feedbackpublication_draft' object.pk 'final' %}');" type="button">Add Feedback</button>
+
                                 {% endif %}
                                 {% endif %}
 
@@ -243,8 +244,7 @@
                             <div class="col-lg-9">
                                 <div class="col-lg-12">
                                     {% if object.document_final_signed %}
-                                    <A HREF='/media/{{ object.document_final_signed.upload.name }}'>Signed Document.pdf</A>
-
+	                                    <A HREF='/media/{{ object.document_final_signed.upload.name }}'>Signed Document.pdf</A>
                                     {% else %}
                                         {% if may_publish_publication_feedback_final == "True" %}
                                             <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
@@ -327,11 +327,11 @@
                                     {% endif %}
                                 </table>
                                 {% if workflow_actions %}
-                                {% if may_update_publication_feedback_determination == "True" %}
-                                <a href="{% url 'application_add_feedbackpublication_final' object.pk 'determination' %}" class="btn btn-primary" role="button">
-                                    Add Feedback
-                                </a>
-                                {% endif %}
+	                                {% if may_update_publication_feedback_determination == "True" %}
+        	                        <a href="{% url 'application_add_feedbackpublication_final' object.pk 'determination' %}" class="btn btn-primary" role="button">
+                	                    Add Feedback
+                        	        </a>
+                               	 {% endif %}
                                 {% endif %}
 
                             </div>
@@ -391,7 +391,8 @@
 <script>
 
         function loadForm() {
-console.log("Refreshing Form");
+	       console.log("Refreshing Form");
+
                $.ajax({
                     url: '{% url 'application_add_newspaperpublication_table' object.pk %}',
                     async: false,
@@ -405,6 +406,14 @@ console.log("Refreshing Form");
                     async: false,
                     success: function(data) {
                           $('#feedback_draft_table').html(data);
+                    }
+               });
+
+               $.ajax({
+                    url: '{% url 'application_feedbackpublication_table' object.pk 'final' %}',
+                    async: false,
+                    success: function(data) {
+                          $('#feedback_final_table').html(data);
                     }
                });
 

@@ -1473,9 +1473,10 @@ class ReferralDeleteForm(Form):
         kwargs.pop('instance')  # Don't need this because this isn't a ModelForm.
         super(ReferralDeleteForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.form_id = 'id_form_referral_delete'
-        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+#       self.helper.form_id = 'id_form_referral_delete'
+        self.helper.form_id = 'id_form_modals'
+        self.helper.add_input(Submit('delete', 'Delete', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close' ))
 
 class PersonOrgDeleteForm(Form):
     """Form is to allow a organisation to be unlinked from people 

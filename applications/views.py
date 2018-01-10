@@ -384,10 +384,12 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         context = super(CreateLinkCompany, self).get_context_data(**kwargs)
         step = self.kwargs['step']
         context['user_id'] = self.kwargs['pk']
+
         if 'po_id' in self.kwargs:
             context['po_id'] = self.kwargs['po_id']
         else:
             context['po_id'] = 0
+
         if step == '1':
             context['step1'] = 'active'
             context['step2'] = 'disabled'
@@ -2606,9 +2608,9 @@ class ApplicationReferTable(LoginRequiredMixin, DetailView):
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         #if self.request.user.groups.filter(name__in=['Processor']).exists():
         #    donothing = ''
-        if context["may_update_publication_newspaper"] != "True":
-            messages.error(self.request, 'This application cannot be updated!')
-            return HttpResponseRedirect(app.get_absolute_url())
+#        if context["may_update_publication_newspaper"] != "True":
+#            messages.error(self.request, 'This application cannot be updated!')
+#            return HttpResponseRedirect(app.get_absolute_url())
 
         return super(ApplicationReferTable, self).get(request, *args, **kwargs)
 
@@ -2730,9 +2732,9 @@ class NewsPaperPublicationTable(LoginRequiredMixin, DetailView):
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         #if self.request.user.groups.filter(name__in=['Processor']).exists():
         #    donothing = ''
-        if context["may_update_publication_newspaper"] != "True":
-            messages.error(self.request, 'This application cannot be updated!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        #if context["may_update_publication_newspaper"] != "True":
+        #    messages.error(self.request, 'This application cannot be updated!')
+        #    return HttpResponseRedirect(app.get_absolute_url())
 
         return super(NewsPaperPublicationTable, self).get(request, *args, **kwargs)
 
@@ -2749,7 +2751,6 @@ class NewsPaperPublicationTable(LoginRequiredMixin, DetailView):
            context['application_assignee_id'] = None
 
         flow = Flow()
-
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context['workflowoptions'] = flow.getWorkflowOptions()
@@ -2772,7 +2773,7 @@ class FeedbackTable(LoginRequiredMixin, DetailView):
         app = self.get_object()
 
         context = {}
-
+       
         if app.routeid is None:
             app.routeid = 1
 
@@ -2806,11 +2807,12 @@ class FeedbackTable(LoginRequiredMixin, DetailView):
            context['application_assignee_id'] = None
 
         flow = Flow()
-
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         context['workflowoptions'] = flow.getWorkflowOptions()
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        context['action'] = self.kwargs['action']
+
         part5 = Application_Part5()
         context = part5.get(app, self, context)
         return context
@@ -5021,7 +5023,7 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
-        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.with_admin:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
         return super(ReferralDelete, self).get(request, *args, **kwargs)
