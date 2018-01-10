@@ -9,7 +9,7 @@
                                     </tr>
                                     {% if publication_feedback %}
                                     {% for feedpub in publication_feedback %}
-                                    {% if feedpub.status == 'draft' %}
+                                    {% if feedpub.status == 'determination' %}
                                     <tr>
                                         <td>{{ feedpub.name }}</td>
                                         <td>{{ feedpub.comments }}</td>
@@ -21,7 +21,7 @@
                                             {% endfor %}
                                         </td>
                                         <td>
-                                            {% if may_update_publication_feedback_draft == "True" %}
+                                            {% if may_update_publication_feedback_determination == "True" %}
                                             <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_update_feedbackpublication' object.pk feedpub.id %}');" type="button">Change</button>
                                             <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}');" type="button">Delete</button>
                                             <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_view_feedbackpublication' object.pk feedpub.id %}');" type="button">View</button>

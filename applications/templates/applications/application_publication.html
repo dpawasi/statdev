@@ -7,6 +7,7 @@
                         </a>
                     </h3>
                 </div>
+
                 <div class="panel-collapse collapse {{ collapse.publication }}" id="publication_collapse" role="tabpanel" aria-labelledby="publication_heading">
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
@@ -19,9 +20,9 @@
                                 </div>
 
                                 {% if workflow_actions %}
-                                {% if may_update_publication_newspaper == "True" %}
- 			        <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_newspaperpublication' object.pk %}');" type="button">Add News Publication</button>
-                                {% endif %}
+                                      {% if may_update_publication_newspaper == "True" %}
+                                             <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_newspaperpublication' object.pk %}');" type="button">Add News Publication</button>
+                                      {% endif %}
                                 {% endif %}
                             </div>
                         </div>
@@ -30,15 +31,14 @@
                     <div class="panel-body">
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-10">
-                                <label>Application published on Department's website </label>
+                                <label>Application published on Department's website</label>
                             </div>
                             <div class="col-lg-2 align-right text-right">
                                 <td>
                                     {% if object.publish_documents %}
-                                    <a href="javascript:void();" class="btn btn-primary" role="button">
-
-                                        Published {% if object.publish_documents %} on the {{ object.publish_documents }} {% endif %}
-                                    </a>
+                                        <a href="javascript:void();" class="btn btn-primary" role="button">
+                                           Published {% if object.publish_documents %} on the {{ object.publish_documents }} {% endif %}
+                                        </a> 
                                     {% else %}
                                     {% if workflow_actions %}
                                         {% if may_publish_website == "True" %}
@@ -50,6 +50,7 @@
                                     {% endif %}
                                 </td>
                             </div>
+
                             <div class="panel-body">
                                 <table class="table table-bordered table-striped">
                                     <tr>
@@ -75,13 +76,11 @@
                                         </td>
                                         <td>
                                         {% if workflow_actions %}
-                                        {% if may_update_publication_website == "True" %}
-
+                                           {% if may_update_publication_website == "True" %}
                                             <a href="{% url 'websitepublication_change' object.pk origdoc.fileid %}" class="btn btn-primary" role="button">
                                                 Attach / Change
                                             </a>
-
-                                        {% endif %}
+                                           {% endif %}
                                         {% endif %}
                                         </td>
                                     </tr>
@@ -128,7 +127,7 @@
 
                                 {% if workflow_actions %}
                                 {% if may_update_publication_feedback_draft == "True" %}
-				<button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_feedbackpublication_draft' object.pk 'draft' %}');" type="button">Add Feedback</button>
+			               <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_feedbackpublication_draft' object.pk 'draft' %}');" type="button">Add Feedback</button>
                                 {% endif %}
                                 {% endif %}
                             </div>
@@ -143,16 +142,17 @@
                             </div>
                             <div class="col-lg-4">
                                 {% if object.document_draft_signed.upload.name %}
-                                <A HREF='/media/{{ object.document_draft_signed.upload.name }}'>Signed Document.pdf</A>
+                                	<A HREF='/media/{{ object.document_draft_signed.upload.name }}'>Signed Document.pdf</A>
                                 {% else %}
-                                {% if hidden.may_publish_publication_feedback_draft == "True" %}
-                                <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
-                                {% else %}
-                                No Attachment
-                                {% endif %}
+	                                {% if hidden.may_publish_publication_feedback_draft == "True" %}
+        		                        <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
+                        	        {% else %}
+                                		No Attachment
+	                                {% endif %}
                                 {% endif %}
                             </div>
                         </div>
+
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-10">
                                 Publish signed report on website
@@ -183,51 +183,16 @@
                                 <label>Received Feedback (Final)</label>
                             </div>
                             <div class="panel-body">
-				<div id='feedback_final_table'>
+                                <div id='feedback_final_table'>
+                                         {% include "applications/application_feedback_final_table.html" %}
+                                </div>
 
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Documents</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
-                                    </tr>
-                                    {% if publication_feedback %}
-                                    {% for feedpub in publication_feedback %}
-                                    {% if feedpub.status == 'final' %}
-                                    <tr>
-                                        <td>{{ feedpub.name }}</td>
-                                        <td>{{ feedpub.comments }}</td>
-                                        <td>
-                                            {% for doc in feedpub.documents_short %}
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
-                                            </div>
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% if may_update_publication_feedback_final == "True" %}
-                                            <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Change
-                                            </a>
-                                            <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Delete
-                                            </a>
-                                            <a href="{% url 'application_view_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                View
-                                            </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                    {% endif %}
-                                </table>
-				</div>
                                 {% if workflow_actions %}
+                                {% if object.publish_draft_report %}
+				{% else %}
                                 {% if may_update_publication_feedback_final == "True" %}
-                                          <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_feedbackpublication_draft' object.pk 'final' %}');" type="button">Add Feedback</button>
-
+                                        <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_feedbackpublication_draft' object.pk 'final' %}');" type="button">Add Feedback</button>
+                                {% endif %}
                                 {% endif %}
                                 {% endif %}
 
@@ -260,7 +225,7 @@
                                 Publish signed report on website
                             </div>
                             <div class="col-lg-2 align-right text-right">
-                                <td>
+                                <td>dsfsdfs
                                     {% if object.publish_final_report %}
                                     <a href="javascript:void();" class="btn btn-primary" role="button">
                                         Published on the {{ object.publish_final_report }}
@@ -276,6 +241,7 @@
                             </div>
                         </div>
                         {% endif %}
+
                    </div>
                      {% endif %}
 
@@ -287,58 +253,23 @@
                                 <label>Received Feedback (Determination)</label>
                             </div>
                             <div class="panel-body">
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">Documents</th>
-                                        <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
-                                    </tr>
-                                    {% if publication_feedback %}
-                                    {% for feedpub in publication_feedback %}
-                                    {% if feedpub.status == 'determination' %}
-                                    <tr>
-                                        <td>{{ feedpub.name }}</td>
-                                        <td>{{ feedpub.comments }}</td>
-                                        <td>
-                                            {% for doc in feedpub.documents_short %}
-                                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                                <a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
-                                            </div>
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% if may_update_publication_feedback_determination == "True" %}
-                                            <a href="{% url 'application_update_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Change
-                                            </a>
-                                            <a href="{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                Delete
-                                            </a>
-                                            <a href="{% url 'application_view_feedbackpublication' object.pk feedpub.id %}" class="btn btn-primary" role="button">
-                                                View
-                                            </a>
 
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                    {% endif %}
-                                </table>
+                                <div id='feedback_determination_table'>
+                                         {% include "applications/application_feedback_determination_table.html" %}
+                                </div>
+
                                 {% if workflow_actions %}
-	                                {% if may_update_publication_feedback_determination == "True" %}
-        	                        <a href="{% url 'application_add_feedbackpublication_final' object.pk 'determination' %}" class="btn btn-primary" role="button">
-                	                    Add Feedback
-                        	        </a>
-                               	 {% endif %}
+                                    {% if may_update_publication_feedback_determination == "True" %}
+                                        <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_add_feedbackpublication_draft' object.pk 'determination' %}');" type="button">Add Feedback</button>
+                                    {% endif %}
                                 {% endif %}
+
 
                             </div>
                         </div>
                     </div>
 
-				<div class="panel-body">
+			<div class="panel-body">
                         {% if hidden.publish_publication_feedback_determination == "False" %}
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-3">
@@ -347,7 +278,7 @@
                             <div class="col-lg-9">
                                 <div class="col-lg-12">
                                     {% if object.document_determination_approved %}
-                                    <A HREF='/media/{{ object.document_determination_approved.upload.name }}'>Signed Document.pdf</A>
+                                    	<A HREF='/media/{{ object.document_determination_approved.upload.name }}'>Signed Document.pdf</A>
                                     {% else %}
                                         {% if may_publish_publication_feedback_determination == "True" %}
                                             <A HREF="{% url 'application_update' object.pk %}">Attach File</A>
@@ -358,6 +289,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-sm-12 col-md-12 col-lg-12">
                             <div class="col-lg-10">
                                 Publish signed report on website
@@ -381,9 +313,6 @@
                         {% endif %}
                    </div>
                      {% endif %}
-
-
-
                 </div>
             </div>
 
@@ -417,6 +346,13 @@
                     }
                });
 
+               $.ajax({
+                    url: '{% url 'application_feedbackpublication_table' object.pk 'determination' %}',
+                    async: false,
+                    success: function(data) {
+                          $('#feedback_determination_table').html(data);
+                    }
+               });
 
                $.ajax({
                     url: '{% url 'application_refer_table' object.pk %}',
@@ -426,10 +362,7 @@
                     }
                });
 
-
-
         }
-
 
 </script>
                              

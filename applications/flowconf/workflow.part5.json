@@ -1149,6 +1149,41 @@
         },
 
         "fields": {
+                "title": "hide",
+            "description": "hide",
+            "cost": "hide",
+            "project_no": "hide",
+            "river_lease_require_river_lease":"hide",
+            "river_lease_reserve_licence": "hide",
+            "river_lease_application_number":"hide",
+            "proposed_development_description":"hide",
+            "proposed_development_current_use_of_land":"hide",
+            "certificate_of_title_volume":"hide",
+            "folio":"hide",
+            "diagram_plan_deposit_number":"hide",
+            "location":"hide",
+            "reserve_number":"hide",
+            "street_number_and_name":"hide",
+            "town_suburb":"hide",
+            "lot":"hide",
+            "nearest_road_intersection":"hide",
+            "land_owner_consent":"hide",
+            "proposed_development_plans":"hide",
+            "document_final":"hide",
+            "document_completion":"hide",
+            "river_lease_scan_of_application":"hide",
+            "deed":"hide",
+            "document_determination":"hide",
+            "assessment_start_date": "hide",
+            "document_draft": "hide",
+            "document_draft_signed": "hide",
+            "swan_river_trust_board_feedback": "hide",
+            "document_final_signed": "hide",
+            "document_new_draft_v3" : "hide",
+            "document_memo" : "hide",
+            "document_briefing_note" : "hide",
+            "document_determination_approved" :"hide"
+
 
         }
     },
@@ -1610,7 +1645,7 @@
                 "route": "12",
                 "routegroup": "exec",
                 "state": "13",
-                "required":["document_new_draft_v3"]
+                "required":[]
             }
         ],
         "groupaccess": {

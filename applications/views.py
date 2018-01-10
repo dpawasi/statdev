@@ -195,7 +195,6 @@ class FirstLoginInfo(LoginRequiredMixin,CreateView):
         action = self.kwargs['action']
         nextstep = ''
         apply_on_behalf_of = 0
-
         app = Application.objects.get(pk=self.object.pk)
 
         return HttpResponseRedirect(success_url)
@@ -320,6 +319,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
             
         self.object.save()
         nextstep = 1
+
 #        action = self.kwargs['action']
         if self.request.POST.get('prev-step'):
             if step == '1':
@@ -1867,11 +1867,11 @@ class ApplicationDetail(DetailView):
 #       groups = Group.objects.filter(name=['Processor','Approver','Assessor','Executive'])
 #       usergroups = User.objects.filter(groups__name__in=['Processor','Approver','Assessor','Executive'])
 #       print self.request.user.groups.all()
-#        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
-#        if self.request.user.groups.all() in ['Processor']:
-#        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
-#        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
-            #             context['allow_admin_side_menu'] = "True"
+#       print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+#       if self.request.user.groups.all() in ['Processor']:
+#       print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+#       if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
+           #             context['allow_admin_side_menu'] = "True"
 #            print context['allow_admin_side_menu']
 #        if groups in self.request.user.groups.all():
 #            print "YES"
@@ -2812,6 +2812,15 @@ class FeedbackTable(LoginRequiredMixin, DetailView):
         context['workflowoptions'] = flow.getWorkflowOptions()
         context = flow.getAccessRights(request, context, app.routeid, workflowtype)
         context['action'] = self.kwargs['action']
+
+
+        if context['action'] == 'draft':
+             self.template_name = 'applications/application_feedback_draft_table.html'
+        elif context['action'] == 'final':
+             self.template_name = 'applications/application_feedback_final_table.html'
+        elif context['action'] == 'determination':
+             self.template_name = 'applications/application_feedback_determination_table.html'
+         
 
         part5 = Application_Part5()
         context = part5.get(app, self, context)
