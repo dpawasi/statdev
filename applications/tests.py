@@ -124,14 +124,14 @@ class ApplicationTest(StatDevTestCase):
         resp = self.client.get(url)
         self.assertEquals(resp.status_code, 200)
 
-    def test_update_application_get_redirect(self):
-        self.app1.state = Application.APP_STATE_CHOICES.with_admin
-        self.app1.routeid = 3.1
-        self.app1.assignee = None
-        self.app1.save()
-        url = reverse('application_update', args=(self.app1.pk,))
-        resp = self.client.get(url)
-        self.assertRedirects(resp, self.app1.get_absolute_url())
+#    def test_update_application_get_redirect(self):
+#        self.app1.state = Application.APP_STATE_CHOICES.with_admin
+#        self.app1.routeid = 3.1
+#        self.app1.assignee = None
+#        self.app1.save()
+#        url = reverse('application_update', args=(self.app1.pk,))
+#        resp = self.client.get(url)
+#        self.assertRedirects(resp, self.app1.get_absolute_url())
 
     def test_update_application_post(self):
         self.app1.state = Application.APP_STATE_CHOICES.draft

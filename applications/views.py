@@ -2990,7 +2990,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontent = {}
-        print flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
         if app.assignee:
             flowcontent['application_assignee_id'] = app.assignee.id
         else:
@@ -3009,9 +3008,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial['fieldrequired'] = []
         flowcontent = flow.getRequired(flowcontent, app.routeid, workflowtype)
 
-        print "BUTTON"
-        print flowcontent['may_update']
-        print flowcontent['show_form_buttons']
         if "formcomponent" in flowcontent:
             if "update" in flowcontent['formcomponent']:
                 if "required" in flowcontent['formcomponent']['update']:
@@ -5633,9 +5629,6 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 #            self.object.id = pub_web.id
 #            self.object.published_document = pub_web.published_document
 
-        print "START"
-        print pub_web
-        print "END" 
 #            if pub_web.published_document:
 #                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
 #                    self.object.published_document = None
