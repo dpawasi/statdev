@@ -259,8 +259,14 @@ showFiles: function(input_id,upload_type) {
 				   var filecount = 1;
 				   for (var file in input_array) {
 					   htmlvalue += '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">';
-					   htmlvalue += filecount+'. <A HREF="/media/'+input_array[file].path+'">'+input_array[file].short_name+'</A>';
-					   htmlvalue += '</div>';
+                                            
+					   htmlvalue += filecount+'. <A HREF="/media/'+input_array[file].path+'">';
+                                           if (input_array[file].name.length > 2) {
+                                               htmlvalue += input_array[file].name;
+                                           }  else  {
+                                               htmlvalue += input_array[file].short_name;
+					   }
+					   htmlvalue += '</a></div>';
 					   htmlvalue += '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">';
 					   htmlvalue += '<A onclick="ajax_loader_django.deleteFile(\''+input_id+'\',\''+input_array[file].doc_id+'\',\''+upload_type+'\')" href="javascript:void(0);">X</A>';
 					   htmlvalue += '</div>';
@@ -273,7 +279,14 @@ showFiles: function(input_id,upload_type) {
 				   input_array = JSON.parse(input_id_obj);
 
 				   htmlvalue += '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">';
-				   htmlvalue += '<A HREF="/media/'+input_array.path+'">'+input_array.short_name+'</A>';
+                                   htmlvalue += '<A HREF="/media/'+input_array.path+'">';
+                                           if (input_array.name.length > 2) {
+                                               htmlvalue += input_array.name;
+                                           }  else  {
+                                               htmlvalue += input_array.short_name;
+                                           }
+
+				   htmlvalue += '</A>';
 				   htmlvalue += '</div>';
 				   htmlvalue += '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">';
 				   htmlvalue += '<A onclick="ajax_loader_django.deleteFile(\''+input_id+'\',\''+input_array.doc_id+'\',\''+upload_type+'\')" href="javascript:void(0);">X</A>';

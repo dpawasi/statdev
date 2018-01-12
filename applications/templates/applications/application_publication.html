@@ -68,11 +68,19 @@
                                                 <h6 class='text-muted'>{{ origdoc.group_name }}</h6>
                                             </div>
                                             <div class='col-sm-12 col-md-12 col-lg-12'>
+                                               {% if origdoc.name %}
+							<A HREF='/media/{{ origdoc.path }}'>{{ origdoc.name }}</A>
+						{% else %}
                                                 <A HREF='/media/{{ origdoc.path }}'>{{ origdoc.path_short }}</A>
+						{% endif %}
                                             </div>
                                         </td>
                                         <td>
+                                            {% if origdoc.publish_doc_name %}
+						<A HREF='/media/{{ origdoc.publish_doc }}'>{{ origdoc.publish_doc_name }}</A>
+					     {% else %}
                                             <A HREF='/media/{{ origdoc.publish_doc }}'>{{ origdoc.publish_doc_short }}</A>
+					     {% endif %}
                                         </td>
                                         <td>
                                         {% if workflow_actions %}
@@ -225,7 +233,7 @@
                                 Publish signed report on website
                             </div>
                             <div class="col-lg-2 align-right text-right">
-                                <td>dsfsdfs
+                                <td>
                                     {% if object.publish_final_report %}
                                     <a href="javascript:void();" class="btn btn-primary" role="button">
                                         Published on the {{ object.publish_final_report }}

@@ -29,7 +29,8 @@ def ApplicationUploads(request):
          object_hash['doc_id'] = doc.id
          object_hash['path'] = doc.upload.name
          object_hash['short_name'] = SafeText(doc.upload.name)[19:]
-
+         object_hash['name'] = doc.name
+        
          doc2 = Record.objects.get(id=object_hash['doc_id'])
          # print doc
     json_hash = json.dumps(object_hash)

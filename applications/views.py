@@ -2865,9 +2865,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
 
-        if context['may_update'] != "True":
-            messages.error(self.request, 'This application cannot be updated!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        #if context['may_update'] != "True":
+        #    messages.error(self.request, 'This application cannot be updated!')
+        #    return HttpResponseRedirect(app.get_absolute_url())
  #       else:
  #           if app.state != app.APP_STATE_CHOICES.draft and app.state != app.APP_STATE_CHOICES.new:
  #               messages.error(self.request, 'This application cannot be updated!')
@@ -2978,7 +2978,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
         initial['application_id'] = self.kwargs['pk']
-        
+
         app = self.get_object()
         initial['organisation'] = app.organisation
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
@@ -2990,6 +2990,12 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontent = {}
+        print flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
+        if app.assignee:
+            flowcontent['application_assignee_id'] = app.assignee.id
+        else:
+            flowcontent['application_assignee_id'] = None
+
         flowcontent = flow.getFields(flowcontent, app.routeid, workflowtype)
         flowcontent = flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
         flowcontent = flow.getHiddenAreas(flowcontent,app.routeid,workflowtype)
@@ -3003,12 +3009,25 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         initial['fieldrequired'] = []
         flowcontent = flow.getRequired(flowcontent, app.routeid, workflowtype)
 
+        print "BUTTON"
+        print flowcontent['may_update']
+        print flowcontent['show_form_buttons']
         if "formcomponent" in flowcontent:
             if "update" in flowcontent['formcomponent']:
                 if "required" in flowcontent['formcomponent']['update']:
                     initial['fieldrequired'] = flowcontent['formcomponent']['update']['required']
 
         initial["workflow"] = flowcontent
+        if float(app.routeid) > 1:
+            if app.assignee is None:
+                initial["workflow"]['may_update'] = "False"
+
+            if initial["workflow"]['may_update'] == "True":
+                if app.assignee != self.request.user:
+                    initial["workflow"]['may_update'] = "False"
+
+
+
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
         if app.route_status == 'Draft':
             initial['sumbitter_comment'] = app.sumbitter_comment
@@ -3025,8 +3044,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
-
         initial['land_owner_consent'] = multifilelist
 
         a1 = app.proposed_development_plans.all()
@@ -3035,6 +3054,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
         initial['proposed_development_plans'] = multifilelist
 
@@ -3044,6 +3064,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
         initial['other_relevant_documents'] = multifilelist
 
@@ -3053,6 +3074,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
         initial['brochures_itineries_adverts'] = multifilelist
 
@@ -3123,6 +3145,34 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         return initial
 
     def post(self, request, *args, **kwargs):
+        app = self.get_object()
+        context = {}
+        if app.assignee:
+            context['application_assignee_id'] = app.assignee.id
+        else:
+            context['application_assignee_id'] = None
+#        if app.app_type == app.APP_TYPE_CHOICES.part5:
+#        if app.routeid is None:
+#            app.routeid = 1
+
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+
+        if float(app.routeid) > 1:
+            if app.assignee is None:
+                context['may_update'] = "False"
+
+            if context['may_update'] == "True":
+                if app.assignee != self.request.user:
+                    context['may_update'] = "False"
+
+        if context['may_update'] != 'True': 
+           messages.error(self.request, 'You do not have permissions to update this form.')
+           return HttpResponseRedirect(self.get_object().get_absolute_url())            
+
         if request.POST.get('cancel'):
             app = Application.objects.get(id=kwargs['pk'])
             if app.state == app.APP_STATE_CHOICES.new:
@@ -5490,7 +5540,6 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
         return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
 
-
 class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     model = PublicationWebsite
     form_class = apps_forms.WebsitePublicationForm
@@ -5503,6 +5552,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
         if flowcontext["may_update_publication_website"] != "True":
             messages.error(
                 self.request, "Can't update ebsite publication to this application")
@@ -5518,7 +5568,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 #        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
-                # self.object.original_document = self.kwargs['original_document']
+        # self.object.original_document = self.kwargs['original_document']
         context = super(WebsitePublicationChange,
                         self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
@@ -5527,33 +5577,42 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     def get_initial(self):
         initial = super(WebsitePublicationChange, self).get_initial()
         initial['application'] = self.kwargs['pk']
-
-        doc = Record.objects.get(pk=self.kwargs['docid'])
+#        doc = Record.objects.get(pk=self.kwargs['docid'])
+#        print self.kwargs['docid']      
+#        print PublicationWebsite.objects.get(original_document_id=self.kwargs['docid']) 
         try:
             pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
             pub_web = None
 
-        filelist = []
         if pub_web:
-            if pub_web.published_document:
+            initial['published_document'] = pub_web.published_document
 
-                #          records = pub_news.records.all()
-                fileitem = {}
-                fileitem['fileid'] = pub_web.published_document.id
-                fileitem['path'] = pub_web.published_document.upload.name
-                filelist.append(fileitem)
-        if pub_web:
-            if pub_web.id:
-                initial['id'] = pub_web.id
 
-        initial['published_document'] = filelist
-        doc = Record.objects.get(pk=self.kwargs['docid'])
-        initial['original_document'] = doc
+
+        #filelist = []
+        #if pub_web:
+        #    if pub_web.published_document:
+        #        # records = pub_news.records.all()
+        #        fileitem = {}
+        #        fileitem['fileid'] = pub_web.published_document.id
+        #        fileitem['path'] = pub_web.published_document.upload.name
+        #        fileitem['name'] = pub_web.published_document.name
+        #        fileitem['short_name'] = pub_web.published_document.upload.name[19:] 
+        #        filelist.append(fileitem)
+
+        #if pub_web:
+        #    if pub_web.id:
+        #        initial['id'] = pub_web.id
+        #        print "hello"
+
+        #initial['published_document'] = filelist
+        #doc = Record.objects.get(pk=self.kwargs['docid'])
+        #initial['original_document'] = doc
         return initial
 
     def post(self, request, *args, **kwargs):
-
+        # print "IS POST WORKING"
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
             return HttpResponseRedirect(app.get_absolute_url())
@@ -5563,26 +5622,69 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         forms_data = form.cleaned_data
         self.object = form.save(commit=False)
         pub_web = None
+#        print "THE"
+
         try:
             pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
             pub_web = None
-        if pub_web:
-            self.object.id = pub_web.id
-            self.object.published_document = pub_web.published_document
-            if pub_web.published_document:
-                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
-                    self.object.published_document = None
 
+#        if pub_web:
+#            self.object.id = pub_web.id
+#            self.object.published_document = pub_web.published_document
+
+        print "START"
+        print pub_web
+        print "END" 
+#            if pub_web.published_document:
+#                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
+#                    self.object.published_document = None
+
+        
         orig_doc = Record.objects.get(id=self.kwargs['docid'])
         self.object.original_document = orig_doc
 
-        if self.request.FILES.get('published_document'):
-            for f in self.request.FILES.getlist('published_document'):
-                doc = Record()
-                doc.upload = f
-                doc.save()
-                self.object.published_document = doc
+        # print "SSS"
+        # print self.request.FILES.get('published_document')
+        # print self.request.POST
+        if 'published_document_json' in self.request.POST:
+             if is_json(self.request.POST['published_document_json']) is True: 
+                  json_data = json.loads(self.request.POST['published_document_json'])
+                  if 'doc_id' in json_data:
+                      try:
+                          pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])                 
+                          pub_obj.delete()
+                      except: 
+                          donothing = ''
+                   
+                      new_doc = Record.objects.get(id=json_data['doc_id'])
+                      self.object.published_document = new_doc
+                  else:
+                      pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+                      pub_obj.delete()
+
+
+
+
+#             else:
+ #                self.object.remove()
+        
+
+	     # print json_data
+             # self.object.published_document.remove()
+             # for d in self.object.published_document.all():
+             #    self.object.published_document.remove(d)
+             # for i in json_data:
+             #    doc = Record.objects.get(id=i['doc_id'])
+#             self.object.published_document = i['doc_id']
+#             self.object.save()
+
+#        if self.request.FILES.get('published_document'):
+#            for f in self.request.FILES.getlist('published_document'):
+ #               doc = Record()
+  #              doc.upload = f
+   #             doc.save()
+    #            self.object.published_document = doc
         app = Application.objects.get(pk=self.kwargs['pk'])
         action = Action(
             content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,

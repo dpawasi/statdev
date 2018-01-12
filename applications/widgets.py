@@ -228,7 +228,13 @@ class AjaxFileUploader(FileInput):
                   if fi:
                       fi['short_name'] =SafeText(fi['path'])[19:]
                       fi['doc_id'] = fi['fileid']
-                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"+SafeText(fi['path'])[19:]+"</A>"+"</div>"
+                      substitutions['clearfiles'] += "<div class='col-sm-8'><A HREF='/media/"+fi['path']+"'>"
+                      if fi['name']:
+                         substitutions['clearfiles'] += SafeText(fi['name'])
+                      else:
+                         substitutions['clearfiles'] += SafeText(fi['path'])[19:]
+
+                      substitutions['clearfiles'] += "</A></div>"
                       substitutions['clearfiles'] += "<div class='col-sm-4'><input type='checkbox' "
                       substitutions['clearfiles'] += " name='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
                       substitutions['clearfiles'] += " id='"+name+"-clear_multifileid-"+str(fi['fileid'])+"'"
@@ -240,6 +246,7 @@ class AjaxFileUploader(FileInput):
            else:
                value1['short_name'] = SafeText(value.upload.name)[19:]
                value1['path'] = value.upload.name
+               value1['name'] = value.name
                value1['doc_id'] = value.id
            value = value1 
 
@@ -258,24 +265,28 @@ class AjaxFileUploader(FileInput):
         else:
            if type(value) is list:
               count = 1
+           
               for fi in value:
                  if 'short_name' in fi:
 #                    substitutions['ajax_uploader'] += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">'
-                            
 #                    substitutions['ajax_uploader'] += '</div>';
 #                    substitutions['ajax_uploader'] += '<li>'+str(count)+'. <A HREF="/media/'+fi['path']+'">'+fi['short_name']+'</A>  <a onclick="ajax_loader_django.deleteFile(\'river_lease_scan_of_application\',\''+str(fi['doc_id'])+'\',\''+str(upload_type)+'\')" href="javascript:void(0);">X</a> </li>'
 
                      substitutions['ajax_uploader'] += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">'
                      substitutions['ajax_uploader'] += '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">'
-                     substitutions['ajax_uploader'] += str(count)+'. <A HREF="/media/'+fi['path']+'">'+fi['short_name']+'</A>'
+                     substitutions['ajax_uploader'] += str(count)+'. <A HREF="/media/'+fi['path']+'">'
+
+                     if 'name' in fi:
+                           substitutions['ajax_uploader'] += fi['name']
+                     else:
+                           substitutions['ajax_uploader'] += fi['short_name']
+
+                     substitutions['ajax_uploader'] += '</A>'
                      substitutions['ajax_uploader'] += '</div>'
                      substitutions['ajax_uploader'] += '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">';
                      substitutions['ajax_uploader'] += '<A onclick="ajax_loader_django.deleteFile(\''+name+'\',\''+str(fi['doc_id'])+'\',\''+upload_type+'\')" href="javascript:void(0);">X</A>'
                      substitutions['ajax_uploader'] += '</div>'
                      substitutions['ajax_uploader'] += '</div>'
-
-
-
 
                      count = count + 1
            else:
@@ -283,7 +294,15 @@ class AjaxFileUploader(FileInput):
                      #substitutions['ajax_uploader'] += '<li>1. <A HREF="/media/'+value['path']+'">'+value['short_name']+'</A></li>'
 
                      substitutions['ajax_uploader'] += '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">'
-                     substitutions['ajax_uploader'] += '<A HREF="/media/'+value['path']+'">'+value['short_name']+'</A>'
+                     substitutions['ajax_uploader'] += '<A HREF="/media/'+value['path']+'">'
+                    
+                     if 'name' in value:
+                         substitutions['ajax_uploader'] += value['name']
+                     else:
+                         substitutions['ajax_uploader'] += value['short_name']
+
+ 
+                     substitutions['ajax_uploader'] += '</A>'
                      substitutions['ajax_uploader'] += '</div>';
                      substitutions['ajax_uploader'] += '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">'
                      substitutions['ajax_uploader'] += '<A onclick="ajax_loader_django.deleteFile(\''+name+'\',\''+str(value['doc_id'])+'\',\''+upload_type+'\')" href="javascript:void(0);">X</A>'

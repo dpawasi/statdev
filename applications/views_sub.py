@@ -61,6 +61,7 @@ class Application_Part5():
             fileitem['fileid'] = doc.id
             fileitem['path'] = doc.upload.name
             fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            fileitem['name'] = doc.name
             context['land_owner_consent_list'].append(fileitem)
 
 
@@ -114,6 +115,8 @@ class Application_Part5():
 
         context['publication_feedback'] = pub_feed_obj
 
+
+        # Build List of Published Documents
         new_documents_to_publish = {}
         pub_web = PublicationWebsite.objects.filter(application_id=self_view.object.id)
         for pub_doc in pub_web:
@@ -122,6 +125,7 @@ class Application_Part5():
                 fileitem = {}
                 fileitem['fileid'] = doc.id
                 fileitem['path'] = doc.upload.name
+                fileitem['name'] = doc.name
                 new_documents_to_publish[pub_doc.original_document_id] = fileitem
 
         orignaldoclist = []
@@ -130,10 +134,13 @@ class Application_Part5():
             fileitem['fileid'] = self_view.object.river_lease_scan_of_application.id
             fileitem['path'] = self_view.object.river_lease_scan_of_application.upload.name
             fileitem['path_short'] = SafeText(self_view.object.river_lease_scan_of_application.upload.name)[19:]
+            fileitem['name'] = self_view.object.river_lease_scan_of_application.name
             fileitem['group_name'] = "River Lease Scan of Application"
             if self_view.object.river_lease_scan_of_application.id in new_documents_to_publish:
                 fileitem['publish_doc'] = new_documents_to_publish[self_view.object.river_lease_scan_of_application.id]['path']
+                fileitem['publish_doc_name'] = new_documents_to_publish[self_view.object.river_lease_scan_of_application.id]['name']
                 fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self_view.object.river_lease_scan_of_application.id]['path'])[19:]
+              
             orignaldoclist.append(fileitem)
 
         if self_view.object.deed:
@@ -141,9 +148,11 @@ class Application_Part5():
              fileitem['fileid'] = self_view.object.deed.id
              fileitem['path'] = self_view.object.deed.upload.name
              fileitem['path_short'] = SafeText(self_view.object.deed.upload.name)[19:]
+             fileitem['name'] = self_view.object.deed.name
              fileitem['group_name'] = "Deed"
              if self_view.object.deed.id in new_documents_to_publish:
                  fileitem['publish_doc'] = new_documents_to_publish[self_view.object.deed.id]['path']
+                 fileitem['publish_doc_name'] = new_documents_to_publish[self_view.object.deed.id]['name']
                  fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[self_view.object.deed.id]['path'])[19:]
              orignaldoclist.append(fileitem)
 
@@ -153,12 +162,15 @@ class Application_Part5():
             fileitem['fileid'] = doc.id
             fileitem['path'] = doc.upload.name
             fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            fileitem['name'] = doc.name
             fileitem['group_name'] = "Land Owner Consent"
             if doc.id in new_documents_to_publish:
                 fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
+                fileitem['publish_doc_name'] = new_documents_to_publish[doc.id]['name']
                 fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
             else:
                 fileitem['publish_doc'] = ""
+                fileitem['publish_doc_name'] = ""
                 fileitem['publish_doc_short'] = ""
 
             orignaldoclist.append(fileitem)
@@ -168,16 +180,21 @@ class Application_Part5():
             fileitem = {}
             fileitem['fileid'] = doc.id
             fileitem['path'] = doc.upload.name
+            fileitem['name'] = doc.name
             fileitem['path_short'] = SafeText(doc.upload.name)[19:]
             fileitem['group_name'] = "Proposed Development Plans"
 
             if doc.id in new_documents_to_publish:
                 fileitem['publish_doc'] = new_documents_to_publish[doc.id]['path']
+                fileitem['publish_doc_name'] = new_documents_to_publish[doc.id]['name']
                 fileitem['publish_doc_short'] = SafeText(new_documents_to_publish[doc.id]['path'])[19:]
+                
             else:
                 fileitem['publish_doc'] = ""
+                fileitem['publish_doc_name'] = ""
                 fileitem['publish_doc_short'] = ""
             orignaldoclist.append(fileitem)
+
         context['original_document_list'] = orignaldoclist
 
         doclist = app.proposed_development_plans.all()
@@ -187,6 +204,7 @@ class Application_Part5():
             fileitem['fileid'] = doc.id
             fileitem['path'] = doc.upload.name
             fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            fileitem['name'] = doc.name
             context['proposed_development_plans_list'].append(fileitem)
 
         return context

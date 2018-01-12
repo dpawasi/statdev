@@ -78,7 +78,8 @@
             "may_submit_approval": "False",
             "may_issue": "False",
             "may_generate_pdf": "False",
-            "may_assign_to_creator": "False"
+            "may_assign_to_creator": "False",
+            "show_form_buttons": "True"
         },
         "groupaccess": {
             "Processor": {
@@ -93,7 +94,8 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_change_application_applicant" :"True",
-		"may_view_action_log": "True"
+		"may_view_action_log": "True",
+                "show_form_buttons": "True"
 
             },
             "Assessor": {
@@ -106,7 +108,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "hide_form_buttons": "False"
 
             },
             "Approver": {
@@ -119,7 +122,8 @@
                 "may_create_condition":"False",
                 "may_submit_approval": "False",
                 "may_issue": "False",
-                "may_generate_pdf": "False"
+                "may_generate_pdf": "False",
+                "hide_form_buttons": "False"
             }
 
         },
@@ -215,7 +219,8 @@
                 "may_assign_to_creator": "True",
                 "may_referral_delete": "True",
                 "may_view_action_log": "True",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+                "show_form_buttons": "True"
             },
             "Approver": {
                 "may_update": "True",
@@ -311,10 +316,11 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "allow_admin_side_menu" : "True",
-		"may_view_action_log": "True"
+		"may_view_action_log": "True", 
+                "show_form_buttons": "True"
             },
             "Approver": {
-                "may_update": "True",
+                "may_update": "False",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -776,12 +782,28 @@
             "landowner_consent": "False"
         },
         "fields": {
-            "location": "hide",
-            "document_draft": "hide",
-            "document_final": "hide",
-            "document_determination": "hide",
-            "document_completion": "hide",
-            "assessment_start_date": "hide"
+            "applicant":"hide",
+            "title": "hide",
+            "description" :"hide",
+            "proposed_commence" : "hide",
+            "proposed_end" : "hide",
+            "cost" : "hide",
+            "project_no" : "hide",
+            "related_permits" : "hide",
+            "records" : "hide",
+            "land_owner_consent" : "hide",
+            "deed" : "hide",
+            "lot" : "hide",
+            "reserve_number" : "hide",
+            "town_suburb" : "hide",
+            "nearest_road_intersection" : "hide",
+            "local_government_authority" : "hide",
+            "over_water" : "hide",
+            "proposed_development_plans" : "hide",
+            "supporting_info_demonstrate_compliance_trust_policies" : "hide",
+            "assessment_start_date" : "hide",
+            "expire_date": "hide"
+
         }
     },
     "8": {
