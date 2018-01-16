@@ -23,8 +23,7 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "vessels" : "False",
-	    "hide_form_buttons": "False"
+            "vessels" : "False"
         },
         "condition-based-actions": {
             "2-prevstep": {
@@ -79,7 +78,8 @@
             "may_issue": "False",
             "may_generate_pdf": "False",
             "may_assign_to_creator": "False",
-            "may_update_vessels_list": "True"
+            "may_update_vessels_list": "True",
+            "show_form_buttons": "True"
         },
         "groupaccess": {
             "Processor": {
@@ -94,7 +94,8 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "may_change_application_applicant" :"True",
-		"may_update_vessels_list": "True"
+		"may_update_vessels_list": "True",
+                "show_form_buttons": "True"
             }
         },
         "collapse": {
@@ -549,8 +550,8 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True",
-            "hide_form_buttons": "False"
+            "referrals": "True"
+           
         },
         "actions": [
             {
@@ -589,7 +590,8 @@
             "may_issue": "False",
             "may_generate_pdf": "False",
             "may_assign_to_creator": "False",
-            "allow_admin_side_menu" : "True"
+            "allow_admin_side_menu" : "True",
+            "show_form_buttons": "True"
         },
         "groupaccess": {
             "Processor": {
@@ -617,10 +619,11 @@
                 "may_referral_delete": "True",
                 "may_view_action_log": "True",
                 "allow_admin_side_menu" : "True",
-		"may_view_action_log": "True"
+		"may_view_action_log": "True",
+                "show_form_buttons": "True"
             },
             "Approver": {
-                "may_update": "True",
+                "may_update": "False",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -681,8 +684,7 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "vessels": "True",
-            "hide_form_buttons": "False"
+            "vessels": "True"
 
         },
         "actions": [
@@ -719,7 +721,8 @@
                 "may_submit_approval": "True",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+                "show_form_buttons": "True"
             },
             "Approver": {
                 "may_update": "True",
@@ -732,7 +735,8 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+                "show_form_buttons": "True"
             },
 	    "Processor": {
 		"may_view_action_log": "True"
@@ -832,7 +836,7 @@
         },
         "groupaccess": {
             "Processor": {
-                "may_update": "True",
+                "may_update": "False",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",
@@ -843,7 +847,8 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "allow_admin_side_menu" : "True",
-		"may_view_action_log": "True"
+		"may_view_action_log": "True",
+                "show_form_buttons": "False"
 
             },
             "Assessor": {
@@ -857,11 +862,12 @@
                 "may_submit_approval": "False",
                 "may_issue": "False",
                 "may_generate_pdf": "False",
-                "allow_admin_side_menu" : "True"
+                "allow_admin_side_menu" : "True",
+                "show_form_buttons": "True"
 
             },
             "Approver": {
-                "may_update": "True",
+                "may_update": "False",
                 "may_lodge":"True",
                 "may_refer":"False",
                 "may_assign":"False",

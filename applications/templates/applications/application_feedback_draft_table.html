@@ -1,0 +1,38 @@
+
+                                <table class="table table-bordered table-striped">
+                                    <tr>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Name</th>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Comments</th>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">Documents</th>
+                                        <th class="col-sm-3 col-md-3 col-lg-3">View, Edit</th>
+
+                                    </tr>
+                                    {% if publication_feedback %}
+                                    {% for feedpub in publication_feedback %}
+                                    {% if feedpub.status == 'draft' %}
+                                    <tr>
+                                        <td>{{ feedpub.name }}</td>
+                                        <td>{{ feedpub.comments }}</td>
+                                        <td>
+                                            {% for doc in feedpub.documents_short %}
+                                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                                <a href="/media/{{ doc.path }}">{{ doc.path_short }}</a>
+                                            </div>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% if may_update_publication_feedback_draft == "True" %}
+                                            <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_update_feedbackpublication' object.pk feedpub.id %}');" type="button">Change</button>
+                                            <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_delete_feedbackpublication' object.pk feedpub.id %}');" type="button">Delete</button>
+                                            <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_view_feedbackpublication' object.pk feedpub.id %}');" type="button">View</button>
+
+
+
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                </table>
+

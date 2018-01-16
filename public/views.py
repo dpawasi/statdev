@@ -70,6 +70,7 @@ class PublicApplicationFeedback(UpdateView):
             fileitem['fileid'] = doc.id
             fileitem['path'] = doc.upload.name
             fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+            fileitem['name'] = doc.name
             context['proposed_development_plans_list'].append(fileitem)
 
 

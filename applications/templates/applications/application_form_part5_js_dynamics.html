@@ -16,4 +16,58 @@
 		$('#div_id_river_lease_application_number').hide();
 	}
 
+
+        function loadForm() {
+               console.log("Refreshing Form");
+
+               $.ajax({
+                    url: '{% url 'application_add_newspaperpublication_table' object.pk %}',
+                    async: false,
+                    success: function(data) {
+                          $('#newspaper_table').html(data);
+                    }
+               });
+
+               $.ajax({
+                    url: '{% url 'application_feedbackpublication_table' object.pk 'draft' %}',
+                    async: false,
+                    success: function(data) {
+                          $('#feedback_draft_table').html(data);
+                    }
+               });
+
+               $.ajax({
+                    url: '{% url 'application_feedbackpublication_table' object.pk 'final' %}',
+                    async: false,
+                    success: function(data) {
+                          $('#feedback_final_table').html(data);
+                    }
+               });
+
+               $.ajax({
+                    url: '{% url 'application_feedbackpublication_table' object.pk 'determination' %}',
+                    async: false,
+                    success: function(data) {
+                          $('#feedback_determination_table').html(data);
+                    }
+               });
+
+               $.ajax({
+                    url: '{% url 'application_refer_table' object.pk %}',
+                    async: false,
+                    success: function(data) {
+                          $('#referrals_table').html(data);
+                    }
+               });
+
+               $.ajax({
+                    url: '{% url 'application_conditions_table' object.pk %}',
+                    async: false,
+                    success: function(data) {
+                          $('#conditions_table').html(data);
+                    }
+               });
+        }
+
+
 </script>

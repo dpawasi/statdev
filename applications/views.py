@@ -195,7 +195,6 @@ class FirstLoginInfo(LoginRequiredMixin,CreateView):
         action = self.kwargs['action']
         nextstep = ''
         apply_on_behalf_of = 0
-
         app = Application.objects.get(pk=self.object.pk)
 
         return HttpResponseRedirect(success_url)
@@ -320,6 +319,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
             
         self.object.save()
         nextstep = 1
+
 #        action = self.kwargs['action']
         if self.request.POST.get('prev-step'):
             if step == '1':
@@ -384,10 +384,12 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
         context = super(CreateLinkCompany, self).get_context_data(**kwargs)
         step = self.kwargs['step']
         context['user_id'] = self.kwargs['pk']
+
         if 'po_id' in self.kwargs:
             context['po_id'] = self.kwargs['po_id']
         else:
             context['po_id'] = 0
+
         if step == '1':
             context['step1'] = 'active'
             context['step2'] = 'disabled'
@@ -1865,11 +1867,11 @@ class ApplicationDetail(DetailView):
 #       groups = Group.objects.filter(name=['Processor','Approver','Assessor','Executive'])
 #       usergroups = User.objects.filter(groups__name__in=['Processor','Approver','Assessor','Executive'])
 #       print self.request.user.groups.all()
-#        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
-#        if self.request.user.groups.all() in ['Processor']:
-#        print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
-#        if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
-            #             context['allow_admin_side_menu'] = "True"
+#       print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+#       if self.request.user.groups.all() in ['Processor']:
+#       print self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists()
+#       if self.request.user.groups.filter(name__in=['Processor', 'Assessor']).exists() == True:
+           #             context['allow_admin_side_menu'] = "True"
 #            print context['allow_admin_side_menu']
 #        if groups in self.request.user.groups.all():
 #            print "YES"
@@ -2580,6 +2582,122 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
 #        self.object = form.save(commit=False)
         return HttpResponseRedirect(self.get_success_url())
 
+
+class ApplicationConditionTable(LoginRequiredMixin, DetailView):
+    """A view for updating a draft (non-lodged) application.
+    """
+    model = Application
+    template_name = 'applications/application_conditions_table.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+
+        context = {}
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+        #    donothing = ''
+#        if context["may_update_publication_newspaper"] != "True":
+#            messages.error(self.request, 'This application cannot be updated!')
+#            return HttpResponseRedirect(app.get_absolute_url())
+
+        return super(ApplicationConditionTable, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationConditionTable, self).get_context_data(**kwargs)
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        part5 = Application_Part5()
+        context = part5.get(app, self, context)
+        return context
+
+    def get_success_url(self,app):
+        return HttpResponseRedirect(app.get_absolute_url())
+
+class ApplicationReferTable(LoginRequiredMixin, DetailView):
+    """A view for updating a draft (non-lodged) application.
+    """
+    model = Application
+    template_name = 'applications/application_referrals_table.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+
+        context = {}
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+        #    donothing = ''
+#        if context["may_update_publication_newspaper"] != "True":
+#            messages.error(self.request, 'This application cannot be updated!')
+#            return HttpResponseRedirect(app.get_absolute_url())
+
+        return super(ApplicationReferTable, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationReferTable, self).get_context_data(**kwargs)
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        part5 = Application_Part5()
+        context = part5.get(app, self, context)
+        return context
+
+    def get_success_url(self,app):
+        return HttpResponseRedirect(app.get_absolute_url())
+
+
 class ApplicationVesselTable(LoginRequiredMixin, DetailView):
     """A view for updating a draft (non-lodged) application.
     """
@@ -2646,6 +2764,128 @@ class ApplicationVesselTable(LoginRequiredMixin, DetailView):
         return HttpResponseRedirect(app.get_absolute_url())
 
 
+class NewsPaperPublicationTable(LoginRequiredMixin, DetailView):
+    """A view for updating a draft (non-lodged) application.
+    """
+    model = Application
+    template_name = 'applications/application_publication_newspaper_table.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+
+        context = {}
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+        #    donothing = ''
+        #if context["may_update_publication_newspaper"] != "True":
+        #    messages.error(self.request, 'This application cannot be updated!')
+        #    return HttpResponseRedirect(app.get_absolute_url())
+
+        return super(NewsPaperPublicationTable, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(NewsPaperPublicationTable, self).get_context_data(**kwargs)
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        part5 = Application_Part5()
+        context = part5.get(app, self, context)
+        return context
+
+    def get_success_url(self,app):
+        return HttpResponseRedirect(app.get_absolute_url())
+
+class FeedbackTable(LoginRequiredMixin, DetailView):
+    """A view for updating a draft (non-lodged) application.
+    """
+    model = Application
+    template_name = 'applications/application_feedback_draft_table.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+
+        context = {}
+       
+        if app.routeid is None:
+            app.routeid = 1
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+        #    donothing = ''
+#        if context["may_update_publication_newspaper"] != "True":
+#            messages.error(self.request, 'This application cannot be updated!')
+#            return HttpResponseRedirect(app.get_absolute_url())
+
+        return super(FeedbackTable, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(FeedbackTable, self).get_context_data(**kwargs)
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        context['action'] = self.kwargs['action']
+
+
+        if context['action'] == 'draft':
+             self.template_name = 'applications/application_feedback_draft_table.html'
+        elif context['action'] == 'final':
+             self.template_name = 'applications/application_feedback_final_table.html'
+        elif context['action'] == 'determination':
+             self.template_name = 'applications/application_feedback_determination_table.html'
+         
+
+        part5 = Application_Part5()
+        context = part5.get(app, self, context)
+        return context
+
+    def get_success_url(self,app):
+        return HttpResponseRedirect(app.get_absolute_url())
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     """A view for updating a draft (non-lodged) application.
@@ -2683,9 +2923,9 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 if app.assignee != self.request.user:
                     context['may_update'] = "False"
 
-        if context['may_update'] != "True":
-            messages.error(self.request, 'This application cannot be updated!')
-            return HttpResponseRedirect(app.get_absolute_url())
+        #if context['may_update'] != "True":
+        #    messages.error(self.request, 'This application cannot be updated!')
+        #    return HttpResponseRedirect(app.get_absolute_url())
  #       else:
  #           if app.state != app.APP_STATE_CHOICES.draft and app.state != app.APP_STATE_CHOICES.new:
  #               messages.error(self.request, 'This application cannot be updated!')
@@ -2752,8 +2992,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             licence = Application_Licence()
             context = licence.get(app, self, context)
 
-
-
         try:
             LocObj = Location.objects.get(application_id=app.id)
             if LocObj:
@@ -2796,7 +3034,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ApplicationUpdate, self).get_initial()
         initial['application_id'] = self.kwargs['pk']
-        
+
         app = self.get_object()
         initial['organisation'] = app.organisation
 #        if app.app_type == app.APP_TYPE_CHOICES.part5:
@@ -2808,6 +3046,11 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
         flowcontent = {}
+        if app.assignee:
+            flowcontent['application_assignee_id'] = app.assignee.id
+        else:
+            flowcontent['application_assignee_id'] = None
+
         flowcontent = flow.getFields(flowcontent, app.routeid, workflowtype)
         flowcontent = flow.getAccessRights(request, flowcontent, app.routeid, workflowtype)
         flowcontent = flow.getHiddenAreas(flowcontent,app.routeid,workflowtype)
@@ -2827,6 +3070,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                     initial['fieldrequired'] = flowcontent['formcomponent']['update']['required']
 
         initial["workflow"] = flowcontent
+        if float(app.routeid) > 1:
+            if app.assignee is None:
+                initial["workflow"]['may_update'] = "False"
+
+            if initial["workflow"]['may_update'] == "True":
+                if app.assignee != self.request.user:
+                    initial["workflow"]['may_update'] = "False"
+
+
+
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
         if app.route_status == 'Draft':
             initial['sumbitter_comment'] = app.sumbitter_comment
@@ -2843,8 +3096,8 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
-
         initial['land_owner_consent'] = multifilelist
 
         a1 = app.proposed_development_plans.all()
@@ -2853,6 +3106,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
         initial['proposed_development_plans'] = multifilelist
 
@@ -2862,6 +3116,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
         initial['other_relevant_documents'] = multifilelist
 
@@ -2871,6 +3126,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
             fileitem = {}
             fileitem['fileid'] = b1.id
             fileitem['path'] = b1.upload.name
+            fileitem['name'] = b1.name
             multifilelist.append(fileitem)
         initial['brochures_itineries_adverts'] = multifilelist
 
@@ -2941,6 +3197,34 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         return initial
 
     def post(self, request, *args, **kwargs):
+        app = self.get_object()
+        context = {}
+        if app.assignee:
+            context['application_assignee_id'] = app.assignee.id
+        else:
+            context['application_assignee_id'] = None
+#        if app.app_type == app.APP_TYPE_CHOICES.part5:
+#        if app.routeid is None:
+#            app.routeid = 1
+
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+
+        if float(app.routeid) > 1:
+            if app.assignee is None:
+                context['may_update'] = "False"
+
+            if context['may_update'] == "True":
+                if app.assignee != self.request.user:
+                    context['may_update'] = "False"
+
+        if context['may_update'] != 'True': 
+           messages.error(self.request, 'You do not have permissions to update this form.')
+           return HttpResponseRedirect(self.get_object().get_absolute_url())            
+
         if request.POST.get('cancel'):
             app = Application.objects.get(id=kwargs['pk'])
             if app.state == app.APP_STATE_CHOICES.new:
@@ -4850,7 +5134,7 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
-        if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
+        if referral.status != Referral.REFERRAL_STATUS_CHOICES.with_admin:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
         return super(ReferralDelete, self).get(request, *args, **kwargs)
@@ -5264,7 +5548,6 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         modelobject = self.get_object()
-
         PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
         app = Application.objects.get(pk=PubNew.application.id)
         flow = Flow()
@@ -5309,7 +5592,6 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
         return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
 
-
 class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     model = PublicationWebsite
     form_class = apps_forms.WebsitePublicationForm
@@ -5322,6 +5604,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         DefaultGroups = flow.groupList()
         flowcontext = {}
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
         if flowcontext["may_update_publication_website"] != "True":
             messages.error(
                 self.request, "Can't update ebsite publication to this application")
@@ -5337,7 +5620,7 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
 #        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
-                # self.object.original_document = self.kwargs['original_document']
+        # self.object.original_document = self.kwargs['original_document']
         context = super(WebsitePublicationChange,
                         self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
@@ -5346,33 +5629,42 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     def get_initial(self):
         initial = super(WebsitePublicationChange, self).get_initial()
         initial['application'] = self.kwargs['pk']
-
-        doc = Record.objects.get(pk=self.kwargs['docid'])
+#        doc = Record.objects.get(pk=self.kwargs['docid'])
+#        print self.kwargs['docid']      
+#        print PublicationWebsite.objects.get(original_document_id=self.kwargs['docid']) 
         try:
             pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
             pub_web = None
 
-        filelist = []
         if pub_web:
-            if pub_web.published_document:
+            initial['published_document'] = pub_web.published_document
 
-                #          records = pub_news.records.all()
-                fileitem = {}
-                fileitem['fileid'] = pub_web.published_document.id
-                fileitem['path'] = pub_web.published_document.upload.name
-                filelist.append(fileitem)
-        if pub_web:
-            if pub_web.id:
-                initial['id'] = pub_web.id
 
-        initial['published_document'] = filelist
-        doc = Record.objects.get(pk=self.kwargs['docid'])
-        initial['original_document'] = doc
+
+        #filelist = []
+        #if pub_web:
+        #    if pub_web.published_document:
+        #        # records = pub_news.records.all()
+        #        fileitem = {}
+        #        fileitem['fileid'] = pub_web.published_document.id
+        #        fileitem['path'] = pub_web.published_document.upload.name
+        #        fileitem['name'] = pub_web.published_document.name
+        #        fileitem['short_name'] = pub_web.published_document.upload.name[19:] 
+        #        filelist.append(fileitem)
+
+        #if pub_web:
+        #    if pub_web.id:
+        #        initial['id'] = pub_web.id
+        #        print "hello"
+
+        #initial['published_document'] = filelist
+        #doc = Record.objects.get(pk=self.kwargs['docid'])
+        #initial['original_document'] = doc
         return initial
 
     def post(self, request, *args, **kwargs):
-
+        # print "IS POST WORKING"
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
             return HttpResponseRedirect(app.get_absolute_url())
@@ -5382,33 +5674,72 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         forms_data = form.cleaned_data
         self.object = form.save(commit=False)
         pub_web = None
+#        print "THE"
+
         try:
             pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
             pub_web = None
-        if pub_web:
-            self.object.id = pub_web.id
-            self.object.published_document = pub_web.published_document
-            if pub_web.published_document:
-                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
-                    self.object.published_document = None
 
+#        if pub_web:
+#            self.object.id = pub_web.id
+#            self.object.published_document = pub_web.published_document
+
+#            if pub_web.published_document:
+#                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
+#                    self.object.published_document = None
+
+        
         orig_doc = Record.objects.get(id=self.kwargs['docid'])
         self.object.original_document = orig_doc
 
-        if self.request.FILES.get('published_document'):
-            for f in self.request.FILES.getlist('published_document'):
-                doc = Record()
-                doc.upload = f
-                doc.save()
-                self.object.published_document = doc
+        # print "SSS"
+        # print self.request.FILES.get('published_document')
+        # print self.request.POST
+        if 'published_document_json' in self.request.POST:
+             if is_json(self.request.POST['published_document_json']) is True: 
+                  json_data = json.loads(self.request.POST['published_document_json'])
+                  if 'doc_id' in json_data:
+                      try:
+                          pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])                 
+                          pub_obj.delete()
+                      except: 
+                          donothing = ''
+                   
+                      new_doc = Record.objects.get(id=json_data['doc_id'])
+                      self.object.published_document = new_doc
+                  else:
+                      pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+                      pub_obj.delete()
+
+
+
+
+#             else:
+ #                self.object.remove()
+        
+
+	     # print json_data
+             # self.object.published_document.remove()
+             # for d in self.object.published_document.all():
+             #    self.object.published_document.remove(d)
+             # for i in json_data:
+             #    doc = Record.objects.get(id=i['doc_id'])
+#             self.object.published_document = i['doc_id']
+#             self.object.save()
+
+#        if self.request.FILES.get('published_document'):
+#            for f in self.request.FILES.getlist('published_document'):
+ #               doc = Record()
+  #              doc.upload = f
+   #             doc.save()
+    #            self.object.published_document = doc
         app = Application.objects.get(pk=self.kwargs['pk'])
         action = Action(
             content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
             action='Publish New Web Documents for Doc ID: {}'.format(self.kwargs['docid']))
         action.save()
         return super(WebsitePublicationChange, self).form_valid(form)
-
 
 class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationFeedback
@@ -5461,7 +5792,6 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
 
         return super(FeedbackPublicationCreate, self).form_valid(form)
 
-
 class FeedbackPublicationView(LoginRequiredMixin, DetailView):
     model = PublicationFeedback
     template_name = 'applications/application_feedback_view.html'
@@ -5484,8 +5814,6 @@ class FeedbackPublicationView(LoginRequiredMixin, DetailView):
                         self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['application'])
         return context
-
-
 
 class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
     model = PublicationFeedback
@@ -5637,6 +5965,8 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
             content_object=app, category=Action.ACTION_CATEGORY_CHOICES.create, user=self.request.user,
             action='Created condition {} (status: {})'.format(self.object.pk, self.object.get_status_display()))
         action.save()
+        messages.success(self.request, 'Condition {} Created'.format(self.object.pk))
+
         return super(ConditionCreate, self).form_valid(form)
 
 
@@ -5783,6 +6113,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         DefaultGroups = flow.groupList()
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             donothing = ''
         elif flowcontext["may_update_vessels_list"] != "True":
