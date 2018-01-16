@@ -2,7 +2,6 @@ var django_ajax_form = {
       var: {
           form_html: '',
           url: '',
-
       },
       OpenForm: function(url) {
         console.log(url);
@@ -28,7 +27,7 @@ var django_ajax_form = {
             htmlvalue += '    <div class="modal-content">';
             htmlvalue += '      <div class="modal-header">';
             htmlvalue += '        <button type="button" class="close" data-dismiss="modal">&times;</button>';
-            htmlvalue += '        <h4 class="modal-title">Vessel</h4>';
+            htmlvalue += '        <h4 class="modal-title"></h4>';
             htmlvalue += '      </div>';
             htmlvalue += '      <div class="modal-body">';
             htmlvalue += django_ajax_form.var.form_html;
@@ -36,7 +35,6 @@ var django_ajax_form = {
             htmlvalue += '<input type="hidden" name="csrfmiddlewaretoken" value="'+csrfmiddlewaretoken+'" />';
             htmlvalue += '</form>';
             htmlvalue += '<BR><BR>';
-
             htmlvalue += '<BR><BR>';
             htmlvalue += '<div class="modal-footer">';
             htmlvalue += '<BR><BR><button name="close" type="button" class="btn btn-primary" value="Close" class="close" data-dismiss="modal" value="Close">Close</button>';
@@ -59,13 +57,11 @@ event.preventDefault();
 
 
 $('.ajax-submit').on("click", function(event) {
-django_ajax_form.saveForm();
-
+    django_ajax_form.saveForm();
 });
 
 $('.ajax-close').on("click", function(event) {
-django_ajax_form.CloseForm();
-
+    django_ajax_form.CloseForm();
 });
 
 
@@ -102,7 +98,7 @@ mimeType:"multipart/form-data"
 //        console.log('upload complete');
 //        var input_array =[];
 $('#vesselModal').modal('hide');
-if (res.indexOf('danger') >= 0 ) { 
+if (res.indexOf('alert-danger') >= 0 ) { 
 
         var csrfmiddlewaretoken = $("input[name=csrfmiddlewaretoken]").val();
 
@@ -112,7 +108,7 @@ if (res.indexOf('danger') >= 0 ) {
             htmlvalue += '    <div class="modal-content">';
             htmlvalue += '      <div class="modal-header">';
             htmlvalue += '        <button type="button" class="close" data-dismiss="modal">&times;</button>';
-            htmlvalue += '        <h4 class="modal-title">Vessel</h4>';
+            htmlvalue += '        <h4 class="modal-title"></h4>';
             htmlvalue += '      </div>';
             htmlvalue += '      <div class="modal-body">';
             htmlvalue += res;

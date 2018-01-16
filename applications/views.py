@@ -2582,6 +2582,64 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
 #        self.object = form.save(commit=False)
         return HttpResponseRedirect(self.get_success_url())
 
+
+class ApplicationConditionTable(LoginRequiredMixin, DetailView):
+    """A view for updating a draft (non-lodged) application.
+    """
+    model = Application
+    template_name = 'applications/application_conditions_table.html'
+
+    def get(self, request, *args, **kwargs):
+        # TODO: business logic to check the application may be changed.
+        app = self.get_object()
+
+        context = {}
+
+        if app.routeid is None:
+            app.routeid = 1
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+        #    donothing = ''
+#        if context["may_update_publication_newspaper"] != "True":
+#            messages.error(self.request, 'This application cannot be updated!')
+#            return HttpResponseRedirect(app.get_absolute_url())
+
+        return super(ApplicationConditionTable, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationConditionTable, self).get_context_data(**kwargs)
+        app = self.get_object()
+        if app.routeid is None:
+            app.routeid = 1
+        request = self.request
+
+        if app.assignee:
+           context['application_assignee_id'] = app.assignee.id
+        else:
+           context['application_assignee_id'] = None
+
+        flow = Flow()
+
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        context['workflowoptions'] = flow.getWorkflowOptions()
+        context = flow.getAccessRights(request, context, app.routeid, workflowtype)
+        part5 = Application_Part5()
+        context = part5.get(app, self, context)
+        return context
+
+    def get_success_url(self,app):
+        return HttpResponseRedirect(app.get_absolute_url())
+
 class ApplicationReferTable(LoginRequiredMixin, DetailView):
     """A view for updating a draft (non-lodged) application.
     """
@@ -2933,8 +2991,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
             licence = Application_Licence()
             context = licence.get(app, self, context)
-
-
 
         try:
             LocObj = Location.objects.get(application_id=app.id)
@@ -5909,6 +5965,8 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
             content_object=app, category=Action.ACTION_CATEGORY_CHOICES.create, user=self.request.user,
             action='Created condition {} (status: {})'.format(self.object.pk, self.object.get_status_display()))
         action.save()
+        messages.success(self.request, 'Condition {} Created'.format(self.object.pk))
+
         return super(ConditionCreate, self).form_valid(form)
 
 
@@ -6055,6 +6113,7 @@ class VesselCreate(LoginRequiredMixin, CreateView):
         DefaultGroups = flow.groupList()
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         flowcontext = flow.getRequired(flowcontext, app.routeid, workflowtype)
+
         if self.request.user.groups.filter(name__in=['Processor']).exists():
             donothing = ''
         elif flowcontext["may_update_vessels_list"] != "True":

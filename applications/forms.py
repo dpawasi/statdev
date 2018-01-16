@@ -1681,6 +1681,7 @@ class ComplianceComplete(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
 class ConditionCreateForm(ModelForm):
+
     class Meta:
         model = Condition
         fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
@@ -1689,9 +1690,10 @@ class ConditionCreateForm(ModelForm):
         super(ConditionCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
         self.helper.attrs = {'novalidate': ''}
+        self.helper.form_id = 'id_form_modals'
         self.fields['condition'].required = True
-        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+        self.helper.add_input(Submit('save', 'Save', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close'))
 
 
 class ConditionUpdateForm(ModelForm):
@@ -1702,9 +1704,10 @@ class ConditionUpdateForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ConditionUpdateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-        self.helper.form_id = 'id_form_condition_apply'
-        self.helper.add_input(Submit('update', 'Update', css_class='btn-lg'))
-        self.helper.add_input(Submit('cancel', 'Cancel'))
+#        self.helper.form_id = 'id_form_condition_apply'
+        self.helper.form_id = 'id_form_modals'
+        self.helper.add_input(Submit('update', 'Update', css_class='btn-lg ajax-submit'))
+        self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close' ))
 
 
 class ConditionActionForm(ModelForm):

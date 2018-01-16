@@ -41,7 +41,7 @@
                                 {% if proposed_development_plans_list %}
 
                                 {% for doc in proposed_development_plans_list %}
-                                <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+                                <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.name }}</A></div>
                                 {% endfor %}
                                 {% else %}
                                 No Attachments

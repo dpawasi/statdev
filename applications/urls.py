@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/lodge/$', views.ApplicationLodge.as_view(), name='application_lodge'),
     url(r'^applications/(?P<pk>\d+)/refer/$', views.ApplicationRefer.as_view(), name='application_refer'),
     url(r'^applications/(?P<pk>\d+)/refer-table/$', views.ApplicationReferTable.as_view(), name='application_refer_table'),
+    url(r'^applications/(?P<pk>\d+)/conditions-table/$', views.ApplicationConditionTable.as_view(), name='application_conditions_table'),
     url(r'^applications/(?P<pk>\d+)/create-condition/$', views.ConditionCreate.as_view(), name='condition_create'),
     url(r'^applications/(?P<pk>\d+)/assign-person/$', views.ApplicationAssignPerson.as_view(), name='application_assign_person'),
     url(r'^applications/(?P<pk>\d+)/assign-applicant/(?P<applicantid>\d+)/$', views.ApplicationAssignApplicant.as_view(), name='application_assign_applicant'),

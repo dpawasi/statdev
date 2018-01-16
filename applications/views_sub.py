@@ -7,6 +7,7 @@ from applications.validationchecks import Attachment_Extension_Check
 from ledger.accounts.models import EmailUser, Address, Organisation, Document
 from django.db.models import Q
 from approvals.models import Approval
+from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 
 class Application_Part5():
 
@@ -313,6 +314,13 @@ class Referrals_Next_Action_Check():
         app.group = groupassignment
         app.assignee = assignee
         app.save()
+
+        emailcontext = {}
+        emailcontext['app'] = app
+
+        emailcontext['groupname'] = DefaultGroups['grouplink'][action]
+        emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+        emailGroup('Application Assignment to Group ' + DefaultGroups['grouplink'][action], emailcontext, 'application-assigned-to-group.html', None, None, None, DefaultGroups['grouplink'][action])
 
 
 class FormsList():
