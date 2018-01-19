@@ -116,7 +116,6 @@ class PublicApplicationFeedback(UpdateView):
 #               print PublicationWebsite.objects.get(original_document_id=doc.id)
             except:
                pub_web = None
-            print pub_web
             #if pub_web is None:
             #   initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
             #else:
