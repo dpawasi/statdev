@@ -27,6 +27,7 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
     email_delivery = env('EMAIL_DELIVERY', 'off')
     override_email = env('OVERRIDE_EMAIL', None)
     context['default_url'] = env('DEFAULT_URL', '')
+    context['default_url_internal'] = env('DEFAULT_URL_INTERNAL', '')
 
     if email_delivery != 'on':
         print ("EMAIL DELIVERY IS OFF NO EMAIL SENT -- applications/email.py ")

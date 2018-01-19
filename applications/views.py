@@ -977,8 +977,6 @@ class EmergencyWorksList(ListView):
                if self.request.GET['appstatus'] != '':
                   context['appstatus'] = int(self.request.GET['appstatus'])
 
-
-
         usergroups = self.request.user.groups.all()
         context['app_list'] = []
         for app in applications:

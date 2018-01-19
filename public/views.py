@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from applications.models import Application, PublicationFeedback, Record
+from applications.models import Application, PublicationFeedback, Record, PublicationWebsite
 from approvals.models import Approval 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
@@ -27,7 +27,7 @@ class PublicApplicationsList(TemplateView):
         elif action == 'final':
             query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False,publish_final_report__isnull=True) & Q(app_type__in=[3])
         elif action == 'determination':
-            query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False, publish_final_report__isnull=False,publish_determination_report__isnull=True ) & Q(app_type__in=[3])
+            query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False, publish_final_report__isnull=False,publish_determination_report__isnull=True) & Q(app_type__in=[3])
         else:
             query_obj = Q(publish_documents__isnull=False, publish_draft_report__isnull=False,publish_final_report__isnull=False) & Q(app_type__in=[3])
             #query_obj = Q(publish_documents__isnull=False) & Q(app_type__in=[3])
@@ -66,15 +66,43 @@ class PublicApplicationFeedback(UpdateView):
         doclist = app.proposed_development_plans.all()
         context['proposed_development_plans_list'] = []
         for doc in doclist:
+            pub_web = None
+            try:
+               pub_web = PublicationWebsite.objects.get(original_document_id=doc.id,application=self.kwargs['pk'])
+#               print PublicationWebsite.objects.get(original_document_id=doc.id)
+            except:
+               pub_web = None
+
             fileitem = {}
-            fileitem['fileid'] = doc.id
-            fileitem['path'] = doc.upload.name
-            fileitem['path_short'] = SafeText(doc.upload.name)[19:]
-            fileitem['name'] = doc.name
-            context['proposed_development_plans_list'].append(fileitem)
+            if pub_web is None:
+               fileitem['fileid'] = doc.id
+               fileitem['path'] = doc.upload.name
+               fileitem['path_short'] = SafeText(doc.upload.name)[19:]
+               fileitem['name'] = doc.name
+               context['proposed_development_plans_list'].append(fileitem)
+            else:
+               fileitem['fileid'] = pub_web.published_document.id
+               fileitem['path'] = pub_web.published_document.upload.name
+               fileitem['path_short'] = SafeText(pub_web.published_document.upload.name)[19:]
+               fileitem['name'] = pub_web.published_document.name
+               context['proposed_development_plans_list'].append(fileitem)
 
-
+        if app.river_lease_scan_of_application:
+            pub_web = None
+            try:
+               pub_web = PublicationWebsite.objects.get(original_document_id=app.river_lease_scan_of_application.id,application=self.kwargs['pk'])
+#               print PublicationWebsite.objects.get(original_document_id=doc.id)
+            except:
+               pub_web = None
+#            print pub_web
+            if pub_web is None:
+              context['river_lease_scan_of_application'] = app.river_lease_scan_of_application
+            else:
+#              print "HERE"
+#               print pub_web.published_document
+              context['river_lease_scan_of_application'] = pub_web.published_document
         return context
+
     def get_initial(self):
         initial = super(PublicApplicationFeedback, self).get_initial()
         app = self.get_object()
@@ -82,8 +110,19 @@ class PublicApplicationFeedback(UpdateView):
         initial['application_id'] = self.kwargs['pk']
         initial['organisation'] = app.organisation
         if app.river_lease_scan_of_application:
-            initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
-
+            pub_web = None
+            try:
+               pub_web = PublicationWebsite.objects.get(original_document_id=app.river_lease_scan_of_application.id,application=self.kwargs['pk'])
+#               print PublicationWebsite.objects.get(original_document_id=doc.id)
+            except:
+               pub_web = None
+            print pub_web
+            #if pub_web is None:
+            #   initial['river_lease_scan_of_application'] = app.river_lease_scan_of_application.upload
+            #else:
+            #   print "HERE"
+            #   print pub_web.published_document
+            #   initial['river_lease_scan_of_application'] = pub_web.published_document
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -124,7 +163,6 @@ class PublicApplicationFeedback(UpdateView):
                                                       email=forms_data['email'],
                                                       comments=forms_data['comments'],
                                                       status=status
- 
 	)
 
 

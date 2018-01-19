@@ -1,7 +1,7 @@
 from django.contrib.admin import register, ModelAdmin
 from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
-    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact, OrganisationPending, OrganisationExtras,PublicationFeedback)
+    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact, OrganisationPending, OrganisationExtras,PublicationFeedback, PublicationWebsite,ComplianceGroup)
 
 
 @register(Record)
@@ -60,7 +60,12 @@ class ConditionAdmin(ModelAdmin):
 class ComplianceAdmin(ModelAdmin):
     date_hierarchy = 'submit_date'
     filter_horizontal = ('records',)
-    list_display = ('__str__', 'applicant', 'approval_id','assignee', 'status', 'submit_date', 'approve_date','due_date')
+    list_display = ('__str__', 'applicant', 'approval_id','assignee', 'status', 'submit_date', 'approve_date','due_date','compliance_group')
+    search_fields = ('applicant__email', 'assignee__email', 'compliance', 'comments')
+
+@register(ComplianceGroup)
+class ComplianceGroupAdmin(ModelAdmin):
+    list_display = ('__str__', 'applicant', 'approval_id','assignee', 'status', 'due_date')
     search_fields = ('applicant__email', 'assignee__email', 'compliance', 'comments')
 
 @register(Delegate)
@@ -100,3 +105,10 @@ class OrganisationExtras(ModelAdmin):
 class OrganisationExtras(ModelAdmin):
     list_display = ('name','address','suburb')
     search_fields = ('name','address','suburb')
+
+@register(PublicationWebsite)
+class PublicationWebsite(ModelAdmin):
+    list_display = ('application','original_document','published_document')
+    search_fields = ('application','original_document','published_document')
+
+
