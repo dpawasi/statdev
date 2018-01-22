@@ -386,6 +386,34 @@ class Condition(models.Model):
     def __str__(self):
         return 'Condition {}: {}'.format(self.pk, self.condition)
 
+@python_2_unicode_compatible
+class ComplianceGroup(models.Model):
+
+    COMPLIANCE_GROUP_STATUS_CHOICES = Choices(
+        (1, 'current', ('Current')),
+        (2, 'due',('Due')),
+        (3, 'future', ('Future')),
+        (4, 'approved', ('Approved')),
+        (5, 'with_assessor', ('With Assessor')),
+        (6, 'with_manager', ('With Manager')),
+        (7, 'with_holder', ('With Licence Holder')),
+        (8, 'expired', ('Expired')),
+        (9, 'submitted', ('Submitted'))
+    )
+
+    approval_id = models.IntegerField(blank=True, null=True)
+    title = models.CharField(max_length=256, blank=True, null=True)
+    app_type = models.IntegerField(choices=Application.APP_TYPE_CHOICES, blank=True, null=True)
+#    cid = models.ManyToManyField(Compliance, blank=True)
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_group_applicant')
+    organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT)
+    status = models.IntegerField(choices=COMPLIANCE_GROUP_STATUS_CHOICES, default=COMPLIANCE_GROUP_STATUS_CHOICES.future)
+    due_date = models.DateField(blank=True, null=True)
+    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_group_assignee')
+
+    def __str__(self):
+        return 'Condition Group {}: {}'.format(self.pk, self.title)
+
 
 @python_2_unicode_compatible
 class Compliance(models.Model):
@@ -400,7 +428,8 @@ class Compliance(models.Model):
         (5, 'with_assessor', ('With Assessor')),
         (6, 'with_manager', ('With Manager')),
         (7, 'with_holder', ('With Licence Holder')),
-        (8, 'expired', ('Expired'))
+        (8, 'expired', ('Expired')),
+        (9, 'submitted', ('Submitted'))
     )
 
     approval_id = models.IntegerField(blank=True, null=True)
@@ -418,10 +447,10 @@ class Compliance(models.Model):
     comments = models.TextField(blank=True, null=True)
     approve_date = models.DateField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True)
+    compliance_group = models.ForeignKey(ComplianceGroup, blank=True, null=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return 'Compliance {} ({})'.format(self.pk, self.condition)
-
 
 class Communication(models.Model):
     """This model represents the communication model

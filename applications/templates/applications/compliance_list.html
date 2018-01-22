@@ -45,9 +45,9 @@
                 <tbody>
                     {% for obj in object_list|dictsort:"due_date" %}
                     <tr>
-                        <td>CO-{{ obj.pk }}</td>
+                        <td><a HREF='{% url 'compliance_approval_detail' obj.pk %}'>CO-{{ obj.pk }}</A></td>
                         <td>{{ obj.get_app_type_display }}</td>
-                        <td>{% if obj.approval_id is None %}None{% else %}<a HREF='{% url 'compliance_approval_detail' obj.approval_id %}'>AP-{{ obj.approval_id }}{% endif %}</a></td>
+                        <td>{% if obj.approval_id is None %}None{% else %}AP-{{ obj.approval_id }}{% endif %}</td>
                         <td>{{ obj.title }}</td>
                         <td>{{ obj.applicant.get_full_name }}</td>
                         <td>{{ obj.get_status_display }}</td>
