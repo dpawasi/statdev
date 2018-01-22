@@ -5275,8 +5275,6 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
 
         form.save()
         form.save_m2m()
-        #self.object.approval_id
-        print self.object.compliance_group
         return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.compliance_group.id,)))
 
 
