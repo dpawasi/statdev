@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation, ComplianceGroup)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -1006,7 +1006,7 @@ class EmergencyWorksList(ListView):
         return context
 
 class ComplianceList(ListView):
-    model = Compliance 
+    model = ComplianceGroup 
     template_name = 'applications/compliance_list.html'
 
     def get_queryset(self):
@@ -1028,7 +1028,7 @@ class ComplianceList(ListView):
         context = super(ComplianceList, self).get_context_data(**kwargs)
         context['query_string'] = ''
 
-        items = Compliance.objects.filter().order_by('due_date')
+        items = ComplianceGroup.objects.filter().order_by('due_date')
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
@@ -1053,7 +1053,7 @@ class ComplianceList(ListView):
                 query_obj &= Q(state=int(self.request.GET['appstatus']))
 
 
-            applications = Compliance.objects.filter(query_obj)
+            applications = ComplianceGroup.objects.filter(query_obj)
             context['query_string'] = self.request.GET['q']
 
         if 'applicant' in self.request.GET:
@@ -4616,7 +4616,6 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
         initial = super(ApplicationAssignApplicant, self).get_initial()
         app = self.get_object()
         initial['applicant'] = self.kwargs['applicantid']
-
         return initial
 
 class ApplicationAssign(LoginRequiredMixin, UpdateView):
@@ -4798,7 +4797,40 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
         return initial
 
 
+class ComplianceSubmit(LoginRequiredMixin, UpdateView):
+    """Allows and applicant to discard the application.
+    """
+    model = ComplianceGroup
 
+    def get(self, request, *args, **kwargs):
+        return super(ApplicationSubmit, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        return apps_forms.ApplicationDiscardForm
+
+    def get_success_url(self):
+        return reverse('home_page')
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ComplianceGroup, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        
+        # Record an action on the application:
+        action = Action(
+           content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+               action='Application Discard')
+        action.save()
+        messages.success(self.request, "Your application has been discard")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_initial(self):
+        initial = super(ComplianceGroup, self).get_initial()
+        app = self.get_object()
+        return initial
 
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
     """A view to allow a manager to issue an assessed application.
@@ -5180,13 +5212,15 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 #        return qs
 
 class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
-    model = Approval
+#   model = Approval
+    model = ComplianceGroup
     template_name = 'applications/compliance_detail.html' 
 
     def get_context_data(self, **kwargs):
         context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
-        context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+	# context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        context['conditions'] = Compliance.objects.filter(compliance_group=app.id)
         return context
 
 class ComplianceComplete(LoginRequiredMixin,UpdateView):
@@ -5242,7 +5276,8 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
         form.save()
         form.save_m2m()
         #self.object.approval_id
-        return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.approval_id,)))
+        print self.object.compliance_group
+        return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.compliance_group.id,)))
 
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):

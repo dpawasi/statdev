@@ -1098,8 +1098,8 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
                 crispy_boxes.append(HTML('{% include "applications/application_conditions.html" %}'))
                 crispy_boxes.append(HTML('{% include "applications/application_assessment.html" %}'))
 
-
-        self.helper.layout = Layout(crispy_boxes,)
+        dynamic_selections = HTML('{% include "applications/application_form_js_permit_dynamics.html" %}')
+        self.helper.layout = Layout(crispy_boxes,dynamic_selections)
         #if 'hide_form_buttons' in self.initial["workflow"]["hidden"]:
         if show_form_buttons == 'True':
              if 'condactions' in self.initial['workflow']:

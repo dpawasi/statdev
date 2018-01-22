@@ -6,7 +6,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <h1>Approval for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <h1>Clearance of Condition - {{ object.pk }}</h1>
         <br/>
     </div>
 
@@ -89,28 +89,25 @@
                     <div class="panel-body">
                         <div>
                             {% if conditions %} 
-                            <div class="col-sm-12 col-md-12 col-lg-12">
-                                <div class="col-sm-12 col-md-12 col-lg-1">
-                                    <label>ID</label>
-                                </div>
-                                <div class="col-sm-12 col-md-12 col-lg-3">
-                                    <label>App Type</label>
-                                </div>
-                                <div class="col-sm-12 col-md-12 col-lg-3">
-                                    <label>Condition</label>
-                                </div>
-                            </div>
                             {% for c in conditions %}
 
                             <!-- Current -->
                             {% if c.status == 1 %}
+                            {% endif %}
                             <div class="col-sm-12 col-md-12 col-lg-12">
                                 <div class="col-sm-12 col-md-12 col-lg-12">
                                     <div class="col-sm-12 col-md-12 col-lg-12">
-                                        {{ c.condition.condition }} - {{ c.id }}
+                                        <b>Condition ({{ c.id }})</b>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+                                        {{ c.condition.condition }} 
+					</bR><BR>
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-12 col-lg-12">
+                                    <div class="col-sm-12 col-md-12 col-lg-12">
+					<b>Comments</b>
+				    </div>
                                     <div class="col-sm-12 col-md-12 col-lg-12">
                                             {% if c.comments %}
                                                 {{ c.comments }}
@@ -118,12 +115,18 @@
                                                <i>Please provide comment</i>
                                             {% endif %}
                                      </div>
+
                                      <div class="col-sm-12 col-md-12 col-lg-12">
+					 <BR>
+                                         {% if object.status == 2 %} 
                                          <a href="{% url "compliance_condition_update" c.id %}" class="btn btn-primary btn-sm" role="button">Add Clearance Condition</a>
+					 <BR>
+                                         <HR>
+					 {% endif %}
+					 
                                     </div>
                                 </div>
                             </div>
-                            {% endif %}
 
                             {% endfor %}
                             {% endif %}
@@ -139,30 +142,36 @@
                                      {% endfor %}
                                 {% endfor %}
                             </div>
-
                         </div>
-
                     </div>
                 </div>
             </div>
             </div>
 
-           {{ object.status }} 
-            <div class="col-sm-12 col-md-12 col-lg-12">
-            <!-- Conditions -->
-            <div class="panel panel-default">
+
+           {% if object.status == 2 %}
+             <div class="col-sm-12 col-md-12 col-lg-12">
+             <!-- Conditions -->
+             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-target="#address_collapse">
                     <h3 class="panel-title">
                        Action 
-                        <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                       <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
-                <div class="panel-collapse collapse in" id="address_collapse">
-                    <a href="" class="btn btn-primary btn-sm" role="button">Approve</a> <a href="" class="btn btn-primary btn-sm" role="button">Submit to Manager</a> <a href="" class="btn btn-primary btn-sm" role="button">Return to licence holder</a>
+                <div class="panel-collapse collapse in " id="address_collapse">
+                    <div class="panel-body">
+                    	<a href="" class="btn btn-primary btn-sm" role="button">Submit</a>
+                    </div>
 
                 </div>
-            </div>
-            </div>
+             </div>
+             </div>
+            {% elif object.status == 9 %}
+
+
+
+            {% endif %}
             </div>
 
 

@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Create Compliance Group ID
-        compliance_no_cid = Compliance.objects.filter(status__in=[1,2,3],compliance_group=None)
+        compliance_no_cid = Compliance.objects.filter(status__in=[1,2,3,8],compliance_group=None)
         # print compliance_no_cid
 
         for cid in compliance_no_cid:
@@ -41,25 +41,47 @@ class Command(BaseCommand):
                    co.save()
 
 
+        import datetime 
+        due_time_frame = datetime.timedelta(days=14)
+        today = date.today()
+        due_period = due_time_frame + today
 
+        print 'PERIOD'
+        print due_period
 
         # print date.today()
         # Look for Compliance that have expired and set them to expired.
-        compliance = Compliance.objects.filter(due_date__lte=date.today(),status__in=[1,2,3])
+        compliance = Compliance.objects.filter(due_date__lt=due_period,status__in=[1,2,3,8])
         for co in compliance:
             print co
             print Compliance.COMPLIANCE_STATUS_CHOICES[co.status]
             print co.due_date
-            co.status = 8
+
+            co.status = 2
             co.save()
-            cgroup = ComplianceGroup.objects.get(id=co.compliance_group)
-            cgroup.status = 8
+            cgroup = ComplianceGroup.objects.get(id=co.compliance_group.id)
+            cgroup.status = 2
             cgroup.save()
 
             # Update approvals and find next current Compliance Conditions
+      
+        compliance = ComplianceGroup.objects.filter(due_date__gte=due_period,status__in=[1,2,3,8])
+        for co in compliance:
+            co.status = 3
+            co.save()
+            ci =  Compliance.objects.filter(compliance_group=co.id)
+            for ca in ci:
+                ca.status = 3
+                ca.save()
+                print ("Updated Condition: "+str(ca.id))
+                  
 
+
+
+         
+        return
         # compliance = Compliance.objects.filter(due_date__gte=date.today(),status__in=[1,2,3])
-        compliance = Compliance.objects.filter(due_date__gte=date.today(),status__in=[1,2,3]).values('approval_id').distinct()
+        compliance = Compliance.objects.filter(due_date__gte=date.today(),status__in=[1,2,3,8]).values('approval_id').distinct()
         for co in compliance:
             compliance_approval = Compliance.objects.filter(status__in=[1,2,3],approval_id=co['approval_id']).order_by('due_date')[:1]
             for ca in compliance_approval:
@@ -70,7 +92,7 @@ class Command(BaseCommand):
                     ca.status = 1
                     ca.save()
                     
-                    cgroup = ComplianceGroup.objects.get(id=ca.compliance_group)
+                    cgroup = ComplianceGroup.objects.get(id=ca.compliance_group.id)
                     cgroup.status = 1
                     cgroup.save()
                     

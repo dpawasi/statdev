@@ -35,4 +35,4 @@ class Command(BaseCommand):
                     action='[SYSTEM] No outstanding referrals, application status set to {}'.format(app.get_state_display()))
                 action.save()
 
-        return
+        return 
