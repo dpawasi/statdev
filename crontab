@@ -1,1 +1,2 @@
 */10 * * * * root /var/www/ubuntu-1604/app-grp1/statdev-uat.8018/venv/bin/python /var/www/ubuntu-1604/app-grp1/statdev-uat.8018/manage.py compliance_status_checks
+*/10 * * * * root /var/www/ubuntu-1604/app-grp1/statdev-uat.8018/venv/bin/python /var/www/ubuntu-1604/app-grp1/statdev-uat.8018/manage.py compliance_generate_condition 
