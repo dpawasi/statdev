@@ -25,11 +25,12 @@ class Command(BaseCommand):
               for c in conditions:
                    start_date = c.due_date
                    loop_start_date = start_date
-                   print apps.id
+                   print c.id
                    print c.due_date
                    if c.due_date is None:
+                        print "miSSED"
                         # No due defined no business requirement to create condition.
-                        break;
+                        continue;
 
                    if c.recur_pattern == 1:
                         num_of_weeks = (end_date - start_date).days / 7.0
@@ -238,8 +239,27 @@ class Command(BaseCommand):
                                       status=Compliance.COMPLIANCE_STATUS_CHOICES.due
                                   )
 
+                   print "RECURE"
+                   print c.recur_pattern
+                   if c.recur_pattern is None:  
+                           print "NONE" 
+                           if Compliance.objects.filter(condition__id=c.id).exists():
+                              pass
+                           else:
+                                 print "CREATE ONE RECORD" 
+                                 compliance = Compliance.objects.create(
+                                      app_type=apps.application.app_type,
+                                      title=apps.application.title,
+                                      condition=c,
+                                      approval_id=apps.id,
+                                      applicant=apps.applicant,
+                                      assignee=None,
+                                      assessed_by=None,
+                                      assessed_date=None,
+                                      due_date=c.due_date,
+                                      status=Compliance.COMPLIANCE_STATUS_CHOICES.due
+                                 )
 
-                       
 
 
 #      if compliance.count() > 0: 
