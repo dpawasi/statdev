@@ -1006,7 +1006,7 @@ class EmergencyWorksList(ListView):
         return context
 
 class ComplianceList(ListView):
-    model = ComplianceGroup 
+    model = Compliance
     template_name = 'applications/compliance_list.html'
 
     def get_queryset(self):
@@ -4023,7 +4023,6 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
             messages.error(self.request, 'Can not modify referrals on this application!')
             return HttpResponseRedirect(app.get_absolute_url())
 
-
 #        else:
 #            if app.state not in [app.APP_STATE_CHOICES.with_admin, app.APP_STATE_CHOICES.with_referee]:
 #               # TODO: better/explicit error response.
@@ -4310,7 +4309,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           expiry_date = app.expire_date,
                                           status = 1
                 )
-   
+        return 
         # For compliance ( create clearance of conditions )
         # get all conditions 
         conditions = Condition.objects.filter(application=app)
@@ -5213,14 +5212,14 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 
 class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
 #   model = Approval
-    model = ComplianceGroup
+    model = Compliance
     template_name = 'applications/compliance_detail.html' 
 
     def get_context_data(self, **kwargs):
         context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
 	# context['conditions'] = Compliance.objects.filter(approval_id=app.id)
-        context['conditions'] = Compliance.objects.filter(compliance_group=app.id)
+        context['conditions'] = Compliance.objects.filter(id=app.id)
         return context
 
 class ComplianceComplete(LoginRequiredMixin,UpdateView):
@@ -5275,7 +5274,7 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
 
         form.save()
         form.save_m2m()
-        return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.compliance_group.id,)))
+        return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.id,)))
 
 
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
