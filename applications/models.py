@@ -397,7 +397,7 @@ class ComplianceGroup(models.Model):
         (5, 'with_assessor', ('With Assessor')),
         (6, 'with_manager', ('With Manager')),
         (7, 'with_holder', ('With Licence Holder')),
-        (8, 'expired', ('Expired')),
+        (8, 'overdue', ('Overdue')),
         (9, 'submitted', ('Submitted'))
     )
 
@@ -428,7 +428,7 @@ class Compliance(models.Model):
         (5, 'with_assessor', ('With Assessor')),
         (6, 'with_manager', ('With Manager')),
         (7, 'with_holder', ('With Licence Holder')),
-        (8, 'expired', ('Expired')),
+        (8, 'overdue', ('Overdue')),
         (9, 'submitted', ('Submitted'))
     )
 

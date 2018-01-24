@@ -65,16 +65,26 @@ class Command(BaseCommand):
 
             # Update approvals and find next current Compliance Conditions
       
-        compliance = ComplianceGroup.objects.filter(due_date__gte=due_period,status__in=[1,2,3,8])
+#        compliance = ComplianceGroup.objects.filter(due_date__gte=due_period,status__in=[1,2,3,8])
+#        for co in compliance:
+#            co.status = 3
+#            co.save()
+#            ci =  Compliance.objects.filter(compliance_group=co.id)
+#            for ca in ci:
+#                ca.status = 3
+#                ca.save()
+#                print ("Updated Condition: "+str(ca.id))
+                  
+
+        compliance = ComplianceGroup.objects.filter(due_date__lt=date.today(),status__in=[1,2,3,8])
         for co in compliance:
-            co.status = 3
+            co.status = 8
             co.save()
             ci =  Compliance.objects.filter(compliance_group=co.id)
             for ca in ci:
-                ca.status = 3
+                ca.status = 8
                 ca.save()
                 print ("Updated Condition: "+str(ca.id))
-                  
 
 
 
