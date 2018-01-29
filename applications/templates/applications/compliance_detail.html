@@ -16,7 +16,7 @@
         {% include "approvals/approval_side_menu.html" %}
         -->
         <!--- remove everything eblow this tag to the end tag if everything has been moved -->
-        <div class="col-sm-4 col-md-3 col-lg-2"  >
+        <div class="col-sm-4 col-md-3 col-lg-2">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">Actions</h3>
@@ -29,6 +29,7 @@
                         {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
                         <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
                         {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
+                        <li><a href="{% url 'compliance_assign_person' object.pk %}">Assign</a></li>
                     </ul>
                 </div>
             </div>
@@ -39,10 +40,10 @@
                 <div class="panel-body">
                     <h4>Submitted by:</h4>
                     <p>
-                    {% if object.applicant.first_name %}
-                        {{ object.applicant.first_name }} {{ object.applicant.last_name }}
+                    {% if object.submitted_by.first_name %}
+                        {{ object.submitted_by.first_name }} {{ object.applicant.last_name }}
                     {% else %}
-                        {{ object.applicant.email }}
+                        {{ object.submitted_by.email }}
                     {% endif %}
                     </p>
                     <h4>Lodged on</h4>
@@ -59,7 +60,7 @@
                 </div>
                 <div class="panel-body">
                     <h4>Status:</h4>
-                    <p>{{ object.get_state_display }}</p>
+                    <p>{{ object.get_status_display }}</p>
                     <h4>Assigned to:</h4>
                     {% if object.assignee %}
                     <p>
@@ -81,7 +82,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-target="#conditions_collapse">
                     <h3 class="panel-title">
-                        Conditions
+                        Clearance of Condition
                         <span class="glyphicon glyphicon-minus collapse-glyph"></span>
                     </h3>
                 </div>
@@ -118,16 +119,14 @@
 
                                      <div class="col-sm-12 col-md-12 col-lg-12">
 					 <BR>
-                                         {% if object.status == 2 %} 
+                                         {% if object.status == 2 or object.status == 8 or object.status == 7 or object.status == 9 %} 
                                          <a href="{% url "compliance_condition_update" c.id %}" class="btn btn-primary btn-sm" role="button">Add Clearance Condition</a>
 					 <BR>
                                          <HR>
 					 {% endif %}
-					 
                                     </div>
                                 </div>
                             </div>
-
                             {% endfor %}
                             {% endif %}
                         </div>
@@ -148,11 +147,53 @@
             </div>
             </div>
 
+            {% if object.status == 4 %}
+            <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- Conditions -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#ac_collapse">
+                    <h3 class="panel-title">
+                       Assessment 
+                       <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                
+                <div class="panel-collapse collapse in " id="ac_collapse">
+                    <div class="panel-body">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+				<div class="col-sm-12 col-md-3 col-lg-3">
+				    <label>Assessment Result</Label>
+				</div>
+				<div class="col-sm-12 col-md-9 col-lg-9">
+				Approved	
+				</div>
+			</div>
+                       <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-3 col-lg-3">
+                                    <label>Assessed By</label>
+                                </div>
+                                <div class="col-sm-12 col-md-9 col-lg-9">
+				   {{ object.assessed_by.get_full_name }}
+                                </div>
+                        </div>
 
-           {% if object.status == 2 %}
-             <div class="col-sm-12 col-md-12 col-lg-12">
-             <!-- Conditions -->
-             <div class="panel panel-default">
+                       <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-3 col-lg-3">
+                                    <label>Date</label>
+                                </div>
+                                <div class="col-sm-12 col-md-9 col-lg-9">
+					{{ object.assessed_date }}
+                                </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            </div>
+            {% elif object.status == 2 or object.status == 8 or object.status == 7 %}
+            <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- Conditions -->
+            <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-target="#ac_collapse">
                     <h3 class="panel-title">
                        Action 
@@ -161,21 +202,52 @@
                 </div>
                 <div class="panel-collapse collapse in " id="ac_collapse">
                     <div class="panel-body">
-                    	<a href="" class="btn btn-primary btn-sm" role="button">Submit</a>
+                    	<a href="{% url "compliance_condition_submit" object.pk %}" class="btn btn-primary btn-sm" role="button">Submit</a>
                     </div>
-
                 </div>
-             </div>
-             </div>
-            {% elif object.status == 9 %}
-
-
-
+            </div>
+            </div>
+            {% elif object.status == 9 or object.status == 5 %}
+            {% if admin_staff == True %}
+            <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- Conditions -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#ac_collapse">
+                    <h3 class="panel-title">
+                       Action
+                       <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in " id="ac_collapse">
+                    <div class="panel-body">
+                        <a href="{% url "compliance_condition_staff" object.pk 'approve' %}" class="btn btn-primary btn-sm" role="button">Approve</a>
+                        <a href="{% url "compliance_condition_staff" object.pk 'manager'  %}" class="btn btn-primary btn-sm" role="button">Send to Manager</a>
+                        <a href="{% url "compliance_condition_staff" object.pk 'holder' %}" class="btn btn-primary btn-sm" role="button">Return to Licence Holder</a>
+                    </div>
+                </div>
+            </div>
+            </div>
+            {% endif %}
+            {% elif object.status == 6 %}
+            <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- Conditions -->
+            <div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-target="#ac_collapse">
+                    <h3 class="panel-title">
+                       Action
+                       <span class="glyphicon glyphicon-minus collapse-glyph"></span>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse in " id="ac_collapse">
+                    <div class="panel-body">
+                        <a href="{% url "compliance_condition_staff" object.pk 'approve' %}" class="btn btn-primary btn-sm" role="button">Approve</a>
+                        <a href="{% url "compliance_condition_staff" object.pk 'assessor'  %}" class="btn btn-primary btn-sm" role="button">Send to Assesor</a>
+                    </div>
+                </div>
+            </div>
+            </div>
             {% endif %}
             </div>
-
-
-
         </div>
     </div>
 </div>

@@ -224,7 +224,7 @@ class Application(models.Model):
     supporting_info_demonstrate_compliance_trust_policies = models.ForeignKey(Record, null=True, blank=True, related_name='supporting_info_demonstrate_compliance_trust_policies')
     type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
     number_of_crafts  = models.IntegerField(null=True, blank=True)
-    route_status = models.CharField(null=True, blank=True, default=1, max_length=256)
+    route_status = models.CharField(null=True, blank=True, default='Draft', max_length=256)
     sumbitter_comment = models.TextField(null=True, blank=True, default='', max_length=256)
 
     def __str__(self):
@@ -438,16 +438,19 @@ class Compliance(models.Model):
     condition = models.ForeignKey(Condition, on_delete=models.PROTECT)
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_applicant')
     assignee = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assignee')
+    organisation = models.ForeignKey(Organisation, blank=True, null=True, on_delete=models.PROTECT) 
     assessed_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_assigned_by')
     assessed_date = models.DateField(blank=True, null=True)
     status = models.IntegerField(choices=COMPLIANCE_STATUS_CHOICES, default=COMPLIANCE_STATUS_CHOICES.future)
-    submit_date = models.DateField(auto_now_add=True)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT, related_name='compliance_submitted_by')
+    submit_date = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField(blank=True, null=True)
     compliance = models.TextField(blank=True, null=True, help_text='Information to fulfil requirement of condition.')
     comments = models.TextField(blank=True, null=True)
     approve_date = models.DateField(blank=True, null=True)
     records = models.ManyToManyField(Record, blank=True)
     compliance_group = models.ForeignKey(ComplianceGroup, blank=True, null=True, on_delete=models.PROTECT)
+    group = models.ForeignKey(Group, null=True, blank=True, related_name='compliance_group_assignment')
 
     def __str__(self):
         return 'Compliance {} ({})'.format(self.pk, self.condition)

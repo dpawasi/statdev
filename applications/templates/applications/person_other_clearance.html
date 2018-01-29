@@ -1,6 +1,5 @@
 <div class="panel panel-default">
     <div class="panel-body">
-
         <form action="" method="get">
             <div class="row">
                 <div class="col-sm-12 col-lg-12">
@@ -20,9 +19,7 @@
                             <input type="submit" name="search" value="Search" class="btn btn-primary btn-md" id="submit-id-save">
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </form>
         <hr>
@@ -47,7 +44,13 @@
                     <td>{% if obj.approval_id is None %}None{% else %}{{ obj.approval_id }}{% endif %}</td>
                     <td>{{ obj.title }}</td>
                     <td>{{ obj.applicant.get_full_name }}</td>
-                    <td>{{ obj.get_status_display }}</td>
+                    <td>
+                            {% if obj.status == 2 or obj.status == 3 or obj.status == 4 or obj.status == 8 or obj.status == 9 %}
+                                   {{ obj.get_status_display }}
+                            {% else %}
+                                Submitted
+                            {% endif %}
+		    </td>
                     <td>{{ obj.due_date|date:"d-M-Y" }}</td>
                     <td>{{ obj.assignee }}</td>
                 </tr>
