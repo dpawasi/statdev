@@ -12,33 +12,33 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Create Compliance Group ID
-        compliance_no_cid = Compliance.objects.filter(status__in=[1,2,3,8],compliance_group=None)
-        # print compliance_no_cid
+        #compliance_no_cid = Compliance.objects.filter(status__in=[1,2,3,8],compliance_group=None)
+        ## print compliance_no_cid
 
-        for cid in compliance_no_cid:
-              # print cid
-              print cid.due_date
-
-              if ComplianceGroup.objects.filter(due_date=cid.due_date,approval_id=cid.approval_id).exists():
-                   cgroup = ComplianceGroup.objects.get(due_date=cid.due_date,approval_id=cid.approval_id)
-                   
-                   if cid.compliance_group is None:
-                      co = Compliance.objects.get(pk=cid.id)
-                      co.compliance_group = cgroup
-                      co.save()
-              else:
-
-                   cgroup = ComplianceGroup.objects.create(
-                        approval_id=cid.approval_id,
-                        title=cid.title,
-                        app_type=cid.app_type,
-                        applicant=cid.applicant,
-                        due_date=cid.due_date,
-                        assignee=cid.assignee
-                   )
-                   co = Compliance.objects.get(pk=cid.id)
-                   co.compliance_group = cgroup
-                   co.save()
+        #for cid in compliance_no_cid:
+        #      # print cid
+        #      print cid.due_date
+#
+#              if ComplianceGroup.objects.filter(due_date=cid.due_date,approval_id=cid.approval_id).exists():
+#                   cgroup = ComplianceGroup.objects.get(due_date=cid.due_date,approval_id=cid.approval_id)
+#                   
+#                   if cid.compliance_group is None:
+#                      co = Compliance.objects.get(pk=cid.id)
+#                      co.compliance_group = cgroup
+#                      co.save()
+#              else:
+#
+#                   cgroup = ComplianceGroup.objects.create(
+#                        approval_id=cid.approval_id,
+ #                       title=cid.title,
+#                        app_type=cid.app_type,
+#                        applicant=cid.applicant,
+#                        due_date=cid.due_date,
+#                        assignee=cid.assignee
+#                   )
+#                   co = Compliance.objects.get(pk=cid.id)
+#                   co.compliance_group = cgroup
+#                   co.save()
 
 
         import datetime 
@@ -59,9 +59,9 @@ class Command(BaseCommand):
 
             co.status = 2
             co.save()
-            cgroup = ComplianceGroup.objects.get(id=co.compliance_group.id)
-            cgroup.status = 2
-            cgroup.save()
+#            cgroup = ComplianceGroup.objects.get(id=co.compliance_group.id)
+#            cgroup.status = 2
+#            cgroup.save()
 
             # Update approvals and find next current Compliance Conditions
       
@@ -76,15 +76,15 @@ class Command(BaseCommand):
 #                print ("Updated Condition: "+str(ca.id))
                   
 
-        compliance = ComplianceGroup.objects.filter(due_date__lt=date.today(),status__in=[1,2,3,8])
+        compliance = Compliance.objects.filter(due_date__lt=date.today(),status__in=[1,2,3,8])
         for co in compliance:
             co.status = 8
             co.save()
-            ci =  Compliance.objects.filter(compliance_group=co.id)
-            for ca in ci:
-                ca.status = 8
-                ca.save()
-                print ("Updated Condition: "+str(ca.id))
+#            ci =  Compliance.objects.filter(compliance_group=co.id)
+#            for ca in ci:
+#                ca.status = 8
+#                ca.save()
+#                print ("Updated Condition: "+str(ca.id))
 
 
 

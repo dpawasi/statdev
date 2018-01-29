@@ -1,0 +1,73 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+
+    <!-- Action panel start -->
+    <div class="row">
+        <!-- remove all above to beginning of this tag if everything been moved -->
+        <div class="col-sm-12 col-md-12 col-lg-12">
+
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <!-- Conditions -->
+            <div class="panel panel-default">
+                <div class="panel-collapse collapse in" id="conditions_collapse">
+                    <div class="panel-body">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+				<label>Your compliance has been successfully submitted</label>
+                                <BR><BR>
+			</div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+				<div class="col-sm-12 col-md-3 col-lg-3">
+					<label>Compliance</label>
+				</div>
+                                <div class="col-sm-12 col-md-9 col-lg-9">
+				        CO-{{ object.id }}
+				</div>
+			</div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-sm-12 col-md-3 col-lg-3">
+                                        <label>Date/Time</label>
+                                </div>
+                                <div class="col-sm-12 col-md-9 col-lg-9">
+                                        {{ object.submit_date }}
+                                </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                <BR>
+                                Thank you for your submission.
+                                <BR><BR>
+                        </div>
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+			     Your submission will be provided to an officer to guage compliance of this condition.
+                             <BR><BR>
+                        </div>
+
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                             You will be notified by email once your submission has been reviewed and / or if further action is required.
+			     <BR><BR>
+                        </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock page_content_inner %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(function() {
+    $('.collapse').on('shown.bs.collapse', function() {
+        $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+    }).on('hidden.bs.collapse', function() {
+        $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+    });
+});
+</script>
+{% endblock extra_js %}

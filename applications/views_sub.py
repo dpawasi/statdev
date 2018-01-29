@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from applications.workflow import Flow
-from .models import Location, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application, Delegate, ComplianceGroup
+from .models import Location, Record, PublicationNewspaper, PublicationWebsite, PublicationFeedback,Referral,Application, Delegate, Compliance
 from django.utils.safestring import SafeText
 from django.contrib.auth.models import Group
 from applications.validationchecks import Attachment_Extension_Check
@@ -458,7 +458,7 @@ class FormsList():
         delegate = Delegate.objects.filter(email_user=user).values('id')
         search_filter = Q(applicant=userid) | Q(organisation__in=delegate)
 
-        items = ComplianceGroup.objects.filter(applicant=userid).order_by('due_date')
+        items = Compliance.objects.filter(applicant=userid).order_by('due_date')
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []

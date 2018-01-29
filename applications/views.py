@@ -4511,6 +4511,64 @@ class ApplicationAssignPerson(LoginRequiredMixin, UpdateView):
         return initial
 
 
+class ComplianceAssignPerson(LoginRequiredMixin, UpdateView):
+    """A view to allow an application applicant to be assigned to a person
+    """
+    model = Compliance 
+
+    def get(self, request, *args, **kwargs):
+        app = self.get_object()
+
+#        if app.state == 14:
+#           messages.error(self.request, 'This compliance is approved and cannot be assigned.')
+#           return HttpResponseRedirect("/")
+
+        return super(ComplianceAssignPerson, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        # Return the specified form class
+        return apps_forms.ComplianceAssignPersonForm
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ComplianceAssignPerson, self).post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('compliance_approval_detail', args=(self.object.pk,))
+
+    def form_valid(self, form):
+        self.object = form.save(commit=True)
+        app = self.object
+
+        #flow = Flow()
+        #workflowtype = flow.getWorkFlowTypeFromApp(app)
+        #DefaultGroups = flow.groupList()
+        #flow.get(workflowtype)
+        #emailcontext = {'person': app.assignee}
+        #emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+        #if self.request.user != app.assignee:
+        #    sendHtmlEmail([app.assignee.email], emailcontext['application_name'] + ' application assigned to you ', emailcontext, 'application-assigned-to-person.html', None, None, None)
+
+
+        # Record an action on the application:
+        action = Action(
+            content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+            action='Assigned application to {} (status: {})'.format(self.object.assignee.get_full_name(), self.object.get_status_display()))
+        action.save()
+        if self.request.user != app.assignee:
+            messages.success(self.request, 'Assign person completed')
+            return HttpResponseRedirect(reverse('application_list'))
+        else:
+            messages.success(self.request, 'Assign person completed')
+            return HttpResponseRedirect(self.get_success_url())
+
+    def get_initial(self):
+        initial = super(ComplianceAssignPerson, self).get_initial()
+        app = self.get_object()
+        #if app.routeid is None:
+        #    app.routeid = 1
+
 class ApplicationAssignApplicantCompany(LoginRequiredMixin, UpdateView):
     """A view to allow an application applicant to be assigned to a company holder
     """ 
@@ -4799,13 +4857,52 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
 class ComplianceSubmit(LoginRequiredMixin, UpdateView):
     """Allows and applicant to discard the application.
     """
-    model = ComplianceGroup
+    model = Compliance
 
     def get(self, request, *args, **kwargs):
-        return super(ApplicationSubmit, self).get(request, *args, **kwargs)
+        return super(ComplianceSubmit, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
-        return apps_forms.ApplicationDiscardForm
+        return apps_forms.ComplianceSubmitForm
+
+    def get_success_url(self):
+        return reverse('compliance_condition_complete', args=(self.object.id,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_object().get_absolute_url())
+        return super(ComplianceSubmit, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.status = 9
+        self.object.submit_date =  datetime.now()
+        self.object.submitted_by = self.request.user 
+        self.object.save() 
+        # Record an action on the application:
+        action = Action(
+           content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+               action='Compliance Submitted')
+        action.save()
+        messages.success(self.request, "Your compliance has beeen submitted for approval")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_initial(self):
+        initial = super(ComplianceSubmit, self).get_initial()
+        app = self.get_object()
+        return initial
+
+
+class ComplianceStaff(LoginRequiredMixin, UpdateView):
+    """Allows and applicant to discard the application.
+    """
+    model = Compliance
+
+    def get(self, request, *args, **kwargs):
+        return super(ComplianceStaff, self).get(request, *args, **kwargs)
+
+    def get_form_class(self):
+        return apps_forms.ComplianceStaffForm
 
     def get_success_url(self):
         return reverse('home_page')
@@ -4813,22 +4910,58 @@ class ComplianceSubmit(LoginRequiredMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
-        return super(ComplianceGroup, self).post(request, *args, **kwargs)
+        return super(ComplianceStaff, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        
+
+        action = self.kwargs['action']
+        if action == 'approve':
+             self.object.status = 4
+             self.object.assessed_by = self.request.user
+             self.object.assessed_date = date.today()
+             messages.success(self.request, "Compliance has been approved.")
+             action = Action(
+                  content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+                  action='Compliance has been approved')
+             action.save()
+        elif action == 'manager':
+             self.object.status = 6
+             #self.object.group
+             approver = Group.objects.get(name='Approver')
+             self.object.group = approver
+             messages.success(self.request, "Compliance has been assigned to the manager group.")
+             action = Action(
+                  content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+                  action='Compliance assigned to Manager')
+             action.save()
+        elif action == 'holder':
+             self.object.status = 7
+             self.object.group = None
+             self.object.assignee = None
+             messages.success(self.request, "Compliance has been assigned to the holder.") 
+             action = Action(
+                  content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+                  action='Compliance has been return to holder')
+             action.save()
+        elif action == 'assessor':
+             self.object.status = 5
+             self.object.group = None
+             self.object.assignee = None
+             messages.success(self.request, "Compliance has been assigned to the assessor.")
+             action = Action(
+                  content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
+                  action='Compliance has been return to holder')
+             action.save()
+    
+        self.object.save()
         # Record an action on the application:
-        action = Action(
-           content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
-               action='Application Discard')
-        action.save()
-        messages.success(self.request, "Your application has been discard")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
-        initial = super(ComplianceGroup, self).get_initial()
+        initial = super(ComplianceStaff, self).get_initial()
         app = self.get_object()
+        initial['action'] = self.kwargs['action']
         return initial
 
 class ApplicationIssue(LoginRequiredMixin, UpdateView):
@@ -4917,7 +5050,7 @@ class ApplicationIssue(LoginRequiredMixin, UpdateView):
         # TODO: logic around emailing/posting the application to the customer.
         return HttpResponseRedirect(self.get_success_url())
 
-class ComplianceAssignPerson(LoginRequiredMixin, UpdateView):
+class OLDComplianceAssignPerson(LoginRequiredMixin, UpdateView):
     """A view to allow an application applicant to be assigned to a person
     """
     model = Compliance 
@@ -5219,6 +5352,18 @@ class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
         context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
 	# context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        context['conditions'] = Compliance.objects.filter(id=app.id)
+        return context
+
+class ComplianceSubmitComplete(LoginRequiredMixin,DetailView):
+#   model = Approval
+    model = Compliance
+    template_name = 'applications/compliance_complete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceSubmitComplete, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         context['conditions'] = Compliance.objects.filter(id=app.id)
         return context
 

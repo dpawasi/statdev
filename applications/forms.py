@@ -1819,6 +1819,42 @@ class AssignPersonForm(ModelForm):
             )
         )
 
+
+class ComplianceAssignPersonForm(ModelForm):
+    """A form for assigning an application to people with a specific group.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['assignee']
+
+    def __init__(self, *args, **kwargs):
+        super(ComplianceAssignPersonForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_assign_person_application'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+        assigngroup = Group.objects.get(name='Assessor')
+        self.fields['assignee'].queryset = User.objects.filter(groups__in=[assigngroup])
+        self.fields['assignee'].required = True
+        # Disable all form fields.
+        for k, v in self.fields.items():
+            self.fields[k].disabled = True
+        # Re-enable the assignee field.
+        self.fields['assignee'].disabled = False
+        #self.initial["fieldstatus"]:
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Assign this application for processing:</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            'assignee',
+            FormActions(
+                Submit('assign', 'Assign', css_class='btn-lg'),
+                Submit('cancel', 'Cancel')
+            )
+        )
+
 class AssignApplicantForm(ModelForm):
     """A form for assigning or change the applicant on application.
     """
@@ -1855,6 +1891,74 @@ class AssignApplicantForm(ModelForm):
             )
         )
 
+
+class ComplianceSubmitForm(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super(ComplianceSubmitForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_compliance_submit'
+        self.helper.attrs = {'novalidate': ''}
+
+        # Limit the assignee queryset.
+#       print "action" 
+#       print self.initial['action']
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>Are you sure you want submit for approval?</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('Submit', 'Submit', css_class='btn-lg'),
+                Submit('Back', 'Back')
+            )
+        )
+
+
+class ComplianceStaffForm(ModelForm):
+    """A form for assigning or change the applicant on application.
+    """
+
+    class Meta:
+        model = Application
+        #fields = ['app_type', 'title', 'description', 'submit_date', 'assignee']
+        fields = ['id']
+
+    def __init__(self, *args, **kwargs):
+        super(ComplianceStaffForm, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.form_id = 'id_form_compliance_submit'
+        self.helper.attrs = {'novalidate': ''}
+        # Limit the assignee queryset.
+#       print "action"
+#       print self.initial['action']
+
+        preconfirmtext=''
+        if self.initial['action'] == 'manager':
+            preconfirmtext= 'Are you sure you want to assign to the manager group?'
+        elif self.initial['action'] == 'approve':
+            preconfirmtext= 'Are you sure you want to approve this clearance of condition?'
+        elif self.initial['action'] == 'holder':
+            preconfirmtext= 'Are you sure you want to assign to holder?'
+        elif self.initial['action'] == 'assessor':
+            preconfirmtext= 'Are you sure you want to assign to assessor?'
+
+        # Define the form layout.
+        self.helper.layout = Layout(
+            HTML('<p>'+preconfirmtext+'</p>'),
+            #'app_type', 'title', 'description', 'submit_date', 'assignee',
+            FormActions(
+                Submit('Submit', 'Submit', css_class='btn-lg'),
+                Submit('Back', 'Back')
+            )
+        )
 
 class ApplicationDiscardForm(ModelForm):
     """A form for assigning or change the applicant on application.
