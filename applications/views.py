@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation, ComplianceGroup)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation, ComplianceGroup,CommunicationCompliance)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -2284,7 +2284,74 @@ class AccountCommsCreate(CreateView):
         success_url = reverse('account_comms', args=(user_id,))
         return HttpResponseRedirect(success_url)
 
-#CommunicationOrganisation
+class ComplianceComms(DetailView):
+    model = Compliance
+    template_name = 'applications/compliance_comms.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ComplianceComms, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceComms, self).get_context_data(**kwargs)
+        c = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['communications'] = CommunicationCompliance.objects.filter(compliance=c.pk).order_by('-created')
+        return context
+
+class ComplianceCommsCreate(CreateView):
+    model = CommunicationCompliance 
+    form_class = apps_forms.CommunicationComplianceCreateForm
+    template_name = 'applications/compliance_comms_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceCommsCreate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Create new account communication'
+        return context
+
+    def get_initial(self):
+        initial = {}
+        initial['compliance'] = self.kwargs['pk']
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(ComplianceCommsCreate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(reverse('home_page'))
+        return super(ComplianceCommsCreate, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """Override form_valid to set the assignee as the object creator.
+        """
+        self.object = form.save(commit=False)
+        c_id = self.kwargs['pk']
+
+        c = Compliance.objects.get(id=c_id)
+        self.object.compliance = c
+        self.object.save()
+
+        if self.request.FILES.get('records'):
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+                raise ValidationError('Documents attached contains and unallowed attachment extension.')
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
+        self.object.save()
+        # If this is not an Emergency Works set the applicant as current user
+        success_url = reverse('compliance_comms', args=(c_id,))
+        return HttpResponseRedirect(success_url)
 
 class OrganisationComms(DetailView):
     model = Organisation
@@ -4566,6 +4633,8 @@ class ComplianceAssignPerson(LoginRequiredMixin, UpdateView):
     def get_initial(self):
         initial = super(ComplianceAssignPerson, self).get_initial()
         app = self.get_object()
+        initial['assigngroup'] = app.group
+        return initial
         #if app.routeid is None:
         #    app.routeid = 1
 
@@ -4853,6 +4922,27 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
         app = self.get_object()
         return initial
 
+class ComplianceActions(DetailView):
+    model = Compliance 
+    template_name = 'applications/compliance_actions.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ComplianceActions, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ComplianceActions, self).get_context_data(**kwargs)
+        app = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+            content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
+        return context
 
 class ComplianceSubmit(LoginRequiredMixin, UpdateView):
     """Allows and applicant to discard the application.
@@ -4878,6 +4968,8 @@ class ComplianceSubmit(LoginRequiredMixin, UpdateView):
         self.object.status = 9
         self.object.submit_date =  datetime.now()
         self.object.submitted_by = self.request.user 
+        assigngroup = Group.objects.get(name='Assessor')
+        self.object.group = assigngroup
         self.object.save() 
         # Record an action on the application:
         action = Action(
@@ -4920,6 +5012,7 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
              self.object.status = 4
              self.object.assessed_by = self.request.user
              self.object.assessed_date = date.today()
+             self.object.assignee = None
              messages.success(self.request, "Compliance has been approved.")
              action = Action(
                   content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
@@ -4929,6 +5022,7 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
              self.object.status = 6
              #self.object.group
              approver = Group.objects.get(name='Approver')
+             self.object.assignee = None
              self.object.group = approver
              messages.success(self.request, "Compliance has been assigned to the manager group.")
              action = Action(
@@ -4948,6 +5042,8 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
              self.object.status = 5
              self.object.group = None
              self.object.assignee = None
+             assigngroup = Group.objects.get(name='Assessor')
+             self.object.group = assigngroup
              messages.success(self.request, "Compliance has been assigned to the assessor.")
              action = Action(
                   content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
