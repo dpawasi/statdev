@@ -9,28 +9,35 @@
         <h1>Clearance of Condition - {{ object.pk }}</h1>
         <br/>
     </div>
-
     <!-- Action panel start -->
     <div class="row">
-        <!--
-        {% include "approvals/approval_side_menu.html" %}
-        -->
         <!--- remove everything eblow this tag to the end tag if everything has been moved -->
         <div class="col-sm-4 col-md-3 col-lg-2">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Actions</h3>
+                    <h3 class="panel-title">Workflow</h3>
                 </div>
                 <div class="panel-body">
-                    <ul>
-                        {% if may_update %}<li><a href="{% url 'application_update' object.pk %}">Update application</a></li>{% endif %}
-                        {% if may_create_condition %}<li><a href="{% url 'condition_create' object.pk %}">Create a condition</a></li>{% endif %}
-                        {% if may_assign_emergency %}<li><a href="{% url 'application_assign' object.pk 'assign_emergency' %}">Assign</a></li>{% endif %}
-                        {% if may_issue %}<li><a href="{% url 'application_issue' object.pk %}">Issue/decline application</a></li>{% endif %}
-                        <li><a href="{% url 'application_actions' object.pk %}">Actions log</a></li>
-                        {% if may_generate_pdf %}<li><a href="{% url 'application_detail_pdf' object.pk %}">Generate a PDF</a></li>{% endif %}
-                        <li><a href="{% url 'compliance_assign_person' object.pk %}">Assign</a></li>
-                    </ul>
+                    <h4>Actions</h4>
+		<ul>
+                  {% if object.status == 9 or object.status == 5 or object.status == 6 %}
+		  <li><a href="{% url 'compliance_assign_person' object.pk %}">{% if object.assignee is None %}Assign{% else %}Re-Assign{% endif %}</a></li>
+                  {% endif %}
+		</ul>
+                    <h4>Status:</h4>
+                    <p>{{ object.get_status_display }}</p>
+                    <h4>Assigned to:</h4>
+                    {% if object.assignee %}
+                    <p>
+                    {% if object.assignee.first_name %}
+                        {{ object.assignee.first_name }} {{ object.assignee.last_name }}
+                    {% else %}
+                        {{ object.assignee.email }}
+                    {% endif %}
+                    </p>
+                    {% else %}
+                    <p>--</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="panel panel-default">
@@ -56,21 +63,18 @@
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Workflow</h3>
+                    <h3 class="panel-title">Actions</h3>
                 </div>
                 <div class="panel-body">
-                    <h4>Status:</h4>
-                    <p>{{ object.get_status_display }}</p>
-                    <h4>Assigned to:</h4>
-                    {% if object.assignee %}
-                    <p>
-                    {% if object.assignee.first_name %}{{ object.assignee.first_name }} {{ object.assignee.last_name }}
-                    {% else %}{{ object.assignee.email }}
-                    {% endif %}
-                    </p>
-                    {% else %}
-                    <p>--</p>
-                    {% endif %}
+                    <h5>Communications</h5>
+                    <p><a href="{% url 'compliance_comms' object.pk %}">Show</a> | <a href="{% url 'compliance_comms_create' object.pk %}">Add Entry</a></p>
+                    <hr />
+                    <h5>Actions</h5>
+                    <ul>
+                        <!-- Action log -->
+                        {% if admin_staff == True %} <li><a href="{% url 'compliance_actions' object.pk %}">Actions log</a></li>{% endif %}
+                        <!-- Action log end -->
+                    </ul>
                 </div>
             </div>
         </div>
@@ -116,7 +120,6 @@
                                                <i>Please provide comment</i>
                                             {% endif %}
                                      </div>
-
                                      <div class="col-sm-12 col-md-12 col-lg-12">
 					 <BR>
                                          {% if object.status == 2 or object.status == 8 or object.status == 7 or object.status == 9 %} 
@@ -209,6 +212,8 @@
             </div>
             {% elif object.status == 9 or object.status == 5 %}
             {% if admin_staff == True %}
+                    {% if object.assignee == request.user %}
+                    
             <div class="col-sm-12 col-md-12 col-lg-12">
             <!-- Conditions -->
             <div class="panel panel-default">
@@ -227,8 +232,10 @@
                 </div>
             </div>
             </div>
+                 {% endif %}
             {% endif %}
             {% elif object.status == 6 %}
+                 {% if object.assignee == request.user %}
             <div class="col-sm-12 col-md-12 col-lg-12">
             <!-- Conditions -->
             <div class="panel panel-default">
@@ -246,6 +253,7 @@
                 </div>
             </div>
             </div>
+                {% endif %}
             {% endif %}
             </div>
         </div>

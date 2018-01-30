@@ -65,6 +65,10 @@ urlpatterns = [
     url(r'^compliance/(?P<pk>\d+)/complete/$', views.ComplianceSubmitComplete.as_view(), name='compliance_condition_complete'),
     url(r'^compliance/(?P<pk>\d+)/staff/(?P<action>\w+)/$', views.ComplianceStaff.as_view(), name='compliance_condition_staff'),
     url(r'^compliance/(?P<pk>\d+)/assign-person/$', views.ComplianceAssignPerson.as_view(), name='compliance_assign_person'),
+    url(r'^compliance/(?P<pk>\d+)/actions/$', views.ComplianceActions.as_view(), name='compliance_actions'),
+    url(r'^compliance/(?P<pk>\d+)/comms-create/$', views.ComplianceCommsCreate.as_view(), name='compliance_comms_create'),
+    url(r'^compliance/(?P<pk>\d+)/comms/$', views.ComplianceComms.as_view(), name='compliance_comms'),
+
     url(r'^referrals/(?P<pk>\d+)/complete/$', views.ReferralComplete.as_view(), name='referral_complete'),
     url(r'^referrals/(?P<pk>\d+)/recall/$', views.ReferralRecall.as_view(), name='referral_recall'),
     url(r'^referrals/(?P<pk>\d+)/resend/$', views.ReferralResend.as_view(), name='referral_resend'),
