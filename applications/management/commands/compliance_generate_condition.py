@@ -28,7 +28,7 @@ class Command(BaseCommand):
                    print c.id
                    print c.due_date
                    if c.due_date is None:
-                        print "miSSED"
+                        print "MISSED"
                         # No due defined no business requirement to create condition.
                         continue;
 

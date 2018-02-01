@@ -4977,6 +4977,12 @@ class ComplianceSubmit(LoginRequiredMixin, UpdateView):
                action='Compliance Submitted')
         action.save()
         messages.success(self.request, "Your compliance has beeen submitted for approval")
+
+        emailcontext = {}
+        #emailcontext['groupname'] = DefaultGroups['grouplink'][action]
+        emailcontext['clearance_id'] = self.object.id
+        emailGroup('New Clearance of Condition Submitted', emailcontext, 'clearance-of-condition-submitted.html', None, None, None, 'Assessor')
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
@@ -5018,6 +5024,13 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
                   content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
                   action='Compliance has been approved')
              action.save()
+
+             emailcontext = {}
+             emailcontext['app'] = self.object
+             emailcontext['person'] = self.object.submitted_by
+             emailcontext['body'] = "Your clearance of condition has been approved"
+             sendHtmlEmail([self.object.submitted_by.email], 'Clearance of condition has been approved', emailcontext, 'clearance-approved.html', None, None, None)
+
         elif action == 'manager':
              self.object.status = 6
              #self.object.group
@@ -5029,6 +5042,11 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
                   content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
                   action='Compliance assigned to Manager')
              action.save()
+ 
+             emailcontext = {}
+             emailcontext['clearance_id'] = self.object.id
+             emailGroup('Clearance of Condition Assigned to Manager Group', emailcontext, 'clearance-of-condition-assigned-groups.html', None, None, None, 'Approver')
+
         elif action == 'holder':
              self.object.status = 7
              self.object.group = None
@@ -5038,6 +5056,13 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
                   content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
                   action='Compliance has been return to holder')
              action.save()
+
+             emailcontext = {}
+             emailcontext['app'] = self.object
+             emailcontext['person'] = self.object.submitted_by
+             emailcontext['body'] = "Your clearance of condition requires additional information."
+             sendHtmlEmail([self.object.submitted_by.email], 'Your clearance of condition requires additional information please login and resubmit with additional information.', emailcontext, 'clearance-holder.html', None, None, None)
+
         elif action == 'assessor':
              self.object.status = 5
              self.object.group = None
@@ -5049,6 +5074,11 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
                   content_object=self.object, category=Action.ACTION_CATEGORY_CHOICES.assign, user=self.request.user,
                   action='Compliance has been return to holder')
              action.save()
+
+             emailcontext = {}
+             emailcontext['clearance_id'] = self.object.id
+             emailGroup('Clearance of Condition Assigned to Assessor Group', emailcontext, 'clearance-of-condition-assigned-groups.html', None, None, None, 'Assessor')
+
     
         self.object.save()
         # Record an action on the application:
@@ -6362,6 +6392,72 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
         action.save()
         messages.success(self.request, 'Condition {} has been deleted'.format(condition.pk))
         return super(ConditionDelete, self).post(request, *args, **kwargs)
+
+class ConditionSuspension(LoginRequiredMixin, UpdateView):
+    model = Condition
+    form_class = apps_forms.ConditionSuspension
+
+#    def get(self, request, *args, **kwargs):
+ #       condition = self.get_object()
+
+        # Rule: can only delete a condition if the parent application is status
+        # 'with referral' or 'with assessor'. Can also delete if you are the user assigned
+        # to an Emergency Works
+#        if condition.application.app_type != Application.APP_TYPE_CHOICES.emergency:
+#            if condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
+#                messages.warning(self.request, 'You cannot delete this condition')
+#                return HttpResponseRedirect(condition.application.get_absolute_url())
+#            # Rule: can only delete a condition if the request user is an Assessor
+#            # or they are assigned the referral to which the condition is attached
+#            # and that referral is not completed.
+#            assessor = Group.objects.get(name='Assessor')
+#            ref = condition.referral
+#            if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+#                return super(ConditionDelete, self).get(request, *args, **kwargs)
+#            else:
+#                messages.warning(self.request, 'You cannot delete this condition')
+#                return HttpResponseRedirect(condition.application.get_absolute_url())
+#        else:
+#            # Rule: can only delete a condition if the request user is the assignee and the application
+#            # has not been issued.
+#            if condition.application.assignee == request.user and condition.application.state != Application.APP_STATE_CHOICES.issued:
+#                return super(ConditionDelete, self).get(request, *args, **kwargs)
+#            else:
+#                messages.warning(self.request, 'You cannot delete this condition')
+#                return HttpResponseRedirect(condition.application.get_absolute_url())
+
+    def get_success_url(self):
+        return reverse('application_detail', args=(self.get_object().application.pk,))
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('cancel'):
+            return HttpResponseRedirect(self.get_success_url())
+        # Generate an action.
+        return super(ConditionSuspension, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(ConditionSuspension, self).get_initial()
+        initial['actionkwargs'] = self.kwargs['action']
+        return initial
+
+    def form_valid(self, form):
+
+        self.object = form.save(commit=False)
+
+        actionkwargs = self.kwargs['action']
+        if actionkwargs == 'suspend':
+            self.object.suspend = True
+        elif actionkwargs == 'unsuspend':
+            self.object.suspend = False
+
+        action = Action(
+            content_object=self.object, user=self.request.user,
+            action='Condition {} suspend (status: {})'.format(self.object.pk, self.object.get_status_display()))
+        action.save()
+
+        messages.success(self.request, 'Condition {} has been suspended'.format(self.object.pk))
+
+        return super(ConditionSuspension, self).form_valid(form)
 
 
 class VesselCreate(LoginRequiredMixin, CreateView):

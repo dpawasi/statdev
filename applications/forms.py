@@ -72,6 +72,12 @@ class ApplicationApplyForm(ModelForm):
         # delete internal option
         del self.fields['apply_on_behalf_of'].choices[4]
 
+        # Delete on behalf of indivdual or company (Future development)
+        # These two lines delete option id 3 and 4 from models.Application.APP_APPLY_ON 
+        # The lines below are duplicated for purpose :)
+        del self.fields['apply_on_behalf_of'].choices[2]
+        del self.fields['apply_on_behalf_of'].choices[2]
+
         crispy_boxes = crispy_empty_box()
         self.helper.form_show_labels = False
         crispy_boxes.append(crispy_box('on_behalf_collapse','form_on_behalf','Apply on behalf of',crispy_h3("Do you want to apply"),'apply_on_behalf_of' ))
@@ -1704,6 +1710,29 @@ class ComplianceComplete(ModelForm):
         self.fields['condition'].disabled = True
         self.helper.add_input(Submit('save', 'Save', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
+
+class ConditionSuspension(ModelForm):
+    """Condition suspension Form
+    """
+    #records = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
+    class Meta:
+        model = Condition
+        fields = ['suspend',]
+
+    def __init__(self, *args, **kwargs):
+        super(ConditionSuspension, self).__init__(*args, **kwargs)
+        self.helper = BaseFormHelper(self)
+        self.helper.attrs = {'novalidate': ''}
+        del self.fields['suspend']
+#        self.fields['condition'].required = True
+#        self.fields['condition'].disabled = True
+        self.helper.form_id = 'id_form_modals'
+        if self.initial['actionkwargs'] == 'suspend': 
+           self.helper.add_input(Submit('save', 'Suspend Condition', css_class='btn-lg ajax-submit'))
+        else:
+           self.helper.add_input(Submit('save', 'Unsuspend Condition', css_class='btn-lg ajax-submit'))
+
+        self.helper.add_input(Submit('cancel', 'Cancel' , css_class='ajax-close'))
 
 class ConditionCreateForm(ModelForm):
 
