@@ -134,7 +134,8 @@
 										<li class="dropdown">
 											<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Actions<span class="caret"></span></a>
 											<ul class="dropdown-menu" role="menu">
-                                                                                                <li><a href="{% url 'approval_detail' app_obj.app.pk %}">View</a></li>
+                                                                                                <li><a href="{% url 'approval_detail' app_obj.app.pk %}">View Approval</a></li>
+                                                                                                <li><a href="{% url 'application_detail' app_obj.app.application.id %}">View Application</a></li>
                                                                                                 {% if app_obj.app.status == 1 %}
 												{% if app_obj.app.app_type == 3 %}
 												<!-- Add Logic to check if ammendment request has been completed -->
@@ -183,11 +184,9 @@
 
 function loadApprovalTable() { 
     $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,
- "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ 8 ] }
-       ]
-
-
+     columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { type: 'date-dd-mmm-yyyy', targets: 6 }, { 'bSortable': false, 'aTargets':  8 }
+     ]
 
 });
 }

@@ -9,8 +9,8 @@
         <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
         <br />
     </div>
-    <!-- Action panel start -->
 
+    <!-- Action panel start -->
     <div class="row">
         {% include "applications/application_side_menu.html" %}
 
@@ -37,13 +37,11 @@
                     <div class="panel-body">
                         {# TODO: applicant details should only be visible to internal users. #}
                         <div class="row">
-				                    {% if object.organisation %}
+                    {% if object.organisation %}
                            {% include "applications/organisation_update_snippet.html" %}
                     {% else %}
                         {% include "applications/applicant_snippet.html" %}
                     {% endif %}
-
-
                         </div>
                     </div>
                 </div>
@@ -68,8 +66,7 @@
             </div>
             {% endif %}
 
-
-			{% if hidden.proposed_activities == "False" %}
+            {% if hidden.proposed_activities == "False" %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="title_heading">
                     <h3 class="panel-title">
@@ -86,7 +83,6 @@
                 </div>
             </div>
             {% endif %}
-
 
             {% if hidden.vessels == "False" %}
             <!-- Vessel / Craft Panel -->
@@ -379,5 +375,15 @@
             $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
         });
     });
+
+function loadForm() {
+               $.ajax({
+                    url: '{% url 'application_conditions_table' object.pk %}',
+                    async: false,
+                    success: function(data) {
+                          $('#conditions_table').html(data);
+                    }
+               });
+}
 </script>
 {% endblock extra_js %}

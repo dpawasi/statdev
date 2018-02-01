@@ -382,6 +382,7 @@ class Condition(models.Model):
     recur_freq = models.PositiveIntegerField(
         null=True, blank=True, verbose_name='recurrence frequency',
         help_text='How frequently is the recurrence pattern applied (e.g. every 2 months)')
+    suspend = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Condition {}: {}'.format(self.pk, self.condition)

@@ -29,10 +29,20 @@
 					<button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'condition_update' cond.pk %}');" type="button">Update</button>
 		                        <button class="btn btn-danger btn-sm" onclick="django_ajax_form.OpenForm('{% url 'condition_delete' cond.pk %}');" type="button">Delete</button>
 
+
                                                             {% endif %}
                                                         {% endif %}
                                                         {% endif %}
                                                     {% endif %}
+                                                    {% if object.state == 14 %}
+                                                                 {% if admin_staff == True %}
+                                                                 {% if cond.suspend == True %}
+                                                                           <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'condition_change_suspension' cond.pk 'unsuspend' %}');" type="button">Unsuspend</button>
+								 {% else %}
+                                                                           <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'condition_change_suspension' cond.pk 'suspend' %}');" type="button">Suspend</button>
+								 {% endif %}
+								 {% endif %}
+						    {% endif %}
                                                 </td>
                                         </tr>
                                         {% endfor %}
