@@ -386,7 +386,8 @@
                 "may_update_condition": "True",
                 "may_accept_condition": "True",
                 "allow_admin_side_menu":"True",
-                "show_form_buttons": "True"
+                "show_form_buttons": "True",
+                "may_assessor_advise": "True"
             }
         },
         "collapse": {

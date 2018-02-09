@@ -39,6 +39,7 @@ from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
 import json
+from views_pdf import PDFtool
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -62,6 +63,8 @@ class HomePage(TemplateView):
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
 
+        pdftool = PDFtool()
+        pdftool.generate_part5()
         context['referee'] = 'no'
         referee = Group.objects.get(name='Referee')
         if referee in self.request.user.groups.all():
@@ -6291,7 +6294,6 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
                 messages.error(
                     self.request, 'You can not change conditions when the application is not assigned to you')
                 return HttpResponseRedirect(condition.application.get_absolute_url())
-
             else:
                 return super(ConditionUpdate, self).get(request, *args, **kwargs)
         elif condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
@@ -6308,6 +6310,23 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
         else:
             messages.warning(self.request, 'You cannot update this condition')
             return HttpResponseRedirect(condition.application.get_absolute_url())
+
+    def get_initial(self):
+        initial = super(ConditionUpdate, self).get_initial()
+        condition = self.get_object()
+#        print condition.application.id
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(condition.application)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(self.request, flowcontext, condition.application.routeid, workflowtype)
+        initial['may_assessor_advise'] = flowcontext["may_assessor_advise"]
+
+        initial['assessor_staff'] = False
+        if self.request.user.groups.filter(name__in=['Assessor']).exists():
+             initial['assessor_staff'] = True
+        return initial
 
     def get_form_class(self):
         # Updating the condition as an 'action' should not allow the user to
@@ -6344,7 +6363,6 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
             action.save()
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url()+'')
-
 
 class ConditionDelete(LoginRequiredMixin, DeleteView):
     model = Condition
@@ -6585,9 +6603,6 @@ class VesselDelete(LoginRequiredMixin, UpdateView):
             action='Vessel to {} delete'.format(vessel.id))
         action.save()
         return HttpResponseRedirect(self.get_success_url(app.id))
-
-
-
 
 class VesselUpdate(LoginRequiredMixin, UpdateView):
     model = Vessel

@@ -722,7 +722,8 @@
                 "may_issue": "False",
                 "may_generate_pdf": "False",
                 "allow_admin_side_menu" : "True",
-                "show_form_buttons": "True"
+                "show_form_buttons": "True",
+                "may_assessor_advise": "True"
             },
             "Approver": {
                 "may_update": "True",

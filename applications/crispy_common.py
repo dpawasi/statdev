@@ -34,7 +34,7 @@ crispy_para:
 
 def crispy_heading(collapse_id, header_id , heading_label):
     #    return Div(id=header_id, css_class='panel-heading')
-     return Div(HTML('<h3 class="panel-title" ><a role="button" data-toggle="collapse" href="#'+collapse_id+'" aria-expanded="false" aria-controls="application_collapse"><span class="glyphicon glyphicon-plus"></span>'+heading_label+' </a></h3>'), id=header_id, css_class='panel-heading')
+     return Div(HTML('<h3 class="panel-title" ><a role="button" data-toggle="collapse" href="#'+collapse_id+'" aria-expanded="false" aria-controls="application_collapse"><span class="glyphicon glyphicon-chevron-down collapse-glyph"></span></span>'+heading_label+' </a></h3>'), id=header_id, css_class='panel-heading')
 
 def crispy_box(collapse_id, header_id , heading_label,*field_set):
      return Div(crispy_heading(collapse_id, header_id, heading_label),

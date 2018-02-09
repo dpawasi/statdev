@@ -126,6 +126,8 @@ class Flow():
             context["allow_admin_side_menu"] = "False"
         if "hide_form_buttons" not in context:
             context['show_form_buttons'] = "False"
+        if "may_assessor_advise" not in context:
+            context['may_assessor_advise'] = "False"
 
         # Form Components
         if "form_component_update" not in context:

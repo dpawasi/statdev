@@ -13,3 +13,4 @@ pdfkit==0.6.1
 django-multiupload==0.5.2
 django-q==0.7.18
 social-auth-core==1.0.1
+fpdf==1.7.2

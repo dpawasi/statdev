@@ -31,6 +31,9 @@ class Command(BaseCommand):
                         print "MISSED"
                         # No due defined no business requirement to create condition.
                         continue;
+                   if c.suspend is True:
+                        print "Condition Suspended"
+                        continue;
 
                    if c.recur_pattern == 1:
                         num_of_weeks = (end_date - start_date).days / 7.0

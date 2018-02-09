@@ -329,6 +329,7 @@ class Referral(models.Model):
         (4, 'expired', ('Expired')),
         (5, 'with_admin',('With Admin'))
     )
+
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     referee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     details = models.TextField(blank=True, null=True)
@@ -383,6 +384,7 @@ class Condition(models.Model):
         null=True, blank=True, verbose_name='recurrence frequency',
         help_text='How frequently is the recurrence pattern applied (e.g. every 2 months)')
     suspend = models.BooleanField(default=False)
+    advise = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return 'Condition {}: {}'.format(self.pk, self.condition)
