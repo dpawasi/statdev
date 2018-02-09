@@ -183,7 +183,7 @@
 <script>
 
 function loadApprovalTable() { 
-    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,
+    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,"order": [[ 0, "desc" ]],
      columnDefs: [
        { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { type: 'date-dd-mmm-yyyy', targets: 6 }, { 'bSortable': false, 'aTargets':  8 }
      ]

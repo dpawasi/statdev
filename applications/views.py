@@ -1247,8 +1247,17 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             # random_generator
             #OrganisationExtras.objects.create()
             self.object.status = 2
+
+            action = Action(
+                content_object=self.object, user=self.request.user,
+                action='Organisation Access Request Approved')
+            action.save()
         elif status == 'decline':
             self.object.status = 3
+            action = Action(
+                content_object=self.object, user=self.request.user,
+                action='Organisation Access Request Declined')
+            action.save()
 
         self.object.save()
         
@@ -1848,7 +1857,6 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
                 success_url = reverse('applicant_change', args=(self.object.pk,))
             else:
                 success_url = reverse('application_update', args=(self.object.pk,))
-
         else:
             success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
         return HttpResponseRedirect(success_url)
@@ -4379,7 +4387,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           expiry_date = app.expire_date,
                                           status = 1
                 )
-        return 
+
+        ####################
+        # Disabling compliance creationg after approval ( this is now handle by cron script as we are not creating all future compliance all at once but only the next due complaince.
+        return
+        ################### 
+        
+
         # For compliance ( create clearance of conditions )
         # get all conditions 
         conditions = Condition.objects.filter(application=app)
