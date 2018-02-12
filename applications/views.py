@@ -584,6 +584,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 user = EmailUser.objects.get(pk=pk)
                 pending_org = OrganisationPending.objects.create(name=company_name,abn=abn,email_user=user)
 
+            action = Action(
+                  content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.create,
+                  action='Organisation Link/Creation Started')
+            action.save()
+
         if step == '2':
             company_exists = forms_data['company_exists']
             if company_exists == 'yes':
@@ -602,7 +607,10 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                     pending_org.company_exists = True
                     pending_org.save()
 
-                    
+                    action = Action(
+                          content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                          action='Organisation Pins Verified')
+                    action.save()
 
                 #else:
                     #print "INCORR"
@@ -624,6 +632,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                    pending_org.identification = doc
                    pending_org.company_exists = False
                    pending_org.save()
+                   action = Action(
+                          content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                          action='Identification Added')
+                   action.save()
+
 
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:
@@ -646,6 +659,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org.postal_address = postal_address
                 pending_org.billing_address = billing_address
                 pending_org.save()
+                action = Action(
+                      content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                      action='Address Details Added')
+                action.save()
+
             else:
                 postal_address = Address.objects.get(id=pending_org.postal_address.id)
                 billing_address = Address.objects.get(id=pending_org.billing_address.id)
@@ -668,9 +686,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 billing_address.postcode=forms_data['postal_postcode']
                 billing_address.save()
 
+                action = Action(
+                      content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                      action='Address Details Updated')
+                action.save()
 
-
- 
 
             #pending_org.identification 
 #            try:
@@ -718,11 +738,31 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                #print "Approved" 
                messages.success(self.request, 'Your company has now been linked.')
                pending_org.save()
+               action = Action(
+                      content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                      action='Organisation Approved (Automatically)')
+               action.save()
+               print pending_org.email_user
+               OrganisationContact.objects.create(
+                                                  email=pending_org.email_user.email,
+                                                  first_name=pending_org.email_user.first_name,
+                                                  last_name=pending_org.email_user.last_name,
+                                                  phone_number=pending_org.email_user.phone_number,
+                                                  mobile_number=pending_org.email_user.mobile_number,
+                                                  fax_number=pending_org.email_user.fax_number,
+                                                  organisation=comp
+               )
+
            else:
               if self.request.user.is_staff is True:
-                 donothing ='dsaf' 
+                 pass 
               else:
                  messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
+                 action = Action(
+                      content_object=pending_org, user=self.request.user,
+                      action='Organisation is pending approval')
+                 action.save()
+
            if self.request.user.groups.filter(name__in=['Processor']).exists():
                if app_id is None:
                    return HttpResponseRedirect(reverse('home_page'))
@@ -872,6 +912,15 @@ class ApplicationList(LoginRequiredMixin,ListView):
                 #query_obj &= Q(state=int(self.request.GET['appstatus']))
                 query_obj &= Q(route_status=self.request.GET['appstatus'])
 
+            if 'from_date' in self.request.GET: 
+                 context['from_date'] = self.request.GET['from_date']
+                 context['to_date'] = self.request.GET['to_date']
+                 if self.request.GET['from_date'] != '':
+                     from_date_db = datetime.strptime(self.request.GET['from_date'], '%d/%m/%Y').date()
+                     query_obj &= Q(submit_date__gte=from_date_db)
+                 if self.request.GET['to_date'] != '':
+                     to_date_db = datetime.strptime(self.request.GET['to_date'], '%d/%m/%Y').date()
+                     query_obj &= Q(submit_date__lte=to_date_db)
 
             applications = Application.objects.filter(query_obj)
             context['query_string'] = self.request.GET['q']
@@ -886,7 +935,11 @@ class ApplicationList(LoginRequiredMixin,ListView):
                     context['appstatus'] = self.request.GET['appstatus']
 
         else:
-            applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
+            to_date = datetime.today()
+            from_date = datetime.today() - timedelta(days=30)
+            context['from_date'] = from_date.strftime('%d/%m/%Y')
+            context['to_date'] = to_date.strftime('%d/%m/%Y')
+            applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS, submit_date__gte=from_date, submit_date__lte=to_date)
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
@@ -1169,7 +1222,6 @@ class OrganisationAccessRequest(ListView):
 
         return context
 
-
 class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
     form_class = apps_forms.OrganisationAccessRequestForm
     model = OrganisationPending
@@ -1247,6 +1299,15 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             # random_generator
             #OrganisationExtras.objects.create()
             self.object.status = 2
+            OrganisationContact.objects.create(
+                                  email=self.object.email_user.email,
+                                  first_name=self.object.email_user.first_name,
+                                  last_name=self.object.email_user.last_name,
+                                  phone_number=self.object.email_user.phone_number,
+                                  mobile_number=self.object.email_user.mobile_number,
+                                  fax_number=self.object.email_user.fax_number,
+                                  organisation=new_org
+            )
 
             action = Action(
                 content_object=self.object, user=self.request.user,
@@ -2129,6 +2190,28 @@ class OrganisationActions(DetailView):
              content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
         return context
 
+class OrganisationARActions(DetailView):
+    model = OrganisationPending
+    template_name = 'applications/organisation_ar_actions.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationARActions, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationARActions, self).get_context_data(**kwargs)
+
+        obj = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+             content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
+        return context
 
 class ApplicationActions(DetailView):
     model = Application

@@ -122,9 +122,9 @@
 <script>
 function loadTable() {
     $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
-"aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ 6 ] }
-       ]
+	columnDefs: [
+	       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 4 }, { 'bSortable': false, 'aTargets':  6 }
+        ]
 
 });
 }
