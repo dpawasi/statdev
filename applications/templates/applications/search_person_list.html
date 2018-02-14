@@ -73,7 +73,13 @@
 
 <script>
   function loadTable() {
-      $('#search-person-table').dataTable({searching: false, paging: true, "pageLength": 10});  }
+      $('#search-person-table').dataTable({searching: false, paging: true, "pageLength": 10, "order": [[ 0, "desc" ]],
+	columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { 'bSortable': false, 'aTargets':  6 }
+     ]
+
+
+});  }
   window.onload= function() {
       loadTable();
   }

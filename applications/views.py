@@ -65,6 +65,10 @@ class HomePage(TemplateView):
 
         pdftool = PDFtool()
         pdftool.generate_part5()
+        pdftool.generate_permit()
+        pdftool.generate_section_84()
+        pdftool.generate_licence()
+
         context['referee'] = 'no'
         referee = Group.objects.get(name='Referee')
         if referee in self.request.user.groups.all():
