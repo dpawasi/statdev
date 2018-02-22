@@ -39,7 +39,7 @@ from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
 import json
-from views_pdf import PDFtool
+from views_pdf import PDFtool, MyPDF
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -62,12 +62,16 @@ class HomePage(TemplateView):
         context = template_context(self.request)
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
+ 
 
-        pdftool = PDFtool()
-        pdftool.generate_part5()
-        pdftool.generate_permit()
-        pdftool.generate_section_84()
-        pdftool.generate_licence()
+        # mypdf = MyPDF()
+        # mypdf.get_li()
+
+        #pdftool = PDFtool()
+        #pdftool.generate_part5()
+        #pdftool.generate_permit()
+        #pdftool.generate_section_84()
+        #pdftool.generate_licence()
 
         context['referee'] = 'no'
         referee = Group.objects.get(name='Referee')
@@ -118,7 +122,6 @@ class HomePage(TemplateView):
         #context['app_apptypes']= APP_TYPE_CHOICES
         #applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
         #print applications
-
         return context
 
 
@@ -4460,6 +4463,27 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         action.save()
 
         return HttpResponseRedirect(self.get_success_url())
+
+    def send_stake_holder_comms(self,app):
+
+        # get applicant contact emails 
+        if app.organisation:
+           pass
+           # get all organisation contact emails and names
+        elif app.applicant:
+           # get only applicant name and email
+           pass
+        
+        # Get Sumitter information
+        submitter = app.submitter
+ 
+        # Get feedback
+        # PublicationFeedback 
+
+        # Get Referrals
+        # Referral
+        
+
 
     def complete_application(self,app): 
         """Once and application is complete and approval needs to be created in the approval model.
