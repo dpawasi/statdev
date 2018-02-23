@@ -263,7 +263,6 @@ class ApprovalComms(DetailView):
 def getPDF(request,approval_id):
   if request.user.is_superuser:
       app = ApprovalModel.objects.get(id=approval_id)
-      print app.app_type
 
       filename = 'pdfs/approvals/'+str(app.id)+'-approval.pdf'
       if os.path.isfile(filename) is False:
