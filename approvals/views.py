@@ -261,20 +261,13 @@ class ApprovalComms(DetailView):
 
 #class ViewPDF():
 def getPDF(request,approval_id):
-  print "Loaded"
   if request.user.is_superuser:
       app = ApprovalModel.objects.get(id=approval_id)
       print app.app_type
 
-      if app.organisation:
-          print app.organisation.name
-      else:
-          print "FULLL"
-          print app.applicant.get_full_name
-
       filename = 'pdfs/approvals/'+str(app.id)+'-approval.pdf'
-#      if os.path.isfile(filename) is True:
-      if app.id:
+      if os.path.isfile(filename) is False:
+#      if app.id:
           pdftool = PDFtool()
           if app.app_type == 1:
                pdftool.generate_permit(app)
