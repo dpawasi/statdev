@@ -133,6 +133,7 @@ urlpatterns = [
     url(r'^organisations/access-requests/(?P<pk>\d+)/(?P<action>\w+)/$', views.OrganisationAccessRequestUpdate.as_view(), name='organisation_access_requests_change'),
     url(r'^organisations/access-requests/(?P<pk>\d+)/(?P<action>\w+)/(?P<application_id>\d+)/$', views.OrganisationAccessRequestUpdate.as_view(), name='organisation_access_requests_change_applicant'),
     url(r'^organisations/access-requests/(?P<pk>\d+)/$', views.OrganisationAccessRequestView.as_view(), name='organisation_access_requests_view'),
+    url(r'^organisations/(?P<pk>\d+)/access-request/actions/$', views.OrganisationARActions.as_view(), name='organisation_ar_actions'),
     url(r'^organisations/access-requests/$', views.OrganisationAccessRequest.as_view(), name='organisation_access_requests'),
     url(r'^organisations/(?P<pk>\d+)/comms-create/$', views.OrganisationCommsCreate.as_view(), name='organisation_comms_create'),
     url(r'^organisations/(?P<pk>\d+)/comms/$', views.OrganisationComms.as_view(), name='organisation_comms'),

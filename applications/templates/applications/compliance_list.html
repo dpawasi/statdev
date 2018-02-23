@@ -7,8 +7,8 @@
     <div class="panel-heading" role="tab" id="title_heading">
         <h3 class="panel-title">
             <a role="button" data-toggle="collapse" href="#application_list_collapse" aria-expanded="false" aria-controls="application_list_collapse">
-                <span class="glyphicon glyphicon-plus"></span>
                 Compliance - Clearance of Conditions
+                <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
             </a>
         </h3>
     </div>
@@ -49,7 +49,16 @@
                         <td>{{ obj.get_app_type_display }}</td>
                         <td>{% if obj.approval_id is None %}None{% else %}AP-{{ obj.approval_id }}{% endif %}</td>
                         <td>{{ obj.title }}</td>
-                        <td>{{ obj.applicant.get_full_name }}</td>
+                        <td>
+				   {% if obj.organisation %}
+                                         {{ obj.organisation }}
+                                    {% else %}
+                                         {{ obj.applicant.get_full_name }}
+                                    {% endif %}
+
+
+
+{{ obj.applicant.get_full_name }}</td>
                         
                         <td>{% if staff == True %} {{ obj.get_status_display }} {% else %} 
                             {% if obj.status == 2 or obj.status == 3 or obj.status == 4 or obj.status == 8 or obj.status == 9 %}
@@ -90,10 +99,10 @@
     </div>
     <script>
 function loadTable() {
-    $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 7, "desc" ]],
- "aoColumnDefs": [
-          { 'bSortable': false, 'aTargets': [ 8 ] }
-       ]
+    $('#compliance-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 0, "desc" ]],
+      columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'natural-nohtml', targets: 2 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { 'bSortable': false, 'aTargets':  6 }
+     ]
 
 
 });
@@ -104,3 +113,4 @@ window.onload= function() {
     </script>
 
     {% endblock %}
+

@@ -6,8 +6,8 @@
     <div class="panel-heading" role="tab" id="title_heading">
         <h3 class="panel-title">
             <a role="button" data-toggle="collapse" href="#search_person_company_collapse" aria-expanded="false" aria-controls="search_person_company_collapse">
-                <span class="glyphicon glyphicon-plus"></span>
                 Search Person
+                <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
             </a>
         </h3>
     </div>
@@ -73,7 +73,13 @@
 
 <script>
   function loadTable() {
-      $('#search-person-table').dataTable({searching: false, paging: true, "pageLength": 10});  }
+      $('#search-person-table').dataTable({searching: false, paging: true, "pageLength": 10, "order": [[ 0, "desc" ]],
+	columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { 'bSortable': false, 'aTargets':  6 }
+     ]
+
+
+});  }
   window.onload= function() {
       loadTable();
   }

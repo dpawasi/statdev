@@ -7,8 +7,8 @@
 	<div class="panel-heading" role="tab" id="title_heading">
 		<h3 class="panel-title">
 			<a role="button" data-toggle="collapse" href="#application_list_collapse" aria-expanded="false" aria-controls="application_list_collapse">
-				<span class="glyphicon glyphicon-plus"></span>
 				Approvals
+                                <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
 			</a>
 		</h3>
 	</div>
@@ -128,7 +128,7 @@
 								<td>{{ app_obj.app.get_status_display }}</td>
 								<td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
 								<td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
-								<td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
+								<td align='center' valign='center'><A HREF='{% url "approvals_view_pdf" app_obj.app.pk %}'><img src='{% static "images/pdf.png" %}'></A></td>
 								<td>
 									<ul class="nav navbar-nav">
 										<li class="dropdown">
@@ -183,7 +183,7 @@
 <script>
 
 function loadApprovalTable() { 
-    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,
+    $('#approvals-table').dataTable({searching: false, paging: true, "pageLength": 25,"order": [[ 0, "desc" ]],
      columnDefs: [
        { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { type: 'date-dd-mmm-yyyy', targets: 6 }, { 'bSortable': false, 'aTargets':  8 }
      ]

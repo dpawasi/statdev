@@ -1753,12 +1753,18 @@ class ConditionCreateForm(ModelForm):
 class ConditionUpdateForm(ModelForm):
     class Meta:
         model = Condition
-        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
+        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq','advise']
 
     def __init__(self, *args, **kwargs):
         super(ConditionUpdateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
-#        self.helper.form_id = 'id_form_condition_apply'
+	# self.helper.form_id = 'id_form_condition_apply'
+
+        if self.initial['may_assessor_advise'] != True:
+            pass
+        else:
+            del self.fields['advise']
+
         self.helper.form_id = 'id_form_modals'
         self.helper.add_input(Submit('update', 'Update', css_class='btn-lg ajax-submit'))
         self.helper.add_input(Submit('cancel', 'Cancel', css_class='ajax-close' ))

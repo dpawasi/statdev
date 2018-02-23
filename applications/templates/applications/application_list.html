@@ -3,24 +3,40 @@
 {% block page_content_inner %}
 
 <div class="panel panel-default">
-
     <div class="panel-heading" role="tab" id="title_heading">
         <h3 class="panel-title">
             <a role="button" data-toggle="collapse" href="#application_list_collapse" aria-expanded="false" aria-controls="application_list_collapse">
-                <span class="glyphicon glyphicon-plus"></span>
                 Applications
+                <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
             </a>
         </h3>
     </div>
-
     <div class="panel-collapse collapse in" id="application_list_collapse" role="tabpanel" aria-labelledby="application_list_heading">
         <div class="panel-body">
-
             <div class="row">
                 <form action="" method="get">
                     <div class="col-sm-12 col-lg-9">
                         <input type='hidden' name='action' value='search'>
                         <!-- RES -->
+                        <div class="col-sm-12 col-lg-3">
+                            <div class="col-sm-12 col-lg-12">
+                                <label>From Date:</label>
+                            </div>
+                            <div class="col-sm-12 col-lg-12">
+					<input class="dateinput form-control" id="id_from_date" name="from_date" value="{{ from_date }}" type="text">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-lg-3">
+                            <div class="col-sm-12 col-lg-12">
+                                <label>To Date:</label>
+                            </div>
+                            <div class="col-sm-12 col-lg-12">
+                                  <input class="dateinput form-control" id="id_to_date" name="to_date" value="{{ to_date }}" type="text">
+                            </div>
+                        </div>
+		</div>
+                <div class="col-sm-12 col-lg-9">
+
                         <div class="col-sm-12 col-lg-3">
                             <div class="col-sm-12 col-lg-12">
                                 <label>Type:</label>
@@ -182,7 +198,7 @@
 </div>
 <script>
 function loadApprovalTable() {
-    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25,
+    $('#application-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 0, "desc" ]],
      columnDefs: [
        { type: 'natural-nohtml', targets: 0 }, { type: 'date-dd-mmm-yyyy', targets: 5 }, { 'bSortable': false, 'aTargets':  9 }
      ] 

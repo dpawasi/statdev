@@ -1,25 +1,19 @@
-    
 <div class="col-sm-4 col-md-3 col-lg-2">
 {% if admin_staff == True %}
-{% if org %}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">Actions</h3>
     </div>
     <div class="panel-body">
         <h5>Communications</h5>
-        <p><a href="{% url 'organisation_comms' org.id %}">Show</a> | <a href="{% url 'organisation_comms_create' org.id %}">Add Entry</a></p>
+        <p><a href="{% url 'organisation_comms' object.id %}">Show</a> | <a href="{% url 'organisation_comms_create' object.id %}">Add Entry</a></p>
         <hr />
         <h5>Actions</h5>
         <ul>
-        <li><a href="{% url 'organisation_actions' org.id %}">Action Log</a></li>
+        <li><a href="{% url 'organisation_ar_actions' object.id %}">Action Log</a></li>
         </ul>
         <ul>
     </div>
 </div>
-	{% endif %}
 {% endif %}
 </div>
-
-
-

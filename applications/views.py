@@ -39,6 +39,7 @@ from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
 import json
+#from views_pdf import PDFtool, MyPDF
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -61,6 +62,16 @@ class HomePage(TemplateView):
         context = template_context(self.request)
         APP_TYPE_CHOICES = []
         APP_TYPE_CHOICES_IDS = []
+ 
+
+        # mypdf = MyPDF()
+        # mypdf.get_li()
+
+        #pdftool = PDFtool()
+        #pdftool.generate_part5()
+        #pdftool.generate_permit()
+        #pdftool.generate_section_84()
+        #pdftool.generate_licence()
 
         context['referee'] = 'no'
         referee = Group.objects.get(name='Referee')
@@ -111,7 +122,6 @@ class HomePage(TemplateView):
         #context['app_apptypes']= APP_TYPE_CHOICES
         #applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
         #print applications
-
         return context
 
 
@@ -581,6 +591,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 user = EmailUser.objects.get(pk=pk)
                 pending_org = OrganisationPending.objects.create(name=company_name,abn=abn,email_user=user)
 
+            action = Action(
+                  content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.create,
+                  action='Organisation Link/Creation Started')
+            action.save()
+
         if step == '2':
             company_exists = forms_data['company_exists']
             if company_exists == 'yes':
@@ -599,7 +614,10 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                     pending_org.company_exists = True
                     pending_org.save()
 
-                    
+                    action = Action(
+                          content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                          action='Organisation Pins Verified')
+                    action.save()
 
                 #else:
                     #print "INCORR"
@@ -621,6 +639,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                    pending_org.identification = doc
                    pending_org.company_exists = False
                    pending_org.save()
+                   action = Action(
+                          content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                          action='Identification Added')
+                   action.save()
+
 
         if step == '3':
             if pending_org.postal_address is None or pending_org.billing_address is None:
@@ -643,6 +666,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 pending_org.postal_address = postal_address
                 pending_org.billing_address = billing_address
                 pending_org.save()
+                action = Action(
+                      content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                      action='Address Details Added')
+                action.save()
+
             else:
                 postal_address = Address.objects.get(id=pending_org.postal_address.id)
                 billing_address = Address.objects.get(id=pending_org.billing_address.id)
@@ -665,9 +693,11 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                 billing_address.postcode=forms_data['postal_postcode']
                 billing_address.save()
 
+                action = Action(
+                      content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                      action='Address Details Updated')
+                action.save()
 
-
- 
 
             #pending_org.identification 
 #            try:
@@ -715,11 +745,30 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                #print "Approved" 
                messages.success(self.request, 'Your company has now been linked.')
                pending_org.save()
+               action = Action(
+                      content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+                      action='Organisation Approved (Automatically)')
+               action.save()
+               OrganisationContact.objects.create(
+                                                  email=pending_org.email_user.email,
+                                                  first_name=pending_org.email_user.first_name,
+                                                  last_name=pending_org.email_user.last_name,
+                                                  phone_number=pending_org.email_user.phone_number,
+                                                  mobile_number=pending_org.email_user.mobile_number,
+                                                  fax_number=pending_org.email_user.fax_number,
+                                                  organisation=comp
+               )
+
            else:
               if self.request.user.is_staff is True:
-                 donothing ='dsaf' 
+                 pass 
               else:
                  messages.success(self.request, 'Your company has been submitted for approval and now pending attention by our Staff.')
+                 action = Action(
+                      content_object=pending_org, user=self.request.user,
+                      action='Organisation is pending approval')
+                 action.save()
+
            if self.request.user.groups.filter(name__in=['Processor']).exists():
                if app_id is None:
                    return HttpResponseRedirect(reverse('home_page'))
@@ -869,6 +918,15 @@ class ApplicationList(LoginRequiredMixin,ListView):
                 #query_obj &= Q(state=int(self.request.GET['appstatus']))
                 query_obj &= Q(route_status=self.request.GET['appstatus'])
 
+            if 'from_date' in self.request.GET: 
+                 context['from_date'] = self.request.GET['from_date']
+                 context['to_date'] = self.request.GET['to_date']
+                 if self.request.GET['from_date'] != '':
+                     from_date_db = datetime.strptime(self.request.GET['from_date'], '%d/%m/%Y').date()
+                     query_obj &= Q(submit_date__gte=from_date_db)
+                 if self.request.GET['to_date'] != '':
+                     to_date_db = datetime.strptime(self.request.GET['to_date'], '%d/%m/%Y').date()
+                     query_obj &= Q(submit_date__lte=to_date_db)
 
             applications = Application.objects.filter(query_obj)
             context['query_string'] = self.request.GET['q']
@@ -883,7 +941,11 @@ class ApplicationList(LoginRequiredMixin,ListView):
                     context['appstatus'] = self.request.GET['appstatus']
 
         else:
-            applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS)
+            to_date = datetime.today()
+            from_date = datetime.today() - timedelta(days=30)
+            context['from_date'] = from_date.strftime('%d/%m/%Y')
+            context['to_date'] = to_date.strftime('%d/%m/%Y')
+            applications = Application.objects.filter(app_type__in=APP_TYPE_CHOICES_IDS, submit_date__gte=from_date, submit_date__lte=to_date)
 
         context['app_applicants'] = {}
         context['app_applicants_list'] = []
@@ -1166,7 +1228,6 @@ class OrganisationAccessRequest(ListView):
 
         return context
 
-
 class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
     form_class = apps_forms.OrganisationAccessRequestForm
     model = OrganisationPending
@@ -1244,8 +1305,26 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
             # random_generator
             #OrganisationExtras.objects.create()
             self.object.status = 2
+            OrganisationContact.objects.create(
+                                  email=self.object.email_user.email,
+                                  first_name=self.object.email_user.first_name,
+                                  last_name=self.object.email_user.last_name,
+                                  phone_number=self.object.email_user.phone_number,
+                                  mobile_number=self.object.email_user.mobile_number,
+                                  fax_number=self.object.email_user.fax_number,
+                                  organisation=new_org
+            )
+
+            action = Action(
+                content_object=self.object, user=self.request.user,
+                action='Organisation Access Request Approved')
+            action.save()
         elif status == 'decline':
             self.object.status = 3
+            action = Action(
+                content_object=self.object, user=self.request.user,
+                action='Organisation Access Request Declined')
+            action.save()
 
         self.object.save()
         
@@ -1845,7 +1924,6 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
                 success_url = reverse('applicant_change', args=(self.object.pk,))
             else:
                 success_url = reverse('application_update', args=(self.object.pk,))
-
         else:
             success_url = reverse('application_apply_form', args=(self.object.pk,nextstep))
         return HttpResponseRedirect(success_url)
@@ -2118,6 +2196,28 @@ class OrganisationActions(DetailView):
              content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
         return context
 
+class OrganisationARActions(DetailView):
+    model = OrganisationPending
+    template_name = 'applications/organisation_ar_actions.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationARActions, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganisationARActions, self).get_context_data(**kwargs)
+
+        obj = self.get_object()
+        # TODO: define a GenericRelation field on the Application model.
+        context['actions'] = Action.objects.filter(
+             content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
+        return context
 
 class ApplicationActions(DetailView):
     model = Application
@@ -4363,6 +4463,27 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         return HttpResponseRedirect(self.get_success_url())
 
+    def send_stake_holder_comms(self,app):
+
+        # get applicant contact emails 
+        if app.organisation:
+           pass
+           # get all organisation contact emails and names
+        elif app.applicant:
+           # get only applicant name and email
+           pass
+        
+        # Get Sumitter information
+        submitter = app.submitter
+ 
+        # Get feedback
+        # PublicationFeedback 
+
+        # Get Referrals
+        # Referral
+        
+
+
     def complete_application(self,app): 
         """Once and application is complete and approval needs to be created in the approval model.
         """
@@ -4376,7 +4497,13 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                                           expiry_date = app.expire_date,
                                           status = 1
                 )
-        return 
+
+        ####################
+        # Disabling compliance creationg after approval ( this is now handle by cron script as we are not creating all future compliance all at once but only the next due complaince.
+        return
+        ################### 
+        
+
         # For compliance ( create clearance of conditions )
         # get all conditions 
         conditions = Condition.objects.filter(application=app)
@@ -6291,7 +6418,6 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
                 messages.error(
                     self.request, 'You can not change conditions when the application is not assigned to you')
                 return HttpResponseRedirect(condition.application.get_absolute_url())
-
             else:
                 return super(ConditionUpdate, self).get(request, *args, **kwargs)
         elif condition.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
@@ -6308,6 +6434,23 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
         else:
             messages.warning(self.request, 'You cannot update this condition')
             return HttpResponseRedirect(condition.application.get_absolute_url())
+
+    def get_initial(self):
+        initial = super(ConditionUpdate, self).get_initial()
+        condition = self.get_object()
+#        print condition.application.id
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(condition.application)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(self.request, flowcontext, condition.application.routeid, workflowtype)
+        initial['may_assessor_advise'] = flowcontext["may_assessor_advise"]
+
+        initial['assessor_staff'] = False
+        if self.request.user.groups.filter(name__in=['Assessor']).exists():
+             initial['assessor_staff'] = True
+        return initial
 
     def get_form_class(self):
         # Updating the condition as an 'action' should not allow the user to
@@ -6344,7 +6487,6 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
             action.save()
         self.object.save()
         return HttpResponseRedirect(self.object.application.get_absolute_url()+'')
-
 
 class ConditionDelete(LoginRequiredMixin, DeleteView):
     model = Condition
@@ -6585,9 +6727,6 @@ class VesselDelete(LoginRequiredMixin, UpdateView):
             action='Vessel to {} delete'.format(vessel.id))
         action.save()
         return HttpResponseRedirect(self.get_success_url(app.id))
-
-
-
 
 class VesselUpdate(LoginRequiredMixin, UpdateView):
     model = Vessel
