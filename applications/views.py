@@ -749,7 +749,6 @@ class CreateLinkCompany(LoginRequiredMixin,CreateView):
                       content_object=pending_org, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
                       action='Organisation Approved (Automatically)')
                action.save()
-               print pending_org.email_user
                OrganisationContact.objects.create(
                                                   email=pending_org.email_user.email,
                                                   first_name=pending_org.email_user.first_name,
