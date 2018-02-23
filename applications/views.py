@@ -39,7 +39,7 @@ from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
 import json
-from views_pdf import PDFtool, MyPDF
+#from views_pdf import PDFtool, MyPDF
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..

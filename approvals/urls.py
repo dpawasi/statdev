@@ -8,4 +8,5 @@ urlpatterns = [
                   url(r'^approvals/(?P<pk>\d+)/actions/$', views.ApprovalActions.as_view(), name='approval_actions'),
                   url(r'^approvals/(?P<pk>\d+)/comms-create/$', views.ApprovalCommsCreate.as_view(), name='approvals_comms_create'),
                   url(r'^approvals/(?P<pk>\d+)/comms/$', views.ApprovalComms.as_view(), name='approvals_comms'),
+                  url(r'^approvals/viewpdf-(?P<approval_id>\d+).pdf$', views.getPDF, name='approvals_view_pdf'),
               ]

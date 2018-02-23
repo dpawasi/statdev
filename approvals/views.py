@@ -14,6 +14,8 @@ from applications.validationchecks import Attachment_Extension_Check
 from django.http import HttpResponse, HttpResponseRedirect
 from statdev.context_processors import template_context
 from django.contrib import messages
+from applications.views_pdf import PDFtool
+import os.path
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -246,7 +248,6 @@ class ApprovalCommsCreate(CreateView):
         success_url = reverse('approvals_comms', args=(app_id,))
         return HttpResponseRedirect(success_url)
 
-
 class ApprovalComms(DetailView):
     model = ApprovalModel 
     template_name = 'approvals/approval_comms.html'
@@ -258,5 +259,39 @@ class ApprovalComms(DetailView):
         context['communications'] = CommunicationApproval.objects.filter(approval_id=app.pk).order_by('-created')
         return context
 
+#class ViewPDF():
+def getPDF(request,approval_id):
+  print "Loaded"
+  if request.user.is_superuser:
+      app = ApprovalModel.objects.get(id=approval_id)
+      print app.app_type
+
+      if app.organisation:
+          print app.organisation.name
+      else:
+          print "FULLL"
+          print app.applicant.get_full_name
+
+      filename = 'pdfs/approvals/'+str(app.id)+'-approval.pdf'
+#      if os.path.isfile(filename) is True:
+      if app.id:
+          pdftool = PDFtool()
+          if app.app_type == 1:
+               pdftool.generate_permit(app)
+          elif app.app_type == 2:
+              pdftool.generate_licence(app)
+          elif app.app_type == 3:
+              pdftool.generate_part5(app)
+          elif app.app_type == 4:
+              pass
+          elif app.app_type == 5:
+              pdftool.generate_section_84(app)
+
+      if os.path.isfile(filename) is True:
+          pdf_file = open(filename, 'rb')
+          pdf_data = pdf_file.read()
+          pdf_file.close()
+          return HttpResponse(pdf_data, content_type='application/pdf')
+ 
 
 

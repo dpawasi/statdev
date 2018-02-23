@@ -203,7 +203,7 @@ class PDFtool(FPDF):
         pdf.cell(0,5,' ', 0,1,'L')
         return pdf
 
-    def generate_licence(self):
+    def generate_licence(self,app):
 #         pdf = FPDF('P', 'mm', 'A4')
          pdf = PDFtool('P', 'mm', 'A4')
          pdf.alias_nb_pages()
@@ -228,7 +228,13 @@ class PDFtool(FPDF):
 
          pdf.set_font('Arial', '', 10)
          pdf = self.horizontal_line(pdf)
-         pdf = self.column_para(pdf,'Licence/Permit holder','test',None)
+         if app.organisation: 
+             holder_name = app.organisation.name 
+         else:
+             holder_name = app.applicant.first_name + ' ' + app.applicant.last_name
+
+
+         pdf = self.column_para(pdf,'Licence/Permit holder',holder_name,None)
          # group spacer
          pdf = self.space(pdf)
          pdf = self.column_para(pdf,'Authorised works, acts or activities:','',None)
@@ -237,15 +243,15 @@ class PDFtool(FPDF):
          pdf = self.space(pdf)
          pdf = self.column_para(pdf,'Vessel details:','',None)
          pdf = self.space(pdf)
-         pdf = self.column_para(pdf,'Approval date:','20-feb-2018',None)
+         pdf = self.column_para(pdf,'Approval date:',app.start_date.strftime("%d %b %Y"),None)
          pdf = self.space(pdf)
-         pdf = self.column_para(pdf,'Expiry date:','',None)
+         pdf = self.column_para(pdf,'Expiry date:',app.expiry_date.strftime("%d %b %Y"),None)
          pdf = self.horizontal_line(pdf)
 
-         pdf = self.heading1_bold(pdf,'PERMIT LICENCE XXXXX')
+         pdf = self.heading1_bold(pdf,'PERMIT LICENCE '+str(app.id))
          pdf = self.heading2_bold(pdf,'CONDITION(S)')
          pdf = self.bullet_numbers_para(pdf,'Whilst operating within the Swan Canning Riverpark, a copy of this approval shall remain with this operation at all times, and must be shown to a government inspector on demand.')
-         pdf = self.bullet_numbers_para(pdf,'The Operator shall abide by the Specific Licence Conditions and General Licence Conditions of Licence LXXXXX (refer below).')
+         pdf = self.bullet_numbers_para(pdf,'The Operator shall abide by the Specific Licence Conditions and General Licence Conditions of Licence L'+str(app.id)+' (refer below).')
          pdf = self.bullet_numbers_para(pdf,'The Operator does not have priority access over other users to any area of the Swan Canning Development Control Area.')
          pdf = self.bullet_numbers_para(pdf,'The Operator shall not erect any structures (including signage) or store any equipment associated with the operation within the Swan Canning Development Control Area.')
          pdf = self.bullet_numbers_para(pdf,'The Operator shall ensure that no damage to the riverbed, foreshore or vegetation within the Swan Canning Development Control Area occurs as a result of the Operation.  The Operator shall make good any damage to the river and/or foreshore area, to the satisfaction of the Department.')
@@ -493,10 +499,10 @@ class PDFtool(FPDF):
 #         pdf.cell(0, 8, 'DETERMINATION OF REQUEST FOR VARIATION',0,1,'C')
 #         pdf.set_font('Arial', '', 9)
 
-         pdf.output('pdfs/approvals/5-approval.pdf', 'F')
+         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
 
-    def generate_section_84(self):
+    def generate_section_84(self,app):
 
          pdf = PDFtool('P', 'mm', 'A4')
          pdf.alias_nb_pages()
@@ -527,11 +533,15 @@ class PDFtool(FPDF):
          pdf.cell(60, 5, 'APPROVAL NUMBER',0,0,'L')
          pdf.cell(6, 5, ':',0,0,'L')
          pdf.cell(6, 5, '',0,1,'L')
+         if app.organisation:
+             holder_name = app.organisation.name
+         else:
+             holder_name = app.applicant.first_name + ' ' + app.applicant.last_name
 
          pdf.cell(6, 5, ' ',0,0,'L')
          pdf.cell(60, 5, 'APPLICANT',0,0,'L')
          pdf.cell(6, 5, ':',0,0,'L')
-         pdf.cell(6, 5, '21 cars st kensington',0,1,'L')
+         pdf.cell(6, 5, holder_name,0,1,'L')
 
          pdf.cell(6, 5, ' ',0,0,'L')
          pdf.cell(60, 5, 'APPLICANT\'S ADDRESS',0,0,'L')
@@ -657,9 +667,9 @@ class PDFtool(FPDF):
          pdf.cell(11, 5, 'DATE:',0,0,'L')
          pdf.cell(60, 5, '20 Feb 2018',0,1,'L')
 
-         pdf.output('pdfs/approvals/3-approval.pdf', 'F')
+         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
-    def generate_part5(self):
+    def generate_part5(self,app):
 
          pdf = PDFtool('P', 'mm', 'A4')
          pdf.alias_nb_pages()
@@ -685,16 +695,22 @@ class PDFtool(FPDF):
          #pdf.cell(60, 5, 'FILE NUMBER',0,0,'L')
          #pdf.cell(6, 5, ':',0,0,'L')
          #pdf.cell(6, 5, '1100',0,1,'L')
-
+         if app.organisation:
+             holder_name = app.organisation.name
+             holder_address = app.organisation.postal_address
+         else:
+             holder_name = app.applicant.first_name + ' ' + app.applicant.last_name
+             holder_address = app.applicant.postal_address
+       
          pdf.cell(6, 5, ' ',0,0,'L')
          pdf.cell(60, 5, 'APPLICANT',0,0,'L')
          pdf.cell(6, 5, ':',0,0,'L')
-         pdf.cell(6, 5, 'JASON',0,1,'L')
+         pdf.cell(6, 5, holder_name,0,1,'L')
 
          pdf.cell(6, 5, ' ',0,0,'L')
          pdf.cell(60, 5, 'APPLICANT\'S ADDRESS',0,0,'L')
          pdf.cell(6, 5, ':',0,0,'L')
-         pdf.cell(6, 5, '21 cars st kensington',0,1,'L')
+         pdf.cell(6, 5, str(holder_address) ,0,1,'L')
 
          #pdf.cell(6, 5, ' ',0,0,'L')
          #pdf.cell(60, 5, 'LANDOWNER',0,0,'L')
@@ -761,18 +777,16 @@ class PDFtool(FPDF):
          pdf.cell(11, 5, 'DATE:',0,0,'L')      
          pdf.cell(60, 5, '20 Feb 2018',0,1,'L')
          
-         pdf.output('pdfs/approvals/1-approval.pdf', 'F')
+         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
-    def generate_permitold(self):
+    def generate_permitold(self,app):
          pdf = FPDF('P', 'mm', 'A4')
          pdf.add_page()
-
          pdf.image('applications/static/images/parks_and_wildlife_service_dbca.jpg', 30, 7, 144,24)
+         pdf.output('pdfs/approvals/'+str(app.id)+'-permit-approval.pdf', 'F')
 
-         pdf.output('pdfs/approvals/1-permit-approval.pdf', 'F')
 
-
-    def generate_permit(self):
+    def generate_permit(self,app):
 
          pdf = PDFtool('P', 'mm', 'A4')
          pdf.alias_nb_pages()
@@ -794,17 +808,24 @@ class PDFtool(FPDF):
 
 
          pdf.set_font('Arial', '', 10)
-         pdf.cell(0,28,' ', 0,1,'L')
+#         pdf.cell(0,28,' ', 0,1,'L')
          pdf.cell(0, 5, 'Pursuant to Part 4 (Regulation 29) of the Swan and Canning Rivers Management Regulations 2007, this',0,1,'L')
          pdf.cell(0, 5, 'is to certify that a permit is issued to the person(s) or organisation described hereunder as permit holder',0,1,'L')
          pdf.cell(0, 5, 'and that person(s) or organisation is permitted to carry out the authorised works, acts or activities for',0,1,'L')
          pdf.cell(0, 5, 'duration specified, subject to the conditions listed below.',0,1,'L')
 
+         pdf = self.horizontal_line(pdf)
+
+         if app.organisation:
+             holder_name = app.organisation.name
+         else:
+             holder_name = app.applicant.first_name + ' ' + app.applicant.last_name
+
          pdf.cell(0,5,' ', 0,1,'L')
          pdf.cell(6, 5, ' ',0,0,'L')
          pdf.cell(60, 5, 'Permit holder',0,0,'L')
          pdf.cell(6, 5, ':',0,0,'L')
-         pdf.cell(6, 5, 'Jason Moore',0,1,'L')
+         pdf.cell(6, 5, holder_name,0,1,'L')
 
          pdf.cell(0,5,' ', 0,1,'L')
 
@@ -821,17 +842,18 @@ class PDFtool(FPDF):
          pdf.cell(6, 5, ' ',0,0,'L')
          pdf.cell(30, 5, 'Approval date:',0,0,'L')
          pdf.cell(6, 5, ' ',0,0,'L')
-         pdf.cell(50, 5, '10-Jan-2017',0,0,'L')
+         pdf.cell(50, 5, app.start_date.strftime("%d %b %Y"),0,0,'L')
 
          pdf.cell(30, 5, 'Expiry date:',0,0,'L')
          pdf.cell(6, 5, ' ',0,0,'L')
-         pdf.cell(30, 5, '10-Jan-2017',0,1,'L')
+         pdf.cell(30, 5, app.expiry_date.strftime("%d %b %Y"),0,1,'L')
 
+         pdf = self.horizontal_line(pdf)
          # horizontal line
-         pdf.line(7, 110, 205, 110)
+#         pdf.line(7, 110, 205, 110)
 
 
-         pdf.cell(0,15,' ', 0,1,'L')
+         pdf.cell(0,5,' ', 0,1,'L')
          pdf.set_font('Arial', 'B', 10)
 
          pdf.cell(30, 8, 'CONDITIONS',0,1,'L')
@@ -880,7 +902,7 @@ class PDFtool(FPDF):
          # group spacer
          pdf.cell(0,5,' ', 0,1,'L')
 
-         pdf.output('pdfs/approvals/2-approval.pdf', 'F')
+         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
     def get(self,app,self_view,context):
         request = self_view.request
