@@ -91,7 +91,6 @@ class PDFtool(FPDF):
 #            column2 = 'iiii '
         loop = 1
         para_split =  textwrap.wrap(column2, 118 - column1width)
-        print para_split
 
 #        pdf.cell(6, 5, ' ',0,0,'L')
 #        pdf.cell(column1width, 5, column1 ,0,0,'L')
