@@ -480,10 +480,6 @@ class PDFtool(FPDF):
          pdf = self.create_para(pdf,'Glen McLeod-Thorpe')
          pdf = self.create_para(pdf,'22/02/2018')
 
-	 pdf = self.bullet_numbers_para(pdf,'')
-         pdf = self.bullet_numbers_para(pdf,'')
-         pdf = self.bullet_numbers_para(pdf,'')
-         pdf = self.bullet_numbers_para(pdf,'')
 
          #pdf.cell(0, 5, 'Pursuant to Part 4 (Regulation 29) of the Swan and Canning Rivers Management Regulations 2007, this',0,1,'L')
          #pdf.cell(0, 5, 'is to certify that a permit is issued to the person(s) or organisation described hereunder as permit holder',0,1,'L')
