@@ -263,12 +263,10 @@ class PublicationFeedback(models.Model):
     def __str__(self):
         return 'PublicationFeedback {} ({})'.format(self.pk, self.application)
 
-
 @python_2_unicode_compatible
 class PublicationNewspaper(models.Model):
     """This model represents Application Published in newspapert
     """
-
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     date = models.DateField(null=True, blank=True)
     newspaper = models.CharField(max_length=150)
@@ -282,7 +280,6 @@ class PublicationNewspaper(models.Model):
 class PublicationWebsite(models.Model):
     """This model represents Application Published in Website
     """
-
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     original_document = models.ForeignKey(Record, blank=True, null=True, related_name='original_document')
     published_document = models.ForeignKey(Record, blank=True, null=True, related_name='published_document')
@@ -622,3 +619,33 @@ class ApplicationInvoice(models.Model):
 
     def __str__(self):
         return 'Application {} invoice {}'.format(self.application, self.invoice_reference)
+
+@python_2_unicode_compatible
+class StakeholderComms(models.Model):
+    """This model represents a reference to the stakeholder communication for 
+    an application.
+    """
+    STAKEHOLDER_ROLE_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'applicant', ('Applicant')),
+        (2, 'submitter', ('Submitter')),
+        (3, 'referral', ('Referral')),
+        (4, 'feedback', ('Feedback'))
+    )
+
+    STAKEHOLDER_COMM_TYPE = Choices(
+        (0, 'none', ('None')),
+        (1, 'email', ('Email')),
+        (2, 'posted', ('Posted')),
+    )
+
+    application = models.ForeignKey(Application)
+    email = models.EmailField(unique=False, blank=False)
+    name = models.CharField(max_length=255)
+    sent_date = models.DateTimeField(auto_now_add=True)
+    role = models.IntegerField(choices=STAKEHOLDER_ROLE_TYPE, default=STAKEHOLDER_ROLE_TYPE.none) 
+    comm_type = models.IntegerField(choices=STAKEHOLDER_COMM_TYPE, default=STAKEHOLDER_COMM_TYPE.none)
+
+    def __str__(self):
+        return 'Stakeholder {} Sent {}'.format(self.name, self.sent_date)
+

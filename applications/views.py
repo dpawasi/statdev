@@ -23,7 +23,7 @@ from actions.models import Action
 from applications import forms as apps_forms
 from applications.models import (
     Application, Referral, Condition, Compliance, Vessel, Location, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation, ComplianceGroup,CommunicationCompliance)
+    PublicationWebsite, PublicationFeedback, Communication, Delegate, OrganisationContact, OrganisationPending, OrganisationExtras, CommunicationAccount,CommunicationOrganisation, ComplianceGroup,CommunicationCompliance, StakeholderComms)
 from applications.workflow import Flow
 from applications.views_sub import Application_Part5, Application_Emergency, Application_Permit, Application_Licence, Referrals_Next_Action_Check, FormsList
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
@@ -4434,6 +4434,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 #        if doc:
 #            comms.records.add(doc)
 
+        if "stake_holder_communication" in route:
+            self.send_stake_holder_comms(app) 
+
         emailcontext = {}
         emailcontext['app'] = self.object
 
@@ -4464,24 +4467,84 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def send_stake_holder_comms(self,app):
-
+        # application-stakeholder-comms.html 
         # get applicant contact emails 
         if app.organisation:
-           pass
-           # get all organisation contact emails and names
+           org_dels = Delegate.objects.filter(organisation=app.organisation) 
+           for od in org_dels:
+                # get all organisation contact emails and names
+                StakeholderComms.objects.create(application=app,
+                                                email=od.email_user.email,
+                                                name=od.email_user.first_name + ' '+ od.email_user.last_name,
+                                                sent_date=date.today(),
+                                                role=1,
+                                                comm_type=1
+                )
+                emailcontext = {'person': od.email_user.first_name + ' '+ od.email_user.last_name}    
+                sendHtmlEmail([od.email_user.email], 'Appplication has progressed', emailcontext, 'application-stakeholder-comms.html', None, None, None)
+             
         elif app.applicant:
-           # get only applicant name and email
-           pass
+
+               StakeholderComms.objects.create(application=app,
+                                                email=app.applicant.email,
+                                                name=app.applicant.first_name + ' '+ app.applicant.last_name,
+                                                sent_date=date.today(),
+                                                role=1,
+                                                comm_type=1
+               )
+               emailcontext = {'person': app.applicant.first_name + ' '+ app.applicant.last_name}
+               sendHtmlEmail([app.applicant.email], 'Appplication has progressed', emailcontext, 'application-stakeholder-comms.html', None, None, None)
+
+               # get only applicant name and email
         
         # Get Sumitter information
-        submitter = app.submitter
- 
+        #        submitter = app.submitted_by
+        if app.applicant != app.submitted_by:
+            StakeholderComms.objects.create(application=app,
+                                       email=app.submitted_by.email,
+                                       name=app.submitted_by.first_name + ' '+ app.submitted_by.last_name,
+                                       sent_date=date.today(),
+                                       role=2,
+                                       comm_type=1
+            )
+            emailcontext = {'person': app.submitted_by.first_name + ' '+ app.submitted_by.last_name}
+            sendHtmlEmail([app.submitted_by.email], 'Appplication has progressed', emailcontext, 'application-stakeholder-comms.html', None, None, None)
+
+
+
+        public_feedback =  PublicationFeedback.objects.filter(application=app)
+        for pf in public_feedback:
+            print pf.email
+            print pf.name
+            StakeholderComms.objects.create(application=app,
+                                       email=pf.email,
+                                       name=pf.name,
+                                       sent_date=date.today(),
+                                       role=4,
+                                       comm_type=1
+            )
+            emailcontext = {'person': pf.name}
+            sendHtmlEmail([pf.email], 'Appplication has progressed', emailcontext, 'application-stakeholder-comms.html', None, None, None)
+
+
         # Get feedback
         # PublicationFeedback 
+        refs = Referral.objects.filter(application=app)
+        for ref in refs:
+            StakeholderComms.objects.create(application=app,
+                                       email=ref.referee.email,
+                                       name=ref.referee.first_name + ' ' + ref.referee.last_name,
+                                       sent_date=date.today(),
+                                       role=3,
+                                       comm_type=1
+            )
+            emailcontext = {'person': ref.referee.first_name + ' ' + ref.referee.last_name}
+            sendHtmlEmail([ref.referee.email], 'Appplication has progressed', emailcontext, 'application-stakeholder-comms.html', None, None, None)
+
 
         # Get Referrals
         # Referral
-        
+#        app.pfpfpf        
 
 
     def complete_application(self,app): 
