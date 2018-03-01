@@ -4515,8 +4515,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         public_feedback =  PublicationFeedback.objects.filter(application=app)
         for pf in public_feedback:
-            print pf.email
-            print pf.name
             StakeholderComms.objects.create(application=app,
                                        email=pf.email,
                                        name=pf.name,
