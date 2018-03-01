@@ -40,7 +40,8 @@ from django.template.loader import get_template
 from statdev.context_processors import template_context 
 import json
 import os.path
-from views_pdf import PDFtool
+from applications.views_pdf import PDFtool
+
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
