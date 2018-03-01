@@ -146,14 +146,16 @@
                 "route": "3",
                 "routegroup": "assess",
                 "state": "4",
-                "required": ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
+                "required": ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"],
+                "stake_holder_communication" : "yes"
             },
             {
                 "title": "Send to Referrals",
                 "route": "4",
                 "routegroup": "referral",
                 "state": "3",
-                "required" : ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"]
+                "required" : ["title","deed","cost","river_lease_require_river_lease","river_lease_reserve_licence","proposed_development_description","certificate_of_title_volume","folio","diagram_plan_deposit_number","proposed_development_plans", "publish_documents","publish_documents"],
+                "stake_holder_communication" : "yes"
             },
             {
                 "title": "Return to Submitter",

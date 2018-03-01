@@ -93,7 +93,7 @@
                                 <td>{{ app_obj.app.get_status_display }}</td>
                                 <td>{{ app_obj.app.start_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.expiry_date|date:"d-M-Y" }}</td>
-                                <td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
+                                <td align='center' valign='center'><A HREF='{% url "approvals_view_pdf" app_obj.app.pk %}'><img src='{% static "images/pdf.png" %}'></A></td>
 				<td>
 
                                                                         <ul class="nav navbar-nav">

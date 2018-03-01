@@ -1,7 +1,9 @@
 from django.contrib.admin import register, ModelAdmin
 from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
-    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, OrganisationContact, OrganisationPending, OrganisationExtras,PublicationFeedback, PublicationWebsite,ComplianceGroup)
+    Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, 
+    OrganisationContact, OrganisationPending, OrganisationExtras,PublicationFeedback, 
+    PublicationWebsite,ComplianceGroup, StakeholderComms)
 
 
 @register(Record)
@@ -111,4 +113,8 @@ class PublicationWebsite(ModelAdmin):
     list_display = ('application','original_document','published_document')
     search_fields = ('application','original_document','published_document')
 
+@register(StakeholderComms)
+class StakeholderComms(ModelAdmin):
+    list_display = ('application','email','name','sent_date','role')
+    search_fields = ('application','email','name','sent_date','role')
 

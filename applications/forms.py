@@ -522,8 +522,6 @@ class OrganisationAccessRequestForm(ModelForm):
         self.helper.add_input(Submit('save', 'Confirm', css_class='btn-lg'))
         self.helper.add_input(Submit('cancel', 'Cancel'))
 
-        
-
 class ApplicationWebPublishForm(ModelForm):
 
     class Meta:
@@ -786,10 +784,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             except:
                donothing =''
 
-
             crispy_boxes.append(HTML('{% include "applications/application_vessel_and_craft_details.html" %}'))
-
-
 
 #        else:
 #             crispy_boxes.append()
@@ -1381,6 +1376,9 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
 #       if 'hide_form_buttons' in self.initial["workflow"]["hidden"]:
         if self.initial["workflow"]["hidden"]["publication"] == 'False':
              crispy_boxes.append(HTML('{% include "applications/application_publication.html" %}'))
+        if self.initial["workflow"]["hidden"]["stakeholdercommunication"] == 'False':
+             crispy_boxes.append(HTML('{% include "applications/application_stakeholder_comms.html" %}'))
+
         if self.initial["workflow"]["hidden"]["referrals"] == 'False':
              crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
         if self.initial["workflow"]["hidden"]["conditions"] == 'False':
@@ -1406,7 +1404,6 @@ class ApplicationPart5Form(ApplicationFormMixin, ModelForm):
  
         if check_fields_exist(self.fields,['document_determination_approved']) is True and may_update == "True":
             crispy_boxes.append(crispy_box('determination_approved_collapse','form_determination_approved','Determination Approved','document_determination_approved'))
-
 
         dynamic_selections = HTML('{% include "applications/application_form_part5_js_dynamics.html" %}')
         self.helper.layout = Layout(

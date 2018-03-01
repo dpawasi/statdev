@@ -255,6 +255,7 @@ class ApprovalComms(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ApprovalComms, self).get_context_data(**kwargs)
         app = self.get_object()
+
         # TODO: define a GenericRelation field on the Application model.
         context['communications'] = CommunicationApproval.objects.filter(approval_id=app.pk).order_by('-created')
         return context
@@ -275,7 +276,7 @@ def getPDF(request,approval_id):
           elif app.app_type == 3:
               pdftool.generate_part5(app)
           elif app.app_type == 4:
-              pass
+              pdftool.generate_emergency_works(app)
           elif app.app_type == 5:
               pdftool.generate_section_84(app)
 
@@ -285,5 +286,3 @@ def getPDF(request,approval_id):
           pdf_file.close()
           return HttpResponse(pdf_data, content_type='application/pdf')
  
-
-
