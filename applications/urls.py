@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^applications/(?P<pk>\d+)/feedbackpublication/create/(?P<status>\w+)/$', views.FeedbackPublicationCreate.as_view(), name='application_add_feedbackpublication_determination'),
     url(r'^applications/(?P<pk>\d+)/webpublish/(?P<publish_type>\w+)/', views.WebPublish.as_view(), name='application_publish_documents'),
     url(r'^applications/(?P<approvalid>\d+)/change/(?P<action>\w+)/$', views.ApplicationChange.as_view(), name='application_change'),
+    url(r'^applications/viewpdf-(?P<application_id>\d+).pdf$', views.getPDFapplication, name='application_view_pdf'),
     url(r'^emergency-works/$', views.EmergencyWorksList.as_view(), name='emergencyworks_list'),
     url(r'^compliance/$', views.ComplianceList.as_view(), name='compliance_list'),
     url(r'^compliance/(?P<pk>\d+)/$', views.ComplianceApprovalDetails.as_view(), name='compliance_approval_detail'),

@@ -119,7 +119,7 @@
                                 <td>{{ app_obj.app.submit_date|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.proposed_commence|date:"d-M-Y" }}</td>
                                 <td>{{ app_obj.app.proposed_end|date:"d-M-Y" }}</td>
-                                <td align='center' valign='center'><img src='{% static "images/pdf.png" %}'></td>
+                                <td align='center' valign='center'><A HREF="{% url "application_view_pdf" app_obj.app.pk  %}"><img src='{% static "images/pdf.png" %}'></A></td>
                                 <td>
                                     <ul class="nav navbar-nav">
                                         <li class="dropdown">

@@ -39,7 +39,8 @@ from django.template import RequestContext
 from django.template.loader import get_template
 from statdev.context_processors import template_context 
 import json
-#from views_pdf import PDFtool, MyPDF
+import os.path
+from views_pdf import PDFtool
 
 class HomePage(TemplateView):
     # preperation to replace old homepage with screen designs..
@@ -8288,4 +8289,23 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
             action='Unlinked delegate access for {}'.format(user.get_full_name()))
         action.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+def getPDFapplication(request,application_id):
+
+  if request.user.is_superuser:
+      app = Application.objects.get(id=application_id)
+
+      filename = 'pdfs/applications/'+str(app.id)+'-application.pdf'
+      if os.path.isfile(filename) is False:
+#      if app.id:
+          pdftool = PDFtool()
+          if app.app_type == 4:
+              pdftool.generate_emergency_works(app)
+
+      if os.path.isfile(filename) is True:
+          pdf_file = open(filename, 'rb')
+          pdf_data = pdf_file.read()
+          pdf_file.close()
+          return HttpResponse(pdf_data, content_type='application/pdf')
 

@@ -899,6 +899,99 @@ class PDFtool(FPDF):
 
          pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
+    def generate_emergency_works(self,app):
+
+         pdf = PDFtool('P', 'mm', 'A4')
+         pdf.alias_nb_pages()
+         pdf.add_page()
+         pdf.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+         pdf.set_font('Arial', '', 10)
+
+         pdf.cell(0, 5, 'Pursuant to Part 4 (Regulation 29) of the Swan and Canning Rivers Management Regulations 2007, this',0,1,'L')
+         pdf.cell(0, 5, 'is to certify that a permit is issued to the person(s) or organisation described hereunder as permit holder',0,1,'L')
+         pdf.cell(0, 5, 'and that person(s) or organisation is permitted to carry out the authorised works, acts or activities for',0,1,'L')
+         pdf.cell(0, 5, 'duration specified, subject to the conditions listed below.',0,1,'L')
+
+         pdf = self.horizontal_line(pdf)
+
+         if app.organisation:
+             holder_name = app.organisation.name
+         else:
+             holder_name = app.applicant.first_name + ' ' + app.applicant.last_name
+
+         pdf.cell(0,5,' ', 0,1,'L')
+         pdf.cell(6, 5, ' ',0,0,'L')
+         pdf.cell(60, 5, 'Permit holder',0,0,'L')
+         pdf.cell(6, 5, ':',0,0,'L')
+         pdf.cell(6, 5, holder_name,0,1,'L')
+
+         pdf.cell(0,5,' ', 0,1,'L')
+
+         pdf.cell(6, 5, ' ',0,0,'L')
+         pdf.cell(60, 5, 'Authorised works, acts or activities',0,1,'L')
+         pdf.cell(6, 5, '',0,1,'L')
+
+         pdf.cell(6, 5, ' ',0,0,'L')
+         pdf.cell(60, 5, 'Location of works, acts or activities:',0,1,'L')
+         pdf.cell(6, 5, '',0,1,'L')
+
+
+         pdf.cell(0,5,' ', 0,1,'L')
+         pdf.cell(6, 5, ' ',0,0,'L')
+         pdf.cell(30, 5, 'Approval date:',0,0,'L')
+         pdf.cell(6, 5, ' ',0,0,'L')
+         pdf.cell(50, 5, app.proposed_commence.strftime("%d %b %Y"),0,0,'L')
+
+         pdf.cell(30, 5, 'Expiry date:',0,0,'L')
+         pdf.cell(6, 5, ' ',0,0,'L')
+         pdf.cell(30, 5, app.proposed_end.strftime("%d %b %Y"),0,1,'L')
+
+         pdf = self.horizontal_line(pdf)
+         # horizontal line
+#         pdf.line(7, 110, 205, 110)
+
+
+         pdf.cell(0,5,' ', 0,1,'L')
+         pdf.set_font('Arial', 'B', 10)
+
+         pdf.cell(30, 8, 'CONDITIONS',0,1,'L')
+         pdf.cell(10, 8, ' 1.',0,0,'L')
+         pdf.cell(6, 8, ' ',0,0,'L')
+         pdf.cell(200, 8, '',0,1,'L')
+
+         pdf.cell(10, 8, ' 2.',0,0,'L')
+         pdf.cell(6, 8, ' ',0,0,'L')
+         pdf.cell(200, 8, '',0,1,'L')
+
+         pdf.cell(10, 8, ' 3.',0,0,'L')
+         pdf.cell(6, 8, ' ',0,0,'L')
+         pdf.cell(200, 8, '',0,1,'L')
+
+
+         pdf.cell(30, 8, 'ADVICE TO APPLICANT',0,1,'L')
+
+         pdf.cell(10, 8, ' 1.',0,0,'L')
+         pdf.cell(6, 8, ' ',0,0,'L')
+         pdf.cell(200, 8, '',0,1,'L')
+
+         pdf.cell(10, 8, ' 2.',0,0,'L')
+         pdf.cell(6, 8, ' ',0,0,'L')
+         pdf.cell(200, 8, '',0,1,'L')
+
+         pdf.cell(6, 8, ' ',0,0,'L')
+         pdf.cell(200, 8, '',0,1,'L')
+
+
+         pdf.cell(0,15,' ', 0,1,'L')
+         pdf.set_font('Arial', '', 10)
+         pdf.cell(30, 5, 'Glen Mcleod-Thorpe',0,1,'L')
+         pdf.cell(30, 5, '13-Feb-2018',0,1,'L')
+
+         # group spacer
+         pdf.cell(0,5,' ', 0,1,'L')
+
+         pdf.output('pdfs/applications/'+str(app.id)+'-application.pdf', 'F')
+
     def get(self,app,self_view,context):
         request = self_view.request
         return context
