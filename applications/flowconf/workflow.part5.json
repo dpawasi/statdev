@@ -1216,13 +1216,15 @@
                 "title": "Approve To Executive (DG Draft)",
                 "route": "12",
                 "routegroup": "exec",
-                "state": "13"
+                "state": "13",
+                "process": []
             },
             {
                 "title": "Reject To Manager (Swan River)",
                 "route": "10",
                 "routegroup": "manager",
-                "state": "5"
+                "state": "5",
+                "process": []
             }
 
         ],
@@ -1296,8 +1298,8 @@
                 "title": "Post to DG",
                 "route": "13",
                 "routegroup": "admin",
-                "state": "2"
-
+                "state": "2",
+                "process": ["draft_completed"]
             }
         ],
         "groupaccess": {
@@ -1957,7 +1959,8 @@
                 "title": "Post Determination to DG",
                 "route": "18",
                 "routegroup": "admin",
-                "state": "2"
+                "state": "2",
+                "process": ["final_completed"]
 
             }
         ],
@@ -2685,7 +2688,6 @@
                 "allow_admin_side_menu":"True"
             }
         },
-
         "collapse": {
             "applicant": "True",
             "title": "True",
@@ -2738,13 +2740,10 @@
             "document_determination" : "hide"
 
         }
-
-
-
     },
     "25": {
         "title": "Completed",
-		"hidden": {
+	    "hidden": {
             "applicant": "False",
             "title": "False",
             "certificate_commerical_acts_and_activities": "False",
