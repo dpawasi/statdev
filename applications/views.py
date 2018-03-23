@@ -3374,7 +3374,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 #        if app.routeid is None:
 #            app.routeid = 1
 
-
         flow = Flow()
         workflowtype = flow.getWorkFlowTypeFromApp(app)
         flow.get(workflowtype)
@@ -4258,7 +4257,6 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         action.save()
         return super(ApplicationRefer, self).form_valid(form)
 
-
 class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     """A view to allow an application to be assigned to an internal user or back to the customer.
     The ``action`` kwarg is used to define the new state of the application.
@@ -4437,7 +4435,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 #            comms.records.add(doc)
 
         if "stake_holder_communication" in route:
-            self.send_stake_holder_comms(app) 
+             self.send_stake_holder_comms(app) 
 
         emailcontext = {}
         emailcontext['app'] = self.object
@@ -4454,11 +4452,17 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         elif action == "referral":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailApplicationReferrals(app.id, 'Application for Feedback ', emailcontext, 'application-assigned-to-referee.html', None, None, None)
+
         if self.object.state == '14':
         # Form Commpleted & Create Approval
             self.complete_application(app)
         if self.object.state == '10': 
             self.ammendment_approved(app) 
+        if 'process' in route:
+            if 'draft_completed' in route['process']:
+                self.draft_completed(app)
+            if 'final_completed' in route['process']:
+                self.final_completed(app)
 
         # Record an action on the application:
         action = Action(
@@ -4500,7 +4504,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
                # get only applicant name and email
         
         # Get Sumitter information
-        #        submitter = app.submitted_by
+        # submitter = app.submitted_by
         if app.applicant != app.submitted_by:
             StakeholderComms.objects.create(application=app,
                                        email=app.submitted_by.email,
@@ -4511,7 +4515,6 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
             )
             emailcontext = {'person': app.submitted_by.first_name + ' '+ app.submitted_by.last_name}
             sendHtmlEmail([app.submitted_by.email], 'Appplication has progressed', emailcontext, 'application-stakeholder-comms.html', None, None, None)
-
 
 
         public_feedback =  PublicationFeedback.objects.filter(application=app)
@@ -4544,8 +4547,26 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         # Get Referrals
         # Referral
-#        app.pfpfpf        
+	# app.pfpfpf        
 
+
+    def draft_completed(self,app):
+         emailcontext = {}
+         emailcontext['app'] = app
+
+#        if app.app_type == 3:
+         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+         emailcontext['person'] = app.submitted_by
+         sendHtmlEmail([app.submitted_by.email], 'Draft Report - Part 5 - '+str(app.id), emailcontext, 'application-part5-draft-report.html', None, None, None)
+
+    def final_completed(self,app):
+         emailcontext = {}
+         emailcontext['app'] = app
+
+         if app.app_type == 3:
+            emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
+            emailcontext['person'] = app.submitted_by 
+            sendHtmlEmail([app.submitted_by.email], 'Final Report - Part  - '+str(app.id), emailcontext, 'application-part5-final-report.html', None, None, None)
 
     def complete_application(self,app): 
         """Once and application is complete and approval needs to be created in the approval model.
@@ -4553,13 +4574,41 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         approval = Approval.objects.create(
                                           app_type=app.app_type,
                                           title=app.title,
-                                          applicant = app.applicant,
-                                          organisation = app.organisation,
+                                          applicant=app.applicant,
+                                          organisation=app.organisation,
                                           application=app,
-                                          start_date = app.assessment_start_date,
-                                          expiry_date = app.expire_date,
-                                          status = 1
-                )
+                                          start_date=app.assessment_start_date,
+                                          expiry_date=app.expire_date,
+                                          status=1
+                                          )
+
+        emailcontext = {}
+        emailcontext['app'] = app
+        emailcontext['approval'] = approval
+
+
+	# applications/email/application-permit-proposal.html
+
+	# email send after application completed..(issued)
+        if app.app_type == 1:
+           # Permit Proposal
+           emailcontext['person'] = app.submitted_by 
+           emailcontext['conditions_count'] = Condition.objects.filter(application=app).count()
+           sendHtmlEmail([app.submitted_by.email], 'Permit - '+app.title, emailcontext, 'application-permit-proposal.html', None, None, None)
+
+        elif app.app_type == 2:
+           # Licence Proposal
+           emailcontext['person'] = app.submitted_by
+           sendHtmlEmail([app.submitted_by.email], 'Licence Permit - '+app.title, emailcontext, 'application-licence-permit-proposal.html', None, None, None)
+        elif app.app_type == 3:
+           # Licence Proposal
+           emailcontext['person'] = app.submitted_by
+           sendHtmlEmail([app.submitted_by.email], 'Determination - Part 5 - '+str(app.id)+' - '+str(app.location)+' - [Description of Works] - [Applicant]', emailcontext, 'application-determination.html', None, None, None)
+        elif app.app_type == 10 or app.app_type == 11:
+           # Permit & Licence Renewal 
+           emailcontext['person'] = app.submitted_by
+           sendHtmlEmail([app.submitted_by.email], 'Draft Report - Part 5 - '+str(app.id)+' - location - description of works - applicant', emailcontext, 'application-licence-permit-proposal.html', None, None, None)
+         
 
         ####################
         # Disabling compliance creationg after approval ( this is now handle by cron script as we are not creating all future compliance all at once but only the next due complaince.
