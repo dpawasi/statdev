@@ -62,7 +62,7 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
     if len(to) > 1:
        for to_email in to:
           msg = EmailMessage(subject, main_template, to=[to_email],cc=cc, from_email=from_email)
-	  msg.content_subtype = 'html'
+          msg.content_subtype = 'html'
           msg.send()
     else:
           msg = EmailMessage(subject, main_template, to=to,cc=cc, from_email=from_email)
