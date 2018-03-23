@@ -53,15 +53,21 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
     main_template = get_template('email-dpaw-template.html').render(Context(context))
 
     if override_email is not None:
-        to = [override_email]
+        to = override_email.split(",")
         if cc:
-            cc = [override_email]
+            cc = override_email.split(",")
         if bcc:
-            bcc = [override_email]
-
-    msg = EmailMessage(subject, main_template, to=to,cc=cc, from_email=from_email)
-    msg.content_subtype = 'html'
-    msg.send()
+            bcc = override_email.split(",")
+    
+    if len(to) > 1:
+       for to_email in to:
+          msg = EmailMessage(subject, main_template, to=[to_email],cc=cc, from_email=from_email)
+	  msg.content_subtype = 'html'
+          msg.send()
+    else:
+          msg = EmailMessage(subject, main_template, to=to,cc=cc, from_email=from_email)
+          msg.content_subtype = 'html'
+          msg.send()
     return True
 
 def emailGroup(subject,context,template,cc,bcc,from_email,group):

@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="row">
         <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
-        <br />
+        <br/>
     </div>
 
     <!-- Action panel start -->
@@ -16,11 +16,11 @@
 
         <!-- Main panel start -->
         <div class="col-sm-8 col-md-9 col-lg-10">
-{% if object.state == 1 %}
-{% if object.sumbitter_comment|length > 1 %}
-<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>&nbsp;&nbsp;{{ object.sumbitter_comment }}</div>
-{% endif %}
-{% endif %}
+	{% if object.state == 1 %}
+		{% if object.sumbitter_comment|length > 1 %}
+			<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>&nbsp;&nbsp;{{ object.sumbitter_comment }}</div>
+		{% endif %}
+	{% endif %}
 
             <!-- Applicant panel -->
             {% if hidden.applicant == "False" %}
@@ -35,20 +35,20 @@
                 </div>
                 <div class="panel-collapse collapse {{ collapse.applicant }}" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
                     <div class="panel-body">
-                        {# TODO: applicant details should only be visible to internal users. #}
-                        <div class="row">
+                    {# TODO: applicant details should only be visible to internal users. #}
+                    <div class="row">
                     {% if object.organisation %}
                            {% include "applications/organisation_update_snippet.html" %}
                     {% else %}
                         {% include "applications/applicant_snippet.html" %}
                     {% endif %}
-                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
             {% endif %}
 
-			{% if hidden.title == "False" %}
+            {% if hidden.title == "False" %}
             <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="title_heading">
                     <h3 class="panel-title">
