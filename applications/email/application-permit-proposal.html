@@ -1,18 +1,22 @@
-<p>Dear {{ person.title }} {{ person.last_name }}</p>
+<p>Dear {% if person.title %} {{ person.title }} {% endif %} {{ person.last_name }}</p>
 
-<p>PERMIT P{{ approval.id }} - PROPOSAL - ADDRESS</p>
+<p>
+PERMIT:  P{{ approval.id }}<br>
+PROPOSAL: {{ app.title }}<br>
+ADDRESS : {{ app.lot }} {{ app.reserve_number }} {{ app.town_suburb }}<br>
+</p>
 
 <p>Thank you for your permit application for the above-mentioned proposal.</p>
  
 <p>Your proposal has been assessed based on the information provided on {{ app.submit_date|date:"d-M-Y" }}, and a decision made to approve the application, subject to conditions and advice. Please find attached your approved permit and conditions.</p>
  
-<p>[REMOVE IF NO PRECOMMENCEMENT CONDITIONS] Please note that the current processing time for clearance of condition requests is approximately 30 days.  If insufficient information is provided to support your request, processing of your clearance may be delayed.  In instances where the condition states that advice will be sought from outside of the department before clearance is issued, an additional 21 day referral period should be allowed for. [REMOVE IF NO PRECOMMENCEMENT CONDITIONS]</p>
+<p>{% if conditions_count > 0 %} Please note that the current processing time for clearance of condition requests is approximately 30 days.  If insufficient information is provided to support your request, processing of your clearance may be delayed.  In instances where the condition states that advice will be sought from outside of the department before clearance is issued, an additional 21 day referral period should be allowed for.{% endif %}</p>
 
-<p>Please note it is an offence under Regulation 31(3) of the Swan and Canning Rivers Management Regulations 2007 for the holder of a permit to contravene a condition. Fines of up to $5,000 may apply. </p>
+<p>Please note it is an offence under Regulation 31(3) of the Swan and Canning Rivers Management Regulations 2007 for the holder of a permit to contravene a condition. Fines of up to $5,000 may apply.</p>
  
 <p>Under the Swan and Canning Rivers Management Regulations 2007, a permit may be revoked or suspended if there has been a breach of condition, or if there is immediate and serious risk of harm to the ecological or community benefits or amenity of the Riverpark or the Swan Canning Development Control Area.</p>
 
-<p>If you have any queries regarding this matter, please contact the Department of Biodiversity, Conservation and Attractions, Rivers and Estuaries Division, on 9219 9000 or rivers.planning@dbca.wa.gov.au and quote the reference number File Number. </p>
+<p>If you have any queries regarding this matter, please contact the Department of Biodiversity, Conservation and Attractions, Rivers and Estuaries Division, on 9219 9000 or rivers.planning@dbca.wa.gov.au and quote the reference number WO-{{ app.id }}.</p>
  
 <p>
 Kind Regards<BR>

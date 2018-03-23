@@ -1,6 +1,6 @@
-<p>Dear {{ person.title }} {{ person.last_name }}</p>
+<p>Dear {% if person.title %} {{ person.title }} {% endif %} {{ person.last_name }}</p>
 
-<p>DETERMINATION – {{ app.location }} – {{ app.title }} – {% if app.organisation %} organisation{% else %}appl{% endif %}</p>
+<p>DETERMINATION – {{ app.location }} – {{ app.title }} – {% include "email/applicant.template" %}</p>
 
 <p>Please be advised that in accordance with Section 80 of the Swan and Canning Rivers Management Act 2006, the Minister for Environment; Disability Services has considered the Department of Biodiversity, Conservation and Attractions’ (the department’s) final report and has made a decision to approve the application.</p>
 
