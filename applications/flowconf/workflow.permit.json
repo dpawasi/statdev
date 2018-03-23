@@ -180,7 +180,8 @@
                 "title": "Send to Assessor",
                 "route": "3",
                 "routegroup":"assess",
-                "state": "4"
+                "state": "4",
+                "process": []
             },
             {
                 "title": "Return to submitter",
