@@ -9,7 +9,7 @@ from applications.utils import get_query
 from . import forms as apps_forms
 from actions.models import Action
 from django.contrib.contenttypes.models import ContentType
-from applications.models import Application,Record
+from applications.models import Application, Record
 from applications.validationchecks import Attachment_Extension_Check
 from django.http import HttpResponse, HttpResponseRedirect
 from statdev.context_processors import template_context
@@ -19,6 +19,16 @@ import os.path
 
 class ApprovalList(ListView):
     model = ApprovalModel
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        staff = context_processor['staff']
+        if staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ApprovalList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super(ApprovalList, self).get_queryset()
