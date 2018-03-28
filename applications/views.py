@@ -5405,7 +5405,7 @@ class ComplianceSubmit(LoginRequiredMixin, UpdateView):
         elif self.request.user.groups.filter(name__in=['Assessor']).exists():
            pass
         elif self.request.user == self.object.applicant:
-	   pass
+           pass
         elif org == 1:
            pass
         else:
