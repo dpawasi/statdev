@@ -6286,26 +6286,26 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
 
 #       if flowcontext.state != app.APP_STATE_CHOICES.draft:
-	if flowcontext["may_update_publication_newspaper"] != "True":
-		    messages.error(
-			self.request, "Can't add new newspaper publication to this application")
-		    return HttpResponseRedirect(app.get_absolute_url())
+        if flowcontext["may_update_publication_newspaper"] != "True":
+                    messages.error(
+                          self.request, "Can't add new newspaper publication to this application")
+                    return HttpResponseRedirect(app.get_absolute_url())
         return super(NewsPaperPublicationCreate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
-	return reverse('application_detail', args=(self.kwargs['pk'],))
+        return reverse('application_detail', args=(self.kwargs['pk'],))
 
     def get_context_data(self, **kwargs):
         context = super(NewsPaperPublicationCreate,
- 		self).get_context_data(**kwargs)
-	context['application'] = Application.objects.get(pk=self.kwargs['pk'])
-	return context
+                       self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
 
     def get_initial(self):
-	initial = super(NewsPaperPublicationCreate, self).get_initial()
-	initial['application'] = self.kwargs['pk']
+        initial = super(NewsPaperPublicationCreate, self).get_initial()
+        initial['application'] = self.kwargs['pk']
 
-		# try:
+           # try:
 		#    pub_news = PublicationNewspaper.objects.get(
 		#    application=self.kwargs['pk'])
 		# except:
