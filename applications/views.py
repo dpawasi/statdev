@@ -1710,7 +1710,7 @@ class SearchReference(ListView):
         #    print "YESS"
         #    print context['form_prefix']
         #    print context['form_no']
-	#    form = form_class(request.POST)
+        #    form = form_class(request.POST)
 
         if len(context['form_prefix']) > 0:
             if context['form_no'] > 0:
@@ -2662,7 +2662,7 @@ class ReferralConditions(UpdateView):
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
-	# refcount = Referral.objects.filter(referee=self.request.user).count()
+        # refcount = Referral.objects.filter(referee=self.request.user).count()
         refcount = Referral.objects.filter(application=app,referee=self.request.user).count()
         if refcount == 1:
            pass
@@ -4106,7 +4106,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         #    new_doc.upload = self.request.FILES['supporting_info_demonstrate_compliance_trust_policies']
         #    new_doc.save()
         #    self.object.supporting_info_demonstrate_compliance_trust_policies = new_doc
-	#
+        #
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
 
         if 'certificate_of_title_volume' in forms_data:
@@ -4722,7 +4722,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         # Get Referrals
         # Referral
-	# app.pfpfpf        
+        # app.pfpfpf        
 
 
     def draft_completed(self,app):
@@ -4762,9 +4762,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         emailcontext['approval'] = approval
 
 
-	# applications/email/application-permit-proposal.html
+        # applications/email/application-permit-proposal.html
 
-	# email send after application completed..(issued)
+        # email send after application completed..(issued)
         if app.app_type == 1:
            # Permit Proposal
            emailcontext['person'] = app.submitted_by 
@@ -6057,7 +6057,7 @@ class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
-	# context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        # context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         context['conditions'] = Compliance.objects.filter(id=app.id)
         return context
 
@@ -6306,34 +6306,34 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         initial['application'] = self.kwargs['pk']
 
            # try:
-		#    pub_news = PublicationNewspaper.objects.get(
-		#    application=self.kwargs['pk'])
-		# except:
-		#    pub_news = None
-	return initial
+                #    pub_news = PublicationNewspaper.objects.get(
+                #    application=self.kwargs['pk'])
+                # except:
+                #    pub_news = None
+        return initial
 
     def post(self, request, *args, **kwargs):
-	if request.POST.get('cancel'):
-	    app = Application.objects.get(pk=self.kwargs['pk'])
-	    return HttpResponseRedirect(app.get_absolute_url())    
-	    
-	return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
+        if request.POST.get('cancel'):
+            app = Application.objects.get(pk=self.kwargs['pk'])
+            return HttpResponseRedirect(app.get_absolute_url())    
+    
+        return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
     def form_valid(self, form):
-	forms_data = form.cleaned_data
-	self.object = form.save(commit=True)
-	if self.request.FILES.get('records'):
-	    for f in self.request.FILES.getlist('records'):
-		doc = Record()
-		doc.upload = f
-		doc.save()
-		self.object.records.add(doc)
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=True)
+        if self.request.FILES.get('records'):
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
 
-	action = Action(
-	    content_object=self.object.application, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.create,
-	    action='Newspaper Publication ({} {}) '.format(self.object.newspaper, self.object.date) )
-	action.save()
+        action = Action(
+            content_object=self.object.application, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.create,
+            action='Newspaper Publication ({} {}) '.format(self.object.newspaper, self.object.date) )
+        action.save()
 
-	return super(NewsPaperPublicationCreate, self).form_valid(form)
+        return super(NewsPaperPublicationCreate, self).form_valid(form)
 
 
 class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
@@ -6341,270 +6341,264 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.NewsPaperPublicationCreateForm
 
     def get(self, request, *args, **kwargs):
-		#app = self.get_object().application_set.first()
-	PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
-	app = Application.objects.get(pk=PubNew.application.id)
-	flow = Flow()
-	workflowtype = flow.getWorkFlowTypeFromApp(app)
-	flow.get(workflowtype)
-	DefaultGroups = flow.groupList()
-	flowcontext = {}
-	flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
-	if flowcontext["may_update_publication_newspaper"] != "True":
-	    messages.error(
-		self.request, "Can't update newspaper publication to this application")
-	    return HttpResponseRedirect(app.get_absolute_url())
-	# Rule: can only change a vessel if the parent application is status
-	# 'draft'.
-	    # if app.state != Application.APP_STATE_CHOICES.draft:
-	    #    messages.error(
-	    #        self.request, 'You can only change a publication details when the application is "draft" status')
+        #app = self.get_object().application_set.first()
+        PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        app = Application.objects.get(pk=PubNew.application.id)
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        if flowcontext["may_update_publication_newspaper"] != "True":
+            messages.error(self.request, "Can't update newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        # Rule: can only change a vessel if the parent application is status
+        # 'draft'.
+            # if app.state != Application.APP_STATE_CHOICES.draft:
+            #    messages.error(
+            #        self.request, 'You can only change a publication details when the application is "draft" status')
 #        return HttpResponseRedirect(app.get_absolute_url())
-	return super(NewsPaperPublicationUpdate, self).get(request, *args, **kwargs)
+        return super(NewsPaperPublicationUpdate, self).get(request, *args, **kwargs)
 
     def get_initial(self):
-	initial = super(NewsPaperPublicationUpdate, self).get_initial()
+        initial = super(NewsPaperPublicationUpdate, self).get_initial()
 #       initial['application'] = self.kwargs['pk']
 
-	try:
-	    pub_news = PublicationNewspaper.objects.get(
-		pk=self.kwargs['pk'])
-	except:
-	    pub_news = None
+        try:
+            pub_news = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        except:
+            pub_news = None
 
-	multifilelist = []
-	if pub_news:
-	    records = pub_news.records.all()
-	    for b1 in records:
-		fileitem = {}
-		fileitem['fileid'] = b1.id
-		fileitem['path'] = b1.upload.name
-		multifilelist.append(fileitem)
-	initial['records'] = multifilelist
-	return initial
+        multifilelist = []
+        if pub_news:
+            records = pub_news.records.all()
+            for b1 in records:
+                fileitem = {}
+                fileitem['fileid'] = b1.id
+                fileitem['path'] = b1.upload.name
+                multifilelist.append(fileitem)
+        initial['records'] = multifilelist
+        return initial
 
     def get_context_data(self, **kwargs):
-	context = super(NewsPaperPublicationUpdate, self).get_context_data(**kwargs)
-	context['page_heading'] = 'Update Newspaper Publication details'
-	return context
+        context = super(NewsPaperPublicationUpdate, self).get_context_data(**kwargs)
+        context['page_heading'] = 'Update Newspaper Publication details'
+        return context
 
     def post(self, request, *args, **kwargs):
-	if request.POST.get('cancel'):
+        if request.POST.get('cancel'):
  #           print self.get_object().application.pk
 #            app = self.get_object().application_set.first()
-	    return HttpResponseRedirect(reverse('application_detail', args=(self.get_object().application.pk,)))
-	return super(NewsPaperPublicationUpdate, self).post(request, *args, **kwargs)
+            return HttpResponseRedirect(reverse('application_detail', args=(self.get_object().application.pk,)))
+        return super(NewsPaperPublicationUpdate, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-	self.object = form.save()
-	app = Application.objects.get(pk=self.object.application.id)
+        self.object = form.save()
+        app = Application.objects.get(pk=self.object.application.id)
 
-	pub_news = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        pub_news = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
 
-	records = pub_news.records.all()
-	for filelist in records:
-	    if 'records-clear_multifileid-' + str(filelist.id) in form.data:
-		pub_news.records.remove(filelist)
+        records = pub_news.records.all()
+        for filelist in records:
+        if 'records-clear_multifileid-' + str(filelist.id) in form.data:
+                 pub_news.records.remove(filelist)
 
-	if self.request.FILES.get('records'):
-	    for f in self.request.FILES.getlist('records'):
-		doc = Record()
-		doc.upload = f
-		doc.save()
-		self.object.records.add(doc)
+        if self.request.FILES.get('records'):
+            for f in self.request.FILES.getlist('records'):
+                doc = Record()
+                doc.upload = f
+                doc.save()
+                self.object.records.add(doc)
 
-	action = Action(
-	    content_object=self.object.application, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
-	    action='Newspaper Publication ({} {}) '.format(self.object.newspaper, self.object.date) )
-	action.save()
+        action = Action(
+            content_object=self.object.application, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+            action='Newspaper Publication ({} {}) '.format(self.object.newspaper, self.object.date) )
+        action.save()
 
 
-	return HttpResponseRedirect(app.get_absolute_url())
+        return HttpResponseRedirect(app.get_absolute_url())
 
 
 class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
     model = PublicationNewspaper
 
     def get(self, request, *args, **kwargs):
-	modelobject = self.get_object()
-	PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
-	app = Application.objects.get(pk=PubNew.application.id)
-	flow = Flow()
-	workflowtype = flow.getWorkFlowTypeFromApp(app)
-	flow.get(workflowtype)
-	DefaultGroups = flow.groupList()
-	flowcontext = {}
-	flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
-	if flowcontext["may_update_publication_newspaper"] != "True":
-	    messages.error(
-		self.request, "Can't delete newspaper publication to this application")
-	    return HttpResponseRedirect(app.get_absolute_url())
-		# Rule: can only delete a condition if the parent application is status
-	# 'with referral' or 'with assessor'.
+        modelobject = self.get_object()
+        PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
+        app = Application.objects.get(pk=PubNew.application.id)
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        if flowcontext["may_update_publication_newspaper"] != "True":
+            messages.error(self.request, "Can't delete newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+            # Rule: can only delete a condition if the parent application is status
+        # 'with referral' or 'with assessor'.
 #        if modelobject.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
  #           messages.warning(self.request, 'You cannot delete this condition')
   #          return HttpResponseRedirect(modelobject.application.get_absolute_url())
-	# Rule: can only delete a condition if the request user is an Assessor
-	# or they are assigned the referral to which the condition is attached
-	# and that referral is not completed.
+        # Rule: can only delete a condition if the request user is an Assessor
+        # or they are assigned the referral to which the condition is attached
+        # and that referral is not completed.
   #      assessor = Group.objects.get(name='Assessor')
    #     ref = condition.referral
-	#    if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
-	return super(NewsPaperPublicationDelete, self).get(request, *args, **kwargs)
-	#    else:
-	#       messages.warning(self.request, 'You cannot delete this condition')
-	#      return HttpResponseRedirect(condition.application.get_absolute_url())
+        #    if assessor in self.request.user.groups.all() or (ref and ref.referee == request.user and ref.status == Referral.REFERRAL_STATUS_CHOICES.referred):
+        return super(NewsPaperPublicationDelete, self).get(request, *args, **kwargs)
+        #    else:
+        #       messages.warning(self.request, 'You cannot delete this condition')
+        #      return HttpResponseRedirect(condition.application.get_absolute_url())
     def get_success_url(self):
-	return reverse('application_detail', args=(self.get_object().application.pk,))
+        return reverse('application_detail', args=(self.get_object().application.pk,))
     def post(self, request, *args, **kwargs):
-	if request.POST.get('cancel'):
-	    return HttpResponseRedirect(self.get_success_url())
-	# Generate an action.
-	modelobject = self.get_object()
-	action = Action(
-	    content_object=modelobject.application, user=self.request.user,
-	    action='Delete Newspaper Publication {} deleted (status: {})'.format(modelobject.pk, 'delete'))
-	action.save()
-	messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
-	return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
+        if request.POST.get('cancel'):
+           return HttpResponseRedirect(self.get_success_url())
+        # Generate an action.
+        modelobject = self.get_object()
+        action = Action(
+            content_object=modelobject.application, user=self.request.user,
+            action='Delete Newspaper Publication {} deleted (status: {})'.format(modelobject.pk, 'delete'))
+        action.save()
+        messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
+        return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
 class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     model = PublicationWebsite
     form_class = apps_forms.WebsitePublicationForm
     def get(self, request, *args, **kwargs):
-	app = Application.objects.get(pk=self.kwargs['pk'])
-	flow = Flow()
-	workflowtype = flow.getWorkFlowTypeFromApp(app)
-	flow.get(workflowtype)
-	DefaultGroups = flow.groupList()
-	flowcontext = {}
-	flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
-	if flowcontext["may_update_publication_website"] != "True":
-	    messages.error(
-		self.request, "Can't update ebsite publication to this application")
-	    return HttpResponseRedirect(app.get_absolute_url())
-	return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
+        if flowcontext["may_update_publication_website"] != "True":
+            messages.error(self.request, "Can't update ebsite publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
     def get_success_url(self):
-	return reverse('application_detail', args=(self.kwargs['pk'],))
+        return reverse('application_detail', args=(self.kwargs['pk'],))
 
-	#    def get_success_url(self):
-	#        print self.kwargs['pk']
-		#        return reverse('application_detail', args=(self.get_object().application.pk,))
-	#        return reverse('application_detail', args=(self.kwargs['pk']))
+        #    def get_success_url(self):
+        #        print self.kwargs['pk']
+        #        return reverse('application_detail', args=(self.get_object().application.pk,))
+        #        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
-		# self.object.original_document = self.kwargs['original_document']
-	context = super(WebsitePublicationChange,
-			self).get_context_data(**kwargs)
-	context['application'] = Application.objects.get(pk=self.kwargs['pk'])
-	return context
+        context = super(WebsitePublicationChange,self).get_context_data(**kwargs)
+        context['application'] = Application.objects.get(pk=self.kwargs['pk'])
+        return context
 
     def get_initial(self):
-	initial = super(WebsitePublicationChange, self).get_initial()
-	initial['application'] = self.kwargs['pk']
-	#        doc = Record.objects.get(pk=self.kwargs['docid'])
-	#        print self.kwargs['docid']      
-	#        print PublicationWebsite.objects.get(original_document_id=self.kwargs['docid']) 
-	try:
-	    pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
-	except:
-	    pub_web = None
-	if pub_web:
-	    initial['published_document'] = pub_web.published_document
+        initial = super(WebsitePublicationChange, self).get_initial()
+        initial['application'] = self.kwargs['pk']
+        #        doc = Record.objects.get(pk=self.kwargs['docid'])
+        #        print self.kwargs['docid']      
+        #        print PublicationWebsite.objects.get(original_document_id=self.kwargs['docid']) 
+        try:
+            pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+        except:
+            pub_web = None
+        if pub_web:
+                initial['published_document'] = pub_web.published_document
 
 
-		#filelist = []
-		#if pub_web:
-		#    if pub_web.published_document:
-		#        # records = pub_news.records.all()
-		#        fileitem = {}
-		#        fileitem['fileid'] = pub_web.published_document.id
-		#        fileitem['path'] = pub_web.published_document.upload.name
-		#        fileitem['name'] = pub_web.published_document.name
-		#        fileitem['short_name'] = pub_web.published_document.upload.name[19:] 
-		#        filelist.append(fileitem)
+                #filelist = [] 
+                #if pub_web: 
+                #    if pub_web.published_document:
+                #        # records = pub_news.records.all()
+                #        fileitem = {} 
+                #        fileitem['fileid'] = pub_web.published_document.id
+                #        fileitem['path'] = pub_web.published_document.upload.name
+                #        fileitem['name'] = pub_web.published_document.name
+                #        fileitem['short_name'] = pub_web.published_document.upload.name[19:]  
+                #        filelist.append(fileitem)
 
-		#if pub_web:
-		#    if pub_web.id:
-		#        initial['id'] = pub_web.id
-		#        print "hello"
+                #if pub_web:
+                #    if pub_web.id:
+                #        initial['id'] = pub_web.id
+                #        print "hello"
 
-		#initial['published_document'] = filelist
-		#doc = Record.objects.get(pk=self.kwargs['docid'])
-		#initial['original_document'] = doc
-	return initial
+                #initial['published_document'] = filelist
+                #doc = Record.objects.get(pk=self.kwargs['docid'])
+                #initial['original_document'] = doc
+        return initial
 
     def post(self, request, *args, **kwargs):
-	# print "IS POST WORKING"
-	if request.POST.get('cancel'):
+        if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
-	    return HttpResponseRedirect(app.get_absolute_url())
-	return super(WebsitePublicationChange, self).post(request, *args, **kwargs)
+            return HttpResponseRedirect(app.get_absolute_url())
+        return super(WebsitePublicationChange, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-	forms_data = form.cleaned_data
-	self.object = form.save(commit=False)
-	pub_web = None
+        forms_data = form.cleaned_data
+        self.object = form.save(commit=False)
+        pub_web = None
 #        print "THE"
-	try:
-	    pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
-	except:
-	    pub_web = None
+        try:
+            pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+        except:
+            pub_web = None
 
-	#        if pub_web:
-	#            self.object.id = pub_web.id
-	#            self.object.published_document = pub_web.published_document
+        #        if pub_web:
+        #            self.object.id = pub_web.id
+        #            self.object.published_document = pub_web.published_document
 
-	#            if pub_web.published_document:
-	#                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
-	#                    self.object.published_document = None
+        #            if pub_web.published_document:
+        #                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
+        #                    self.object.published_document = None
 
-		
-	orig_doc = Record.objects.get(id=self.kwargs['docid'])
-	self.object.original_document = orig_doc
-	# print "SSS"
-	# print self.request.FILES.get('published_document')
-	# print self.request.POST
-	if 'published_document_json' in self.request.POST:
-	     if is_json(self.request.POST['published_document_json']) is True: 
-		  json_data = json.loads(self.request.POST['published_document_json'])
-		  if 'doc_id' in json_data:
-		      try:
-			  pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])                 
-			  pub_obj.delete()
-		      except: 
-			  donothing = ''
-		   
-		      new_doc = Record.objects.get(id=json_data['doc_id'])
-		      self.object.published_document = new_doc
-		  else:
-		      pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
-		      pub_obj.delete()
+
+        orig_doc = Record.objects.get(id=self.kwargs['docid'])
+        self.object.original_document = orig_doc
+        # print "SSS"
+        # print self.request.FILES.get('published_document')
+        # print self.request.POST
+        if 'published_document_json' in self.request.POST:
+            if is_json(self.request.POST['published_document_json']) is True: 
+                  json_data = json.loads(self.request.POST['published_document_json'])
+                  if 'doc_id' in json_data:
+                      try:
+                          pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])                 
+                          pub_obj.delete()
+                      except: 
+                          pass
+   
+                      new_doc = Record.objects.get(id=json_data['doc_id'])
+                      self.object.published_document = new_doc
+                  else:
+                      pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
+                      pub_obj.delete()
 
 
 #             else:
-	 #                self.object.remove()
-	
-		     # print json_data
-	     # self.object.published_document.remove()
-	     # for d in self.object.published_document.all():
-	     #    self.object.published_document.remove(d)
-	     # for i in json_data:
-	     #    doc = Record.objects.get(id=i['doc_id'])
-	#             self.object.published_document = i['doc_id']
+ #                self.object.remove()
+
+     # print json_data
+     # self.object.published_document.remove()
+    # for d in self.object.published_document.all():
+     #    self.object.published_document.remove(d)
+     # for i in json_data:
+     #    doc = Record.objects.get(id=i['doc_id'])
+#             self.object.published_document = i['doc_id']
 #             self.object.save()
-	#        if self.request.FILES.get('published_document'):
+#        if self.request.FILES.get('published_document'):
 #            for f in self.request.FILES.getlist('published_document'):
-	 #               doc = Record()
+ #               doc = Record()
   #              doc.upload = f
    #             doc.save()
     #            self.object.published_document = doc
-	app = Application.objects.get(pk=self.kwargs['pk'])
-	action = Action(
-		    content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
-	    action='Publish New Web Documents for Doc ID: {}'.format(self.kwargs['docid']))
-	action.save()
-	return super(WebsitePublicationChange, self).form_valid(form)
+        app = Application.objects.get(pk=self.kwargs['pk'])
+        action = Action(
+              content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+        action='Publish New Web Documents for Doc ID: {}'.format(self.kwargs['docid']))
+        action.save()
+        return super(WebsitePublicationChange, self).form_valid(form)
+
 class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
     model = PublicationFeedback
     form_class = apps_forms.FeedbackPublicationCreateForm
@@ -6620,7 +6614,7 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
 
         if flowcontext["may_update_publication_feedback_draft"] == "True":
            return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
-	elif flowcontext["may_update_publication_feedback_final"] == "True":
+        elif flowcontext["may_update_publication_feedback_final"] == "True":
            return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
         elif flowcontext["may_update_publication_feedback_determination"] == "True":
            return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
