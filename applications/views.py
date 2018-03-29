@@ -6401,7 +6401,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 
         records = pub_news.records.all()
         for filelist in records:
-        if 'records-clear_multifileid-' + str(filelist.id) in form.data:
+            if 'records-clear_multifileid-' + str(filelist.id) in form.data:
                  pub_news.records.remove(filelist)
 
         if self.request.FILES.get('records'):
