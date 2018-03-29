@@ -986,6 +986,16 @@ class ApplicationList(LoginRequiredMixin,ListView):
 class EmergencyWorksList(ListView):
     model = Application
     template_name = 'applications/emergencyworks_list.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        staff = context_processor['staff']
+        if staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(EmergencyWorksList, self).get(request, *args, **kwargs)
    
     def get_queryset(self):
         qs = super(EmergencyWorksList, self).get_queryset()
@@ -1072,6 +1082,16 @@ class EmergencyWorksList(ListView):
 class ComplianceList(ListView):
     model = Compliance
     template_name = 'applications/compliance_list.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        staff = context_processor['staff']
+        if staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ComplianceList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super(ComplianceList, self).get_queryset()
@@ -1161,6 +1181,17 @@ class SearchMenu(ListView):
     model = Compliance
     template_name = 'applications/search_menu.html'
 
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(SearchMenu, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(SearchMenu, self).get_context_data(**kwargs)
         return context
@@ -1234,6 +1265,16 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
     form_class = apps_forms.OrganisationAccessRequestForm
     model = OrganisationPending
     template_name = 'applications/organisation_pending_update.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationAccessRequest, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super(OrganisationAccessRequestUpdate, self).get_queryset()
@@ -1341,6 +1382,16 @@ class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
     model = OrganisationPending
     template_name = 'applications/organisation_pending_view.html'
 
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationAccessRequestView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(OrganisationAccessRequestView, self).get_context_data(**kwargs)
         app = self.get_object()
@@ -1354,6 +1405,16 @@ class OrganisationAccessRequestView(LoginRequiredMixin,DetailView):
 class SearchPersonList(ListView):
     model = Compliance
     template_name = 'applications/search_person_list.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(SearchPersonList, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 
@@ -1398,6 +1459,17 @@ class SearchPersonList(ListView):
 class SearchCompanyList(ListView):
     model = Compliance
     template_name = 'applications/search_company_list.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(SearchCompanyList, self).get(request, *args, **kwargs)
+
 
     def get_context_data(self, **kwargs):
 
@@ -1444,6 +1516,17 @@ class SearchCompanyList(ListView):
 class SearchKeywords(ListView):
     model = Compliance
     template_name = 'applications/search_keywords_list.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(SearchKeywords, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SearchKeywords, self).get_context_data(**kwargs)
@@ -1612,11 +1695,23 @@ class SearchReference(ListView):
     model = Compliance
     template_name = 'applications/search_reference_list.html'
 
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(SearchReference, self).get(request, *args, **kwargs)
+
     def render_to_response(self, context):
         #    print "YESS"
         #    print context['form_prefix']
         #    print context['form_no']
-#       form = form_class(request.POST)
+        #    form = form_class(request.POST)
+
         if len(context['form_prefix']) > 0:
             if context['form_no'] > 0:
                 if context['form_prefix'] == 'EW-' or context['form_prefix'] == 'WO-':
@@ -1692,6 +1787,7 @@ class SearchReference(ListView):
         context['query_string'] = ''
         context['form_prefix'] = ''
         context['form_no'] = ''
+
         if 'q' in self.request.GET and self.request.GET['q']:
             query_str = self.request.GET['q']
             query_str_split = query_str.split()
@@ -1707,6 +1803,16 @@ class SearchReference(ListView):
 class ApplicationCreateEW(LoginRequiredMixin, CreateView):
     form_class = apps_forms.ApplicationCreateForm
     template_name = 'applications/application_form.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationAccessRequest, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ApplicationCreateEW, self).get_context_data(**kwargs)
@@ -1787,13 +1893,24 @@ class CreateAccount(LoginRequiredMixin, CreateView):
     template_name = 'applications/create_account_form.html'
 
     def get(self, request, *args, **kwargs):
-        #if self.request.user.groups.filter(name__in=['Processor']).exists():
-        #    app = Application.objects.create(submitted_by=self.request.user
-        #                                     ,submit_date=date.today()
-        #                                     ,state=Application.APP_STATE_CHOICES.new
-        #                                     )
-        #    return HttpResponseRedirect("/applications/"+str(app.id)+"/apply/apptype/")
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
         return super(CreateAccount, self).get(request, *args, **kwargs)
+
+#    def get(self, request, *args, **kwargs):
+#        #if self.request.user.groups.filter(name__in=['Processor']).exists():
+#        #    app = Application.objects.create(submitted_by=self.request.user
+#        #                                     ,submit_date=date.today()
+#        #                                     ,state=Application.APP_STATE_CHOICES.new
+#        #                                     )
+#        #    return HttpResponseRedirect("/applications/"+str(app.id)+"/apply/apptype/")
+#        return super(CreateAccount, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(CreateAccount, self).get_context_data(**kwargs)
@@ -1806,6 +1923,16 @@ class CreateAccount(LoginRequiredMixin, CreateView):
         return kwargs
 
     def post(self, request, *args, **kwargs):
+
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(reverse('home_page'))
         return super(CreateAccount, self).post(request, *args, **kwargs)
@@ -2121,7 +2248,7 @@ class ApplicationDetail(DetailView):
         return context
 
 
-class ApplicationDetailPDF(ApplicationDetail):
+class ApplicationDetailPDF(LoginRequiredMixin,ApplicationDetail):
     """This view is a proof of concept for synchronous, server-side PDF generation.
     Depending on performance and resource constraints, this might need to be
     refactored to use an asynchronous task.
@@ -2153,7 +2280,7 @@ class ApplicationDetailPDF(ApplicationDetail):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationDetailPDF, self).post(request, *args, **kwargs)
 
-class AccountActions(DetailView):
+class AccountActions(LoginRequiredMixin,DetailView):
     model = EmailUser 
     template_name = 'applications/account_actions.html'
 
@@ -2175,7 +2302,7 @@ class AccountActions(DetailView):
             content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
         return context
 
-class OrganisationActions(DetailView):
+class OrganisationActions(LoginRequiredMixin,DetailView):
     model = Organisation
     template_name = 'applications/organisation_actions.html'
 
@@ -2198,7 +2325,7 @@ class OrganisationActions(DetailView):
              content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
         return context
 
-class OrganisationARActions(DetailView):
+class OrganisationARActions(LoginRequiredMixin,DetailView):
     model = OrganisationPending
     template_name = 'applications/organisation_ar_actions.html'
 
@@ -2221,7 +2348,7 @@ class OrganisationARActions(DetailView):
              content_type=ContentType.objects.get_for_model(obj), object_id=obj.pk).order_by('-timestamp')
         return context
 
-class ApplicationActions(DetailView):
+class ApplicationActions(LoginRequiredMixin,DetailView):
     model = Application
     template_name = 'applications/application_actions.html'
 
@@ -2243,7 +2370,7 @@ class ApplicationActions(DetailView):
             content_type=ContentType.objects.get_for_model(app), object_id=app.pk).order_by('-timestamp')
         return context
 
-class ApplicationComms(DetailView):
+class ApplicationComms(LoginRequiredMixin,DetailView):
     model = Application 
     template_name = 'applications/application_comms.html'
 
@@ -2264,7 +2391,7 @@ class ApplicationComms(DetailView):
         context['communications'] = Communication.objects.filter(application_id=app.pk).order_by('-created')
         return context
 
-class ApplicationCommsCreate(CreateView):
+class ApplicationCommsCreate(LoginRequiredMixin,CreateView):
     model = Communication
     form_class = apps_forms.CommunicationCreateForm
     template_name = 'applications/application_comms_create.html'
@@ -2315,7 +2442,7 @@ class ApplicationCommsCreate(CreateView):
         success_url = reverse('application_comms', args=(app_id,))
         return HttpResponseRedirect(success_url)
 
-class AccountComms(DetailView):
+class AccountComms(LoginRequiredMixin,DetailView):
     model = EmailUser
     template_name = 'applications/account_comms.html'
 
@@ -2337,10 +2464,20 @@ class AccountComms(DetailView):
         return context
 
 
-class AccountCommsCreate(CreateView):
+class AccountCommsCreate(LoginRequiredMixin,CreateView):
     model = CommunicationAccount
     form_class = apps_forms.CommunicationAccountCreateForm
     template_name = 'applications/application_comms_create.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(AccountCommsCreate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(AccountCommsCreate, self).get_context_data(**kwargs)
@@ -2386,7 +2523,7 @@ class AccountCommsCreate(CreateView):
         success_url = reverse('account_comms', args=(user_id,))
         return HttpResponseRedirect(success_url)
 
-class ComplianceComms(DetailView):
+class ComplianceComms(LoginRequiredMixin,DetailView):
     model = Compliance
     template_name = 'applications/compliance_comms.html'
 
@@ -2407,10 +2544,21 @@ class ComplianceComms(DetailView):
         context['communications'] = CommunicationCompliance.objects.filter(compliance=c.pk).order_by('-created')
         return context
 
-class ComplianceCommsCreate(CreateView):
+class ComplianceCommsCreate(LoginRequiredMixin,CreateView):
     model = CommunicationCompliance 
     form_class = apps_forms.CommunicationComplianceCreateForm
     template_name = 'applications/compliance_comms_create.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ComplianceCommsCreate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ComplianceCommsCreate, self).get_context_data(**kwargs)
@@ -2455,7 +2603,7 @@ class ComplianceCommsCreate(CreateView):
         success_url = reverse('compliance_comms', args=(c_id,))
         return HttpResponseRedirect(success_url)
 
-class OrganisationComms(DetailView):
+class OrganisationComms(LoginRequiredMixin,DetailView):
     model = Organisation
     template_name = 'applications/organisation_comms.html'
 
@@ -2476,9 +2624,19 @@ class OrganisationComms(DetailView):
         context['communications'] = CommunicationOrganisation.objects.filter(org=org.pk).order_by('-created')
         return context
 
-class ReferralList(ListView):
+class ReferralList(LoginRequiredMixin,ListView):
     model = Application
     template_name = 'applications/referral_list.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ReferralList, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ReferralList, self).get_context_data(**kwargs)
@@ -2504,7 +2662,14 @@ class ReferralConditions(UpdateView):
     def get(self, request, *args, **kwargs):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
-        user = Referral.objects.filter(referee=self.request.user)
+        # refcount = Referral.objects.filter(referee=self.request.user).count()
+        refcount = Referral.objects.filter(application=app,referee=self.request.user).count()
+        if refcount == 1:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         return super(ReferralConditions, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -2603,10 +2768,20 @@ class ReferralConditions(UpdateView):
         return HttpResponseRedirect('/')
 
 
-class OrganisationCommsCreate(CreateView):
+class OrganisationCommsCreate(LoginRequiredMixin,CreateView):
     model = CommunicationOrganisation
     form_class = apps_forms.CommunicationOrganisationCreateForm
     template_name = 'applications/organisation_comms_create.html'
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(OrganisationCommsCreate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationCommsCreate, self).get_context_data(**kwargs)
@@ -3931,7 +4106,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         #    new_doc.upload = self.request.FILES['supporting_info_demonstrate_compliance_trust_policies']
         #    new_doc.save()
         #    self.object.supporting_info_demonstrate_compliance_trust_policies = new_doc
-	#
+        #
         #new_loc.title_volume = forms_data['certificate_of_title_volume']
 
         if 'certificate_of_title_volume' in forms_data:
@@ -4547,7 +4722,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         # Get Referrals
         # Referral
-	# app.pfpfpf        
+        # app.pfpfpf        
 
 
     def draft_completed(self,app):
@@ -4587,9 +4762,9 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         emailcontext['approval'] = approval
 
 
-	# applications/email/application-permit-proposal.html
+        # applications/email/application-permit-proposal.html
 
-	# email send after application completed..(issued)
+        # email send after application completed..(issued)
         if app.app_type == 1:
            # Permit Proposal
            emailcontext['person'] = app.submitted_by 
@@ -4884,6 +5059,13 @@ class ApplicationAssignApplicantCompany(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
         #if app.group is None:
         #    messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
         #    return HttpResponseRedirect(app.get_absolute_url())
@@ -4897,6 +5079,14 @@ class ApplicationAssignApplicantCompany(LoginRequiredMixin, UpdateView):
         return reverse('application_update', args=(application_id,))
 
     def post(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationAssignApplicantCompany, self).post(request, *args, **kwargs)
@@ -4935,6 +5125,13 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         app = self.get_object()
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
         #if app.group is None:
         #    messages.error(self.request, 'Unable to set Person Assignments as No Group Assignments Set!')
         #    return HttpResponseRedirect(app.get_absolute_url())
@@ -4949,6 +5146,16 @@ class ApplicationAssignApplicant(LoginRequiredMixin, UpdateView):
         return reverse('application_update', args=(application_id,))
 
     def post(self, request, *args, **kwargs):
+
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().get_absolute_url())
         return super(ApplicationAssignApplicant, self).post(request, *args, **kwargs)
@@ -5101,7 +5308,7 @@ class ApplicationAssign(LoginRequiredMixin, UpdateView):
         action.save()
         return HttpResponseRedirect(self.get_success_url())
 
-
+# have disbled the url..  this should be covered in the workflow.
 class ApplicationDiscard(LoginRequiredMixin, UpdateView):
     """Allows and applicant to discard the application.
     """
@@ -5132,7 +5339,6 @@ class ApplicationDiscard(LoginRequiredMixin, UpdateView):
     def get_form_class(self):
         # Return the specified form class
         return apps_forms.ApplicationDiscardForm
-
 
     def get_success_url(self):
         return reverse('home_page')
@@ -5189,6 +5395,22 @@ class ComplianceSubmit(LoginRequiredMixin, UpdateView):
     model = Compliance
 
     def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = Delegate.objects.filter(email_user=self.request.user, organisation=self.object.organisation).count()
+
+        if admin_staff == True:
+           pass
+        elif self.request.user.groups.filter(name__in=['Assessor']).exists():
+           pass
+        elif self.request.user == self.object.applicant:
+           pass
+        elif org == 1:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
         return super(ComplianceSubmit, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
@@ -5205,7 +5427,7 @@ class ComplianceSubmit(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.status = 9
-        self.object.submit_date =  datetime.now()
+        self.object.submit_date = datetime.now()
         self.object.submitted_by = self.request.user 
         assigngroup = Group.objects.get(name='Assessor')
         self.object.group = assigngroup
@@ -5236,6 +5458,17 @@ class ComplianceStaff(LoginRequiredMixin, UpdateView):
     model = Compliance
 
     def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        elif self.request.user.groups.filter(name__in=['Assessor']).exists():
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         return super(ComplianceStaff, self).get(request, *args, **kwargs)
 
     def get_form_class(self):
@@ -5474,7 +5707,14 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.ReferralCompleteForm
 
     def get(self, request, *args, **kwargs):
-        referral = self.get_object()
+        app = self.get_object()
+        refcount = Referral.objects.filter(application=app,referee=self.request.user).count()
+        if refcount == 1:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         # Rule: can't mark a referral completed more than once.
 #        if referral.response_date:
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
@@ -5495,6 +5735,14 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        app = self.get_object()
+        refcount = Referral.objects.filter(application=app,referee=self.request.user).count()
+        if refcount == 1:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().application.get_absolute_url())
         return super(ReferralComplete, self).post(request, *args, **kwargs)
@@ -5536,6 +5784,16 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
+
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         # Rule: can't recall a referral that is any other status than
         # 'referred'.
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
@@ -5549,6 +5807,15 @@ class ReferralRecall(LoginRequiredMixin, UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().application.get_absolute_url())
         return super(ReferralRecall, self).post(request, *args, **kwargs)
@@ -5585,6 +5852,15 @@ class ReferralResend(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         # Rule: can't recall a referral that is any other status than
         # 'referred'.
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.recalled & referral.status != Referral.REFERRAL_STATUS_CHOICES.responded:
@@ -5598,6 +5874,15 @@ class ReferralResend(LoginRequiredMixin, UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().application.get_absolute_url())
         return super(ReferralResend, self).post(request, *args, **kwargs)
@@ -5623,6 +5908,16 @@ class ReferralRemind(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
 
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
+
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.referred:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
@@ -5634,6 +5929,15 @@ class ReferralRemind(LoginRequiredMixin, UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().application.get_absolute_url())
         return super(ReferralRemind, self).post(request, *args, **kwargs)
@@ -5661,6 +5965,15 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         referral = self.get_object()
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if referral.status != Referral.REFERRAL_STATUS_CHOICES.with_admin:
             messages.error(self.request, 'This referral is already completed!')
             return HttpResponseRedirect(referral.application.get_absolute_url())
@@ -5675,6 +5988,15 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
         return reverse('application_refer', args=(application_id,))
 
     def post(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
+        if admin_staff == True:
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+
         if request.POST.get('cancel'):
             return HttpResponseRedirect(self.get_object().application.get_absolute_url())
         return super(ReferralDelete, self).post(request, *args, **kwargs)
@@ -5709,14 +6031,33 @@ class ReferralDelete(LoginRequiredMixin, UpdateView):
 #        return qs
 
 class ComplianceApprovalDetails(LoginRequiredMixin,DetailView):
-#   model = Approval
+    # model = Approval
     model = Compliance
     template_name = 'applications/compliance_detail.html' 
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = Delegate.objects.filter(email_user=self.request.user, organisation=self.object.organisation).count()
+       
+        if admin_staff == True:
+           pass
+        elif self.request.user.groups.filter(name__in=['Assessor']).exists():
+           pass
+        elif self.request.user == self.object.applicant:
+           pass
+        elif org == 1: 
+           pass
+        else:
+           messages.error(self.request, 'Forbidden from viewing this page.')
+           return HttpResponseRedirect("/")
+        return super(ComplianceApprovalDetails, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ComplianceApprovalDetails, self).get_context_data(**kwargs)
         app = self.get_object()
-	# context['conditions'] = Compliance.objects.filter(approval_id=app.id)
+        # context['conditions'] = Compliance.objects.filter(approval_id=app.id)
         context['conditions'] = Compliance.objects.filter(id=app.id)
         return context
 
@@ -5786,7 +6127,7 @@ class ComplianceComplete(LoginRequiredMixin,UpdateView):
         form.save_m2m()
         return HttpResponseRedirect(reverse("compliance_approval_detail", args=(self.object.id,)))
 
-
+# this is theory shoudl be able to be deleted.  need to chekc first.
 class ComplianceCreate(LoginRequiredMixin, ModelFormSetView):
     model = Compliance
     form_class = apps_forms.ComplianceCreateForm
@@ -5946,9 +6287,9 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
 #       if flowcontext.state != app.APP_STATE_CHOICES.draft:
         if flowcontext["may_update_publication_newspaper"] != "True":
-            messages.error(
-                self.request, "Can't add new newspaper publication to this application")
-            return HttpResponseRedirect(app.get_absolute_url())
+                    messages.error(
+                          self.request, "Can't add new newspaper publication to this application")
+                    return HttpResponseRedirect(app.get_absolute_url())
         return super(NewsPaperPublicationCreate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -5956,7 +6297,7 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(NewsPaperPublicationCreate,
-                        self).get_context_data(**kwargs)
+                       self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
         return context
 
@@ -5964,24 +6305,22 @@ class NewsPaperPublicationCreate(LoginRequiredMixin, CreateView):
         initial = super(NewsPaperPublicationCreate, self).get_initial()
         initial['application'] = self.kwargs['pk']
 
-        # try:
-        #    pub_news = PublicationNewspaper.objects.get(
-        #    application=self.kwargs['pk'])
-        # except:
-        #    pub_news = None
+           # try:
+                #    pub_news = PublicationNewspaper.objects.get(
+                #    application=self.kwargs['pk'])
+                # except:
+                #    pub_news = None
         return initial
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
             return HttpResponseRedirect(app.get_absolute_url())    
-            
+    
         return super(NewsPaperPublicationCreate, self).post(request, *args, **kwargs)
-
     def form_valid(self, form):
         forms_data = form.cleaned_data
         self.object = form.save(commit=True)
-
         if self.request.FILES.get('records'):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()
@@ -6002,7 +6341,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.NewsPaperPublicationCreateForm
 
     def get(self, request, *args, **kwargs):
-                #app = self.get_object().application_set.first()
+        #app = self.get_object().application_set.first()
         PubNew = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
         app = Application.objects.get(pk=PubNew.application.id)
         flow = Flow()
@@ -6012,8 +6351,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
         flowcontext = {}
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         if flowcontext["may_update_publication_newspaper"] != "True":
-            messages.error(
-                self.request, "Can't update newspaper publication to this application")
+            messages.error(self.request, "Can't update newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         # Rule: can only change a vessel if the parent application is status
         # 'draft'.
@@ -6028,8 +6366,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
 #       initial['application'] = self.kwargs['pk']
 
         try:
-            pub_news = PublicationNewspaper.objects.get(
-                pk=self.kwargs['pk'])
+            pub_news = PublicationNewspaper.objects.get(pk=self.kwargs['pk'])
         except:
             pub_news = None
 
@@ -6065,7 +6402,7 @@ class NewsPaperPublicationUpdate(LoginRequiredMixin, UpdateView):
         records = pub_news.records.all()
         for filelist in records:
             if 'records-clear_multifileid-' + str(filelist.id) in form.data:
-                pub_news.records.remove(filelist)
+                 pub_news.records.remove(filelist)
 
         if self.request.FILES.get('records'):
             for f in self.request.FILES.getlist('records'):
@@ -6097,11 +6434,9 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         flowcontext = {}
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
         if flowcontext["may_update_publication_newspaper"] != "True":
-            messages.error(
-                self.request, "Can't delete newspaper publication to this application")
+            messages.error(self.request, "Can't delete newspaper publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
-
-        # Rule: can only delete a condition if the parent application is status
+            # Rule: can only delete a condition if the parent application is status
         # 'with referral' or 'with assessor'.
 #        if modelobject.application.state not in [Application.APP_STATE_CHOICES.with_assessor, Application.APP_STATE_CHOICES.with_referee]:
  #           messages.warning(self.request, 'You cannot delete this condition')
@@ -6116,13 +6451,11 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         #    else:
         #       messages.warning(self.request, 'You cannot delete this condition')
         #      return HttpResponseRedirect(condition.application.get_absolute_url())
-
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))
-
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_success_url())
+           return HttpResponseRedirect(self.get_success_url())
         # Generate an action.
         modelobject = self.get_object()
         action = Action(
@@ -6131,11 +6464,9 @@ class NewsPaperPublicationDelete(LoginRequiredMixin, DeleteView):
         action.save()
         messages.success(self.request, 'Newspaper Publication {} has been deleted'.format(modelobject.pk))
         return super(NewsPaperPublicationDelete, self).post(request, *args, **kwargs)
-
 class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     model = PublicationWebsite
     form_class = apps_forms.WebsitePublicationForm
-
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
         flow = Flow()
@@ -6146,65 +6477,58 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
 
         if flowcontext["may_update_publication_website"] != "True":
-            messages.error(
-                self.request, "Can't update ebsite publication to this application")
+            messages.error(self.request, "Can't update ebsite publication to this application")
             return HttpResponseRedirect(app.get_absolute_url())
         return super(WebsitePublicationChange, self).get(request, *args, **kwargs)
-
     def get_success_url(self):
         return reverse('application_detail', args=(self.kwargs['pk'],))
 
-#    def get_success_url(self):
-#        print self.kwargs['pk']
+        #    def get_success_url(self):
+        #        print self.kwargs['pk']
         #        return reverse('application_detail', args=(self.get_object().application.pk,))
-#        return reverse('application_detail', args=(self.kwargs['pk']))
+        #        return reverse('application_detail', args=(self.kwargs['pk']))
 
     def get_context_data(self, **kwargs):
-        # self.object.original_document = self.kwargs['original_document']
-        context = super(WebsitePublicationChange,
-                        self).get_context_data(**kwargs)
+        context = super(WebsitePublicationChange,self).get_context_data(**kwargs)
         context['application'] = Application.objects.get(pk=self.kwargs['pk'])
         return context
 
     def get_initial(self):
         initial = super(WebsitePublicationChange, self).get_initial()
         initial['application'] = self.kwargs['pk']
-#        doc = Record.objects.get(pk=self.kwargs['docid'])
-#        print self.kwargs['docid']      
-#        print PublicationWebsite.objects.get(original_document_id=self.kwargs['docid']) 
+        #        doc = Record.objects.get(pk=self.kwargs['docid'])
+        #        print self.kwargs['docid']      
+        #        print PublicationWebsite.objects.get(original_document_id=self.kwargs['docid']) 
         try:
             pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
             pub_web = None
-
         if pub_web:
-            initial['published_document'] = pub_web.published_document
+                initial['published_document'] = pub_web.published_document
 
 
+                #filelist = [] 
+                #if pub_web: 
+                #    if pub_web.published_document:
+                #        # records = pub_news.records.all()
+                #        fileitem = {} 
+                #        fileitem['fileid'] = pub_web.published_document.id
+                #        fileitem['path'] = pub_web.published_document.upload.name
+                #        fileitem['name'] = pub_web.published_document.name
+                #        fileitem['short_name'] = pub_web.published_document.upload.name[19:]  
+                #        filelist.append(fileitem)
 
-        #filelist = []
-        #if pub_web:
-        #    if pub_web.published_document:
-        #        # records = pub_news.records.all()
-        #        fileitem = {}
-        #        fileitem['fileid'] = pub_web.published_document.id
-        #        fileitem['path'] = pub_web.published_document.upload.name
-        #        fileitem['name'] = pub_web.published_document.name
-        #        fileitem['short_name'] = pub_web.published_document.upload.name[19:] 
-        #        filelist.append(fileitem)
+                #if pub_web:
+                #    if pub_web.id:
+                #        initial['id'] = pub_web.id
+                #        print "hello"
 
-        #if pub_web:
-        #    if pub_web.id:
-        #        initial['id'] = pub_web.id
-        #        print "hello"
-
-        #initial['published_document'] = filelist
-        #doc = Record.objects.get(pk=self.kwargs['docid'])
-        #initial['original_document'] = doc
+                #initial['published_document'] = filelist
+                #doc = Record.objects.get(pk=self.kwargs['docid'])
+                #initial['original_document'] = doc
         return initial
 
     def post(self, request, *args, **kwargs):
-        # print "IS POST WORKING"
         if request.POST.get('cancel'):
             app = Application.objects.get(pk=self.kwargs['pk'])
             return HttpResponseRedirect(app.get_absolute_url())
@@ -6215,37 +6539,35 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         pub_web = None
 #        print "THE"
-
         try:
             pub_web = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])
         except:
             pub_web = None
 
-#        if pub_web:
-#            self.object.id = pub_web.id
-#            self.object.published_document = pub_web.published_document
+        #        if pub_web:
+        #            self.object.id = pub_web.id
+        #            self.object.published_document = pub_web.published_document
 
-#            if pub_web.published_document:
-#                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
-#                    self.object.published_document = None
+        #            if pub_web.published_document:
+        #                if 'published_document-clear_multifileid-' + str(pub_web.published_document.id) in self.request.POST:
+        #                    self.object.published_document = None
 
-        
+
         orig_doc = Record.objects.get(id=self.kwargs['docid'])
         self.object.original_document = orig_doc
-
         # print "SSS"
         # print self.request.FILES.get('published_document')
         # print self.request.POST
         if 'published_document_json' in self.request.POST:
-             if is_json(self.request.POST['published_document_json']) is True: 
+            if is_json(self.request.POST['published_document_json']) is True: 
                   json_data = json.loads(self.request.POST['published_document_json'])
                   if 'doc_id' in json_data:
                       try:
                           pub_obj = PublicationWebsite.objects.get(original_document_id=self.kwargs['docid'])                 
                           pub_obj.delete()
                       except: 
-                          donothing = ''
-                   
+                          pass
+   
                       new_doc = Record.objects.get(id=json_data['doc_id'])
                       self.object.published_document = new_doc
                   else:
@@ -6253,21 +6575,17 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
                       pub_obj.delete()
 
 
-
-
 #             else:
  #                self.object.remove()
-        
 
-	     # print json_data
-             # self.object.published_document.remove()
-             # for d in self.object.published_document.all():
-             #    self.object.published_document.remove(d)
-             # for i in json_data:
-             #    doc = Record.objects.get(id=i['doc_id'])
+     # print json_data
+     # self.object.published_document.remove()
+    # for d in self.object.published_document.all():
+     #    self.object.published_document.remove(d)
+     # for i in json_data:
+     #    doc = Record.objects.get(id=i['doc_id'])
 #             self.object.published_document = i['doc_id']
 #             self.object.save()
-
 #        if self.request.FILES.get('published_document'):
 #            for f in self.request.FILES.getlist('published_document'):
  #               doc = Record()
@@ -6276,8 +6594,8 @@ class WebsitePublicationChange(LoginRequiredMixin, CreateView):
     #            self.object.published_document = doc
         app = Application.objects.get(pk=self.kwargs['pk'])
         action = Action(
-            content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
-            action='Publish New Web Documents for Doc ID: {}'.format(self.kwargs['docid']))
+              content_object=app, user=self.request.user, category=Action.ACTION_CATEGORY_CHOICES.change,
+        action='Publish New Web Documents for Doc ID: {}'.format(self.kwargs['docid']))
         action.save()
         return super(WebsitePublicationChange, self).form_valid(form)
 
@@ -6287,11 +6605,29 @@ class FeedbackPublicationCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
+        if flowcontext["may_update_publication_feedback_draft"] == "True":
+           return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
+        elif flowcontext["may_update_publication_feedback_final"] == "True":
+           return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
+        elif flowcontext["may_update_publication_feedback_determination"] == "True":
+           return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
+        else:
+             messages.error(
+                 self.request, "Can't add new newspaper publication to this application")
+             return HttpResponseRedirect(app.get_absolute_url())
+
 #        if app.state != app.APP_STATE_CHOICES.draft:
  #           messages.errror(
   #              self.request, "Can't add new feedback publication to this application")
    #         return HttpResponseRedirect(app.get_absolute_url())
-        return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
+#        return super(FeedbackPublicationCreate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.kwargs['pk'],))
@@ -6361,12 +6697,32 @@ class FeedbackPublicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         modelobject = self.get_object()
+        app = modelobject.application
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
+        if flowcontext["may_update_publication_feedback_draft"] == "True":
+           return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+        elif flowcontext["may_update_publication_feedback_final"] == "True":
+           return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+        elif flowcontext["may_update_publication_feedback_determination"] == "True":
+           return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+        else:
+             messages.error(
+                 self.request, "Can't change feedback publication for this application")
+             return HttpResponseRedirect(app.get_absolute_url())
+#        return HttpResponseRedirect(app.get_absolute_url())
         # app = Application.objects.get(pk=self.kwargs['application'])
         # if app.state != app.APP_STATE_CHOICES.draft:
         #    messages.errror(
         #       self.request, "Can't add new newspaper publication to this application")
         #  return HttpResponseRedirect(app.get_absolute_url())
-        return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+#        return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.kwargs['application'],))
@@ -6429,6 +6785,26 @@ class FeedbackPublicationDelete(LoginRequiredMixin, DeleteView):
 
     def get(self, request, *args, **kwargs):
         modelobject = self.get_object()
+        app = modelobject.application
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
+        if flowcontext["may_update_publication_feedback_draft"] == "True":
+           return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+        elif flowcontext["may_update_publication_feedback_final"] == "True":
+           return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+        elif flowcontext["may_update_publication_feedback_determination"] == "True":
+           return super(FeedbackPublicationUpdate, self).get(request, *args, **kwargs)
+        else:
+             messages.error(
+                 self.request, "Can't change feedback publication for this application")
+             return HttpResponseRedirect(app.get_absolute_url())
+
         return super(FeedbackPublicationDelete, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -6456,6 +6832,21 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
 
     def get(self, request, *args, **kwargs):
         app = Application.objects.get(pk=self.kwargs['pk'])
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
+        if flowcontext["may_create_condition"] != "True":
+            messages.error(
+                self.request, "Can't add new newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+
+
+
         # Rule: conditions can be created when the app is with admin, with
         # referee or with assessor.
         if app.app_type == app.APP_TYPE_CHOICES.emergency:
@@ -6519,6 +6910,20 @@ class ConditionUpdate(LoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
+
+        app = condition.application
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
+        if flowcontext["may_create_condition"] != "True":
+            messages.error(
+                self.request, "Can't add new newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+
         # Rule: can only change a condition if the parent application is status
         # 'with assessor' or 'with_referee' unless it is an emergency works.
         if condition.application.app_type == Application.APP_TYPE_CHOICES.emergency:
@@ -6606,6 +7011,20 @@ class ConditionDelete(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         condition = self.get_object()
 
+        app = condition.application
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(request, flowcontext, app.routeid, workflowtype)
+
+        if flowcontext["may_create_condition"] != "True":
+            messages.error(
+                self.request, "Can't add new newspaper publication to this application")
+            return HttpResponseRedirect(app.get_absolute_url())
+
+
         # Rule: can only delete a condition if the parent application is status
         # 'with referral' or 'with assessor'. Can also delete if you are the user assigned
         # to an Emergency Works
@@ -6679,6 +7098,16 @@ class ConditionSuspension(LoginRequiredMixin, UpdateView):
 #            else:
 #                messages.warning(self.request, 'You cannot delete this condition')
 #                return HttpResponseRedirect(condition.application.get_absolute_url())
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           donothing =""
+        else:
+           messages.error(self.request, 'Forbidden Access.')
+           return HttpResponseRedirect("/")
+        return super(FeedbackPublicationView, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('application_detail', args=(self.get_object().application.pk,))
@@ -6932,46 +7361,46 @@ class VesselUpdate(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url(app.id),)
 
 
-class RecordCreate(LoginRequiredMixin, CreateView):
-    form_class = apps_forms.RecordCreateForm
-    template_name = 'applications/document_form.html'
+#class RecordCreate(LoginRequiredMixin, CreateView):
+#    form_class = apps_forms.RecordCreateForm
+#    template_name = 'applications/document_form.html'
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(RecordCreate, self).get_context_data(**kwargs)
+#        context['page_heading'] = 'Create new Record'
+#        return context
 
-    def get_context_data(self, **kwargs):
-        context = super(RecordCreate, self).get_context_data(**kwargs)
-        context['page_heading'] = 'Create new Record'
-        return context
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('home_page'))
-        return super(RecordCreate, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        """Override form_valid to set the assignee as the object creator.
-        """
-        self.object = form.save(commit=False)
-        self.object.save()
-        success_url = reverse('document_list', args=(self.object.pk,))
-        return HttpResponseRedirect(success_url)
-
-
-class RecordList(ListView):
-    model = Record
+#    def post(self, request, *args, **kwargs):
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(reverse('home_page'))
+#        return super(RecordCreate, self).post(request, *args, **kwargs)
+#
+#    def form_valid(self, form):
+#        """Override form_valid to set the assignee as the object creator.
+#        """
+#        self.object = form.save(commit=False)
+#        self.object.save()
+#        success_url = reverse('document_list', args=(self.object.pk,))
+#        return HttpResponseRedirect(success_url)
 
 
-class UserAccount(LoginRequiredMixin, DetailView):
-    model = EmailUser
-    template_name = 'accounts/user_account.html'
+#class RecordList(ListView):
+#    model = Record
 
-    def get_object(self, queryset=None):
-        """Override get_object to always return the request user.
-        """
-        return self.request.user
 
-    def get_context_data(self, **kwargs):
-        context = super(UserAccount, self).get_context_data(**kwargs)
-        context['organisations'] = [i.organisation for i in Delegate.objects.filter(email_user=self.request.user)]
-        return context
+#class UserAccount(LoginRequiredMixin, DetailView):
+#    model = EmailUser
+#    template_name = 'accounts/user_account.html'
+#
+#    def get_object(self, queryset=None):
+#        """Override get_object to always return the request user.
+#        """
+#        return self.request.user
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(UserAccount, self).get_context_data(**kwargs)
+#        context['organisations'] = [i.organisation for i in Delegate.objects.filter(email_user=self.request.user)]
+#        return context
 
 class UserAccountUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.EmailUserForm
@@ -7035,7 +7464,35 @@ class UserAccountUpdate(LoginRequiredMixin, UpdateView):
 class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.UserFormIdentificationUpdate
     #form_class = apps_forms.OrganisationCertificateForm
-  
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = self.get_organisation()
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+           pass
+        else:
+           if admin_staff is True:
+               return super(UserAccountIdentificationUpdate, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised to view this organisation.')
+               return HttpResponseRedirect(reverse('home_page'))
+
+        return super(UserAccountIdentificationUpdate, self).get(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        if admin_staff == True:
+           return super(UserAccountIdentificationUpdate, self).get(request, *args, **kwargs)
+        elif self.request.user.id == int(self.kwargs['pk']):
+           return super(UserAccountIdentificationUpdate, self).get(request, *args, **kwargs) 
+        else:
+           messages.error(self.request, 'Forbidden Access.')
+        return HttpResponseRedirect("/")
+ 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             if self.request.user.groups.filter(name__in=['Processor']).exists():
@@ -7094,6 +7551,24 @@ class UserAccountIdentificationUpdate(LoginRequiredMixin, UpdateView):
 class OrganisationCertificateUpdate(LoginRequiredMixin, UpdateView):
     model = OrganisationExtras
     form_class = apps_forms.OrganisationCertificateForm
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org_extras = self.get_object()
+        org =org_extras.organisation
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+            pass
+        else:
+           if admin_staff is True:
+               return super(OrganisationCertificateUpdate, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised.')
+               return HttpResponseRedirect(reverse('home_page'))
+
+        return super(OrganisationCertificateUpdate, self).get(request, *args, **kwargs)
 
 #    def get_object(self, queryset=None):
 #        if 'pk' in self.kwargs:
@@ -7156,6 +7631,21 @@ class AddressCreate(LoginRequiredMixin, CreateView):
     form_class = apps_forms.AddressForm
     template_name = 'accounts/address_form.html'
 
+    def get(self, request, *args, **kwargs):
+#        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        self.object = EmailUser.objects.get(id=self.kwargs['userid']) 
+#
+        if admin_staff is True:
+             return super(AddressCreate, self).get(request, *args, **kwargs)
+        elif request.user == self.object:
+             return super(AddressCreate, self).get(request, *args, **kwargs)
+        else:
+             messages.error(self.request, 'You are not authorised to view.')
+        return HttpResponseRedirect(reverse('home_page'))
+#        return super(AddressCreate, self).get(request, *args, **kwargs)
+
     def dispatch(self, request, *args, **kwargs):
         # Rule: the ``type`` kwarg must be 'postal' or 'billing'
         if self.kwargs['type'] not in ['postal', 'billing']:
@@ -7213,22 +7703,28 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.AddressForm
     success_url = reverse_lazy('user_account')
 
+
     def get(self, request, *args, **kwargs):
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+
         address = self.get_object()
         u = request.user
         # User addresses: only the user can change an address.
         if u.postal_address == address or u.billing_address == address:
             return super(AddressUpdate, self).get(request, *args, **kwargs)
+        
         # Organisational addresses: find which org uses this address, and if
         # the user is a delegate for that org then they can change it.
         org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
         if Delegate.objects.filter(email_user=u, organisation__in=org_list).exists():
             return super(AddressUpdate, self).get(request, *args, **kwargs)
-        elif u.is_staff is True: 
+#        elif u.is_staff is True: 
+        elif admin_staff is True:
             return super(AddressUpdate, self).get(request, *args, **kwargs)
         else:
             messages.error(self.request, 'You cannot update this address!')
-            return HttpResponseRedirect(self.success_url)
+            return HttpResponseRedirect(reverse('home_page'))
 
     def get_context_data(self, **kwargs):
         context = super(AddressUpdate, self).get_context_data(**kwargs)
@@ -7283,57 +7779,72 @@ class AddressUpdate(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse('person_details_actions', args=(u.id,'address')))
 
 
-class AddressDelete(LoginRequiredMixin, DeleteView):
-    """A view to allow the deletion of an address. Not currently in use,
-    because the ledge Address model can cause the linked EmailUser object to
-    be deleted along with the Address object :/
-    """
-    model = Address
-    success_url = reverse_lazy('user_account')
+#class AddressDelete(LoginRequiredMixin, DeleteView):
+#    """A view to allow the deletion of an address. Not currently in use,
+#    because the ledge Address model can cause the linked EmailUser object to
+#    be deleted along with the Address object :/
+#    """
+#    model = Address
+#    success_url = reverse_lazy('user_account')
+#
+#    def get(self, request, *args, **kwargs):
+#        address = self.get_object()
+#        u = self.request.user
+#        delete_address = False
+#        # Rule: only the address owner can delete an address.
+#        if u.postal_address == address or u.billing_address == address:
+#            delete_address = True
+#        # Organisational addresses: find which org uses this address, and if
+#        # the user is a delegate for that org then they can delete it.
+#        #org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
+#        #for org in org_list:
+#        #    if profile in org.delegates.all():
+#        #        delete_address = True
+#        if delete_address:
+#            return super(AddressDelete, self).get(request, *args, **kwargs)
+#        else:
+#            messages.error(self.request, 'You cannot delete this address!')
+#            return HttpResponseRedirect(self.success_url)
+#
+#    def post(self, request, *args, **kwargs):
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(self.success_url)
+#        return super(AddressDelete, self).post(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        address = self.get_object()
-        u = self.request.user
-        delete_address = False
-        # Rule: only the address owner can delete an address.
-        if u.postal_address == address or u.billing_address == address:
-            delete_address = True
-        # Organisational addresses: find which org uses this address, and if
-        # the user is a delegate for that org then they can delete it.
-        #org_list = list(chain(address.org_postal_address.all(), address.org_billing_address.all()))
-        #for org in org_list:
-        #    if profile in org.delegates.all():
-        #        delete_address = True
-        if delete_address:
-            return super(AddressDelete, self).get(request, *args, **kwargs)
-        else:
-            messages.error(self.request, 'You cannot delete this address!')
-            return HttpResponseRedirect(self.success_url)
 
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.success_url)
-        return super(AddressDelete, self).post(request, *args, **kwargs)
-
-
-class OrganisationList(LoginRequiredMixin, ListView):
-    model = Organisation
-
-    def get_queryset(self):
-        qs = super(OrganisationList, self).get_queryset()
-        # Did we pass in a search string? If so, filter the queryset and return it.
-        if 'q' in self.request.GET and self.request.GET['q']:
-            query_str = self.request.GET['q']
-            # Replace single-quotes with double-quotes
-            query_str = query_str.replace("'", r'"')
-            # Filter by name and ABN fields.
-            query = get_query(query_str, ['name', 'abn'])
-            qs = qs.filter(query).distinct()
-        return qs
+#class OrganisationList(LoginRequiredMixin, ListView):
+#    model = Organisation
+#
+#    def get_queryset(self):
+#        qs = super(OrganisationList, self).get_queryset()
+#        # Did we pass in a search string? If so, filter the queryset and return it.
+#        if 'q' in self.request.GET and self.request.GET['q']:
+#            query_str = self.request.GET['q']
+#            # Replace single-quotes with double-quotes
+#            query_str = query_str.replace("'", r'"')
+#            # Filter by name and ABN fields.
+#            query = get_query(query_str, ['name', 'abn'])
+#            qs = qs.filter(query).distinct()
+#        return qs
 
 class PersonDetails(LoginRequiredMixin, DetailView):
     model = EmailUser 
     template_name = 'applications/person_details.html'
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        self.object = self.get_object()
+
+        if admin_staff is True:
+             return super(PersonDetails, self).get(request, *args, **kwargs)
+        elif request.user == self.object:
+             return super(PersonDetails, self).get(request, *args, **kwargs)
+        else:
+               messages.error(self.request, 'You are not authorised to view.')
+        return HttpResponseRedirect(reverse('home_page'))
+
 
     def get_queryset(self):
         qs = super(PersonDetails, self).get_queryset()
@@ -7377,42 +7888,51 @@ class PersonDetails(LoginRequiredMixin, DetailView):
 
         return context
 
-class PersonOrgDelete(LoginRequiredMixin, UpdateView):
-    model = Organisation 
-    form_class = apps_forms.PersonOrgDeleteForm
-    template_name = 'applications/referral_delete.html'
-
-    def get(self, request, *args, **kwargs):
-        referral = self.get_object()
-        return super(PersonOrgDelete, self).get(request, *args, **kwargs)
-
-#    def get_context_data(self, **kwargs):
-#        context = super(ReferralDelete, self).get_context_data(**kwargs)
-#        context['referral'] = self.get_object()
-#        return context
-
-    def get_success_url(self, org_id):
-        return reverse('person_details_actions', args=(org_id,'companies'))
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'companies')))
-        return super(PersonOrgDelete, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        org = self.get_object()
-        org_id = org.id
-        org.delete()
-        # Record an action on the referral's application:
-        action = Action(
-            content_object=ref.application, user=self.request.user,
-            action='Organisation {} deleted'.format(org_id))
-        action.save()
-        return HttpResponseRedirect(self.get_success_url(self.pk))
+#class PersonOrgDelete(LoginRequiredMixin, UpdateView):
+#    model = Organisation 
+#    form_class = apps_forms.PersonOrgDeleteForm
+#    template_name = 'applications/referral_delete.html'
+#
+#    def get(self, request, *args, **kwargs):
+#        referral = self.get_object()
+#        return super(PersonOrgDelete, self).get(request, *args, **kwargs)
+#
+#    def get_success_url(self, org_id):
+#        return reverse('person_details_actions', args=(org_id,'companies'))
+#
+#    def post(self, request, *args, **kwargs):
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(reverse('person_details_actions', args=(self.kwargs['pk'],'companies')))
+#        return super(PersonOrgDelete, self).post(request, *args, **kwargs)
+#
+#    def form_valid(self, form):
+#        org = self.get_object()
+#        org_id = org.id
+#        org.delete()
+#        # Record an action on the referral's application:
+#        action = Action(
+#            content_object=ref.application, user=self.request.user,
+#            action='Organisation {} deleted'.format(org_id))
+#        action.save()
+#        return HttpResponseRedirect(self.get_success_url(self.pk))
 
 class PersonOther(LoginRequiredMixin, DetailView):
     model = EmailUser
     template_name = 'applications/person_details.html'
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        self.object = self.get_object()
+
+        if admin_staff is True:
+             return super(PersonOther, self).get(request, *args, **kwargs)
+        elif request.user == self.object:
+             return super(PersonOther, self).get(request, *args, **kwargs)
+        else:
+               messages.error(self.request, 'You are not authorised')
+        return HttpResponseRedirect(reverse('home_page'))
 
 #    def get_queryset(self):
 #        qs = super(PersonOther, self).get_queryset()
@@ -7772,6 +8292,23 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
     model = Organisation
     template_name = 'applications/organisation_details.html'
 
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = self.get_object()
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+           donothing = ""
+        else:
+           if admin_staff is True:
+               return super(OrganisationOther, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised to view this organisation.')
+               return HttpResponseRedirect(reverse('home_page'))
+
+        return super(OrganisationOther, self).get(request, *args, **kwargs)
+
     def get_queryset(self):
         qs = super(OrganisationOther, self).get_queryset()
         # Did we pass in a search string? If so, filter the queryset and return it.
@@ -7990,63 +8527,62 @@ class OrganisationOther(LoginRequiredMixin, DetailView):
         return context
 
 
-class OrganisationCreate(LoginRequiredMixin, CreateView):
-    """A view to create a new Organisation.
-    """
-    form_class = apps_forms.OrganisationForm
-    template_name = 'accounts/organisation_form.html'
+#class OrganisationCreate(LoginRequiredMixin, CreateView):
+#    """A view to create a new Organisation.
+#    """
+#    form_class = apps_forms.OrganisationForm
+#    template_name = 'accounts/organisation_form.html'
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(OrganisationCreate, self).get_context_data(**kwargs)
+#        context['action'] = 'Create'
+#        return context
+#
+#    def post(self, request, *args, **kwargs):
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(reverse('organisation_list'))
+#        return super(OrganisationCreate, self).post(request, *args, **kwargs)
+#
+#    def form_valid(self, form):
+#        self.obj = form.save()
+#        # Assign the creating user as a delegate to the new organisation.
+#        Delegate.objects.create(email_user=self.request.user, organisation=self.obj)
+#        messages.success(self.request, 'New organisation created successfully!')
+#        return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
 
-    def get_context_data(self, **kwargs):
-        context = super(OrganisationCreate, self).get_context_data(**kwargs)
-        context['action'] = 'Create'
-        return context
 
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('organisation_list'))
-        return super(OrganisationCreate, self).post(request, *args, **kwargs)
+#class OrganisationUserCreate(LoginRequiredMixin, CreateView):
+#    """A view to create a new Organisation.
+#    """
+#    form_class = apps_forms.OrganisationForm
+#    template_name = 'accounts/organisation_form.html'
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(OrganisationUserCreate, self).get_context_data(**kwargs)
+#        context['action'] = 'Create'
+#        return context
+#
+#    def post(self, request, *args, **kwargs):
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(reverse('organisation_list'))
+#        return super(OrganisationUserCreate, self).post(request, *args, **kwargs)
+#
+#    def form_valid(self, form):
+#        self.obj = form.save()
+#        # Assign the creating user as a delegate to the new organisation.
+#        user = EmailUser.objects.get(id=self.kwargs['pk'])
+#        Delegate.objects.create(email_user=user, organisation=self.obj)
+#        messages.success(self.request, 'New organisation created successfully!')
+#        return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
 
-    def form_valid(self, form):
-        self.obj = form.save()
-        # Assign the creating user as a delegate to the new organisation.
-        Delegate.objects.create(email_user=self.request.user, organisation=self.obj)
-        messages.success(self.request, 'New organisation created successfully!')
-        return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
-
-
-class OrganisationUserCreate(LoginRequiredMixin, CreateView):
-    """A view to create a new Organisation.
-    """
-    form_class = apps_forms.OrganisationForm
-    template_name = 'accounts/organisation_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(OrganisationUserCreate, self).get_context_data(**kwargs)
-        context['action'] = 'Create'
-        return context
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(reverse('organisation_list'))
-        return super(OrganisationUserCreate, self).post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.obj = form.save()
-        # Assign the creating user as a delegate to the new organisation.
-        user = EmailUser.objects.get(id=self.kwargs['pk'])
-        Delegate.objects.create(email_user=user, organisation=self.obj)
-        messages.success(self.request, 'New organisation created successfully!')
-        return HttpResponseRedirect(reverse('organisation_detail', args=(self.obj.pk,)))
-
-class OrganisationDetail(LoginRequiredMixin, DetailView):
-    model = Organisation
-
-    def get_context_data(self, **kwargs):
-        context = super(OrganisationDetail, self).get_context_data(**kwargs)
-        org = self.get_object()
-        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
-        return context
-
+#class OrganisationDetail(LoginRequiredMixin, DetailView):
+#    model = Organisation
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(OrganisationDetail, self).get_context_data(**kwargs)
+#        org = self.get_object()
+#        context['user_is_delegate'] = Delegate.objects.filter(email_user=self.request.user, organisation=org).exists()
+#        return context
 
 class OrganisationUpdate(LoginRequiredMixin, UpdateView):
     """A view to update an Organisation object.
@@ -8055,11 +8591,29 @@ class OrganisationUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.OrganisationForm
 
     def get(self, request, *args, **kwargs):
-        # Rule: only a delegated user can update an organisation.
-        if not Delegate.objects.filter(email_user=request.user, organisation=self.get_object()).exists():
-            messages.warning(self.request, 'You are not authorised to update this organisation. Please request delegated authority if required.')
-            return HttpResponseRedirect(self.get_success_url())
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = self.get_object()
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+            pass 
+        else:
+           if admin_staff is True:
+               return super(OrganisationUpdate, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised.')
+               return HttpResponseRedirect(reverse('home_page'))
+
         return super(OrganisationUpdate, self).get(request, *args, **kwargs)
+
+
+#    def get(self, request, *args, **kwargs):
+#        # Rule: only a delegated user can update an organisation.
+#        if not Delegate.objects.filter(email_user=request.user, organisation=self.get_object()).exists():
+#            messages.warning(self.request, 'You are not authorised to update this organisation. Please request delegated authority if required.')
+#            return HttpResponseRedirect(self.get_success_url())
+#        return super(OrganisationUpdate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationUpdate, self).get_context_data(**kwargs)
@@ -8080,6 +8634,24 @@ class OrganisationContactCreate(LoginRequiredMixin, CreateView):
     #model = OrganisationContact
     form_class = apps_forms.OrganisationContactForm
     template_name = 'applications/organisation_contact_form.html'
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        org = Organisation.objects.get(id=self.kwargs['pk'])
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=org).exists():
+            pass
+        else:
+           if admin_staff is True:
+               return super(OrganisationContactCreate, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised.')
+               return HttpResponseRedirect(reverse('home_page'))
+
+        return super(OrganisationContactCreate, self).get(request, *args, **kwargs)
+
 
     def get_context_data(self, **kwargs):
         context = super(OrganisationContactCreate, self).get_context_data(**kwargs)
@@ -8115,6 +8687,24 @@ class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
     form_class = apps_forms.OrganisationContactForm
     template_name = 'applications/organisation_contact_form.html'
 
+
+    def get(self, request, *args, **kwargs):
+        # Rule: request user must be a delegate (or superuser).
+        context_processor = template_context(self.request)
+        admin_staff = context_processor['admin_staff']
+        self.object = self.get_object()
+
+        if Delegate.objects.filter(email_user_id=request.user.id, organisation=self.object.organisation).exists():
+            pass
+        else:
+           if admin_staff is True:
+               return super(OrganisationContactUpdate, self).get(request, *args, **kwargs)
+           else:
+               messages.error(self.request, 'You are not authorised.')
+               return HttpResponseRedirect(reverse('home_page'))
+
+        return super(OrganisationContactUpdate, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(OrganisationContactUpdate, self).get_context_data(**kwargs)
         context['action'] = 'Update'
@@ -8137,146 +8727,146 @@ class OrganisationContactUpdate(LoginRequiredMixin, UpdateView):
 
 
 
-class OrganisationAddressCreate(AddressCreate):
-    """A view to create a new address for an Organisation.
-    """
-    def get_context_data(self, **kwargs):
-        context = super(OrganisationAddressCreate, self).get_context_data(**kwargs)
-        org = Organisation.objects.get(pk=self.kwargs['pk'])
-        context['principal'] = org.name
-        return context
-
-    def form_valid(self, form):
-        self.obj = form.save()
-        # Attach the new address to the organisation.
-        org = Organisation.objects.get(pk=self.kwargs['pk'])
-        if self.kwargs['type'] == 'postal':
-            org.postal_address = self.obj
-        elif self.kwargs['type'] == 'billing':
-            org.billing_address = self.obj
-        org.save()
-        return HttpResponseRedirect(reverse('organisation_detail', args=(org.pk,)))
-
-
-class RequestDelegateAccess(LoginRequiredMixin, FormView):
-    """A view to allow a user to request to be added to an organisation as a delegate.
-    This view sends an email to all current delegates, any of whom may confirm the request.
-    """
-    form_class = apps_forms.DelegateAccessForm
-    template_name = 'accounts/request_delegate_access.html'
-
-    def get_organisation(self):
-        return Organisation.objects.get(pk=self.kwargs['pk'])
-
-    def get(self, request, *args, **kwargs):
-        # Rule: redirect if the user is already a delegate.
-        org = self.get_organisation()
-        if Delegate.objects.filter(email_user=request.user, organisation=org).exists():
-            messages.warning(self.request, 'You are already a delegate for this organisation!')
-            return HttpResponseRedirect(self.get_success_url())
-        return super(RequestDelegateAccess, self).get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(RequestDelegateAccess, self).get_context_data(**kwargs)
-        context['organisation'] = self.get_organisation()
-        return context
-
-    def get_success_url(self):
-        return reverse('organisation_detail', args=(self.get_organisation().pk,))
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_success_url())
-        # For each existing organisation delegate user, send an email that
-        # contains a unique URL to confirm the request. The URL consists of the
-        # requesting user PK (base 64-encoded) plus a unique token for that user.
-        org = self.get_organisation()
-        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
-        if not delegates.exists():
-            # In the event that an organisation has no delegates, the request
-            # will be sent to all users in the "Processor" group.
-            processor = Group.objects.get(name='Processor')
-            recipients = [i.email for i in EmailUser.objects.filter(groups__in=[processor])]
-        else:
-            recipients = [i.emailuser.email for i in delegates]
-        user = self.request.user
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        # Note that the token generator uses the requesting user object to generate a hash.
-        # This means that if the user object changes (e.g. they log out and in again),
-        # the hash will be invalid. Therefore, this request/response needs to occur
-        # fairly promptly to work.
-        token = default_token_generator.make_token(user)
-        url = reverse('confirm_delegate_access', args=(org.pk, uid, token))
-        url = request.build_absolute_uri(url)
-        subject = 'Delegate access request for {}'.format(org.name)
-        message = '''The following user has requested delegate access for {}: {}\n
-        Click here to confirm and grant this access request:\n{}'''.format(org.name, user, url)
-        html_message = '''<p>The following user has requested delegate access for {}: {}</p>
-        <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False, html_message=html_message)
-        # Send a request email to the recipients asynchronously.
-        # NOTE: the lines below should remain commented until (if) async tasking is implemented in prod.
-        #from django_q.tasks import async
-        #async(
-        #    'django.core.mail.send_mail', subject, message,
-        #    settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=True, html_message=html_message,
-        #    hook='log_task_result')
-        #messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
-        # Generate an action record:
-        action = Action(content_object=org, user=user, action='Requested delegate access')
-        action.save()
-        return super(RequestDelegateAccess, self).post(request, *args, **kwargs)
+#class OrganisationAddressCreate(AddressCreate):
+#    """A view to create a new address for an Organisation.
+#    """
+#    def get_context_data(self, **kwargs):
+#        context = super(OrganisationAddressCreate, self).get_context_data(**kwargs)
+#        org = Organisation.objects.get(pk=self.kwargs['pk'])
+#        context['principal'] = org.name
+#        return context
+#
+#    def form_valid(self, form):
+#        self.obj = form.save()
+#        # Attach the new address to the organisation.
+#        org = Organisation.objects.get(pk=self.kwargs['pk'])
+#        if self.kwargs['type'] == 'postal':
+#            org.postal_address = self.obj
+#        elif self.kwargs['type'] == 'billing':
+#            org.billing_address = self.obj
+#        org.save()
+#        return HttpResponseRedirect(reverse('organisation_detail', args=(org.pk,)))
 
 
-class ConfirmDelegateAccess(LoginRequiredMixin, FormView):
-    form_class = apps_forms.DelegateAccessForm
-    template_name = 'accounts/confirm_delegate_access.html'
+#class RequestDelegateAccess(LoginRequiredMixin, FormView):
+#    """A view to allow a user to request to be added to an organisation as a delegate.
+#    This view sends an email to all current delegates, any of whom may confirm the request.
+#    """
+#    form_class = apps_forms.DelegateAccessForm
+#    template_name = 'accounts/request_delegate_access.html'
+#
+#    def get_organisation(self):
+#        return Organisation.objects.get(pk=self.kwargs['pk'])
+#
+#    def get(self, request, *args, **kwargs):
+#        # Rule: redirect if the user is already a delegate.
+#        org = self.get_organisation()
+#        if Delegate.objects.filter(email_user=request.user, organisation=org).exists():
+#            messages.warning(self.request, 'You are already a delegate for this organisation!')
+#            return HttpResponseRedirect(self.get_success_url())
+#        return super(RequestDelegateAccess, self).get(request, *args, **kwargs)
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(RequestDelegateAccess, self).get_context_data(**kwargs)
+#        context['organisation'] = self.get_organisation()
+#        return context
+#
+#    def get_success_url(self):
+#        return reverse('organisation_detail', args=(self.get_organisation().pk,))
+#
+#    def post(self, request, *args, **kwargs):
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(self.get_success_url())
+#        # For each existing organisation delegate user, send an email that
+#        # contains a unique URL to confirm the request. The URL consists of the
+#        # requesting user PK (base 64-encoded) plus a unique token for that user.
+#        org = self.get_organisation()
+#        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
+#        if not delegates.exists():
+#            # In the event that an organisation has no delegates, the request
+#            # will be sent to all users in the "Processor" group.
+#            processor = Group.objects.get(name='Processor')
+#            recipients = [i.email for i in EmailUser.objects.filter(groups__in=[processor])]
+#        else:
+#            recipients = [i.emailuser.email for i in delegates]
+#        user = self.request.user
+#        uid = urlsafe_base64_encode(force_bytes(user.pk))
+#        # Note that the token generator uses the requesting user object to generate a hash.
+#        # This means that if the user object changes (e.g. they log out and in again),
+#        # the hash will be invalid. Therefore, this request/response needs to occur
+#        # fairly promptly to work.
+#        token = default_token_generator.make_token(user)
+#        url = reverse('confirm_delegate_access', args=(org.pk, uid, token))
+#        url = request.build_absolute_uri(url)
+#        subject = 'Delegate access request for {}'.format(org.name)
+#        message = '''The following user has requested delegate access for {}: {}\n
+#        Click here to confirm and grant this access request:\n{}'''.format(org.name, user, url)
+#        html_message = '''<p>The following user has requested delegate access for {}: {}</p>
+#        <p><a href="{}">Click here</a> to confirm and grant this access request.</p>'''.format(org.name, user, url)
+#        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=False, html_message=html_message)
+#        # Send a request email to the recipients asynchronously.
+#        # NOTE: the lines below should remain commented until (if) async tasking is implemented in prod.
+#        #from django_q.tasks import async
+#        #async(
+#        #    'django.core.mail.send_mail', subject, message,
+#        #    settings.DEFAULT_FROM_EMAIL, recipients, fail_silently=True, html_message=html_message,
+#        #    hook='log_task_result')
+#        #messages.success(self.request, 'An email requesting delegate access for {} has been sent to existing delegates.'.format(org.name))
+#        # Generate an action record:
+#        action = Action(content_object=org, user=user, action='Requested delegate access')
+#        action.save()
+#        return super(RequestDelegateAccess, self).post(request, *args, **kwargs)
 
-    def get_organisation(self):
-        return Organisation.objects.get(pk=self.kwargs['pk'])
 
-    def get(self, request, *args, **kwargs):
-        # Rule: request user must be an existing delegate.
-        org = self.get_organisation()
-        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
-        if delegates.exists():
-            uid = urlsafe_base64_decode(self.kwargs['uid'])
-            user = EmailUser.objects.get(pk=uid)
-            token = default_token_generator.check_token(user, self.kwargs['token'])
-            if token:
-                return super(ConfirmDelegateAccess, self).get(request, *args, **kwargs)
-            else:
-                messages.warning(self.request, 'The request delegate token is no longer valid.')
-        else:
-            messages.warning(self.request, 'You are not authorised to confirm this request!')
-        return HttpResponseRedirect(reverse('user_account'))
-
-    def get_context_data(self, **kwargs):
-        context = super(ConfirmDelegateAccess, self).get_context_data(**kwargs)
-        context['organisation'] = self.get_organisation()
-        uid = urlsafe_base64_decode(self.kwargs['uid'])
-        context['requester'] = EmailUser.objects.get(pk=uid)
-        return context
-
-    def get_success_url(self):
-        return reverse('organisation_detail', args=(self.get_organisation().pk,))
-
-    def post(self, request, *args, **kwargs):
-        uid = urlsafe_base64_decode(self.kwargs['uid'])
-        req_user = EmailUser.objects.get(pk=uid)
-        token = default_token_generator.check_token(req_user, self.kwargs['token'])
-        # Change the requesting user state to expire the token.
-        req_user.last_login = req_user.last_login + timedelta(seconds=1)
-        req_user.save()
-        if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_success_url())
-        if token:
-            org = self.get_organisation()
-            Delegate.objects.create(email_user=req_user, organisation=org)
-            messages.success(self.request, '{} has been added as a delegate for {}.'.format(req_user, org.name))
-        else:
-            messages.warning(self.request, 'The request delegate token is no longer valid.')
-        return HttpResponseRedirect(self.get_success_url())
+#class ConfirmDelegateAccess(LoginRequiredMixin, FormView):
+#    form_class = apps_forms.DelegateAccessForm
+#    template_name = 'accounts/confirm_delegate_access.html'
+#
+#    def get_organisation(self):
+#        return Organisation.objects.get(pk=self.kwargs['pk'])
+#
+#    def get(self, request, *args, **kwargs):
+#        # Rule: request user must be an existing delegate.
+#        org = self.get_organisation()
+#        delegates = Delegate.objects.filter(email_user=request.user, organisation=org)
+#        if delegates.exists():
+#            uid = urlsafe_base64_decode(self.kwargs['uid'])
+#            user = EmailUser.objects.get(pk=uid)
+#            token = default_token_generator.check_token(user, self.kwargs['token'])
+#            if token:
+#                return super(ConfirmDelegateAccess, self).get(request, *args, **kwargs)
+#            else:
+#                messages.warning(self.request, 'The request delegate token is no longer valid.')
+#        else:
+#            messages.warning(self.request, 'You are not authorised to confirm this request!')
+#        return HttpResponseRedirect(reverse('user_account'))
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(ConfirmDelegateAccess, self).get_context_data(**kwargs)
+#        context['organisation'] = self.get_organisation()
+#        uid = urlsafe_base64_decode(self.kwargs['uid'])
+#        context['requester'] = EmailUser.objects.get(pk=uid)
+#        return context
+#
+#    def get_success_url(self):
+#        return reverse('organisation_detail', args=(self.get_organisation().pk,))
+#
+#    def post(self, request, *args, **kwargs):
+#        uid = urlsafe_base64_decode(self.kwargs['uid'])
+#        req_user = EmailUser.objects.get(pk=uid)
+#        token = default_token_generator.check_token(req_user, self.kwargs['token'])
+#        # Change the requesting user state to expire the token.
+#        req_user.last_login = req_user.last_login + timedelta(seconds=1)
+#        req_user.save()
+#        if request.POST.get('cancel'):
+#            return HttpResponseRedirect(self.get_success_url())
+#        if token:
+#            org = self.get_organisation()
+#            Delegate.objects.create(email_user=req_user, organisation=org)
+#            messages.success(self.request, '{} has been added as a delegate for {}.'.format(req_user, org.name))
+#        else:
+#            messages.warning(self.request, 'The request delegate token is no longer valid.')
+#        return HttpResponseRedirect(self.get_success_url())
 
 
 class UnlinkDelegate(LoginRequiredMixin, FormView):
@@ -8293,7 +8883,7 @@ class UnlinkDelegate(LoginRequiredMixin, FormView):
 
         org = self.get_organisation()
         if Delegate.objects.filter(email_user_id=self.kwargs['user_id'], organisation=org).exists():
-           donothing = ''
+           pass 
         else:
            messages.error(self.request, 'User not found')
            return HttpResponseRedirect(self.get_success_url())
