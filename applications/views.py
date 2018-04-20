@@ -289,7 +289,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
 
         if step == '3':
             if self.object.postal_address is None:
-                postal_address = Address.objects.create(line1=forms_data['line1'],
+               postal_address = Address.objects.create(line1=forms_data['line1'],
                                         line2=forms_data['line2'],
                                         line3=forms_data['line3'],
                                         locality=forms_data['locality'],
@@ -298,7 +298,7 @@ class FirstLoginInfoSteps(LoginRequiredMixin,UpdateView):
                                         postcode=forms_data['postcode'],
                                         user=self.object
                                        )
-                self.object.postal_address = postal_address
+               self.object.postal_address = postal_address
             else:
                postal_address = Address.objects.get(id=self.object.postal_address.id)
                postal_address.line1 = forms_data['line1']
@@ -1274,7 +1274,7 @@ class OrganisationAccessRequestUpdate(LoginRequiredMixin,UpdateView):
         else:
            messages.error(self.request, 'Forbidden from viewing this page.')
            return HttpResponseRedirect("/")
-        return super(OrganisationAccessRequest, self).get(request, *args, **kwargs)
+        return super(OrganisationAccessRequestUpdate, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super(OrganisationAccessRequestUpdate, self).get_queryset()
@@ -2751,7 +2751,6 @@ class ReferralConditions(UpdateView):
                 doc.upload = f
                 doc.save()
                 referral.records.add(doc)
-
         referral.save()
 
         refnextaction = Referrals_Next_Action_Check()
@@ -2764,9 +2763,7 @@ class ReferralConditions(UpdateView):
                 action='No outstanding referrals, application status set to "{}"'.format(application.get_state_display()))
             action.save()
 
-
         return HttpResponseRedirect('/')
-
 
 class OrganisationCommsCreate(LoginRequiredMixin,CreateView):
     model = CommunicationOrganisation
