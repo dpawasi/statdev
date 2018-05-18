@@ -1,6 +1,6 @@
 // configuration
 var max_file_size 		= 12048576; //allowed file size. (1 MB = 1048576)
-var allowed_file_types 		= ['image/png', 'image/gif', 'image/jpeg', 'image/pjpeg','application/pdf']; //allowed file types
+var allowed_file_types 		= ['image/png', 'image/gif', 'image/jpeg', 'image/pjpeg','application/pdf','application/vnd.ms-excel','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']; //allowed file types
 var result_output 		= '#output'; //ID of an element for response output
 var my_form_id 			= '#upload_form'; //ID of an element for response output
 var progress_bar_id 		= 'progress-wrp'; //ID of an element for response output
