@@ -502,7 +502,6 @@
                 "may_issue": "False",
                 "allow_admin_side_menu":"True"
             }
-
         },
         "collapse": {
             "applicant": "True",

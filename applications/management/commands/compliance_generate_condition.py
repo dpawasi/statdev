@@ -18,8 +18,8 @@ class Command(BaseCommand):
               #print apps.application
 
               end_date = apps.application.expire_date
-              print "END DATE"
-              print end_date
+              # print "END DATE"
+              # print end_date
               if date.today() > end_date:
                   print "Approval Has Expired"
                   continue;

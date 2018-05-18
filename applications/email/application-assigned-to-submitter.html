@@ -1,11 +1,18 @@
 <p>Dear {{ person.first_name }}</p>
 
-
 <p>Your {{ application_name }} application has been assign to you for more information:</p>
 
 <p><strong>Admin Comments</strong><BR>
 {{ admin_comment }}
 </p>
 
-{% include "signature.html" %}
+<p><strong>How to Login</strong><br>
+<i>We use a password-less authentication system, meaning you never need to remember a password. </i>
+<p>
 
+<p>1. Click <A HREF='{{ default_url }}'>{{ default_url }}</A><br>
+2. Enter Email Address and click Submit<br>
+3. Follow instructions on email to Login<br>
+</p>
+
+{% include "signature.html" %}

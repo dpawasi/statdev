@@ -7,6 +7,7 @@ from django.db.models import Q
 from applications.email import sendHtmlEmail, emailGroup, emailApplicationReferrals
 from fpdf import FPDF
 import textwrap
+import os
 
 class PDF(FPDF):
     def header(self):
@@ -24,7 +25,8 @@ class PDFtool(FPDF):
     bullet_number_count = int(1)
     def header(self):
         # Select Arial bold 15
-        self.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+        self.image(BASE_DIR+'/applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
         self.set_font('Arial', 'B', 15)
         # Move to the right
         self.cell(80)
@@ -492,9 +494,9 @@ class PDFtool(FPDF):
 #         pdf.cell(0, 8, 'SECTION 84',0,1,'C')
 #         pdf.set_font('Arial', 'BU', 10)
 #         pdf.cell(0, 8, 'DETERMINATION OF REQUEST FOR VARIATION',0,1,'C')
-#         pdf.set_font('Arial', '', 9)
-
-         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
+#         pdf.set_font('Arial', '', 9)   
+         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+         pdf.output(BASE_DIR+'pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
 
     def generate_section_84(self,app):
@@ -505,7 +507,8 @@ class PDFtool(FPDF):
          # pdf.image('plugins/flightsensation/images/flight_voucher.jpg', 0, 0, 210,297)
 
          #swan_canning_riverpark_dbca.png
-         pdf.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+         pdf.image(BASE_DIR+'applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
 
          pdf.set_font('Arial', 'I', 10)
          #pdf.cell(0,33,' ', 0,1,'L')
@@ -662,7 +665,7 @@ class PDFtool(FPDF):
          pdf.cell(11, 5, 'DATE:',0,0,'L')
          pdf.cell(60, 5, '20 Feb 2018',0,1,'L')
 
-         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
+         pdf.output(BASE_DIR+'/pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
     def generate_part5(self,app):
 
@@ -672,7 +675,8 @@ class PDFtool(FPDF):
          # pdf.image('plugins/flightsensation/images/flight_voucher.jpg', 0, 0, 210,297)
 
          #swan_canning_riverpark_dbca.png
-         pdf.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+         pdf.image(BASE_DIR+'/applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
 
          pdf.set_font('Arial', 'I', 10)
          pdf.cell(0,33,' ', 0,1,'L')
@@ -772,13 +776,14 @@ class PDFtool(FPDF):
          pdf.cell(11, 5, 'DATE:',0,0,'L')      
          pdf.cell(60, 5, '20 Feb 2018',0,1,'L')
          
-         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
+         pdf.output(BASE_DIRE+'/pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
     def generate_permitold(self,app):
+         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
          pdf = FPDF('P', 'mm', 'A4')
          pdf.add_page()
-         pdf.image('applications/static/images/parks_and_wildlife_service_dbca.jpg', 30, 7, 144,24)
-         pdf.output('pdfs/approvals/'+str(app.id)+'-permit-approval.pdf', 'F')
+         pdf.image(BASE_DIR+'/applications/static/images/parks_and_wildlife_service_dbca.jpg', 30, 7, 144,24)
+         pdf.output(BASE_DIR+'/pdfs/approvals/'+str(app.id)+'-permit-approval.pdf', 'F')
 
 
     def generate_permit(self,app):
@@ -789,7 +794,8 @@ class PDFtool(FPDF):
          # pdf.image('plugins/flightsensation/images/flight_voucher.jpg', 0, 0, 210,297)
 
          #swan_canning_riverpark_dbca.png
-         pdf.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+         pdf.image(BASE_DIR+'/applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
 
     #     pdf.set_font('Arial', 'I', 10)
    #      pdf.cell(0, 33, ' ',0,0,'L')
@@ -897,14 +903,15 @@ class PDFtool(FPDF):
          # group spacer
          pdf.cell(0,5,' ', 0,1,'L')
 
-         pdf.output('pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
+         pdf.output(BASE_DIR+'/pdfs/approvals/'+str(app.id)+'-approval.pdf', 'F')
 
     def generate_emergency_works(self,app):
 
          pdf = PDFtool('P', 'mm', 'A4')
          pdf.alias_nb_pages()
          pdf.add_page()
-         pdf.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+         pdf.image(BASE_DIR+'/applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
          pdf.set_font('Arial', '', 10)
 
          pdf.cell(0, 5, 'Pursuant to Part 4 (Regulation 29) of the Swan and Canning Rivers Management Regulations 2007, this',0,1,'L')
@@ -990,7 +997,7 @@ class PDFtool(FPDF):
          # group spacer
          pdf.cell(0,5,' ', 0,1,'L')
 
-         pdf.output('pdfs/applications/'+str(app.id)+'-application.pdf', 'F')
+         pdf.output(BASE_DIR+'/pdfs/applications/'+str(app.id)+'-application.pdf', 'F')
 
     def get(self,app,self_view,context):
         request = self_view.request
@@ -1007,7 +1014,8 @@ class MyPDF(FPDF):
         """
         # insert my logo
 #        self.image("applications/static/images/parks_and_wildlife_service_dbca.jpg", 10, 8, 23)
-        self.image('applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.image(BASE_DIR+'/applications/static/images/swan_canning_riverpark_dbca.png', 30, 7, 144,24)
         # position logo on the right
         self.set_font('Arial', '', 10)
         self.cell(80,5, ' ', 0, 1, 'L')
@@ -1042,8 +1050,9 @@ class MyPDF(FPDF):
         pdf.alias_nb_pages()
         pdf.add_page()
         pdf.set_font("Times", '', 12)
- 
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
         # put some lines on the page
         for i in range(1, 50):
             pdf.cell(0, 10, "Line number %s" % i, 0, 1)
-        pdf.output("pdfs/approvals/tutorial3.pdf")
+
+        pdf.output(BASE_DIR+"/pdfs/approvals/tutorial3.pdf")

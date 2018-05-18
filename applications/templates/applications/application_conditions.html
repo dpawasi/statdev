@@ -12,10 +12,9 @@
                                 <div id='conditions_table'>
 		                        {% include "applications/application_conditions_table.html" %}
 				</div>
-
             {% if workflow_actions or condactions %}
             {% if may_create_condition == "True" %}
-               <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'condition_create' object.pk %}');" type="button">Add Condition</button>
+                <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'condition_create' object.pk %}');" type="button">Add Condition/Advice</button> 
             {% endif %}
             {% endif %}
 	</div>

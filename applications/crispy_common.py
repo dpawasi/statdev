@@ -49,9 +49,11 @@ def crispy_box(collapse_id, header_id , heading_label,*field_set):
 def crispy_empty_box():
     return Div()
 
-
 def crispy_para(paragraph):
     return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'><strong>"+paragraph+"</strong></div></div>")
+
+def crispy_para_red(paragraph):
+    return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'></label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4 alert-danger'><strong class='bs-callout-danger'>"+paragraph+"</strong></div></div>")
 
 def crispy_para_with_label(label,paragraph):
     return HTML("<div class='form-group'><label class='control-label col-xs-12 col-sm-4 col-md-3 col-lg-2'>"+label+"</label><div class='controls col-xs-12 col-sm-8 col-md-6 col-lg-4'>"+paragraph+"</div></div>")

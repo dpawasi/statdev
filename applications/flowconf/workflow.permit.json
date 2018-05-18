@@ -1,8 +1,7 @@
 {
     "options": {
-        "steps": { "": [{"title":"Applicant","anchor":"form_applicant"},{"title":"Title","anchor":"form_title"},{"title":"Location","anchor":"form_location"},{"title":"Other Information","anchor":"form_other_information"},{"title":"Description","anchor":"form_description"},{"title":"Landowner Consent","anchor":"form_land_owner_consent"},{"title":"Deed", "anchor": "form_deed"}]
+        "steps": { "": [{"title":"Applicant","anchor":"form_applicant"},{"title":"Title","anchor":"form_title"},{"title":"Location","anchor":"form_location"},{"title":"Other Information","anchor":"form_other_information"},{"title":"Description","anchor":"form_description"},{"title":"Landowner Consent","anchor":"form_land_owner_consent"}]
         }
-
     },
     "1": {
         "title": "Draft",
@@ -18,7 +17,7 @@
             "river_reserve_lease_section_29": "False",
             "river_reserve_lease_section_32": "False",
             "landowner_consent": "False",
-            "deed": "False",
+            "deed": "True",
             "publication": "True",
             "conditions": "True",
             "assessments": "True",
@@ -59,7 +58,7 @@
                 "title": "Lodge Application",
                 "route": "2",
                 "routegroup":"lodge",
-                "required": ["title","proposed_commence","cost","project_no","related_permits","description","supporting_info_demonstrate_compliance_trust_policies","land_owner_consent","deed"]
+                "required": ["title","proposed_commence","description","land_owner_consent"]
             }
         ],
         "formcomponent": {
@@ -144,7 +143,8 @@
             "assessment_start_date": "hide",
             "expire_date" : "hide",
             "document_final" :" hide",
-            "expire_date" : "hide"
+            "expire_date" : "hide",
+            "deed" : "deed"
         }
     },
     "2": {
@@ -161,12 +161,12 @@
             "river_reserve_lease_section_29": "False",
             "river_reserve_lease_section_32": "False",
             "landowner_consent": "False",
-            "deed": "False",
+            "deed": "True",
             "publication": "True",
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True",
+            "referrals": "False",
             "hide_form_buttons": "False"
         },
         "actions": [
@@ -174,7 +174,9 @@
                 "title": "Send for Referral",
                 "route": "4",
                 "routegroup":"referral",
-                "state" : "3"
+                "state" : "3",
+                "required" : [],
+                "stake_holder_communication" : "no"
             },
             {
                 "title": "Send to Assessor",
@@ -273,7 +275,7 @@
             "river_reserve_lease_section_29": "False",
             "river_reserve_lease_section_32": "False",
             "landowner_consent": "False",
-            "deed": "False",
+            "deed": "True",
             "publication": "True",
             "conditions": "True",
             "assessments": "False",

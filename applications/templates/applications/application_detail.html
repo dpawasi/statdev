@@ -17,8 +17,8 @@
         <!-- Main panel start -->
         <div class="col-sm-8 col-md-9 col-lg-10">
 	{% if object.state == 1 %}
-		{% if object.sumbitter_comment|length > 1 %}
-			<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>&nbsp;&nbsp;{{ object.sumbitter_comment }}</div>
+		{% if object.submitter_comment|length > 1 %}
+			<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>&nbsp;&nbsp;{{ object.submitter_comment }}</div>
 		{% endif %}
 	{% endif %}
 

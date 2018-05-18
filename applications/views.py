@@ -1700,7 +1700,7 @@ class SearchReference(ListView):
         admin_staff = context_processor['admin_staff']
 
         if admin_staff == True:
-           donothing =""
+           donothing = ""
         else:
            messages.error(self.request, 'Forbidden from viewing this page.')
            return HttpResponseRedirect("/")
@@ -2023,7 +2023,6 @@ class ApplicationApplyUpdate(LoginRequiredMixin, UpdateView):
         row = () 
         for i in Delegate.objects.filter(email_user=self.request.user):
             initial['organisations_list'].append((i.organisation.id,i.organisation.name))
-
         return initial
 
     def post(self, request, *args, **kwargs):
@@ -2105,7 +2104,6 @@ class ApplicationDetail(DetailView):
         if app.group in usergroups:
             if float(app.routeid) > 1:
                 context['may_assign_to_person'] = 'True'
-
         if app.app_type == app.APP_TYPE_CHOICES.part5:
             self.template_name = 'applications/application_details_part5_new_application.html'
             part5 = Application_Part5()
@@ -2130,7 +2128,6 @@ class ApplicationDetail(DetailView):
             self.template_name = 'applications/application_detail_emergency.html'
             emergency = Application_Emergency()
             context = emergency.get(app, self, context)
-
         elif app.app_type == app.APP_TYPE_CHOICES.permit:
             permit = Application_Permit()
             context = permit.get(app, self, context)
@@ -2378,7 +2375,9 @@ class ApplicationComms(LoginRequiredMixin,DetailView):
         context_processor = template_context(self.request)
         admin_staff = context_processor['admin_staff']
         if admin_staff == True:
-           donothing =""
+           pass
+        elif request.user.is_staff == True:
+           pass 
         else:
            messages.error(self.request, 'Forbidden from viewing this page.')
            return HttpResponseRedirect("/")
@@ -3421,7 +3420,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
         initial["may_change_application_applicant"] = flowcontent["may_change_application_applicant"]
         if app.route_status == 'Draft':
-            initial['sumbitter_comment'] = app.sumbitter_comment
+            initial['submitter_comment'] = app.submitter_comment
         initial['state'] = app.state
 
 #       flow = Flow()
@@ -4030,7 +4029,6 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 new_doc = Record.objects.get(id=json_data['doc_id'])
                 self.object.swan_river_trust_board_feedback = new_doc
 
-
         if 'river_lease_scan_of_application_json' in self.request.POST:
            self.object.river_lease_scan_of_application = None
            if is_json(self.request.POST['river_lease_scan_of_application_json']) is True:
@@ -4619,7 +4617,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         elif action == "creator":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
             emailcontext['person'] = assignee
-            emailcontext['admin_comment'] = forms_data['sumbitter_comment']
+            emailcontext['admin_comment'] = forms_data['submitter_comment']
             sendHtmlEmail([assignee.email], emailcontext['application_name'] + ' application requires more information ', emailcontext, 'application-assigned-to-submitter.html', None, None, None)
         elif action == "referral":
             emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
@@ -8622,7 +8620,7 @@ class OrganisationUpdate(LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if request.POST.get('cancel'):
-            return HttpResponseRedirect(self.get_success_url())
+            return HttpResponseRedirect(reverse('organisation_details_actions', args=(self.kwargs['pk'],'company')))
         return super(OrganisationUpdate, self).post(request, *args, **kwargs)
 
 class OrganisationContactCreate(LoginRequiredMixin, CreateView):

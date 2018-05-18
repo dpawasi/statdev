@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField
 from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions, AjaxFileUploader
 from multiupload.fields import MultiFileField
-from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6, crispy_alert
+from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, crispy_para_red, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6, crispy_alert
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
@@ -603,9 +603,9 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 #    deed = FileField(required=False, max_length=128, widget=ClearableFileInput)
 
     cert_survey = FileField(label='Certificate of survey', required=False, max_length=128, widget=AjaxFileUploader())
-    cert_public_liability_insurance = FileField( label='Public liability insurance certificate', required=False, max_length=128, widget=AjaxFileUploader())
+    cert_public_liability_insurance = FileField(label='Public liability insurance certificate', required=False, max_length=128, widget=AjaxFileUploader())
     risk_mgmt_plan = FileField(label='Risk managment plan (if available)', required=False, max_length=128, widget=AjaxFileUploader()) 
-    safety_mgmt_procedures = FileField( label='Safety management procedures (if available)', required=False, max_length=128, widget=AjaxFileUploader())
+    safety_mgmt_procedures = FileField(label='Safety management procedures (if available)', required=False, max_length=128, widget=AjaxFileUploader())
     deed = FileField(required=False, max_length=128, widget=AjaxFileUploader())
 
     brochures_itineries_adverts = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}) , label='Brochures, itineraries or advertisements (if available)' )
@@ -617,7 +617,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             #        required=False, label='Landowner consent statement(s)',
         #        help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
 #    land_owner_consent = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)', help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.' )
-    land_owner_consent = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)', help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.' )
+    land_owner_consent = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Landowner consent statement(s)', help_text='Choose multiple files to upload (if required). NOTE: this will replace any existing uploads.')
 
 #    location_route_access = FileField(required=False, max_length=128, widget=ClearableFileInput)
     location_route_access = FileField(required=False, max_length=128, widget=AjaxFileUploader())
@@ -689,6 +689,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
         deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
         landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
+        landownerconsentdesc3 = crispy_para("Landowner signature is required")
 
         self.fields['title'].required = False
         self.fields['jetty_dot_approval'].required = False
@@ -728,9 +729,9 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 #            del self.fields['applicant']
 
         organisation = self.initial['organisation']
-        if 'sumbitter_comment' in self.initial:
-             if len(self.initial['sumbitter_comment']) > 1:
-                 crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
+        if 'submitter_comment' in self.initial:
+             if len(self.initial['submitter_comment']) > 1:
+                 crispy_boxes.append(crispy_alert(self.initial['submitter_comment']))
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
@@ -854,12 +855,13 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
 
         # Landowner Consent
         if check_fields_exist(self.fields,['land_owner_consent']) is True and may_update == "True":
-            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
+            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',landownerconsentdesc3))
+            pass
         else:
             try:
                del self.fields['land_owner_consent']
             except:
-               donothing =''
+               pass 
 
             application_land_owner = HTML('{% include "applications/application_land_owner_consent.html" %}')
             crispy_boxes.append(application_land_owner)
@@ -945,7 +947,6 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     records = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Attach more detailed descripton, maps or plans')
     land_owner_consent = Field(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}),  label='Land Owner Consent')
     deed = FileField(required=False, max_length=128, widget=AjaxFileUploader)
-
     over_water = ChoiceField(choices=Application.APP_YESNO ,widget=RadioSelect(attrs={'class':'radio-inline'}))
 
     lot = CharField(required=False)
@@ -953,6 +954,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
     town_suburb = CharField(required=False)
     nearest_road_intersection = CharField(required=False)
     local_government_authority = CharField(required=False)
+    street_number_and_name = CharField(required=False, label='Street Number')
 
 #    proposed_development_plans = FileField(required=False, max_length=128, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}))
 #    supporting_info_demonstrate_compliance_trust_policies = FileField(required=False, max_length=128, widget=ClearableFileInput) 
@@ -1001,15 +1003,16 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
         deeddesc = crispy_para("Print <a href=''>the deed</a>, sign it and attach it to this application")
         landownerconsentdesc = crispy_para("Print <A href=''>this document</A> and have it signed by each landowner (or body responsible for management)")
         landownerconsentdesc2 = crispy_para("Then attach all signed documents to this application.")
-      
+        landownerconsentdesc3 = crispy_para_red("Landowner signature is required")
+ 
         crispy_boxes = crispy_empty_box()
         #self.fields['applicant'].disabled = True
         organisation = self.initial['organisation']
 
 
-        if 'sumbitter_comment' in self.initial and may_update == "True":
-             if len(self.initial['sumbitter_comment']) > 1:
-                 crispy_boxes.append(crispy_alert(self.initial['sumbitter_comment']))
+        if 'submitter_comment' in self.initial and may_update == "True":
+             if len(self.initial['submitter_comment']) > 1:
+                 crispy_boxes.append(crispy_alert(self.initial['submitter_comment']))
 
         if self.initial["may_change_application_applicant"] == "True":
             changeapplicantbutton = crispy_button_link('Change Applicant',reverse('applicant_change', args=(self.initial['application_id'],)))
@@ -1055,7 +1058,7 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
 
         # Location 
         if check_fields_exist(self.fields,['lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority','over_water']) is True and may_update == "True":
-            crispy_boxes.append(crispy_box('location_collapse', 'form_location' , 'Location','lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority',InlineRadios('over_water')) )
+            crispy_boxes.append(crispy_box('location_collapse', 'form_location' , 'Location','street_number_and_name','lot','reserve_number','town_suburb','nearest_road_intersection','local_government_authority',InlineRadios('over_water')) )
         else:
             try:
                del self.fields['over_water']
@@ -1095,18 +1098,21 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
 
         # Landowner Consent
         if check_fields_exist(self.fields,['land_owner_consent']) is True and may_update == "True":
-            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',))
+            crispy_boxes.append(crispy_box('land_owner_consent_collapse', 'form_land_owner_consent' , 'Landowner Consent',landownerconsentdesc,landownerconsentdesc2,'land_owner_consent',landownerconsentdesc3))
         else:
             application_land_owner = HTML('{% include "applications/application_land_owner_consent.html" %}')
             crispy_boxes.append(application_land_owner) 
 
+        if self.initial["workflow"]["hidden"]["referrals"] == 'False':
+             crispy_boxes.append(HTML('{% include "applications/application_referrals.html" %}'))
+
         # Deed
-        if check_fields_exist(self.fields,['deed']) is True and may_update == "True":
-            crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
-        else:
-           
-            application_deed = HTML('{% include "applications/application_deed.html" %}')
-            crispy_boxes.append(application_deed)
+        #if check_fields_exist(self.fields,['deed']) is True and may_update == "True":
+        #    crispy_boxes.append(crispy_box('deed_collapse', 'form_deed' , 'Deed',deeddesc,'deed'))
+        #else:
+        #   
+        #    application_deed = HTML('{% include "applications/application_deed.html" %}')
+        #    crispy_boxes.append(application_deed)
 
         # Assessment
         if check_fields_exist(self.fields,['assessment_start_date','expire_date']) is True and may_update == "True":
@@ -1806,14 +1812,14 @@ class ApplicationAssignNextAction(ModelForm):
     """A form for assigning an application back to a group.
     """
     details = CharField(required=False, widget=Textarea, help_text='Detailed information for communication log.')
-    sumbitter_comment = CharField(required=False, widget=Textarea, help_text='Reason to show to submitter')
+    submitter_comment = CharField(required=False, widget=Textarea, help_text='Reason to show to submitter')
     #records = FileField(required=False, max_length=128, widget=ClearableFileInput)
 #    records = Field(required=False, widget=ClearableMultipleFileInput(attrs={'multiple':'multiple'}), label='Documents')
     records = FileField(required=False, widget=AjaxFileUploader(attrs={'multiple':'multiple'}), label='Documents')
 
     class Meta:
         model = Application
-        fields = ['id','details','sumbitter_comment','records']
+        fields = ['id','details','submitter_comment','records']
 
     def __init__(self, *args, **kwargs):
         super(ApplicationAssignNextAction, self).__init__(*args, **kwargs)
@@ -1825,12 +1831,12 @@ class ApplicationAssignNextAction(ModelForm):
 
         submitter_input = None
         if self.initial['action'] != 'creator':
-            del self.fields['sumbitter_comment']
+            del self.fields['submitter_comment']
 #            submitter_input = 'sumbitter_comment'
 
         self.helper.layout = Layout(
             HTML('<p>Application Next Action</p>'),
-            'details','sumbitter_comment','records',
+            'details','submitter_comment','records',
             FormActions(
                 Submit('assign', 'Submit', css_class='btn-lg'),
                 Submit('cancel', 'Cancel')
