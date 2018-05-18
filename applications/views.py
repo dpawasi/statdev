@@ -2434,6 +2434,7 @@ class ApplicationCommsCreate(LoginRequiredMixin,CreateView):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()
                 doc.upload = f
+                doc.name = f.name
                 doc.save()
                 self.object.records.add(doc)
         self.object.save()
@@ -2515,6 +2516,7 @@ class AccountCommsCreate(LoginRequiredMixin,CreateView):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()
                 doc.upload = f
+                doc.name = f.name
                 doc.save()
                 self.object.records.add(doc)
         self.object.save()
@@ -2595,6 +2597,7 @@ class ComplianceCommsCreate(LoginRequiredMixin,CreateView):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()
                 doc.upload = f
+                doc.name = f.name
                 doc.save()
                 self.object.records.add(doc)
         self.object.save()
@@ -2748,6 +2751,7 @@ class ReferralConditions(UpdateView):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()
                 doc.upload = f
+                doc.name = f.name
                 doc.save()
                 referral.records.add(doc)
         referral.save()
@@ -2817,6 +2821,7 @@ class OrganisationCommsCreate(LoginRequiredMixin,CreateView):
             for f in self.request.FILES.getlist('records'):
                 doc = Record()
                 doc.upload = f
+                doc.name = f.name
                 doc.save()
                 self.object.records.add(doc)
         self.object.save()
@@ -2914,6 +2919,7 @@ class ApplicationChange(LoginRequiredMixin, CreateView):
             for f in self.request.FILES.getlist('proposed_development_plans'):
                 doc = Record()
                 doc.upload = f
+                doc.name = f.name
                 doc.save()
                 self.object.proposed_development_plans.add(doc)
 

@@ -21,14 +21,17 @@ def Attachment_Extension_Check(attach_list_type,attachments,allow_extension_type
         """
         allowed = True
         for fi in attachments:
-            att_ext = str(fi.name)[-4:].lower()
+            extension = fi.name.split('.')
+
+            att_ext = str("."+extension[1]).lower()
             if att_ext not in allow_extension_types:
                 allowed = False
 
     else:
         """ By Default Assume only a single attachment
         """
-        att_ext = str(attachments.name)[-4:].lower()
+        extension = attachments.name.split('.')
+        att_ext = str("."+extension[1]).lower()
         if att_ext in allow_extension_types:
             allowed = True
 
