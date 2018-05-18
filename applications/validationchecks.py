@@ -24,7 +24,6 @@ def Attachment_Extension_Check(attach_list_type,attachments,allow_extension_type
             extension = fi.name.split('.')
 
             att_ext = str("."+extension[1]).lower()
-            print att_ext
             if att_ext not in allow_extension_types:
                 allowed = False
 
@@ -33,7 +32,6 @@ def Attachment_Extension_Check(attach_list_type,attachments,allow_extension_type
         """
         extension = attachments.name.split('.')
         att_ext = str("."+extension[1]).lower()
-        print att_ext
         if att_ext in allow_extension_types:
             allowed = True
 
