@@ -16,6 +16,7 @@ from statdev.context_processors import template_context
 from django.contrib import messages
 from applications.views_pdf import PDFtool
 import os.path
+import os 
 
 class ApprovalList(ListView):
     model = ApprovalModel
@@ -274,8 +275,8 @@ class ApprovalComms(DetailView):
 def getPDF(request,approval_id):
   if request.user.is_superuser:
       app = ApprovalModel.objects.get(id=approval_id)
-
-      filename = 'pdfs/approvals/'+str(app.id)+'-approval.pdf'
+      BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+      filename = BASE_DIR+'/pdfs/approvals/'+str(app.id)+'-approval.pdf'
       if os.path.isfile(filename) is False:
 #      if app.id:
           pdftool = PDFtool()

@@ -225,7 +225,7 @@ class Application(models.Model):
     type_of_crafts = models.ForeignKey(Craft, null=True, blank=True, related_name='craft') 
     number_of_crafts  = models.IntegerField(null=True, blank=True)
     route_status = models.CharField(null=True, blank=True, default='Draft', max_length=256)
-    sumbitter_comment = models.TextField(null=True, blank=True, default='', max_length=256)
+    submitter_comment = models.TextField(null=True, blank=True, default='', max_length=256)
 
     def __str__(self):
         return 'Application {}: {} - {} ({})'.format(

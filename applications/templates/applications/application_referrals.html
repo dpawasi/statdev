@@ -14,15 +14,14 @@
 			{% if object.referral_set.exists %}
 				{% include "applications/application_referrals_table.html" %}
 			{% else %}
-			<p>None</p>
+                     		<p>None</p>
 			{% endif %}
                         </div>
-            {% if workflow_actions %} 
-			{% if may_refer == "True" %}
-		        <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_refer' object.pk %}');" type="button">Add Referral</button>
-	
-			{% endif %}
-            {% endif %}
+                        {% if workflow_actions %} 
+	         		{% if may_refer == "True" %}
+		                    <button class="btn btn-primary btn-sm" onclick="django_ajax_form.OpenForm('{% url 'application_refer' object.pk %}');" type="button">Add Referral</button>
+        			{% endif %}
+                        {% endif %}
 		</div>
 	</div>
 </div>

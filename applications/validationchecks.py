@@ -14,7 +14,7 @@ def Attachment_Extension_Check(attach_list_type,attachments,allow_extension_type
     allowed = False 
 
     if allow_extension_types is None:
-        allow_extension_types = ['.pdf','.xls','.doc','.jpg','.png']
+        allow_extension_types = ['.pdf','.xls','.doc','.jpg','.png','.xlsx','.docx']
 
     if attach_list_type == 'multi':
         """ Check a list for any attachment not meeting the allow extension list.

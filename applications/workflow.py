@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import Group
+import os
 import json
 __all__ = (
         "Flow"
@@ -35,7 +36,8 @@ All routes start at route id 1 (step 1) within each route it contains a list of 
 
 class Flow():
     def get(self,flow):
-        with open('applications/flowconf/workflow.'+flow+'.json') as json_data_file:
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(BASE_DIR+'/applications/flowconf/workflow.'+flow+'.json') as json_data_file:
             json_obj = json.load(json_data_file)
             self.json_obj = json_obj
 

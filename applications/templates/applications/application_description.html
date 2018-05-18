@@ -23,7 +23,9 @@
 				<label>Proposed development plans</label>
 			</div>
                         <div class='col-sm-12 col-md-9 col-lg-9'>
-				<a href="{{ object.proposed_development_plans.upload.url }}">{{ object.proposed_development_plans }}</a>
+                                {% for doc in object.proposed_development_plans.all %}
+                                         <a href="{{ doc.upload.url }}">{{ doc }}</a><br>
+                                {% endfor %}
                         </div>
 			</div>
 

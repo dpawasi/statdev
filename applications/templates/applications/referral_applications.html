@@ -88,7 +88,7 @@
                     <tbody>
                         {% for row_obj in items %}
                         <tr>
-                            <td><a href="{% url "referral_conditions" row_obj.application.id %}">WO-{{ row_obj.pk }}</a></td>
+                            <td><a href="{% url "referral_conditions" row_obj.application.id %}">WO-{{ row_obj.application.id }}</a></td>
 
                             <td>{{ row_obj.application.get_app_type_display }}</td>
                             <td>{{ row_obj.application.title }}</td>

@@ -2,7 +2,6 @@
 
 
 	function loadForm() { 
-
                $.ajax({
                     url: '{% url 'application_conditions_table' object.pk %}',
                     async: false,
@@ -11,6 +10,13 @@
                     }
                });
 
+               $.ajax({
+                    url: '{% url 'application_refer_table' object.pk %}',
+                    async: false,
+                    success: function(data) {
+                          $('#referrals_table').html(data);
+                    }
+               });
 
 	}
 
