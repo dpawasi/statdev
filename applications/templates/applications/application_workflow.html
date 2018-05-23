@@ -7,6 +7,7 @@
         <h5>Workflow</h5>
         {# TODO: hide the Actions dropdown when no actions can be performed #}
         <ul>
+
         {% if workflow_actions %}
         {% for action in workflow_actions %}
             <!-- Lodge -->
@@ -56,7 +57,6 @@
                 {% if may_assign_to_creator == "True" %}<li><a href="{% url 'application_nextaction' object.pk 'creator' %}">{{ action.title }}</a></li>{% endif %}
             {% endif %}
             <!-- Assign to Form Creator -->
-
 
         {% endfor %}
 

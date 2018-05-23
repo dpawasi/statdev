@@ -2092,6 +2092,10 @@ class ApplicationDetail(DetailView):
 
         # if app.group is not None:
         emailcontext = {'user': 'Jason'}
+        if  Location.objects.filter(application_id=self.object.id).exists(): 
+              context['location'] = Location.objects.get(application_id=self.object.id)
+        else:
+              context['location'] = Location
 
         #sendHtmlEmail(['jason.moore@dpaw.wa.gov.au'],'HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None)
         #emailGroup('HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None,'Processor')
@@ -2129,10 +2133,12 @@ class ApplicationDetail(DetailView):
             emergency = Application_Emergency()
             context = emergency.get(app, self, context)
         elif app.app_type == app.APP_TYPE_CHOICES.permit:
+            self.template_name = 'applications/application_detail_permit.html'
             permit = Application_Permit()
             context = permit.get(app, self, context)
           
         elif app.app_type == app.APP_TYPE_CHOICES.licence:
+            self.template_name = 'applications/application_detail_license.html'
             licence = Application_Licence()
             context = licence.get(app, self, context)
         else:

@@ -1,0 +1,55 @@
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="other_informaiton_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#other_informaiton_collapse" aria-expanded="true" aria-controls="other_informaiton_collapse">
+                            Other Information
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.title }}" id="other_informaiton_collapse" role="tabpanel" aria-labelledby="other_informaiton_heading">
+                    <div class="panel-body">
+                        <div class='col-sm-12 col-lg-12'>
+                                <div class='col-sm-12 col-lg-6'>
+                                        <label>Prosposed commencement date</label>
+                                </div>
+                                <div class='col-sm-12 col-lg-6'>
+                                        {{ object.proposed_commence }}
+                                </div>
+                        </div>
+                        <div class='col-sm-12 col-lg-12'>
+                                <div class='col-sm-12 col-lg-6'>
+                                        <label>Prosposed end date</label>
+                                </div>
+                                <div class='col-sm-12 col-lg-6'>
+                                        {{ object.proposed_end }}
+                                </div>
+                        </div>
+                        <div class='col-sm-12 col-lg-12'>
+                                <div class='col-sm-12 col-lg-6'>
+                                        <label>Approximate cost</label>
+                                </div>
+                                <div class='col-sm-12 col-lg-6'>
+                                        {{ object.cost }}
+                                </div>
+                        </div>
+                        <div class='col-sm-12 col-lg-12'>
+                                <div class='col-sm-12 col-lg-6'>
+                                        <label>Riverbank project number (if applicable)</label>
+                                </div>
+                                <div class='col-sm-12 col-lg-6'>
+                                        {{ object.project_no }}
+                                </div>
+                        </div>
+                        <div class='col-sm-12 col-lg-12'>
+                                <div class='col-sm-12 col-lg-6'>
+                                        <label>Details of related permits</label>
+                                </div>
+                                <div class='col-sm-12 col-lg-6'>
+                                        {{ object.related_permits }}
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
