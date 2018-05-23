@@ -3,7 +3,7 @@ from .models import (
     Record, Vessel, ApplicationPurpose, Application, Location, Referral,
     Condition, Compliance, Delegate, ApplicationInvoice, Communication, Craft, 
     OrganisationContact, OrganisationPending, OrganisationExtras,PublicationFeedback, 
-    PublicationWebsite,ComplianceGroup, StakeholderComms)
+    PublicationWebsite,ComplianceGroup, StakeholderComms, ConditionPredefined)
 
 
 @register(Record)
@@ -117,4 +117,11 @@ class PublicationWebsite(ModelAdmin):
 class StakeholderComms(ModelAdmin):
     list_display = ('application','email','name','sent_date','role')
     search_fields = ('application','email','name','sent_date','role')
+
+
+@register(ConditionPredefined)
+class ConditionPredefined(ModelAdmin):
+    list_display = ('title','condition','status')
+    search_fields = ('title','condition','status')
+
 

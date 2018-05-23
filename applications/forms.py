@@ -6,14 +6,14 @@ from crispy_forms.bootstrap import FormActions, InlineRadios
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField
+from django.forms import Form, ModelForm, ChoiceField, FileField, CharField, Textarea, ClearableFileInput, HiddenInput, Field, RadioSelect, ModelChoiceField, Select
 from applications.widgets import ClearableMultipleFileInput, RadioSelectWithCaptions, AjaxFileUploader
 from multiupload.fields import MultiFileField
 from .crispy_common import crispy_heading, crispy_para_with_label, crispy_box, crispy_empty_box, crispy_para, crispy_para_red, check_fields_exist, crispy_button_link, crispy_button, crispy_para_no_label, crispy_h1, crispy_h2, crispy_h3,crispy_h4,crispy_h5,crispy_h6, crispy_alert
 from ledger.accounts.models import EmailUser, Address, Organisation
 from .models import (
     Application, Referral, Condition, Compliance, Vessel, Record, PublicationNewspaper,
-    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation,OrganisationExtras, CommunicationCompliance)
+    PublicationWebsite, PublicationFeedback, Delegate, Communication, OrganisationContact, OrganisationPending, CommunicationAccount, CommunicationOrganisation,OrganisationExtras, CommunicationCompliance, ConditionPredefined)
 #from ajax_upload.widgets import AjaxClearableFileInput
 from django_countries.fields import CountryField
 from django_countries.data import COUNTRIES
@@ -1740,14 +1740,22 @@ class ConditionSuspension(ModelForm):
         self.helper.add_input(Submit('cancel', 'Cancel' , css_class='ajax-close'))
 
 class ConditionCreateForm(ModelForm):
+    predefined_conditions = ModelChoiceField(queryset=ConditionPredefined.objects.filter(status=1).order_by('title'), help_text="Select a predefined condition from the drop down to append condition rules to condition automtically.", widget=Select(attrs={'onchange':'select_condition(this.id);'})) 
 
     class Meta:
         model = Condition
-        fields = ['condition', 'due_date', 'recur_pattern', 'recur_freq']
+        fields = ['predefined_conditions','condition', 'due_date', 'recur_pattern', 'recur_freq','advise']
 
     def __init__(self, *args, **kwargs):
         super(ConditionCreateForm, self).__init__(*args, **kwargs)
         self.helper = BaseFormHelper(self)
+
+        if self.initial['may_assessor_advise'] != True:
+            pass
+        else:
+            del self.fields['advise']
+            del self.fields['predefined_conditions']
+
         self.helper.attrs = {'novalidate': ''}
         self.helper.form_id = 'id_form_modals'
         self.fields['condition'].required = True

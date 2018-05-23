@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from applications import views
 from applications import uploads 
+from . import api
 
 urlpatterns = [
     url(r'^$', views.HomePage.as_view(), name='home_page'),
@@ -80,6 +81,7 @@ urlpatterns = [
     url(r'^condition/(?P<pk>\d+)/update/(?P<action>\w+)/$', views.ConditionUpdate.as_view(), name='condition_update'),
     url(r'^condition/(?P<pk>\d+)/delete/$', views.ConditionDelete.as_view(), name='condition_delete'),
     url(r'^condition/(?P<pk>\d+)/status/(?P<action>\w+)/$', views.ConditionSuspension.as_view(), name='condition_change_suspension'),
+    url(r'^condition-predefined/(?P<precond_id>\d+)/$', api.getPredefinedCondition, name='condition_predefined'),
     url(r'^vessel/(?P<pk>\d+)/update/$', views.VesselUpdate.as_view(), name='vessel_update'),
     url(r'^vessel/(?P<pk>\d+)/delete/$', views.VesselDelete.as_view(), name='vessel_delete'),
     url(r'^newspaperpublication/(?P<pk>\d+)/update/', views.NewsPaperPublicationUpdate.as_view(), name='newspaperpublication_update'),
