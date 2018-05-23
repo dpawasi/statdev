@@ -387,6 +387,25 @@ class Condition(models.Model):
         return 'Condition {}: {}'.format(self.pk, self.condition)
 
 @python_2_unicode_compatible
+class ConditionPredefined(models.Model):
+    """This model represents a condition of approval for an application
+    (either proposed by a referee or applied by P&W).
+    """
+
+    STATUS = Choices(
+        (0, 'inactive', ('Inactive')),
+        (1, 'active', ('Active')),
+    )
+
+    title = models.CharField(max_length=256, null=True, blank=True)
+    condition = models.TextField(blank=True, null=True)
+    status = models.IntegerField(choices=STATUS, default=1) 
+
+    def __str__(self):
+        return self.title
+
+
+@python_2_unicode_compatible
 class ComplianceGroup(models.Model):
 
     COMPLIANCE_GROUP_STATUS_CHOICES = Choices(

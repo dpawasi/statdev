@@ -65,7 +65,13 @@
 
 <script>
 function loadTable() {
-    $('#search-company-table').dataTable({searching: false, paging: true, "pageLength": 25});
+//    $('#search-company-table').dataTable({searching: false, paging: true, "pageLength": 25});
+    $('#search-company-table').dataTable({searching: false, paging: true, "pageLength": 25, "order": [[ 0, "desc" ]],
+     columnDefs: [
+       { type: 'natural-nohtml', targets: 0 }, { 'bSortable': false, 'aTargets':  4 }
+     ]
+});
+
 }
 window.onload= function() {
     loadTable();

@@ -6872,6 +6872,32 @@ class ConditionCreate(LoginRequiredMixin, CreateView):
         context['page_heading'] = 'Create a new condition'
         return context
 
+    def get_initial(self):
+        initial = super(ConditionCreate, self).get_initial()
+        app = Application.objects.get(pk=self.kwargs['pk'])
+
+        flow = Flow()
+        workflowtype = flow.getWorkFlowTypeFromApp(app)
+        flow.get(workflowtype)
+        DefaultGroups = flow.groupList()
+        flowcontext = {}
+        flowcontext = flow.getAccessRights(self.request, flowcontext, app.routeid, workflowtype)
+
+#        condition = self.get_object()
+#        print condition.application.id
+        #flow = Flow()
+        #workflowtype = flow.getWorkFlowTypeFromApp(condition.application)
+        #flow.get(workflowtype)
+        #DefaultGroups = flow.groupList()
+        #flowcontext = {}
+        #flowcontext = flow.getAccessRights(self.request, flowcontext, condition.application.routeid, workflowtype)
+        initial['may_assessor_advise'] = flowcontext["may_assessor_advise"]
+        #initial['may_assessor_advise'] = 'df'
+        initial['assessor_staff'] = False
+        if self.request.user.groups.filter(name__in=['Assessor']).exists():
+             initial['assessor_staff'] = True
+        return initial
+
     def get_success_url(self):
         """Override to redirect to the condition's parent application detail view.
         """
