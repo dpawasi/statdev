@@ -783,7 +783,7 @@ class ApplicationLicencePermitForm(ApplicationFormMixin, ModelForm):
             try:
                del self.fields['vessel_or_craft_details']
             except:
-               donothing =''
+               donothing = ''
 
             crispy_boxes.append(HTML('{% include "applications/application_vessel_and_craft_details.html" %}'))
 
@@ -1080,8 +1080,10 @@ class ApplicationPermitForm(ApplicationFormMixin, ModelForm):
             except:
                 donothing =''
 
-            application_other_docs = HTML('{% include "applications/application_other_docs.html" %}')
-            crispy_boxes.append(application_other_docs)
+            #application_other_docs = HTML('{% include "applications/application_other_docs.html" %}')
+            #crispy_boxes.append(application_other_docs)
+            application_other_info =  HTML('{% include "applications/application_other_information.html" %}')
+            crispy_boxes.append(application_other_info)
 
         if check_fields_exist(self.fields,['description','proposed_development_plans']) is True and may_update == "True":
             crispy_boxes.append(crispy_box('description_collapse', 'form_description' , 'Description','description','proposed_development_plans','supporting_info_demonstrate_compliance_trust_policies'))

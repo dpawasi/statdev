@@ -160,14 +160,17 @@
             "details_of_proposed_development": "False",
             "river_reserve_lease_section_29": "False",
             "river_reserve_lease_section_32": "False",
-            "landowner_consent": "False",
             "deed": "True",
             "publication": "True",
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "False",
-            "hide_form_buttons": "False"
+            "hide_form_buttons": "False",
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
         },
         "actions": [
             {
@@ -281,7 +284,12 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "hide_form_buttons": "False"
+            "hide_form_buttons": "False",
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
+
         },
         "actions": [
             {
@@ -398,7 +406,11 @@
             "assessments": "True",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "hide_form_buttons": "True"
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
+
         },
         "actions": [
             {
@@ -493,14 +505,18 @@
             "details_of_proposed_development": "False",
             "river_reserve_lease_section_29": "False",
             "river_reserve_lease_section_32": "False",
-            "landowner_consent": "False",
             "deed": "False",
             "publication": "True",
             "conditions": "False",
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "hide_form_buttons": "True"
+            "hide_form_buttons": "True",
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
+
         },
         "actions": [
             {
@@ -603,7 +619,12 @@
             "assessments": "False",
             "stakeholdercommunication": "True",
             "referrals": "True",
-            "hide_form_buttons": "True"
+            "hide_form_buttons": "True",
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
+
         },
         "actions": [
             {
@@ -721,7 +742,12 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
+
         },
         "actions": [
         ],
@@ -829,7 +855,12 @@
             "conditions": "True",
             "assessments": "True",
             "stakeholdercommunication": "True",
-            "referrals": "True"
+            "referrals": "True",
+            "location": "False",
+            "other_information" : "False",
+            "description": "False",
+            "landowner_consent": "False"
+
         },
         "actions": [
         ],

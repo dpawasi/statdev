@@ -1,0 +1,390 @@
+{% extends "base_statdev.html" %}
+
+{% block page_content_inner %}
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static "/css/applications.css" %}" />
+
+<div class="container-fluid">
+    <div class="row">
+        <h1>Application for {{ object.get_app_type_display }} - {{ object.pk }}</h1>
+        <br/>
+    </div>
+
+    <!-- Action panel start -->
+    <div class="row">
+        {% include "applications/application_side_menu.html" %}
+
+        <!-- Main panel start -->
+        <div class="col-sm-8 col-md-9 col-lg-10">
+	{% if object.state == 1 %}
+		{% if object.submitter_comment|length > 1 %}
+			<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span>&nbsp;&nbsp;{{ object.submitter_comment }}</div>
+		{% endif %}
+	{% endif %}
+
+            <!-- Applicant panel -->
+            {% if hidden.applicant == "False" %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="applicant_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#applicant_collapse" aria-expanded="false" aria-controls="application_collapse">
+                            Applicant
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.applicant }}" id="applicant_collapse" role="tabpanel" aria-labelledby="applicant_heading">
+                    <div class="panel-body">
+                    {# TODO: applicant details should only be visible to internal users. #}
+                    <div class="row">
+                    {% if object.organisation %}
+                           {% include "applications/organisation_update_snippet.html" %}
+                    {% else %}
+                        {% include "applications/applicant_snippet.html" %}
+                    {% endif %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if hidden.title == "False" %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="title_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#title_collapse" aria-expanded="true" aria-controls="title_collapse">
+                            Title
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.title }}" id="title_collapse" role="tabpanel" aria-labelledby="title_heading">
+                    <div class="panel-body">
+                        <p>{{ object.title }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if hidden.proposed_activities == "False" %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="title_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#proposed_activities_collapse" aria-expanded="false" aria-controls="proposed_activities_collapse">
+                            Proposed Commercial Acts and Activites
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.proposed_activities }} " id="proposed_activities_collapse" role="tabpanel" aria-labelledby="proposed_activities_heading">
+                    <div class="panel-body">
+                        <p>{{ object.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if hidden.vessels == "False" %}
+            <!-- Vessel / Craft Panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="vessel_details_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#vessel_details_collapse" aria-expanded="false" aria-controls="vessel_details_collapse">
+                             Vessel Details
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.proposed_activities }} " id="vessel_details_collapse" role="tabpanel" aria-labelledby="vessel_details_heading">
+                    <div class="panel-body">
+                         {% include "applications/application_vessels.html" %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+	    {% if hidden.proposed_details == "False" %}
+            <!-- Proposal details panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="prop_details_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#prop_details_collapse" aria-expanded="false" aria-controls="prop_details_collapse">
+                            Proposal details
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.proposed_details }}" id="prop_details_collapse" role="tabpanel" aria-labelledby="prop_details_heading">
+                    <div class="panel-body">
+                        <div class="fluid-container">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <h4>Purpose of application:</h4>
+                                    {% if object.purpose %}
+                                    <p>{{ object.purpose }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h4>Proposed commencement date:</h4>
+                                    {% if object.proposed_commence %}
+                                    <p>{{ object.proposed_commence|date:"d-M-Y" }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>Proposed end date:</h4>
+                                    {% if object.proposed_end %}
+                                    <p>{{ object.proposed_end|date:"d-M-Y" }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <h4>Maximum number of participants:</h4>
+                                    <p>{{ object.max_participants }}</p>
+                                    <h4>Proposed location:</h4>
+                                    <p>{{ object.proposed_location }}</p>
+                                    <h4>Address of any land-based component of the commercial activity:</h4>
+                                    {% if object.address %}
+                                    <p>{{ object.address }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Location/route and access points (mark clearly on map):</h4>
+                                    {% if object.location_route_access %}
+                                    <p><a href="{{ object.location_route_access.upload.url }}">{{ object.location_route_access }}</a></p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>List of jetties to be used:</h4>
+                                    {% if object.jetties %}
+                                    <p>{{ object.jetties }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Do you have approval to use Department of Transport service jetties?</h4>
+                                    <p>{{ object.jetty_dot_approval|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>List all drop off and pick up points</h4>
+                                    {% if object.drop_off_pick_up %}
+                                    <p>{{ object.drop_off_pick_up }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Food to be served?</h4>
+                                    <p>{{ object.food|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Beverage to be served?</h4>
+                                    <p>{{ object.beverage|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Do you allow BYO alcohol?</h4>
+                                    <p>{{ object.byo_alcohol|yesno:"Yes,No,Not stated" }}</p>
+                                    <h4>Details of sullage disposal method:</h4>
+                                    {% if object.sullage_disposal %}
+                                    <p>{{ object.sullage_disposal }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Details of waste disposal method:</h4>
+                                    {% if object.waste_disposal %}
+                                    <p>{{ object.waste_disposal }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Location and method of refueling:</h4>
+                                    {% if object.refuel_location_method %}
+                                    <p>{{ object.refuel_location_method }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Berth location:</h4>
+                                    {% if object.berth_location %}
+                                    <p>{{ object.berth_location }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>List all anchorage areas:</h4>
+                                    {% if object.anchorage %}
+                                    <p>{{ object.anchorage }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                    <h4>Hours and days of operation including length of tours/lessons:</h4>
+                                    {% if object.operating_details %}
+                                    <p>{{ object.operating_details }}</p>
+                                    {% else %}
+                                    <p>Not stated</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			{% endif %}
+
+			{% if hidden.certificate_of_survery == "False" %}
+            <!-- Other Documents panel -->
+			 <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="prop_details_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#certificate_of_survery_collapse" aria-expanded="false" aria-controls="certificate_of_survery_collapse">
+                             Other documents
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.certificate_of_survery }}" id="certificate_of_survery_collapse" role="tabpanel" aria-labelledby="certificate_of_survery_heading">
+                    <div class="panel-body">
+                                                <div class="fluid-container">
+
+                    <div class ="row">
+                        <div class="col-xs-12">
+                            <h4>Certificate of survey:</h4>
+                            {% if object.cert_survey %}
+                            <p><a href="{{ object.cert_survey.upload.url }}">{{ object.cert_survey }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
+                            <h4>Public liability insurance certificate:</h4>
+                            {% if object.cert_public_liability_insurance %}
+                            <p><a href="{{ object.cert_public_liability_insurance.upload.url }}">{{ object.cert_public_liability_insurance }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
+                            <h4>Risk management plan (if available):</h4>
+                            {% if object.risk_mgmt_plan %}
+                            <p><a href="{{ object.risk_mgmt_plan.upload.url }}">{{ object.risk_mgmt_plan }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
+                            <h4>Safety management procedures (if available):</h4>
+                            {% if object.safety_mgmt_procedures %}
+                            <p><a href="{{ object.safety_mgmt_procedures.upload.url }}">{{ object.safety_mgmt_procedures }}</a></p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
+                            <h4>Brochures, itineraries or advertisements (if applicable):</h4>
+                            {% if object.brochures_itineries_adverts.exists %}
+                            <p>{% for doc in object.brochures_itineries_adverts.all %}<a href="{{ doc.upload.url }}">{{ doc }}</a><br>{% endfor %}</p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
+                            {% comment %}
+                            <h4>Other relevant supporting documentation (if available)</h4>
+                            {% if other_supporting_docs.exists %}
+                            <p>{% for doc in object.other_supporting_docs.all %}
+                                <a href="{{ doc.upload.url }}">{{ doc }}</a><br>
+                            {% endfor %}</p>
+                            {% else %}
+                            <p>None</p>
+                            {% endif %}
+                            {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+                </div>
+                    </div>
+            </div>
+           {% endif %}
+
+            <!-- Landowner Consent panel -->
+            {% if hidden.landowner_consent == "False" %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="landowner_consent_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#landowner_consent_collapse" aria-expanded="false" aria-controls="landowner_consent_collapse">
+                            Landowner Consent
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.landowner_consent }} " id="landowner_consent_collapse" role="tabpanel" aria-labelledby="landowner_consent_heading">
+                    <div class="panel-body">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-lg-12">
+                                Print <a href=''>this document</a> and have it signed by each landowner (or body responsible for management.<BR><BR>
+                                <label>Attached signed documents to this application.</label>
+                            </div>
+                            <div class="col-lg-4">
+                                {% if land_owner_consent_list %}
+
+                                {% for doc in land_owner_consent_list %}
+                                <div class="col-sm-12 col-md-12 col-lg-12"><A HREF='/media/{{ doc.path }}'>{{ doc.path_short }}</A></div>
+                                {% endfor %}
+                                {% else %}
+                                No Attachments Added
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %} 
+
+
+            <!-- Deed panel -->
+			{% if hidden.deed == "False" %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="deed_heading">
+                    <h3 class="panel-title">
+                        <a role="button" data-toggle="collapse" href="#deed_collapse" aria-expanded="false" aria-controls="deed_collapse">
+                            Deed
+                            <span class="glyphicon glyphicon-chevron-down collapse-glyph"></span>
+                        </a>
+                    </h3>
+                </div>
+                <div class="panel-collapse collapse {{ collapse.deed }}" id="deed_collapse" role="tabpanel" aria-labelledby="deed_heading">
+                    <div class="panel-body">
+                        <div class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="col-lg-12">
+                                Print <a href=''>this deed</a>, sign it and attach it to this application<BR>
+                            </div>
+                            <div class="col-lg-12">
+                                <A HREF='/media/{{ object.deed.upload.name }}'>{{ deed_short }}</A>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+
+            <!-- Referrals panel -->
+            {% include "applications/application_referrals.html" %}
+
+            <!-- Conditions panel -->
+            {% include "applications/application_conditions.html" %}
+
+        </div>
+    </div>
+</div>
+{% endblock page_content_inner %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    $(function() {
+        $('.collapse').on('shown.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+        }).on('hidden.bs.collapse', function() {
+            $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+        });
+    });
+
+function loadForm() {
+               $.ajax({
+                    url: '{% url 'application_conditions_table' object.pk %}',
+                    async: false,
+                    success: function(data) {
+                          $('#conditions_table').html(data);
+                    }
+               });
+}
+</script>
+{% endblock extra_js %}
