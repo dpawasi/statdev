@@ -384,7 +384,7 @@ class ApplicationApplyUpdateForm(ModelForm):
             elif apply_on_behalf_of == 2:
                 self.helper.form_show_labels = False
                 crispy_boxes = crispy_empty_box()
-                crispy_boxes.append(crispy_box('choose_organisation_collapse','form_choose_organisation','Choose Organisation',crispy_h3("Please choose an organisation"),'organisation'))
+                crispy_boxes.append(crispy_box('choose_organisation_collapse','form_choose_organisation','Choose Company / Organisation',crispy_h3("Please choose a company / government agency."),'organisation'))
             elif apply_on_behalf_of == 4:
                 del self.fields['organisation']
                 crispy_boxes = crispy_empty_box()
