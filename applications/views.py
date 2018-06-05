@@ -2095,8 +2095,8 @@ class ApplicationDetail(DetailView):
         if  Location.objects.filter(application_id=self.object.id).exists(): 
               context['location'] = Location.objects.get(application_id=self.object.id)
         else:
-              context['location'] = Location
-
+              #context['location'] = Location
+              context['location'] = ''
         #sendHtmlEmail(['jason.moore@dpaw.wa.gov.au'],'HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None)
         #emailGroup('HTML TEST EMAIL',emailcontext,'email.html' ,None,None,None,'Processor')
         if app.assignee is not None:
