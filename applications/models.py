@@ -576,7 +576,7 @@ class Delegate(models.Model):
 class OrganisationContact(models.Model):
     """This model represents the contact people within the organisation for this application.
     """
-    email = models.EmailField(unique=True, blank=False)
+    email = models.EmailField(unique=False, blank=False)
     first_name = models.CharField(max_length=128, blank=True, verbose_name='Given name(s)')
     last_name = models.CharField(max_length=128, blank=True)
     phone_number = models.CharField(max_length=50, null=True, blank=True)
