@@ -9,7 +9,7 @@ from applications.utils import get_query
 from . import forms as apps_forms
 from actions.models import Action
 from django.contrib.contenttypes.models import ContentType
-from applications.models import Application, Record
+from applications.models import Application, Record, Delegate
 from applications.validationchecks import Attachment_Extension_Check
 from django.http import HttpResponse, HttpResponseRedirect
 from statdev.context_processors import template_context
@@ -134,7 +134,6 @@ class ApprovalDetails(LoginRequiredMixin,DetailView):
         app = self.get_object()
         context_processor = template_context(self.request)
         context['admin_staff'] = context_processor['admin_staff']
-
         return context
 
 class ApprovalStatusChange(LoginRequiredMixin,UpdateView):
@@ -273,8 +272,22 @@ class ApprovalComms(DetailView):
 
 #class ViewPDF():
 def getPDF(request,approval_id):
-  if request.user.is_superuser:
-      app = ApprovalModel.objects.get(id=approval_id)
+  can_view = False
+  app = ApprovalModel.objects.get(id=approval_id)
+
+  if request.user.is_staff:
+      can_view = True
+  elif request.user.is_superuser:
+      can_view = True
+  elif app.applicant == request.user:
+      can_view = True
+  elif Delegate.objects.filter(email_user=request.user,organisation=app.organisation).exists(): 
+      can_view = True
+
+
+
+  if can_view is True:
+      #app = ApprovalModel.objects.get(id=approval_id)
       BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
       filename = BASE_DIR+'/pdfs/approvals/'+str(app.id)+'-approval.pdf'
       if os.path.isfile(filename) is False:
@@ -296,4 +309,9 @@ def getPDF(request,approval_id):
           pdf_data = pdf_file.read()
           pdf_file.close()
           return HttpResponse(pdf_data, content_type='application/pdf')
+  else:
+     messages.error(request, 'Forbidden from viewing this page.')
+     return HttpResponseRedirect("/")
+   
+    
  
