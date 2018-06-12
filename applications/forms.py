@@ -1751,6 +1751,7 @@ class ConditionCreateForm(ModelForm):
         self.helper = BaseFormHelper(self)
 
         if self.initial['may_assessor_advise'] != True:
+            self.fields['predefined_conditions'].required = False
             pass
         else:
             del self.fields['advise']
