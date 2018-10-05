@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from applications import views
-from applications import uploads 
+from applications import uploads
 from . import api
 
 urlpatterns = [
