@@ -78,6 +78,7 @@
                             <th>Title</th>
                             <th>Applicant</th>
                             <th>Status</th>
+                            <th><span class="glyphicon glyphicon-hourglass"  aria-hidden="true"></span></th>
                             <th>Lodged on</th>
 			    <th>Submitter</th>
                             <th>Date Received</th>
@@ -90,7 +91,7 @@
                         <tr>
                             <td><a href="{% url "referral_conditions" row_obj.application.id %}">WO-{{ row_obj.application.id }}</a></td>
 
-                            <td>{{ row_obj.application.get_app_type_display }}</td>
+                            <td>{{ row_obj.application.get_app_type_display }} -- {{ row_obj.application.state }}</td>
                             <td>{{ row_obj.application.title }}</td>
                             <td>{% if row_obj.application.organisation %}
                                  {{ row_obj.application.organisation }}
@@ -98,7 +99,8 @@
                                  {{ row_obj.application.applicant.get_full_name }}
                                 {% endif %}
                             </td>
-                            <td>{% if row_obj.status == 1 %} 
+                            <td>
+				{% if row_obj.status == 1 %} 
 					Open 
 				{% elif row_obj.status == 2 %} 
 					Processed
@@ -109,6 +111,20 @@
 				{% elif row_obj.status == 5 %}
 					Processed
 				{% endif %}
+			    </td>
+                            <td align='center'>
+                                {% if row_obj.status == 1 %}
+					<span class="glyphicon glyphicon-info-sign" style='color: #ffe700;' aria-hidden="true"></span>
+                                {% elif row_obj.status == 2 %}
+                                        <span class="glyphicon glyphicon-ok-circle" style='color: #66de42;' aria-hidden="true"></span> 
+                                {% elif row_obj.status == 3 %}
+                                        <span class="glyphicon glyphicon-remove-circle" style='color: #fa2a2c;' aria-hidden="true"></span>
+                                {% elif row_obj.status == 4 %}
+                                        <span class="glyphicon glyphicon-remove-circle" style='color: #fa2a2c;' aria-hidden="true"></span>
+                                {% elif row_obj.status == 5 %}
+                                        <span class="glyphicon glyphicon-ok-circle" style='color: #66de42;' aria-hidden="true"></span> 
+                                {% endif %}
+
 			    </td>
                             <td>{{ row_obj.application.submit_date|date:"d-M-Y" }}</td>
 				<td>{{ row_obj.application.submitted_by.get_full_name }}</td>

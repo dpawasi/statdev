@@ -111,7 +111,7 @@ class HomePage(TemplateView):
                     for se_wo in query_str_split:
                          search_filter &= Q(pk__contains=se_wo) | Q(title__contains=se_wo)
 
-               context['items'] = Referral.objects.filter(referee=self.request.user)
+               context['items'] = Referral.objects.filter(referee=self.request.user).exclude(status=5)
 
             else:
                donothing ='' 
@@ -2434,7 +2434,7 @@ class ApplicationCommsCreate(LoginRequiredMixin,CreateView):
         self.object.save()
 
         if self.request.FILES.get('records'):
-            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), None) is False:
+            if Attachment_Extension_Check('multi', self.request.FILES.getlist('records'), ['.pdf','.xls','.doc','.jpg','.png','.xlsx','.docx','.msg']) is False:
                 raise ValidationError('Documents attached contains and unallowed attachment extension.')
 
             for f in self.request.FILES.getlist('records'):
@@ -2671,7 +2671,7 @@ class ReferralConditions(UpdateView):
         # TODO: business logic to check the application may be changed.
         app = self.get_object()
         # refcount = Referral.objects.filter(referee=self.request.user).count()
-        refcount = Referral.objects.filter(application=app,referee=self.request.user).count()
+        refcount = Referral.objects.filter(application=app,referee=self.request.user).exclude(status=5).count()
         if refcount == 1:
            pass
         else:
@@ -2702,11 +2702,12 @@ class ReferralConditions(UpdateView):
         initial['organisation'] = app.organisation
         initial['referral_email'] = referral.referee.email
         initial['referral_name'] = referral.referee.first_name + ' ' + referral.referee.last_name
-
+        initial['referral_status'] = referral.status
         initial['proposed_conditions'] = referral.proposed_conditions
         initial['comments'] = referral.feedback
         initial['response_date'] = referral.response_date
-
+        initial['state'] = app.state
+ 
         multifilelist = []
         a1 = referral.records.all()
         for b1 in a1:
@@ -2765,11 +2766,11 @@ class ReferralConditions(UpdateView):
         refnextaction = Referrals_Next_Action_Check()
         refactionresp = refnextaction.get(application)
         if refactionresp == True:
-            refnextaction.go_next_action(application)
+            app_updated = refnextaction.go_next_action(application)
             # Record an action.
             action = Action(
                 content_object=application,
-                action='No outstanding referrals, application status set to "{}"'.format(application.get_state_display()))
+                action='No outstanding referrals, application status set to "{}"'.format(app_updated.get_state_display()))
             action.save()
 
         return HttpResponseRedirect('/')
@@ -4435,7 +4436,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
         # Generate a 'refer' action on the application:
         action = Action(
             content_object=app, category=Action.ACTION_CATEGORY_CHOICES.refer,
-            user=self.request.user, action='Referred for conditions/feedback to {}'.format(self.object.referee))
+            user=self.request.user, action='Added Referral {}'.format(self.object.referee))
         action.save()
         return super(ApplicationRefer, self).form_valid(form)
 
@@ -4753,6 +4754,7 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
     def complete_application(self,app): 
         """Once and application is complete and approval needs to be created in the approval model.
         """
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   
         approval = Approval.objects.create(
                                           app_type=app.app_type,
                                           title=app.title,
@@ -4767,25 +4769,28 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
         emailcontext = {}
         emailcontext['app'] = app
         emailcontext['approval'] = approval
-
+        pdftool = PDFtool()
 
         # applications/email/application-permit-proposal.html
-
+        approval_pdf = BASE_DIR+'/pdfs/approvals/'+str(approval.id)+'-approval.pdf'
         # email send after application completed..(issued)
         if app.app_type == 1:
            # Permit Proposal
+           pdftool.generate_permit(approval)
            emailcontext['person'] = app.submitted_by 
            emailcontext['conditions_count'] = Condition.objects.filter(application=app).count()
-           sendHtmlEmail([app.submitted_by.email], 'Permit - '+app.title, emailcontext, 'application-permit-proposal.html', None, None, None)
+           sendHtmlEmail([app.submitted_by.email], 'Permit - '+app.title, emailcontext, 'application-permit-proposal.html', None, None, None, approval_pdf)
 
         elif app.app_type == 2:
            # Licence Proposal
+           pdftool.generate_licence(approval)
            emailcontext['person'] = app.submitted_by
-           sendHtmlEmail([app.submitted_by.email], 'Licence Permit - '+app.title, emailcontext, 'application-licence-permit-proposal.html', None, None, None)
+           sendHtmlEmail([app.submitted_by.email], 'Licence Permit - '+app.title, emailcontext, 'application-licence-permit-proposal.html', None, None, None, approval_pdf)
         elif app.app_type == 3:
            # Licence Proposal
+           pdftool.generate_part5(approval)
            emailcontext['person'] = app.submitted_by
-           sendHtmlEmail([app.submitted_by.email], 'Determination - Part 5 - '+str(app.id)+' - '+str(app.location)+' - [Description of Works] - [Applicant]', emailcontext, 'application-determination.html', None, None, None)
+           sendHtmlEmail([app.submitted_by.email], 'Determination - Part 5 - '+str(app.id)+' - '+str(app.location)+' - [Description of Works] - [Applicant]', emailcontext, 'application-determination.html', None, None, None, approval_pdf)
         elif app.app_type == 10 or app.app_type == 11:
            # Permit & Licence Renewal 
            emailcontext['person'] = app.submitted_by
@@ -5774,11 +5779,11 @@ class ReferralComplete(LoginRequiredMixin, UpdateView):
         refnextaction = Referrals_Next_Action_Check()
         refactionresp = refnextaction.get(app)
         if refactionresp == True:
-            refnextaction.go_next_action(app)
+            app_updated = refnextaction.go_next_action(app)
             # Record an action.
             action = Action(
                 content_object=app,
-                action='No outstanding referrals, application status set to "{}"'.format(app.get_state_display()))
+                action='No outstanding referrals, application routed to nextstep "{}"'.format(app_updated.get_state_display()))
             action.save()
 
         return HttpResponseRedirect(app.get_absolute_url())

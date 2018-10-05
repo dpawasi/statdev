@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 import json
 
 def Validation(checkname, context):
-    
     if checkname == "referrals":
         donothing  = "more to come just added as a place holder"
 

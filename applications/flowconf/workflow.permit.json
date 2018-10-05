@@ -522,7 +522,7 @@
             {
                 "title": "Approve",
                 "route": "6",
-                "routegroup": "admin",
+                "routegroup": "assess",
                 "state": "10"
             },
             {
@@ -600,7 +600,7 @@
         }
     },
     "6": {
-        "title": "Admin Officer (Pending Completion)",
+        "title": "Assessor Officer (Pending Completion)",
         "hidden": {
             "applicant": "False",
             "title": "False",
@@ -614,7 +614,7 @@
             "river_reserve_lease_section_32": "False",
             "landowner_consent": "False",
             "deed": "False",
-            "publication": "True",
+            "publication": "True",	
             "conditions": "False",
             "assessments": "False",
             "stakeholdercommunication": "True",

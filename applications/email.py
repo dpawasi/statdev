@@ -22,7 +22,7 @@ OVERRIDE_EMAIL=jason.moore@dpaw.wa.gov.au
 """
 
 
-def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
+def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,attachment1=None):
 
     email_delivery = env('EMAIL_DELIVERY', 'off')
     override_email = env('OVERRIDE_EMAIL', None)
@@ -63,10 +63,14 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email):
        for to_email in to:
           msg = EmailMessage(subject, main_template, to=[to_email],cc=cc, from_email=from_email)
           msg.content_subtype = 'html'
+          if attachment1:
+              msg.attach_file(attachment1)
           msg.send()
     else:
           msg = EmailMessage(subject, main_template, to=to,cc=cc, from_email=from_email)
           msg.content_subtype = 'html'
+          if attachment1:
+              msg.attach_file(attachment1)
           msg.send()
     return True
 

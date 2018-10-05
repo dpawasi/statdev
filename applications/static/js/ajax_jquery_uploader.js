@@ -1,6 +1,6 @@
 // configuration
 var max_file_size 		= 12048576; //allowed file size. (1 MB = 1048576)
-var allowed_file_types 		= ['image/png', 'image/gif', 'image/jpeg', 'image/pjpeg','application/pdf','application/vnd.ms-excel','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']; //allowed file types
+var allowed_file_types 		= ['image/png', 'image/gif', 'image/jpeg', 'image/pjpeg','application/pdf','application/vnd.ms-excel','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-outlook','application/octet-stream']; //allowed file types
 var result_output 		= '#output'; //ID of an element for response output
 var my_form_id 			= '#upload_form'; //ID of an element for response output
 var progress_bar_id 		= 'progress-wrp'; //ID of an element for response output
@@ -38,12 +38,14 @@ function bindForm(form_id,input_id,upload_type) {
 				}
 			}
 			//iterate files in file input field
-			$($(form_id+'__files').prop('files')).each(function(i, ifile) {
+			$($(form_id+'__files').prop('files')).each(function(i, ifile) {  
+                                       console.log(ifile);
 					if (ifile.value !== "") { //continue only if file(s) are selected
-					if (allowed_file_types.indexOf(ifile.type) === -1) { //check unsupported file
-					error.push( "<b>"+ ifile.name + "</b> is unsupported file type!"); //push error text
-					proceed = false; //set proceed flag to false
-					}
+                                        console.log(ifile.type);
+					//if (allowed_file_types.indexOf(ifile.type) === -1) { //check unsupported file
+					//error.push( "<b>"+ ifile.name + "</b> is unsupported file type!"); //push error text
+					//proceed = false; //set proceed flag to false
+					//}
 
 					total_files_size = total_files_size + ifile.size; //add file size to total size
 					}
@@ -120,22 +122,27 @@ mimeType:"multipart/form-data"
 	// $(form_id)[0].reset(); //reset form
 	// $(result_output).html(res); //output response from server
 	var obj = JSON.parse(res);
-	var input_id_obj = $('#'+input_id+'_json').val();
+        if (obj['status'] == 'success') { 
+            var input_id_obj = $('#'+input_id+'_json').val();
 
-	if (upload_type == 'multiple') { 
+   	    if (upload_type == 'multiple') { 
 
-	if (input_id_obj.length > 0) { 
-	input_array = JSON.parse(input_id_obj); 
+                if (input_id_obj.length > 0) { 
+                    input_array = JSON.parse(input_id_obj); 
+                }
+
+            input_array.push(obj);
+            console.log(obj['doc_id']);
+            console.log(input_id);
+
+	    } else {
+	 	input_array = obj 
+	    }
+        } else {
+            console.log(obj['message']);
+	    error.push(obj['message']);
+            $(result_output).append('<div class="error">'+obj['message']+'</div>');
 	}
-
-	input_array.push(obj);
-	console.log(obj['doc_id']);
-	console.log(input_id);
-
-	} else {
-		input_array = obj 
-	}
-
 	$('#'+input_id+'_json').val(JSON.stringify(input_array));
 	submit_btn.val("Upload").prop( "disabled", false); //enable submit button once ajax is done
 	ajax_loader_django.showFiles(input_id,upload_type);

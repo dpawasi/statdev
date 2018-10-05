@@ -1579,11 +1579,11 @@ class ApplicationReferralConditionsPart5(ModelForm):
 #        crispy_boxes.append(crispy_box('river_licence_collapse','river_licence_title','River Licence',HTML('{% include "public/river_reserve_licence_snippet.html" %}')))
         crispy_boxes.append(HTML('{% include "public/river_reserve_licence_snippet.html" %}'))
         crispy_boxes.append(HTML('{% include "public/details_of_proposed_develeopment_snipplet.html" %}'))
-
-        if self.initial['response_date'] is None:
+        if self.initial['response_date'] is None and int(self.initial['state']) == 3:
             crispy_boxes.append(crispy_box('feedback_collapse','form_feecback','Feedback',crispy_para(self.initial['referral_name'] + ' (' + self.initial['referral_email'] + ') '),'comments','proposed_conditions','records',Submit('submitfeedback', 'Submit', css_class='btn-lg')))
         else:
-            crispy_boxes.append(crispy_box('feedback_completed_collapse','form_completed_feecback','Feedback Completed',crispy_para_with_label('Comments',self.initial['comments']),crispy_para_with_label('Proposed Conditions',self.initial['proposed_conditions'])))
+            if self.initial['referral_status'] != 5:
+                crispy_boxes.append(crispy_box('feedback_completed_collapse','form_completed_feecback','Feedback Completed',crispy_para_with_label('Comments',self.initial['comments']),crispy_para_with_label('Proposed Conditions',self.initial['proposed_conditions'])))
 
         self.helper = BaseFormHelper()
         self.helper.layout = Layout(crispy_boxes,)

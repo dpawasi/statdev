@@ -9,16 +9,28 @@ from confy import env
 from .models import Record
 import json
 from django.utils.safestring import SafeText
+from applications.validationchecks import Attachment_Extension_Check, is_json
 """
 This is a upload wrapper for the ajax uploader widget for django forms.
 """
 
 def ApplicationUploads(request):
     #  print request.FILES
-    object_hash = {} 
+    object_hash = {'status':'success','message':''} 
  #   print request.FILES
 #    print request.POST
+    allow_extension_types = ['.pdf','.xls','.doc','.jpg','.png','.xlsx','.docx','.msg']
+
     for f in request.FILES.getlist('files'):
+         extension = f.name.split('.')
+         att_ext = str("."+extension[1]).lower()
+         if att_ext not in allow_extension_types:
+             object_hash['status'] = 'error'
+             object_hash['message'] = 'Extension not allowed'+str(att_ext)
+                 
+             json_hash = json.dumps(object_hash)
+             return HttpResponse(json_hash, content_type='text/html')
+
     #for f in request.FILES.getlist('__files[]'):
          doc = Record()
          doc.upload = f

@@ -321,7 +321,7 @@ class Referrals_Next_Action_Check():
         emailcontext['groupname'] = DefaultGroups['grouplink'][action]
         emailcontext['application_name'] = Application.APP_TYPE_CHOICES[app.app_type]
         emailGroup('Application Assignment to Group ' + DefaultGroups['grouplink'][action], emailcontext, 'application-assigned-to-group.html', None, None, None, DefaultGroups['grouplink'][action])
-
+        return app
 
 class FormsList():
 
