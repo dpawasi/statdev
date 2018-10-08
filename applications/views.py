@@ -4385,7 +4385,7 @@ class ApplicationRefer(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         """Override to redirect to the referral's parent application detail view.
         """
-        messages.success(self.request, 'Referral has been added! ')
+        #messages.success(self.request, 'Referral has been added! ')
         return reverse('application_refer', args=(self.object.application.pk,))
 
     def get_context_data(self, **kwargs):
@@ -4492,7 +4492,8 @@ class ApplicationAssignNextAction(LoginRequiredMixin, UpdateView):
 
         if action == 'referral':
             app_refs = Referral.objects.filter(application=app).count()
-            Referral.objects.filter(application=app).update(status=Referral.REFERRAL_STATUS_CHOICES.referred)
+            #Referral.objects.filter(application=app).update(status=5)
+            Referral.objects.filter(application=app).update(status=Referral.REFERRAL_STATUS_CHOICES.referred, response_date=None)
             if app_refs == 0:
                 messages.error(self.request, 'Unable to complete action as you have no referrals! ')
                 return HttpResponseRedirect(app.get_absolute_url())
