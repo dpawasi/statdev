@@ -251,7 +251,7 @@
             "river_reserve_lease_section_32": "False",
             "details_of_proposed_development": "False",
             "publication": "True",
-            "referrals": "True",
+            "referrals": "False",
             "deed": "False",
             "landowner_consent": "False"
         },
@@ -283,7 +283,7 @@
             "conditions": "True",
             "assessments": "False",
             "stakeholdercommunication": "True",
-            "referrals": "True",
+            "referrals": "False",
             "hide_form_buttons": "False",
             "location": "False",
             "other_information" : "False",
