@@ -184,15 +184,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 STATICFILES_DIR = (
-     "applications/static",
-    "common/static",
+    os.path.join(BASE_DIR, "applications/static"),
 )
-#STATICFILES_DIR = (
-#    os.path.join(BASE_DIR, "applications/static"),
-#    os.path.join(BASE_DIR, "common/static"),
-#)
  
-print STATICFILES_DIR
 # Logging settings
 # Ensure that the logs directory exists:
 if not os.path.exists(os.path.join(BASE_DIR, 'logs')):
