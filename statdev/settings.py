@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'reversion',
     'crispy_forms',
-    'webtemplate_dpaw',
+    'webtemplate_dbca',
     'django_q',
     'social_django',
     'ledger.accounts',  #  Defines custom user model (duplicate from Ledger project).
@@ -182,10 +182,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-STATICFILES_DIR = [
-    os.path.join(BASE_DIR, "applications/static"),
-]
 
+STATICFILES_DIR = (
+    os.path.join(BASE_DIR, "applications/static"),
+)
+ 
 # Logging settings
 # Ensure that the logs directory exists:
 if not os.path.exists(os.path.join(BASE_DIR, 'logs')):
@@ -205,7 +206,7 @@ LOGGING = {
             'formatter': 'simple',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
-        },
+        }
     },
     'loggers': {
         'django.request': {
