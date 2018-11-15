@@ -1,5 +1,6 @@
 # Project directories
-media/
+/media/
+!/*/media/
 staticfiles/
 logs/
 
@@ -14,9 +15,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
+#build/
 develop-eggs/
-dist/
+#dist/
 downloads/
 eggs/
 .eggs/
