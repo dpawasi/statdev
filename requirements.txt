@@ -1,4 +1,4 @@
-Django==1.10.6
+Django==1.11.29
 git+https://github.com/parksandwildlife/dpaw-utils.git@0.3a16#egg=dpaw-utils
 git+https://github.com/django-oscar/django-oscar.git@17a1f6b#egg=django-oscar
 social-auth-app-django==1.0.1
